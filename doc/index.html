@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="js/jquery-1.11.1.min.js"></script>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<style type="text/css">
+			* {
+			  border-radius: 0 !important;
+			  -moz-border-radius: 0 !important;
+			}
+            body, html
+            {
+                margin: 0; padding: 0; height: 100%; overflow: hidden;
+            }
+
+            #content
+            {
+                left: 0; right: 0; bottom: 0; top: 0px;
+				position:absolute; top: 55px; 
+            }
+			iframe {
+				width:100% ;
+				height:100% ;
+				border:none ;
+			}
+        </style>
+	</head>
+	<body>
+		<script src="js/bootstrap.min.js"></script>
+		<nav class="navbar navbar-inverse" role="navigation">
+		  <div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+			  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			  </button>
+			  <a class="navbar-brand" target="main" href="intro.html">Act Editor</a>
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			  <ul class="nav navbar-nav">
+				<li><a target="main" href="contents.html">Contents</a></li>
+
+				<li class="dropdown">
+				  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Scripting <span class="caret"></span></a>
+				  <ul class="dropdown-menu" role="menu">
+					<li><a href="scriptRunner.html" target="main">Script Runner</a></li>
+					<li class="divider"></li>
+					<li><a href="actStructure.html" target="main">Act file structure</a></li>
+					<li class="divider"></li>
+					<li><a href="addingScript.html" target="main">Advanced - Adding script to the editor</a></li>
+					<li><a href="ScriptStructure.html" target="main">Advanced - Script structure</a></li>
+					<li><a href="ScriptDialog.html" target="main">Advanced - Dialogs</a></li>
+					<li><a href="Methods.html" target="main">Advanced - Commands</a></li>
+				  </ul>
+				</li>
+			  </ul>
+			</div><!-- /.navbar-collapse -->
+		  </div><!-- /.container-fluid -->
+		</nav>
+		<div id="content">
+			<iframe class="content" name="main" src="scriptRunner.html"></iframe>
+		</div>
+	</body>
+</html>

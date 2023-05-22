@@ -1,0 +1,64 @@
+﻿<styles:TkWindow x:Class="ActEditor.Core.WPF.Dialogs.ExportSpriteDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+        xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
+        Title="Extract sprite" MinWidth="600" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Label Content="Source directory" />
+            <Label Content="Output directory" Grid.Row="1" />
+            <Grid Grid.Row="0" Grid.Column="1" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <styles:PathBrowser Grid.Column="0" BrowseMode="Folder" Name="_pathBrowserSource" TextChanged="_pathBrowserSource_TextChanged" UseSavePath="True" SavePathUniqueName="Act Editor - Extract Sprite Source - " />
+                <StackPanel Grid.Column="1" Width="106">
+                    <CheckBox Name="_cbCurrentSprite" Content="Current sprite" />
+                    <CheckBox Name="_cbCurrentFolder" Content="Current folder" />
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="1" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <styles:PathBrowser Grid.Column="0" BrowseMode="Folder" Name="_pathBrowserOutput" TextChanged="_pathBrowserOutput_TextChanged" UseSavePath="True" SavePathUniqueName="Act Editor - Extract Sprite Output - " />
+                <Button Name="_buttonPreset" Grid.Column="1" HorizontalAlignment="Right" Margin="3" Width="100" Height="24" Content="Preset..." >
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="C:\Export\{NAME}\{ID}.png" Click="_miPreset_Click" />
+                            <MenuItem Header="C:\ExportAll\{NAME}__{ID}.png" Click="_miPreset_Click" />
+                            <MenuItem Header="{}{CURRENT__FOLDER}\{NAME}__{ID}.png" Click="_miPreset_Click" />
+                            <MenuItem Header="{}{CURRENT__FOLDER}\{NAME}__{ID}.{EXT}" Click="_miPreset_Click" />
+                            <MenuItem Header="C:\ExportAll\{NAME}.gif" Click="_miPreset_Click" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </Grid>
+        </Grid>
+        <Grid Margin="0 40 0 0" listView:WpfUtils.IsDraggable="True" Height="40" Background="{DynamicResource UIDialogBackground}">
+            <Grid Margin="0 0 3 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <DockPanel Grid.Column="2">
+                    <Button  Name="_buttonOK" Content="Export" Width="100" Height="24" Margin="3" Click="_buttonOK_Click" />
+                    <Button HorizontalAlignment="Right" Name="_buttonCancel" Content="Close" Width="100" Height="24" Margin="3" Click="_buttonCancel_Click" />
+                </DockPanel>
+            </Grid>
+        </Grid>
+    </StackPanel>
+</styles:TkWindow>

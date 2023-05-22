@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/styles.css" rel="stylesheet">
+	</head>
+	<body>
+	<div class="container">
+<div class="bs-docs-section">
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-warning">
+			<h4>Act file structure</h4>
+			<p>This document presents the structure of the Act object. All the elements presented below can be modified directly from a script. However, you must use a Backup command before doing so.</p>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4>Act</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">class</span>&nbsp;<span style="color:#2b91af;">Act</span>&nbsp;:&nbsp;<span style="color:#2b91af;">IEnumerable</span>&lt;<span style="color:#2b91af;">Action</span>&gt;,&nbsp;<span style="color:#2b91af;">IDisposable</span>&nbsp;{
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">IActConverter</span>&nbsp;ActConverter;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;converter&nbsp;to&nbsp;save&nbsp;(or&nbsp;read)&nbsp;the&nbsp;Act&nbsp;file</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">ActHeader</span>&nbsp;Header;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;ActHeader&nbsp;object&nbsp;which&nbsp;contains&nbsp;information&nbsp;regarding&nbsp;the&nbsp;file&nbsp;format&nbsp;version</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">string</span>&nbsp;LoadedPath;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;path&nbsp;of&nbsp;the&nbsp;loaded&nbsp;file&nbsp;(might&nbsp;be&nbsp;null)</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Spr</span>&nbsp;Sprite;		<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;sprite&nbsp;object&nbsp;attahed&nbsp;to&nbsp;the&nbsp;Act</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">string</span>&nbsp;Name;		<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;name&nbsp;of&nbsp;the&nbsp;Act&nbsp;(this&nbsp;is&nbsp;used&nbsp;by&nbsp;references)</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:blue;">string</span>&gt;&nbsp;SoundFiles;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;sound&nbsp;list</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;NumberOfActions;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;number&nbsp;of&nbsp;actions</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Action</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;index];&nbsp;<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;action</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Frame</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex];&nbsp;<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;frame</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Layer</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex];&nbsp;<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;layer</span>
+
+	<span style="color:green;">//&nbsp;&nbsp;Returns&nbsp;a&nbsp;frame&nbsp;or&nbsp;null&nbsp;if&nbsp;it&nbsp;is&nbsp;not&nbsp;found</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Frame</span>&nbsp;TryGetFrame(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex);
+ 
+	<span style="color:green;">//&nbsp;Returns&nbsp;a&nbsp;layer&nbsp;or&nbsp;null&nbsp;if&nbsp;it&nbsp;is&nbsp;not&nbsp;found</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Layer</span>&nbsp;TryGetLayer(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex);
+ 
+	<span style="color:green;">//&nbsp;Executes&nbsp;an&nbsp;action&nbsp;on&nbsp;all&nbsp;layers</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;AllLayers(<span style="color:#2b91af;">Action</span>&lt;<span style="color:#2b91af;">Layer</span>&gt;&nbsp;func);
+ 
+	<span style="color:green;">//&nbsp;Returns&nbsp;a&nbsp;list&nbsp;with&nbsp;all&nbsp;the&nbsp;frames</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Frame</span>&gt;&nbsp;GetAllFrames();
+ 
+	<span style="color:green;">//&nbsp;Returns&nbsp;a&nbsp;list&nbsp;with&nbsp;all&nbsp;the&nbsp;layers</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Layer</span>&gt;&nbsp;GetAllLayers();
+ 
+	<span style="color:green;">//&nbsp;Update&nbsp;Act&nbsp;Editor&#39;s&nbsp;visual&nbsp;controls</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;InvalidateVisual();
+}</pre>
+	</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4>Action</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">class</span>&nbsp;<span style="color:#2b91af;">Action</span>&nbsp;{
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;NumberOfFrames;		<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;number&nbsp;of&nbsp;frames</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Frame</span>&gt;&nbsp;Frames;		<span style="color:green;">//&nbsp;List&nbsp;of&nbsp;all&nbsp;frames</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">float</span>&nbsp;AnimationSpeed&nbsp;=&nbsp;6;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;speed&nbsp;of&nbsp;the&nbsp;animation&nbsp;(must&nbsp;be&nbsp;multiplied&nbsp;by&nbsp;25&nbsp;for&nbsp;the&nbsp;interval&nbsp;in&nbsp;ms)</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;Interval;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;interval&nbsp;between&nbsp;two&nbsp;frames&nbsp;in&nbsp;milliseconds</span>
+	
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Frame</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;frameIndex];	<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;frame</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Layer</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex];	<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;layer</span>
+}</pre>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4>Frame</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">class</span>&nbsp;<span style="color:#2b91af;">Frame</span>&nbsp;{
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;NumberOfLayers;		<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;number&nbsp;of&nbsp;layers</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;SoundId;			<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;sound&nbsp;id</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Layer</span>&gt;&nbsp;Layers;	<span style="color:green;">//&nbsp;List&nbsp;of&nbsp;all&nbsp;layers</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Anchor</span>&gt;&nbsp;Anchors;		<span style="color:green;">//&nbsp;List&nbsp;of&nbsp;all&nbsp;anchors</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">Layer</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;index];	<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;layer</span>
+}</pre>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4>Layer</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">class</span>&nbsp;<span style="color:#2b91af;">Layer</span>&nbsp;{
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;Color;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;color&nbsp;mask</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;OffsetX;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;offset&nbsp;in&nbsp;X</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;OffsetY;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;offset&nbsp;in&nbsp;Y</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">float</span>&nbsp;ScaleX;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;scale&nbsp;in&nbsp;X</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">float</span>&nbsp;ScaleY;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;scale&nbsp;in&nbsp;Y</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;Rotation;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;rotation</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">bool</span>&nbsp;Mirror;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;mirror&nbsp;state&nbsp;(if&nbsp;true,&nbsp;this&nbsp;is&nbsp;the&nbsp;equivalent&nbsp;of&nbsp;-1&nbsp;*&nbsp;ScaleX)</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;SpriteIndex;		<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;relative&nbsp;sprite&nbsp;index&nbsp;(for&nbsp;Bgra32&nbsp;images,&nbsp;you&nbsp;must&nbsp;substract&nbsp;the&nbsp;number&nbsp;of&nbsp;Indexed8&nbsp;images)</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">SpriteTypes</span>&nbsp;SpriteType;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;sprite&nbsp;type</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;SpriteTypeInt;	<span style="color:green;">//&nbsp;Gets&nbsp;or&nbsp;sets&nbsp;the&nbsp;sprite&nbsp;type&nbsp;(int&nbsp;based;&nbsp;0&nbsp;=&nbsp;Indexed8,&nbsp;1&nbsp;=&nbsp;Bgra32)</span>
+ 
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;Height;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;height&nbsp;of&nbsp;the&nbsp;current&nbsp;image&nbsp;(this&nbsp;property&nbsp;is&nbsp;overwritten&nbsp;when&nbsp;saving&nbsp;the&nbsp;Act)</span>
+	<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">int</span>&nbsp;Width;	<span style="color:green;">//&nbsp;Gets&nbsp;the&nbsp;width&nbsp;of&nbsp;the&nbsp;current&nbsp;image&nbsp;(this&nbsp;property&nbsp;is&nbsp;overwritten&nbsp;when&nbsp;saving&nbsp;the&nbsp;Act)</span>
+}</pre>
+		</div>
+	</div>
+</div>
+</div>
+</body>
+</html>

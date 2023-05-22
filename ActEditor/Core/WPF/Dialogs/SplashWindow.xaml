@@ -1,0 +1,18 @@
+﻿<Window x:Class="ActEditor.Core.WPF.Dialogs.SplashWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" SnapsToDevicePixels="True"
+        
+        Height="211" Width="576" AllowsTransparency="True" WindowStyle="None">
+    <Grid>
+        <Grid.Background>
+            <ImageBrush RenderOptions.BitmapScalingMode="NearestNeighbor" Stretch="None" ImageSource="../../../Resources/splash.png" />
+        </Grid.Background>
+        <DockPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Label Foreground="White" Content="Version" Padding="0" Margin="0 0 3 7" />
+            <Label Name="_version" Foreground="White" Content="0.0.0" Padding="0" Margin="0 0 7 7" />
+        </DockPanel>
+        <DockPanel HorizontalAlignment="Left" VerticalAlignment="Bottom">
+            <Label Name="_updateMessage" Foreground="White" Content="" Padding="0" Margin="7 0 3 7" />
+        </DockPanel>
+    </Grid>
+</Window>

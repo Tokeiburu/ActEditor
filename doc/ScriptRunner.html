@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="js/jquery-1.11.1.min.js"></script>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/styles.css" rel="stylesheet">
+		<style type="text/css">
+		#secondary {
+			background-color: #ff0000;
+		}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-9">
+					<div class="bs-docs-section">
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-warning">
+			<h4>Script Runner</h4>
+			<p>This tool allows you to execute and save scripts in the simplest way possible. You'll find code samples for almost all the existing functions that can be used.</p>
+		</div>
+	</div>
+	
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="getting-started">Getting started</h4>
+			<p>Open the tool located in <menu-shortcut>Scripts > Script Runner...</menu-shortcut>. More information on the Act structure can be found <a href="actStructure.html" target="main">here</a>. It is quite simple; just by following the code samples you should be able to figure out most of the properties by yourself.</p>
+		</div>
+	</div>
+	
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="console-input">Console input</h4>
+			<p>These variables can be used in your script to apply functions based on what is currently selected in the editor.</p>
+<pre style="background:white;"><span style="color:green;">//&nbsp;The&nbsp;Act&nbsp;object&nbsp;on&nbsp;which&nbsp;you&nbsp;can&nbsp;execute&nbsp;your&nbsp;operations</span>
+<span style="color:green;">//&nbsp;View&nbsp;<a href="actStructure.html" target="main">this&nbsp;file</a>&nbsp;for&nbsp;the&nbsp;Act&nbsp;structure</span>
+<span style="color:#2b91af;">Act</span>&nbsp;act;
+ 
+<span style="color:green;">//&nbsp;Reserved&nbsp;variable&nbsp;which&nbsp;is&nbsp;set&nbsp;to&nbsp;the&nbsp;currently</span>
+<span style="color:green;">//&nbsp;selected&nbsp;action&nbsp;index&nbsp;in&nbsp;the&nbsp;editor</span>
+<span style="color:blue;">int</span>&nbsp;selectedActionIndex;
+ 
+<span style="color:green;">//&nbsp;Reserved&nbsp;variable&nbsp;which&nbsp;is&nbsp;set&nbsp;to&nbsp;the&nbsp;currently</span>
+<span style="color:green;">//&nbsp;selected&nbsp;frame&nbsp;index&nbsp;in&nbsp;the&nbsp;editor</span>
+<span style="color:blue;">int</span>&nbsp;selectedFrameIndex;
+ 
+<span style="color:green;">//&nbsp;Reserved&nbsp;variable&nbsp;which&nbsp;is&nbsp;set&nbsp;to&nbsp;the&nbsp;currently</span>
+<span style="color:green;">//&nbsp;selected&nbsp;layer&nbsp;indexes</span>
+<span style="color:blue;">int</span>[]&nbsp;selectedLayerIndexes;</pre>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="act-related-functions">Act related functions</h4>
+			<div class="bs-border" >
+				<div class="bs-callout bs-callout-info" style="border-left: 1px solid #eee;">
+					<h4>Action transform</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+							<h4>Translate</h4>
+<pre style="background:white;">Translate(<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+Translate(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+Translate(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example&nbsp;</span>
+<span style="color:#2b91af;">Action</span>&nbsp;action&nbsp;=&nbsp;act[selectedActionIndex];
+action.Translate(5,&nbsp;0);&nbsp;<span style="color:green;">//&nbsp;Translates&nbsp;all&nbsp;layers&nbsp;by&nbsp;5&nbsp;pixels&nbsp;on&nbsp;the&nbsp;X-axis</span>
+action.Translate(1,&nbsp;10,&nbsp;0);&nbsp;<span style="color:green;">//&nbsp;Translates&nbsp;all&nbsp;layers&nbsp;of&nbsp;the&nbsp;2nd&nbsp;frame&nbsp;by&nbsp;10&nbsp;pixels&nbsp;on&nbsp;the&nbsp;X-axis</span>
+action.Translate(1,&nbsp;3,&nbsp;0,&nbsp;-7);&nbsp;<span style="color:green;">//&nbsp;Translates&nbsp;the&nbsp;4th&nbsp;layer&nbsp;of&nbsp;the&nbsp;2nd&nbsp;frame&nbsp;by&nbsp;-7&nbsp;pixels&nbsp;on&nbsp;the&nbsp;Y-axis</span></pre>
+							<br>
+							<h4>Scale</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">Scale(<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+Scale(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+Scale(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+Scale(<span style="color:blue;">float</span>&nbsp;scale);
+Scale(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scale);
+Scale(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scale);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Action</span>&nbsp;action&nbsp;=&nbsp;act[selectedActionIndex];
+action.Scale(5f);&nbsp;<span style="color:green;">//&nbsp;Scales&nbsp;all&nbsp;layers&nbsp;by&nbsp;5&nbsp;times&nbsp;(both&nbsp;in&nbsp;x&nbsp;and&nbsp;y)</span>
+action.Scale(2f,&nbsp;1f&nbsp;/&nbsp;5f);&nbsp;<span style="color:green;">//&nbsp;Scales&nbsp;all&nbsp;layers&nbsp;by&nbsp;2&nbsp;times&nbsp;in&nbsp;x&nbsp;and&nbsp;descales&nbsp;by&nbsp;5&nbsp;times&nbsp;in&nbsp;y</span>
+ 
+<span style="color:green;">//&nbsp;Scales&nbsp;each&nbsp;selected&nbsp;frames&nbsp;by&nbsp;-1&nbsp;times&nbsp;in&nbsp;x,&nbsp;which&nbsp;is&nbsp;the&nbsp;</span>
+<span style="color:green;">//&nbsp;equivalent&nbsp;of&nbsp;applying&nbsp;a&nbsp;mirror</span>
+<span style="color:blue;">foreach</span>&nbsp;(<span style="color:blue;">var</span>&nbsp;selectedLayerIndex&nbsp;<span style="color:blue;">in</span>&nbsp;selectedLayerIndexes)&nbsp;{
+	action.Scale(selectedFrameIndex,&nbsp;selectedLayerIndex,&nbsp;-1f,&nbsp;1f);
+}</pre>    
+							<br>
+							<h4>Rotate</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">Rotate(<span style="color:blue;">int</span>&nbsp;rotate);
+Rotate(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotate);
+Rotate(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotate);</pre>  
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Action</span>&nbsp;action&nbsp;=&nbsp;act[selectedActionIndex];
+action.Rotate(20);&nbsp;<span style="color:green;">//&nbsp;Rotates&nbsp;all&nbsp;layers&nbsp;by&nbsp;20&nbsp;degrees&nbsp;clockwise</span>
+action.Rotate(-380);&nbsp;<span style="color:green;">//&nbsp;Rotates&nbsp;all&nbsp;layers&nbsp;by&nbsp;380&nbsp;degrees&nbsp;counterclockwise</span>
+ 
+<span style="color:green;">//&nbsp;This&nbsp;sets&nbsp;the&nbsp;rotation&nbsp;of&nbsp;the&nbsp;selected&nbsp;layers</span>
+<span style="color:green;">//&nbsp;to&nbsp;0.&nbsp;However,&nbsp;it&nbsp;is&nbsp;definitely&nbsp;not&nbsp;the&nbsp;best&nbsp;approach.</span>
+<span style="color:blue;">foreach</span>&nbsp;(<span style="color:blue;">var</span>&nbsp;selectedLayerIndex&nbsp;<span style="color:blue;">in</span>&nbsp;selectedLayerIndexes)&nbsp;{
+	action.Rotate(selectedFrameIndex,&nbsp;selectedLayerIndex,&nbsp;-action[selectedFrameIndex,&nbsp;selectedLayerIndex].Rotation);
+}
+ 
+<span style="color:green;">//&nbsp;This&nbsp;would&nbsp;be&nbsp;a&nbsp;better&nbsp;solution</span>
+act.AllLayers(layer&nbsp;=&gt;&nbsp;layer.Rotation&nbsp;=&nbsp;0);
+ 
+<span style="color:green;">//&nbsp;This&nbsp;code&nbsp;rotates&nbsp;a&nbsp;whole&nbsp;frame&nbsp;around&nbsp;a&nbsp;fixed&nbsp;point</span>
+<span style="color:green;">//&nbsp;which&nbsp;is&nbsp;set&nbsp;to&nbsp;(0,&nbsp;0)&nbsp;in&nbsp;this&nbsp;example</span>
+<span style="color:green;">//&nbsp;It&nbsp;makes&nbsp;use&nbsp;of&nbsp;the&nbsp;Graphics&nbsp;library&nbsp;(used&nbsp;by&nbsp;the&nbsp;</span>
+<span style="color:green;">//&nbsp;Rsm&nbsp;rendering&nbsp;feature&nbsp;of&nbsp;GRF&nbsp;Editor).</span>
+GRF.Graphics.<span style="color:#2b91af;">Point</span>&nbsp;center&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;GRF.Graphics.<span style="color:#2b91af;">Point</span>(0,&nbsp;0);
+<span style="color:blue;">int</span>&nbsp;angle&nbsp;=&nbsp;33;
+ 
+<span style="color:blue;">foreach</span>&nbsp;(<span style="color:#2b91af;">Layer</span>&nbsp;layer&nbsp;<span style="color:blue;">in</span>&nbsp;act[selectedActionIndex,&nbsp;selectedFrameIndex])&nbsp;{
+	<span style="color:#2b91af;">Vertex</span>&nbsp;pt&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">Vertex</span>(layer.OffsetX,&nbsp;layer.OffsetY);
+	pt.RotateZ(-angle,&nbsp;center);
+	layer.Rotate(angle);
+	layer.OffsetX&nbsp;=&nbsp;(<span style="color:blue;">int</span>)pt.X;
+	layer.OffsetY&nbsp;=&nbsp;(<span style="color:blue;">int</span>)pt.Y;
+}</pre>
+						</div>
+					</div>
+					<br>
+					<h4>Other action functions</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+							<h4>Mirror</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">ApplyMirror();
+ApplyMirror(<span style="color:blue;">bool</span>&nbsp;mirror);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Action</span>&nbsp;action&nbsp;=&nbsp;act[selectedActionIndex];
+action.ApplyMirror();&nbsp;<span style="color:green;">//&nbsp;Reverses&nbsp;the&nbsp;mirror&nbsp;state&nbsp;of&nbsp;all&nbsp;layers</span>
+action.ApplyMirror(<span style="color:blue;">true</span>);&nbsp;<span style="color:green;">//&nbsp;Sets&nbsp;the&nbsp;mirror&nbsp;state&nbsp;of&nbsp;all&nbsp;layers&nbsp;to&nbsp;true</span></pre>
+							<br>
+							<h4>Color mask</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">SetColor(<span style="color:blue;">string</span>&nbsp;color);
+SetColor(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">string</span>&nbsp;color);
+SetColor(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">string</span>&nbsp;color);
+ 
+SetColor(<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+SetColor(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+SetColor(<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;color);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Action</span>&nbsp;action&nbsp;=&nbsp;act[selectedActionIndex];
+ 
+<span style="color:green;">//&nbsp;The&nbsp;#ffffff&nbsp;or&nbsp;0xffffff&nbsp;formats&nbsp;are&nbsp;both&nbsp;allowed</span>
+action.SetColor(<span style="color:#a31515;">&quot;#ff0000&quot;</span>);&nbsp;<span style="color:green;">//&nbsp;Sets&nbsp;all&nbsp;layers&#39;&nbsp;color&nbsp;property&nbsp;to&nbsp;red</span>
+action.SetColor(<span style="color:#a31515;">&quot;0x00ffffff&quot;</span>);&nbsp;<span style="color:green;">//&nbsp;Sets&nbsp;all&nbsp;layers&#39;&nbsp;color&nbsp;property&nbsp;to&nbsp;transparent</span>
+ 
+<span style="color:green;">//&nbsp;The&nbsp;preferred&nbsp;type&nbsp;to&nbsp;use&nbsp;is&nbsp;the&nbsp;GrfColor&nbsp;class</span>
+action.SetColor(<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>(255,&nbsp;0,&nbsp;255,&nbsp;0));&nbsp;<span style="color:green;">//&nbsp;Sets&nbsp;all&nbsp;layers&#39;&nbsp;color&nbsp;property&nbsp;to&nbsp;green</span></pre>
+						</div>
+					</div>
+					<br>
+					<h4>Action properties</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Frame</span>&gt;&nbsp;Frames;
+<span style="color:blue;">int</span>&nbsp;NumberOfFrames&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+<span style="color:blue;">float</span>&nbsp;AnimationSpeed&nbsp;=&nbsp;6;
+<span style="color:blue;">int</span>&nbsp;Interval&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+ 
+<span style="color:#2b91af;">Frame</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;frameIndex];
+Layer&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex];</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Action</span>&nbsp;action&nbsp;=&nbsp;act[selectedActionIndex];
+ 
+<span style="color:blue;">if</span>&nbsp;(action.NumberOfFrames&nbsp;==&nbsp;3)&nbsp;{
+	<span style="color:green;">//&nbsp;The&nbsp;difference&nbsp;between&nbsp;the&nbsp;animation&nbsp;speed</span>
+	<span style="color:green;">//&nbsp;and&nbsp;the&nbsp;interval&nbsp;is&nbsp;that&nbsp;the&nbsp;animation&nbsp;speed</span>
+	<span style="color:green;">//&nbsp;is&nbsp;equal&nbsp;to&nbsp;action.Interval&nbsp;*&nbsp;25f;</span>
+	<span style="color:green;">//&nbsp;It&nbsp;is&nbsp;easier&nbsp;to&nbsp;simply&nbsp;use&nbsp;the&nbsp;Interval&nbsp;property</span>
+ 
+	<span style="color:green;">//&nbsp;Sets&nbsp;the&nbsp;inverval&nbsp;to&nbsp;300&nbsp;ms&nbsp;per&nbsp;frame</span>
+	action.Interval&nbsp;=&nbsp;300;
+}
+ 
+<span style="color:green;">//&nbsp;Retrieves&nbsp;the&nbsp;layer&nbsp;based&nbsp;on&nbsp;the&nbsp;frame&nbsp;index&nbsp;and&nbsp;layer&nbsp;index</span>
+<span style="color:#2b91af;">Layer</span>&nbsp;layer&nbsp;=&nbsp;action[0,&nbsp;2];</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="frame-related-functions">Frame related functions</h4>
+			<div class="bs-border" >
+				<div class="bs-callout bs-callout-info" style="border-left: 1px solid #eee;">
+					<h4>Frame transform</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">Translate(<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+Translate(<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+Scale(<span style="color:blue;">float</span>&nbsp;scale);
+Scale(<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scale);
+Scale(<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+Scale(<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+Rotate(<span style="color:blue;">int</span>&nbsp;rotate);
+Rotate(<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotate);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:blue;">foreach</span>&nbsp;(<span style="color:blue;">var</span>&nbsp;action&nbsp;<span style="color:blue;">in</span>&nbsp;act)&nbsp;{
+	<span style="color:blue;">foreach</span>&nbsp;(<span style="color:blue;">var</span>&nbsp;frame&nbsp;<span style="color:blue;">in</span>&nbsp;action)&nbsp;{
+		frame.Translate(2,&nbsp;5);&nbsp;<span style="color:green;">//&nbsp;Translates&nbsp;the&nbsp;frame&nbsp;by&nbsp;2&nbsp;pixels&nbsp;in&nbsp;x&nbsp;and&nbsp;5&nbsp;pixels&nbsp;in&nbsp;y</span>
+	}
+}
+ 
+<span style="color:#2b91af;">Frame</span>&nbsp;currentFrame&nbsp;=&nbsp;act[selectedActionIndex,&nbsp;selectedFrameIndex];
+ 
+<span style="color:green;">//&nbsp;For&nbsp;the&nbsp;other&nbsp;methods,&nbsp;view&nbsp;the&nbsp;Action&nbsp;methods.&nbsp;They</span>
+<span style="color:green;">//&nbsp;are&nbsp;literally&nbsp;the&nbsp;same&nbsp;ones.</span></pre>
+						</div>
+					</div>
+					<br>
+					<h4>Other frame functions</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+							<h4>Mirror and color mask</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">ApplyMirror();
+ApplyMirror(<span style="color:blue;">bool</span>&nbsp;mirror);
+SetColor(<span style="color:blue;">string</span>&nbsp;color);
+SetColor(<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">string</span>&nbsp;color);
+SetColor(<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+SetColor(<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;color);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Frame</span>&nbsp;frame&nbsp;=&nbsp;act[selectedActionIndex,&nbsp;selectedFrameIndex];
+frame.SetColor(<span style="color:#a31515;">&quot;#eeeeee&quot;</span>);&nbsp;<span style="color:green;">//&nbsp;Sets&nbsp;all&nbsp;layers&#39;&nbsp;color&nbsp;property&nbsp;in&nbsp;the&nbsp;frame&nbsp;to&nbsp;grayish</span>
+ 
+frame.ApplyMirror();&nbsp;<span style="color:green;">//&nbsp;Reverses&nbsp;the&nbsp;mirror&nbsp;state&nbsp;of&nbsp;all&nbsp;the&nbsp;layers&nbsp;in&nbsp;the&nbsp;frame</span></pre>
+						</div>
+					</div>
+					<br>
+					<h4>Frame properties</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Layer</span>&gt;&nbsp;Layers;
+<span style="color:blue;">int</span>&nbsp;NumberOfLayers&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+<span style="color:blue;">int</span>&nbsp;SoundId&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Anchor</span>&gt;&nbsp;Anchors&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+<span style="color:#2b91af;">Layer</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;index];</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Frame</span>&nbsp;frame&nbsp;=&nbsp;act[selectedActionIndex,&nbsp;selectedFrameIndex];
+ 
+<span style="color:green;">//&nbsp;Removes&nbsp;all&nbsp;layers&nbsp;and&nbsp;only&nbsp;keep&nbsp;the&nbsp;first&nbsp;one</span>
+<span style="color:blue;">while</span>&nbsp;(frame.NumberOfLayers&nbsp;&gt;&nbsp;1)&nbsp;{
+	frame.Layers.RemoveAt(1);
+}
+ 
+<span style="color:green;">//&nbsp;This&nbsp;does&nbsp;the&nbsp;same&nbsp;as&nbsp;above</span>
+frame.Layers.RemoveRange(1,&nbsp;frame.Layers.Count&nbsp;-&nbsp;1);
+ 
+<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;layers&nbsp;which&nbsp;have&nbsp;an&nbsp;offetX&nbsp;greater&nbsp;than&nbsp;20</span>
+<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">Layer</span>&gt;&nbsp;layers&nbsp;=&nbsp;frame.Layers.Where(layer&nbsp;=&gt;&nbsp;layer.OffsetX&nbsp;&gt;&nbsp;20).ToList();
+ 
+<span style="color:green;">//&nbsp;If&nbsp;you&#39;re&nbsp;familiar&nbsp;with&nbsp;C#,&nbsp;this&nbsp;is&nbsp;called&nbsp;Linq.&nbsp;It&nbsp;allows</span>
+<span style="color:green;">//&nbsp;you&nbsp;to&nbsp;use&nbsp;SQL&nbsp;operations&nbsp;on&nbsp;data&nbsp;objects,&nbsp;such&nbsp;as&nbsp;lists.</span>
+<span style="color:green;">//&nbsp;Here&#39;s&nbsp;another&nbsp;code&nbsp;example&nbsp;using&nbsp;Linq&nbsp;which</span>
+<span style="color:green;">//&nbsp;prints&nbsp;all&nbsp;the&nbsp;layers&nbsp;in&nbsp;the&nbsp;current&nbsp;frame</span>
+<span style="color:blue;">var</span>&nbsp;items&nbsp;=&nbsp;<span style="color:blue;">from</span>&nbsp;layer&nbsp;<span style="color:blue;">in</span>&nbsp;frame.Layers
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">where</span>&nbsp;layer.Rotation&nbsp;==&nbsp;0
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">select</span>&nbsp;<span style="color:#2b91af;">String</span>.Format(<span style="color:#a31515;">&quot;Layer,&nbsp;OffsetX&nbsp;=&nbsp;</span><span style="color:mediumseagreen;">{0}</span><span style="color:#a31515;">;&nbsp;OffsetY&nbsp;=&nbsp;</span><span style="color:mediumseagreen;">{1}</span><span style="color:#a31515;">;&quot;</span>,&nbsp;layer.OffsetX,&nbsp;layer.OffsetY);
+ 
+<span style="color:blue;">var</span>&nbsp;output&nbsp;=&nbsp;<span style="color:blue;">string</span>.Join(<span style="color:#a31515;">&quot;\r\n&quot;</span>,&nbsp;items.ToArray());
+ 
+<span style="color:#2b91af;">Clipboard</span>.SetText(output);
+<span style="color:#2b91af;">ErrorHandler</span>.HandleException(output,&nbsp;<span style="color:#2b91af;">ErrorLevel</span>.NotSpecified);
+ 
+<span style="color:green;">//&nbsp;You&nbsp;could&nbsp;also&nbsp;simply&nbsp;call&nbsp;</span>
+output&nbsp;=&nbsp;frame.ToString();
+<span style="color:#2b91af;">Clipboard</span>.SetText(output);
+<span style="color:#2b91af;">ErrorHandler</span>.HandleException(output,&nbsp;<span style="color:#2b91af;">ErrorLevel</span>.NotSpecified);</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="layer-related-functions">Layer related functions</h4>
+			<div class="bs-border" >
+				<div class="bs-callout bs-callout-info" style="border-left: 1px solid #eee;">
+					<h4>Layer transform</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">Translate(<span style="color:blue;">int</span>&nbsp;x,&nbsp;<span style="color:blue;">int</span>&nbsp;y);
+TranslateX(<span style="color:blue;">int</span>&nbsp;x);
+TranslateY(<span style="color:blue;">int</span>&nbsp;y);
+Scale(<span style="color:blue;">float</span>&nbsp;scale);
+Scale(<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+Rotate(<span style="color:blue;">int</span>&nbsp;amount);</pre>
+						</div>
+					</div>
+					<br>
+					<h4>Other layer functions</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+							<h4>Mirror and color mask</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">ApplyMirror(<span style="color:blue;">bool</span>&nbsp;mirror);
+ApplyMirror();
+SetColor(<span style="color:blue;">string</span>&nbsp;color);
+SetColor(<span style="color:#2b91af;">GrfColor</span>&nbsp;color);</pre>
+
+						<br>
+						<h4>Utility methods</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">bool</span>&nbsp;IsIndexed8();
+<span style="color:blue;">bool</span>&nbsp;IsBgra32();
+<span style="color:#2b91af;">GrfImage</span>&nbsp;GetImage(<span style="color:red;">Spr</span>&nbsp;sprite);
+<span style="color:blue;">int</span>&nbsp;GetAbsoluteSpriteId(<span style="color:red;">Spr</span>&nbsp;sprite);
+SetAbsoluteSpriteId(<span style="color:blue;">int</span>&nbsp;index,&nbsp;<span style="color:red;">Spr</span>&nbsp;sprite);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:green;">//&nbsp;The&nbsp;sprite&nbsp;indexes&nbsp;are&nbsp;virtualized&nbsp;in&nbsp;the&nbsp;editor,&nbsp;therefore</span>
+<span style="color:green;">//&nbsp;you&nbsp;have&nbsp;to&nbsp;be&nbsp;very&nbsp;careful&nbsp;when&nbsp;applying&nbsp;modifications</span>
+<span style="color:green;">//&nbsp;on&nbsp;the&nbsp;sprite&nbsp;properties.</span>
+ 
+<span style="color:green;">//&nbsp;There&nbsp;are&nbsp;two&nbsp;types&nbsp;of&nbsp;images&nbsp;allowed&nbsp;:&nbsp;</span>
+<span style="color:green;">//&nbsp;-&nbsp;Indexed8&nbsp;:</span>
+<span style="color:green;">//&nbsp;&nbsp;&nbsp;These&nbsp;format&nbsp;uses&nbsp;a&nbsp;palette&nbsp;of&nbsp;256&nbsp;colors&nbsp;which</span>
+<span style="color:green;">//&nbsp;&nbsp;&nbsp;is&nbsp;shared&nbsp;among&nbsp;all&nbsp;the&nbsp;other&nbsp;image&nbsp;of&nbsp;the&nbsp;same&nbsp;type.</span>
+<span style="color:green;">//&nbsp;&nbsp;&nbsp;For&nbsp;more&nbsp;details,&nbsp;view&nbsp;the&nbsp;Spr&nbsp;format&nbsp;and&nbsp;commands.</span>
+<span style="color:green;">//</span>
+<span style="color:green;">//&nbsp;-&nbsp;Bgra32&nbsp;:</span>
+<span style="color:green;">//&nbsp;&nbsp;&nbsp;These&nbsp;are&nbsp;32&nbsp;bit&nbsp;images&nbsp;with&nbsp;4&nbsp;color&nbsp;channels&nbsp;:&nbsp;ARGB.</span>
+<span style="color:green;">//</span>
+<span style="color:green;">//&nbsp;The&nbsp;Spr&nbsp;container&nbsp;has&nbsp;two&nbsp;list&nbsp;of&nbsp;images&nbsp;for&nbsp;each&nbsp;one&nbsp;of&nbsp;these</span>
+<span style="color:green;">//&nbsp;format,&nbsp;forcing&nbsp;you&nbsp;to&nbsp;be&nbsp;careful&nbsp;about&nbsp;the&nbsp;indexes.</span>
+ 
+<span style="color:blue;">foreach</span>&nbsp;(<span style="color:blue;">var</span>&nbsp;selectedIndex&nbsp;<span style="color:blue;">in</span>&nbsp;selectedLayerIndexes)&nbsp;{
+	<span style="color:#2b91af;">Layer</span>&nbsp;layer&nbsp;=&nbsp;act[selectedActionIndex,&nbsp;selectedFrameIndex,&nbsp;selectedIndex];
+ 
+	<span style="color:blue;">if</span>&nbsp;(layer.IsIndexed8())&nbsp;{
+		<span style="color:green;">//&nbsp;The&nbsp;layer&#39;s&nbsp;sprite&nbsp;index&nbsp;uses&nbsp;images&nbsp;from&nbsp;the&nbsp;Indexed8&nbsp;container</span>
+		<span style="color:#2b91af;">GrfImage</span>&nbsp;image&nbsp;=&nbsp;act.Sprite.GetImage(layer.SpriteIndex,&nbsp;layer.SpriteType);
+ 
+		<span style="color:green;">//&nbsp;If&nbsp;no&nbsp;image&nbsp;is&nbsp;found&nbsp;(because&nbsp;the&nbsp;sprite&nbsp;index&nbsp;is&nbsp;below&nbsp;0&nbsp;for&nbsp;</span>
+		<span style="color:green;">//&nbsp;instance),&nbsp;then&nbsp;the&nbsp;function&nbsp;above&nbsp;returns&nbsp;null</span>
+		<span style="color:blue;">if</span>&nbsp;(image&nbsp;!=&nbsp;<span style="color:blue;">null</span>)&nbsp;{
+			image.Save(<span style="color:#a31515;">&quot;C:\\myImage.bmp&quot;</span>);
+ 
+			<span style="color:green;">//&nbsp;If&nbsp;you&nbsp;want&nbsp;to&nbsp;show&nbsp;a&nbsp;Save&nbsp;as...&nbsp;dialog,&nbsp;you&nbsp;can&nbsp;use&nbsp;:</span>
+			<span style="color:blue;">var</span>&nbsp;path&nbsp;=&nbsp;image.SaveTo(<span style="color:#a31515;">&quot;myImage.bmp&quot;</span>,&nbsp;<span style="color:blue;">new</span>&nbsp;Utilities.<span style="color:#2b91af;">Setting</span>(
+				v&nbsp;=&gt;&nbsp;<span style="color:#2b91af;">Configuration</span>.ConfigAsker[<span style="color:#a31515;">&quot;[ActEditor&nbsp;-&nbsp;Application&nbsp;latest&nbsp;file&nbsp;name]&quot;</span>]&nbsp;=&nbsp;v.ToString(),
+				()&nbsp;=&gt;&nbsp;<span style="color:#2b91af;">Configuration</span>.ConfigAsker[<span style="color:#a31515;">&quot;[ActEditor&nbsp;-&nbsp;Application&nbsp;latest&nbsp;file&nbsp;name]&quot;</span>,&nbsp;<span style="color:#2b91af;">Configuration</span>.ApplicationPath]));
+ 
+			<span style="color:green;">//&nbsp;Selects&nbsp;the&nbsp;file&nbsp;in&nbsp;Windows&nbsp;Explorer&nbsp;if&nbsp;it&nbsp;exists</span>
+			<span style="color:blue;">if</span>&nbsp;(path&nbsp;!=&nbsp;<span style="color:blue;">null</span>&nbsp;&amp;&amp;&nbsp;<span style="color:#2b91af;">File</span>.Exists(path))&nbsp;{
+				Utilities.Services.<span style="color:#2b91af;">OpeningService</span>.FilesOrFolders(path);
+			}
+		}
+	}
+ 
+	<span style="color:green;">//&nbsp;You&nbsp;can&nbsp;also&nbsp;retrieve&nbsp;the&nbsp;image&nbsp;directly&nbsp;this&nbsp;way&nbsp;:</span>
+	<span style="color:#2b91af;">GrfImage</span>&nbsp;image2&nbsp;=&nbsp;layer.GetImage(act.Sprite);
+ 
+	<span style="color:blue;">if</span>&nbsp;(image2&nbsp;!=&nbsp;<span style="color:blue;">null</span>)&nbsp;{
+		<span style="color:green;">//&nbsp;The&nbsp;GrfImage&nbsp;class&nbsp;has&nbsp;many&nbsp;features&nbsp;and&nbsp;options&nbsp;that&nbsp;you&nbsp;can</span>
+		<span style="color:green;">//&nbsp;view&nbsp;from&nbsp;GRF&nbsp;Editor&#39;s&nbsp;sources.&nbsp;For&nbsp;example&nbsp;:</span>
+ 
+		<span style="color:green;">//image2.Convert(new&nbsp;Bgra32FormatConverter());</span>
+		<span style="color:green;">//image2.Convert(new&nbsp;Indexed8FormatConverter&nbsp;{&nbsp;ExistingPalette&nbsp;=&nbsp;act.Sprite.Palette.BytePalette,&nbsp;Options&nbsp;=&nbsp;Indexed8FormatConverter.PaletteOptions.UseExistingPalette&nbsp;});</span>
+		<span style="color:green;">//image2.Convert(new&nbsp;Indexed8FormatConverter&nbsp;{&nbsp;Options&nbsp;=&nbsp;Indexed8FormatConverter.PaletteOptions.UseDithering&nbsp;|&nbsp;Indexed8FormatConverter.PaletteOptions.AutomaticallyGeneratePalette&nbsp;});</span>
+		<span style="color:green;">//image2.Save(&quot;&quot;);</span>
+	}
+ 
+	<span style="color:green;">//&nbsp;Sets&nbsp;the&nbsp;id&nbsp;of&nbsp;an&nbsp;image&nbsp;in&nbsp;the&nbsp;Spr&nbsp;container</span>
+	<span style="color:green;">//&nbsp;This&nbsp;method&nbsp;will&nbsp;also&nbsp;set&nbsp;the&nbsp;SpriteType&nbsp;property&nbsp;to&nbsp;its&nbsp;correct&nbsp;value</span>
+	layer.SetAbsoluteSpriteId(5,&nbsp;act.Sprite);
+ 
+	<span style="color:green;">//&nbsp;Returns&nbsp;the&nbsp;absolute&nbsp;sprite&nbsp;id</span>
+	layer.GetAbsoluteSpriteId(act.Sprite);
+}</pre>
+						</div>
+					</div>
+					<br>
+					<h4>Layer properties</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">int</span>&nbsp;OffsetX&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:blue;">int</span>&nbsp;OffsetY&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:blue;">float</span>&nbsp;ScaleX&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:blue;">float</span>&nbsp;ScaleY&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:blue;">int</span>&nbsp;Rotation&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+ 
+<span style="color:blue;">bool</span>&nbsp;Mirror&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:#2b91af;">GrfColor</span>&nbsp;Color&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+ 
+<span style="color:blue;">int</span>&nbsp;Height&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+<span style="color:blue;">int</span>&nbsp;Width&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+<span style="color:blue;">int</span>&nbsp;SpriteIndex&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:blue;">int</span>&nbsp;SpriteTypeInt&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}
+<span style="color:#2b91af;">SpriteTypes</span>&nbsp;SpriteType&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;<span style="color:blue;">set</span>;&nbsp;}</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:blue;">var</span>&nbsp;layer&nbsp;=&nbsp;act.TryGetLayer(selectedActionIndex,&nbsp;selectedFrameIndex,&nbsp;0);
+ 
+<span style="color:blue;">if</span>&nbsp;(layer&nbsp;!=&nbsp;<span style="color:blue;">null</span>)&nbsp;{
+	<span style="color:green;">//&nbsp;These&nbsp;properties&nbsp;are&nbsp;straightforward</span>
+	layer.Color&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>(<span style="color:#a31515;">&quot;0xff0000&quot;</span>);
+	layer.OffsetX&nbsp;+=&nbsp;20;
+	layer.Rotation&nbsp;+=&nbsp;55;
+	layer.Mirror&nbsp;=&nbsp;!layer.Mirror;
+	layer.ScaleX&nbsp;=&nbsp;-layer.ScaleY;
+ 
+	<span style="color:blue;">if</span>&nbsp;(layer.SpriteType&nbsp;==&nbsp;<span style="color:#2b91af;">SpriteTypes</span>.Bgra32&nbsp;||&nbsp;layer.SpriteType&nbsp;==&nbsp;<span style="color:#2b91af;">SpriteTypes</span>.Bgra32)&nbsp;{
+		<span style="color:green;">//&nbsp;Switch&nbsp;the&nbsp;sprite&nbsp;type,&nbsp;even&nbsp;though&nbsp;this&nbsp;has&nbsp;no&nbsp;real&nbsp;purpose...</span>
+		layer.SpriteType&nbsp;=&nbsp;(<span style="color:#2b91af;">SpriteTypes</span>)&nbsp;((layer.SpriteTypeInt&nbsp;+&nbsp;1)&nbsp;%&nbsp;2);
+	}
+}</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="sprite-related-functions">Sprite related functions</h4>
+			<div class="bs-border" >
+				<div class="bs-callout bs-callout-danger" >
+					<h4>Sprite warning</h4>
+					<p>Each of the methods to add or remove sprites have overloads allowing you to shift the indexes of the current layers automatically. If you choose not to use them, the layers indexes will no longer be valid.</p>
+					<p>The sprite also doesn't keep a palette if there are no Indexed8 images. If you remove all Indexed8 images and add new ones, the palette will automatically be removed and reset to the first added Indexed8 image. The editor offers conversions for invalid palettes; the Spr class does not (the editor doesn't use any of these methods either).</p>
+				</div>
+				<div class="bs-callout bs-callout-info" >
+					<h4>Images</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+							<h4>Remove</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">Remove(<span style="color:blue;">int</span>&nbsp;absoluteIndex);
+Remove(<span style="color:blue;">int</span>&nbsp;absoluteIndex,&nbsp;<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>&nbsp;edit);
+ 
+Remove(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type);
+Remove(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type,&nbsp;<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>&nbsp;edit);
+ 
+Remove(<span style="color:#2b91af;">Layer</span>&nbsp;layer);
+Remove(<span style="color:#2b91af;">Layer</span>&nbsp;layer,&nbsp;<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>&nbsp;edit);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:#2b91af;">Spr</span>&nbsp;sprite&nbsp;=&nbsp;act.Sprite;
+sprite.Remove(0,&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>.AdjustIndexes);
+ 
+<span style="color:green;">//&nbsp;This&nbsp;code&nbsp;will&nbsp;not&nbsp;remove&nbsp;all&nbsp;the&nbsp;Indexed8&nbsp;images</span>
+<span style="color:green;">//&nbsp;See&nbsp;below</span>
+<span style="color:blue;">for</span>&nbsp;(<span style="color:blue;">int</span>&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;sprite.NumberOfIndexed8Images;&nbsp;i++)&nbsp;{
+	<span style="color:green;">//&nbsp;Does&nbsp;not&nbsp;modify&nbsp;the&nbsp;indexes</span>
+	sprite.Remove(i);
+ 
+	<span style="color:green;">//&nbsp;Adjust&nbsp;the&nbsp;indexes</span>
+	sprite.Remove(i,&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>.AdjustIndexes);
+}
+ 
+<span style="color:green;">//&nbsp;The&nbsp;above&nbsp;code&nbsp;fails&nbsp;because&nbsp;NumberOfIndexed8Images</span>
+<span style="color:green;">//&nbsp;changes&nbsp;when&nbsp;you&nbsp;remove&nbsp;a&nbsp;sprite,&nbsp;instead,&nbsp;you&nbsp;should</span>
+<span style="color:green;">//&nbsp;use&nbsp;the&nbsp;following&nbsp;:</span>
+<span style="color:blue;">while</span>&nbsp;(sprite.NumberOfIndexed8Images&nbsp;&gt;&nbsp;0)&nbsp;{
+	sprite.Remove(0,&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>.AdjustIndexes);
+}</pre>
+
+							<br>
+							<h4>Insert</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">Insert(<span style="color:blue;">int</span>&nbsp;absoluteIndex,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+Insert(<span style="color:blue;">int</span>&nbsp;absoluteIndex,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image,&nbsp;<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>&nbsp;edit);
+ 
+Insert(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+Insert(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image,&nbsp;<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">EditOption</span>&nbsp;edit);
+ 
+<span style="color:blue;">int</span>&nbsp;InsertAny(<span style="color:#2b91af;">GrfImage</span>&nbsp;image);</pre>
+							<br>
+							<h4>Manual index shifting</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">SetToNullIndexes(<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type,&nbsp;<span style="color:blue;">int</span>&nbsp;relativeIndex);
+ShiftIndexesAbove(<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type,&nbsp;<span style="color:blue;">int</span>&nbsp;diff,&nbsp;<span style="color:blue;">int</span>&nbsp;relativeIndex);
+ShiftIndexesBelow(<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;type,&nbsp;<span style="color:blue;">int</span>&nbsp;diff,&nbsp;<span style="color:blue;">int</span>&nbsp;relativeIndex);</pre>
+						</div>
+					</div>
+					<br>
+					<h4>Palette</h4>
+					<div class="bs-border" >
+						<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">byte</span>[]&nbsp;BytePalette;&nbsp;<span style="color:green;">//&nbsp;Do&nbsp;NOT&nbsp;set&nbsp;the&nbsp;palette&nbsp;from&nbsp;this&nbsp;array</span>
+ 
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">byte</span>&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;offset1024];
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">byte</span>[]&nbsp;<span style="color:blue;">this</span>[<span style="color:blue;">int</span>&nbsp;row16,&nbsp;<span style="color:blue;">int</span>&nbsp;column16];
+ 
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">bool</span>&nbsp;Contains(<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+ 
+<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;GetColor(<span style="color:blue;">int</span>&nbsp;index256);
+<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;GetColor(<span style="color:blue;">int</span>&nbsp;row16,&nbsp;<span style="color:blue;">int</span>&nbsp;column16);
+<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">IEnumerable</span>&lt;<span style="color:#2b91af;">GrfColor</span>&gt;&nbsp;Colors;
+<span style="color:blue;">public</span>&nbsp;<span style="color:#2b91af;">List</span>&lt;<span style="color:#2b91af;">GrfColor</span>&gt;&nbsp;GetColors(<span style="color:#2b91af;">IEnumerable</span>&lt;<span style="color:blue;">int</span>&gt;&nbsp;indexes);
+ 
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetColor(<span style="color:blue;">int</span>&nbsp;index256,&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetPalette(<span style="color:blue;">byte</span>[]&nbsp;dataRgba1024);
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetBytes(<span style="color:blue;">int</span>&nbsp;offset1024,&nbsp;<span style="color:blue;">byte</span>[]&nbsp;newBytesRgba);</pre>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:green;">//&nbsp;The&nbsp;palette&nbsp;object&nbsp;will&nbsp;be&nbsp;null&nbsp;if&nbsp;there&nbsp;are&nbsp;no</span>
+<span style="color:green;">//&nbsp;palettes&nbsp;loaded&nbsp;in&nbsp;the&nbsp;Sprite&nbsp;file.&nbsp;This&nbsp;happens</span>
+<span style="color:green;">//&nbsp;if&nbsp;there&nbsp;are&nbsp;no&nbsp;Indexed8&nbsp;images&nbsp;in&nbsp;the&nbsp;container.</span>
+<span style="color:#2b91af;">Pal</span>&nbsp;pal&nbsp;=&nbsp;act.Sprite.Palette;
+<span style="color:blue;">if</span>&nbsp;(pal&nbsp;==&nbsp;<span style="color:blue;">null</span>)&nbsp;<span style="color:blue;">return</span>;
+ 
+<span style="color:green;">//&nbsp;Loads&nbsp;a&nbsp;palette&nbsp;from&nbsp;another&nbsp;image</span>
+<span style="color:#2b91af;">GrfImage</span>&nbsp;image&nbsp;=&nbsp;<span style="color:#a31515;">@&quot;C:\images\myImage.bmp&quot;</span>;
+ 
+<span style="color:blue;">if</span>&nbsp;(image.GrfImageType&nbsp;==&nbsp;<span style="color:#2b91af;">GrfImageType</span>.Indexed8)&nbsp;{
+	pal.SetPalette(image.Palette);
+}
+ 
+<span style="color:blue;">for</span>&nbsp;(<span style="color:blue;">int</span>&nbsp;i&nbsp;=&nbsp;8;&nbsp;i&nbsp;&lt;&nbsp;16;&nbsp;i++)&nbsp;{
+	<span style="color:green;">//&nbsp;Sets&nbsp;the&nbsp;second&nbsp;gradient&nbsp;in&nbsp;the&nbsp;palette&nbsp;to&nbsp;pink</span>
+	pal.SetColor(i,&nbsp;<span style="color:#a31515;">&quot;ff00ff&quot;</span>);
+}
+ 
+<span style="color:green;">//&nbsp;If&nbsp;you&nbsp;want&nbsp;to&nbsp;keep&nbsp;the&nbsp;saturation&nbsp;and&nbsp;brightness&nbsp;of&nbsp;</span>
+<span style="color:green;">//&nbsp;the&nbsp;gradient,&nbsp;you&nbsp;could&nbsp;use&nbsp;this&nbsp;instead&nbsp;:</span>
+<span style="color:#2b91af;">GrfColor</span>&nbsp;pinkColor&nbsp;=&nbsp;<span style="color:#a31515;">&quot;ff00ff&quot;</span>;
+ 
+<span style="color:green;">//&nbsp;Gradient&nbsp;index&nbsp;11&nbsp;(12th&nbsp;gradient)</span>
+<span style="color:blue;">for</span>&nbsp;(<span style="color:blue;">int</span>&nbsp;i&nbsp;=&nbsp;11&nbsp;*&nbsp;8;&nbsp;i&nbsp;&lt;&nbsp;12&nbsp;*&nbsp;8;&nbsp;i++)&nbsp;{
+	<span style="color:blue;">var</span>&nbsp;color&nbsp;=&nbsp;pal.GetColor(i);
+	pal.SetColor(i,&nbsp;<span style="color:#2b91af;">GrfColor</span>.FromHsl(pinkColor.Hue,&nbsp;color.Saturation,&nbsp;color.Lightness,&nbsp;255));
+}
+ 
+<span style="color:green;">//&nbsp;Sets&nbsp;the&nbsp;bytes&nbsp;to&nbsp;whatever&nbsp;you&nbsp;want;&nbsp;be&nbsp;careful</span>
+<span style="color:green;">//&nbsp;when&nbsp;setting&nbsp;the&nbsp;alpha&nbsp;value&nbsp;to&nbsp;something&nbsp;other&nbsp;than</span>
+<span style="color:green;">//&nbsp;255.&nbsp;This&nbsp;will&nbsp;make&nbsp;the&nbsp;color&nbsp;transparent&nbsp;in&nbsp;the&nbsp;editor</span>
+<span style="color:green;">//&nbsp;but&nbsp;not&nbsp;ingame.</span>
+<span style="color:green;">//&nbsp;The&nbsp;following&nbsp;sets&nbsp;the&nbsp;12th&nbsp;gradient&#39;s&nbsp;first&nbsp;color&nbsp;to&nbsp;green</span>
+pal.SetBytes(11&nbsp;*&nbsp;8&nbsp;*&nbsp;4,&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>(<span style="color:#a31515;">&quot;00a000&quot;</span>).ToRgbaBytes());
+ 
+<span style="color:blue;">if</span>&nbsp;(!pal.Contains(<span style="color:#a31515;">&quot;00a000&quot;</span>))&nbsp;{
+	<span style="color:blue;">throw</span>&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">Exception</span>(<span style="color:#a31515;">&quot;Color&nbsp;not&nbsp;found!&quot;</span>);
+}</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="settings">Settings</h4>
+			<p>You can use the configuration engine of Act Editor. This allows you to save and load settings quite easily. You don't have to handle when to save the file or not. This is done automatically.</p>
+			<div class="bs-border" >
+				<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:green;">//&nbsp;The&nbsp;setting&nbsp;name&nbsp;can&nbsp;be&nbsp;anything&nbsp;you&nbsp;want</span>
+<span style="color:green;">//&nbsp;For&nbsp;instance&nbsp;:&nbsp;&quot;MySuperValue!&quot;&nbsp;will&nbsp;work.&nbsp;Act&nbsp;Editor</span>
+<span style="color:green;">//&nbsp;tends&nbsp;to&nbsp;use&nbsp;brackets&nbsp;to&nbsp;group&nbsp;the&nbsp;properties,&nbsp;but&nbsp;it&#39;s</span>
+<span style="color:green;">//&nbsp;not&nbsp;necessary.</span>
+<span style="color:blue;">string</span>&nbsp;settingName&nbsp;=&nbsp;<span style="color:#a31515;">&quot;[ActEditor&nbsp;-&nbsp;Magnify&nbsp;value]&quot;</span>;
+ 
+<span style="color:green;">//&nbsp;This&nbsp;will&nbsp;get&nbsp;the&nbsp;setting&nbsp;value,&nbsp;as&nbsp;a&nbsp;string.&nbsp;Getting</span>
+<span style="color:green;">//&nbsp;the&nbsp;value&nbsp;this&nbsp;way&nbsp;is&nbsp;not&nbsp;optimal&nbsp;however,&nbsp;because</span>
+<span style="color:green;">//&nbsp;it&nbsp;might&nbsp;not&nbsp;be&nbsp;set.&nbsp;If&nbsp;that&#39;s&nbsp;the&nbsp;case,&nbsp;you&#39;ll&nbsp;get&nbsp;</span>
+<span style="color:green;">//&nbsp;a&nbsp;null&nbsp;value.</span>
+<span style="color:blue;">string</span>&nbsp;value&nbsp;=&nbsp;<span style="color:#2b91af;">Configuration</span>.ConfigAsker[settingName];
+ 
+<span style="color:green;">//&nbsp;You&nbsp;will&nbsp;want&nbsp;to&nbsp;use&nbsp;the&nbsp;following&nbsp;instead.&nbsp;If&nbsp;the&nbsp;value&nbsp;is</span>
+<span style="color:green;">//&nbsp;not&nbsp;found,&nbsp;it&nbsp;will&nbsp;set&nbsp;it&nbsp;to&nbsp;the&nbsp;default&nbsp;value,&nbsp;&quot;1&quot;&nbsp;and</span>
+<span style="color:green;">//&nbsp;return&nbsp;it.&nbsp;That&nbsp;way&nbsp;you&nbsp;won&#39;t&nbsp;have&nbsp;null&nbsp;value&nbsp;issues.</span>
+value&nbsp;=&nbsp;<span style="color:#2b91af;">Configuration</span>.ConfigAsker[settingName,&nbsp;<span style="color:#a31515;">&quot;1&quot;</span>];
+ 
+<span style="color:green;">//&nbsp;It&nbsp;is&nbsp;a&nbsp;string&nbsp;though,&nbsp;but&nbsp;the&nbsp;magnifying&nbsp;value&nbsp;should&nbsp;be&nbsp;</span>
+<span style="color:green;">//&nbsp;a&nbsp;float&nbsp;number!&nbsp;You&nbsp;have&nbsp;to&nbsp;parse&nbsp;it&nbsp;:</span>
+<span style="color:blue;">float</span>&nbsp;fVal;
+ 
+<span style="color:green;">//&nbsp;Calling&nbsp;&#39;Replace(&quot;,&quot;,&nbsp;&quot;.&quot;)&#39;&nbsp;is&nbsp;necessary&nbsp;here&nbsp;since&nbsp;some&nbsp;countries&nbsp;use&nbsp;a&nbsp;coma&nbsp;instead&nbsp;of&nbsp;a&nbsp;dot</span>
+<span style="color:blue;">if</span>&nbsp;(<span style="color:blue;">float</span>.TryParse(value.Replace(<span style="color:#a31515;">&quot;,&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;.&quot;</span>),&nbsp;<span style="color:#2b91af;">NumberStyles</span>.Any,&nbsp;<span style="color:#2b91af;">CultureInfo</span>.InvariantCulture,&nbsp;<span style="color:blue;">out</span>&nbsp;fVal))&nbsp;{
+	<span style="color:green;">//&nbsp;Do&nbsp;stuff&nbsp;with&nbsp;the&nbsp;value!</span>
+ 
+	<span style="color:green;">//&nbsp;This&nbsp;will&nbsp;set&nbsp;the&nbsp;value&nbsp;to&nbsp;&#39;Anything&#39;,&nbsp;which&nbsp;we&nbsp;know&nbsp;is&nbsp;not</span>
+	<span style="color:green;">//&nbsp;valid,&nbsp;but&nbsp;you&nbsp;can&nbsp;see&nbsp;the&nbsp;effect&nbsp;if&nbsp;you&nbsp;load&nbsp;</span>
+	<span style="color:green;">//&nbsp;the&nbsp;Magnify&nbsp;script&nbsp;(Scripts&nbsp;&gt;&nbsp;Magnify)</span>
+	<span style="color:#2b91af;">Configuration</span>.ConfigAsker[settingName]&nbsp;=&nbsp;<span style="color:#a31515;">&quot;Anything&quot;</span>;
+	<span style="color:#2b91af;">Configuration</span>.ConfigAsker[settingName]&nbsp;=&nbsp;fVal.ToString(<span style="color:#2b91af;">CultureInfo</span>.InvariantCulture);
+}
+<span style="color:blue;">else</span>&nbsp;{
+	<span style="color:blue;">throw</span>&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">Exception</span>(<span style="color:#a31515;">&quot;The&nbsp;input&nbsp;value&nbsp;is&nbsp;not&nbsp;in&nbsp;a&nbsp;valid&nbsp;format.&quot;</span>);
+}</pre>
+						</div>
+					</div>
+				</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4 id="dialogs">Default dialogs</h4>
+			<p>There are already some premade dialogs that you can use. The color picker dialog will most likely be of interest to you!</p>
+			<div class="bs-border" >
+				<div class="bs-callout bs-callout-normal">
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:green;">//&nbsp;Example</span>
+<span style="color:green;">//&nbsp;Shows&nbsp;a&nbsp;basic&nbsp;dialog&nbsp;with&nbsp;some&nbsp;text&nbsp;in&nbsp;it</span>
+<span style="color:#2b91af;">WindowProvider</span>.ShowDialog(<span style="color:#a31515;">&quot;Something&nbsp;happened,&nbsp;press&nbsp;ok!&quot;</span>);
+ 
+<span style="color:green;">//&nbsp;Shows&nbsp;a&nbsp;basic&nbsp;dialog,&nbsp;but&nbsp;with&nbsp;YesNoCancel&nbsp;options</span>
+<span style="color:green;">//&nbsp;The&nbsp;last&nbsp;3&nbsp;arguments&nbsp;here&nbsp;are&nbsp;what&nbsp;the&nbsp;buttons&nbsp;will&nbsp;show.</span>
+<span style="color:#2b91af;">WindowProvider</span>.ShowDialog(<span style="color:#a31515;">&quot;Something&nbsp;happened,&nbsp;press&nbsp;ok!&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;Title&nbsp;-&nbsp;Caption&quot;</span>,&nbsp;<span style="color:#2b91af;">MessageBoxButton</span>.YesNoCancel,&nbsp;<span style="color:#a31515;">&quot;Yes&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;No&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;Close&quot;</span>);
+ 
+<span style="color:green;">//&nbsp;You&nbsp;can&nbsp;also&nbsp;use&nbsp;.Net&#39;s&nbsp;framework&nbsp;to&nbsp;show&nbsp;dialogs&nbsp;:</span>
+<span style="color:#2b91af;">MessageBox</span>.Show(<span style="color:#a31515;">&quot;Something&nbsp;happened&nbsp;again&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;Caption&quot;</span>);
+ 
+<span style="color:green;">//&nbsp;This&nbsp;dialog&nbsp;will&nbsp;require&nbsp;an&nbsp;input</span>
+<span style="color:blue;">var</span>&nbsp;inputDialog&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">InputDialog</span>(<span style="color:#a31515;">&quot;Message&nbsp;to&nbsp;display&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;The&nbsp;title&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;A&nbsp;default&nbsp;value&nbsp;in&nbsp;the&nbsp;input&nbsp;box&quot;</span>);
+ 
+<span style="color:green;">//&nbsp;The&nbsp;input&nbsp;dialog&nbsp;doesn&#39;t&nbsp;know&nbsp;who&nbsp;his&nbsp;parent&nbsp;is;&nbsp;it&#39;s&nbsp;not&nbsp;really&nbsp;</span>
+<span style="color:green;">//&nbsp;a&nbsp;major&nbsp;issue,&nbsp;but&nbsp;if&nbsp;you&nbsp;alt-tab&nbsp;in&nbsp;and&nbsp;out,&nbsp;you&nbsp;will&nbsp;have&nbsp;weird</span>
+<span style="color:green;">//&nbsp;stuff&nbsp;going&nbsp;on.&nbsp;The&nbsp;value&nbsp;can&nbsp;easily&nbsp;be&nbsp;set&nbsp;with&nbsp;the&nbsp;following&nbsp;</span>
+<span style="color:green;">//&nbsp;code&nbsp;:</span>
+inputDialog.Owner&nbsp;=&nbsp;<span style="color:#2b91af;">WpfUtilities</span>.TopWindow;
+ 
+<span style="color:blue;">if</span>&nbsp;(inputDialog.ShowDialog()&nbsp;==&nbsp;<span style="color:blue;">true</span>)&nbsp;{
+	<span style="color:blue;">string</span>&nbsp;result&nbsp;=&nbsp;inputDialog.Input;
+ 
+	<span style="color:green;">//&nbsp;Do&nbsp;something&nbsp;with&nbsp;the&nbsp;result</span>
+}
+<span style="color:blue;">else</span>&nbsp;{
+	<span style="color:green;">//&nbsp;The&nbsp;ErrorHandler&nbsp;can&nbsp;also&nbsp;show&nbsp;up&nbsp;dialogs</span>
+	<span style="color:green;">//&nbsp;Note&nbsp;that&nbsp;if&nbsp;you&nbsp;use&nbsp;ErrorLevel.NotSpecified&nbsp;or&nbsp;ErrorLevel.Low,&nbsp;the&nbsp;dialog&nbsp;will</span>
+	<span style="color:green;">//&nbsp;close&nbsp;if&nbsp;any&nbsp;key&nbsp;is&nbsp;pressed.</span>
+	<span style="color:#2b91af;">ErrorHandler</span>.HandleException(<span style="color:#a31515;">&quot;You&nbsp;cancelled&nbsp;the&nbsp;input&nbsp;dialog!&quot;</span>,&nbsp;<span style="color:#2b91af;">ErrorLevel</span>.NotSpecified);
+}
+ 
+<span style="color:green;">//&nbsp;You&nbsp;can&nbsp;use&nbsp;the&nbsp;ErrorHandler&nbsp;for&nbsp;true&nbsp;or&nbsp;false&nbsp;responses&nbsp;only.&nbsp;For&nbsp;example&nbsp;:</span>
+<span style="color:blue;">if</span>&nbsp;(<span style="color:#2b91af;">ErrorHandler</span>.YesNoRequest(<span style="color:#a31515;">&quot;The&nbsp;program&nbsp;requires&nbsp;your&nbsp;immediate&nbsp;attention,&nbsp;are&nbsp;you&nbsp;sure&nbsp;you&nbsp;want&nbsp;to&nbsp;continue?&quot;</span>,&nbsp;<span style="color:#a31515;">&quot;Title&quot;</span>))&nbsp;{
+	<span style="color:green;">//&nbsp;The&nbsp;difference&nbsp;with&nbsp;this&nbsp;dialog&nbsp;is&nbsp;that&nbsp;it&#39;s&nbsp;being&nbsp;handled&nbsp;by&nbsp;the&nbsp;ErrorManager&nbsp;library.</span>
+	<span style="color:green;">//&nbsp;It&nbsp;will&nbsp;block&nbsp;any&nbsp;other&nbsp;windows&nbsp;until&nbsp;you&nbsp;responded;&nbsp;it&nbsp;is&nbsp;handy&nbsp;dialog&nbsp;to&nbsp;use&nbsp;</span>
+	<span style="color:green;">//&nbsp;if&nbsp;you&nbsp;must&nbsp;have&nbsp;a&nbsp;true&nbsp;or&nbsp;false&nbsp;value&nbsp;(instead&nbsp;of&nbsp;&quot;I&nbsp;don&#39;t&nbsp;know&quot;/Cancel).</span>
+}
+ 
+<span style="color:green;">//&nbsp;The&nbsp;ColorPicker&nbsp;dialog&nbsp;can&nbsp;be&nbsp;used&nbsp;for&nbsp;choosing&nbsp;a&nbsp;color&nbsp;:</span>
+ColorPicker.<span style="color:#2b91af;">PickerDialog</span>&nbsp;picker&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;ColorPicker.<span style="color:#2b91af;">PickerDialog</span>(act[0,&nbsp;0,&nbsp;0].Color.ToColor(),&nbsp;ColorPicker.Core.<span style="color:#2b91af;">ColorMode</span>.Hue);
+ 
+<span style="color:green;">//&nbsp;If&nbsp;you&nbsp;want&nbsp;to&nbsp;create&nbsp;a&nbsp;preview&nbsp;in&nbsp;the&nbsp;editor&nbsp;while&nbsp;changing&nbsp;the&nbsp;color&nbsp;</span>
+<span style="color:green;">//&nbsp;in&nbsp;the&nbsp;picker,&nbsp;you&#39;ll&nbsp;have&nbsp;to&nbsp;handle&nbsp;the&nbsp;ColorChanged&nbsp;events.</span>
+<span style="color:green;">//&nbsp;Examples&nbsp;of&nbsp;these&nbsp;can&nbsp;be&nbsp;found&nbsp;in&nbsp;the&nbsp;&quot;Replace&nbsp;color&quot;&nbsp;script.</span>
+picker.ShowDialog();
+ 
+<span style="color:blue;">if</span>&nbsp;(picker.DialogResult)&nbsp;{
+	<span style="color:green;">//&nbsp;The&nbsp;PickerDialog&nbsp;uses&nbsp;WPF&#39;s&nbsp;Color&nbsp;class,&nbsp;but&nbsp;you&nbsp;can&nbsp;easily</span>
+	<span style="color:green;">//&nbsp;convert&nbsp;one&nbsp;another&nbsp;with&nbsp;ToGrfColor()&nbsp;and&nbsp;ToColor()&nbsp;extension</span>
+	<span style="color:green;">//&nbsp;methods.</span>
+	<span style="color:#2b91af;">GrfColor</span>&nbsp;color&nbsp;=&nbsp;picker.PickerControl.SelectedColor.ToGrfColor();
+}</pre>
+				</div>
+			</div>
+		</div>
+	</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="list-group" style="margin: 50px 0px 0px 0px;" data-spy="affix" data-offset-top="125">
+						<a class="list-group-item" href="#getting-started">Getting started</a>
+						<a class="list-group-item" href="#console-input">Console input</a>
+						<a class="list-group-item" href="#act-related-functions">Action related functions</a>
+						<a class="list-group-item" href="#frame-related-functions">Frame related functions</a>
+						<a class="list-group-item" href="#layer-related-functions">Layer related functions</a>
+						<a class="list-group-item" href="#sprite-related-functions">Sprite related functions</a>
+						<a class="list-group-item" href="#settings">Saving and loading settings</a>
+						<a class="list-group-item" href="#dialogs">Default dialogs</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

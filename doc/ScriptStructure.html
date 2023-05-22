@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/styles.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="container">
+			<div class="bs-docs-section">
+				<div class="bs-border" >
+					<div class="bs-callout bs-callout-info">
+						<h4>IActScript class structure</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">interface</span>&nbsp;<span style="color:#2b91af;">IActScript</span>&nbsp;{
+	<span style="color:green;">//&nbsp;Tells&nbsp;what&nbsp;to&nbsp;display&nbsp;in&nbsp;the&nbsp;menu&nbsp;item.&nbsp;This&nbsp;value&nbsp;is&nbsp;usually&nbsp;a&nbsp;simple&nbsp;string.</span>
+	<span style="color:blue;">object</span>&nbsp;DisplayName&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+	<span style="color:green;">//&nbsp;This&nbsp;property&nbsp;is&nbsp;used&nbsp;to&nbsp;group&nbsp;the&nbsp;item&nbsp;under&nbsp;a&nbsp;MenuItem.&nbsp;</span>
+	<span style="color:green;">//&nbsp;You&nbsp;can&nbsp;add&nbsp;a&nbsp;script&nbsp;to&nbsp;an&nbsp;existing&nbsp;MenuItem&nbsp;(such&nbsp;as&nbsp;File,&nbsp;Action,&nbsp;etc).</span>
+	<span style="color:blue;">string</span>&nbsp;Group&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+	<span style="color:green;">//&nbsp;The&nbsp;image&nbsp;file&nbsp;to&nbsp;be&nbsp;displayed&nbsp;in&nbsp;the&nbsp;MenuItem.&nbsp;Simply&nbsp;add&nbsp;an&nbsp;image&nbsp;</span>
+	<span style="color:green;">//&nbsp;in&nbsp;the&nbsp;Scripts&nbsp;folder&nbsp;and&nbsp;enter&nbsp;the&nbsp;name&nbsp;in&nbsp;the&nbsp;field,&nbsp;such&nbsp;as&nbsp;&quot;myImage.png&quot;.&nbsp;</span>
+	<span style="color:green;">//&nbsp;There&nbsp;are&nbsp;no&nbsp;restrictions&nbsp;on&nbsp;the&nbsp;image&nbsp;size,&nbsp;but&nbsp;icons&nbsp;are&nbsp;usually&nbsp;at&nbsp;16x16&nbsp;pixels.</span>
+	<span style="color:blue;">string</span>&nbsp;Image&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+	<span style="color:green;">//&nbsp;The&nbsp;shortcut&nbsp;bound&nbsp;to&nbsp;this&nbsp;command.&nbsp;You&nbsp;can&nbsp;return&nbsp;&quot;null&quot;&nbsp;if&nbsp;you&nbsp;don&#39;t&nbsp;want&nbsp;to&nbsp;</span>
+	<span style="color:green;">//&nbsp;set&nbsp;any.&nbsp;Example&nbsp;:&nbsp;&quot;Ctrl-Shift-H&quot;</span>
+	<span style="color:blue;">string</span>&nbsp;InputGesture&nbsp;{&nbsp;<span style="color:blue;">get</span>;&nbsp;}
+ 
+	<span style="color:green;">//&nbsp;This&nbsp;method&nbsp;is&nbsp;used&nbsp;to&nbsp;validate&nbsp;the&nbsp;input&nbsp;before&nbsp;executing&nbsp;the&nbsp;script.&nbsp;You&nbsp;</span>
+	<span style="color:green;">//&nbsp;can&nbsp;also&nbsp;simply&nbsp;set&nbsp;the&nbsp;code&nbsp;to&nbsp;&quot;return&nbsp;true;&quot;&nbsp;to&nbsp;always&nbsp;activate&nbsp;the&nbsp;script.</span>
+	<span style="color:green;">//&nbsp;Normally,&nbsp;an&nbsp;Act&nbsp;file&nbsp;must&nbsp;be&nbsp;opened&nbsp;before&nbsp;executing&nbsp;a&nbsp;script,&nbsp;hence&nbsp;why&nbsp;most</span>
+	<span style="color:green;">//&nbsp;of&nbsp;the&nbsp;scripts&nbsp;have&nbsp;&quot;return&nbsp;act&nbsp;!=&nbsp;null;&quot;&nbsp;for&nbsp;their&nbsp;precondition&nbsp;check.</span>
+	<span style="color:blue;">bool</span>&nbsp;CanExecute(<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:blue;">int</span>&nbsp;selectedActionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;selectedFrameIndex,&nbsp;<span style="color:blue;">int</span>[]&nbsp;selectedLayerIndexes);
+ 
+	<span style="color:green;">//&nbsp;This&nbsp;method&nbsp;is&nbsp;where&nbsp;all&nbsp;the&nbsp;operations&nbsp;should&nbsp;be&nbsp;executed.&nbsp;</span>
+	<span style="color:green;">//&nbsp;There&nbsp;are&nbsp;many&nbsp;methods&nbsp;available&nbsp;to&nbsp;you,&nbsp;and&nbsp;you&nbsp;can&nbsp;write&nbsp;your&nbsp;own&nbsp;very&nbsp;easily.</span>
+	<span style="color:green;">//&nbsp;The&nbsp;scripting&nbsp;engine&nbsp;uses&nbsp;the&nbsp;C#&nbsp;compiler,&nbsp;allowing&nbsp;you&nbsp;to&nbsp;do&nbsp;almost&nbsp;anything&nbsp;C#</span>
+	<span style="color:green;">//&nbsp;can&nbsp;offer.&nbsp;The&nbsp;quickest&nbsp;way&nbsp;to&nbsp;learn&nbsp;the&nbsp;&#39;language&#39;/methods&nbsp;is&nbsp;to&nbsp;check&nbsp;out&nbsp;the&nbsp;</span>
+	<span style="color:green;">//&nbsp;other&nbsp;scripts.&nbsp;There&nbsp;is&nbsp;also&nbsp;a&nbsp;guide&nbsp;showing&nbsp;common&nbsp;tasks&nbsp;and&nbsp;examples&nbsp;regarding</span>
+	<span style="color:green;">//&nbsp;how&nbsp;to&nbsp;write&nbsp;scripts.</span>
+	<span style="color:blue;">void</span>&nbsp;Execute(<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:blue;">int</span>&nbsp;selectedActionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;selectedFrameIndex,&nbsp;<span style="color:blue;">int</span>[]&nbsp;selectedLayerIndexes);
+}</pre>
+						<div class="list-group" style="width: 200px;">
+							<a href="addingScript.html" target="main" class="list-group-item">Adding a script</a>
+							<a href="#s" target="main" class="list-group-item active">Script structure</a>
+							<a href="scriptGuide.html" target="main" class="list-group-item">Example of scripts</a>
+							<a href="scriptMethods.html" target="main" class="list-group-item">Methods</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

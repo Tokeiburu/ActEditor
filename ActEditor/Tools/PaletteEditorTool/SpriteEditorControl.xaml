@@ -1,0 +1,110 @@
+﻿<UserControl x:Class="ActEditor.Tools.PaletteEditorTool.SpriteEditorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:WpfBugFix="clr-namespace:TokeiLibrary.WpfBugFix;assembly=TokeiLibrary"
+             xmlns:PaletteEditor="clr-namespace:PaletteEditor;assembly=PaletteEditor"
+             xmlns:PaletteEditorTool="clr-namespace:ActEditor.Tools.PaletteEditorTool"
+             xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+             xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
+             mc:Ignorable="d" 
+             FocusVisualStyle="{x:Null}">
+    <Grid FocusVisualStyle="{x:Null}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="2">
+            <MenuItem>
+                <MenuItem.Header>
+                    <Label Content="File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
+                </MenuItem.Header>
+                <MenuItem Name="_menuItemOpen" Header="Open..." Click="_menuItemOpen_Click" />
+                <MenuItem Name="_menuItemOpenRecent" Header="Open recent" />
+                <Separator />
+                <MenuItem Name="_menuItemSave" Header="Save" Click="_menuItemSave_Click" />
+                <MenuItem Name="_menuItemSaveAs" Header="Save as..." Click="_menuItemSaveAs_Click" />
+                <Separator />
+                <MenuItem Name="_menuItemClose" Header="Close" Click="_menuItemClose_Click" />
+            </MenuItem>
+            <MenuItem Name="_miTools">
+                <MenuItem.Header>
+                    <Label Content="Tools" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
+                </MenuItem.Header>
+                <MenuItem Name="_menuItemSwitchGradient3" Click="_menuItemSwitchGradient_Click" Header="Switch colors" listView:WpfUtils.ImagePath="reverse.png" />
+                <MenuItem Name="_menuItemSwitchGradient2" Click="_menuItemSwitchGradient_Click" Header="Switch colors (by switching indexes)" listView:WpfUtils.ImagePath="reverse.png" />
+                <MenuItem Name="_menuItemSwitchGradient1" Click="_menuItemSwitchGradient_Click" Header="Switch indexes (keep colors)" />
+                <MenuItem Name="_menuItemSwitchGradient4" Click="_menuItemSwitchGradient4_Click" Header="Redirect to" listView:WpfUtils.ImagePath="arrowdown.png" />
+                <MenuItem Name="_menuItemStampLock" Click="_menuItemStampLock_Click" Header="Stamp lock" />
+            </MenuItem>
+        </Menu>
+        <DockPanel Name="_dpUndoRedo" Margin="85 0 0 0" HorizontalAlignment="Left">
+            <WpfBugFix:ToggleMemoryButton x:Name="_tmbUndo" IsEnabled="False" PrimaryButtonImagePath="undo.png" DisplayFormat="Undo {0} action" />
+            <WpfBugFix:ToggleMemoryButton x:Name="_tmbRedo" IsEnabled="False"  PrimaryButtonImagePath="redo.png" DisplayFormat="Redo {0} action" />
+        </DockPanel>
+        <Grid Grid.Row="1">
+            <Grid>
+                <PaletteEditorTool:SpriteViewer x:Name="_spriteViewer" FocusVisualStyle="{x:Null}" />
+                <WrapPanel HorizontalAlignment="Left" Width="32">
+                    <styles:FancyButton x:Name="_buttonSelection" ImagePath="cs_cursor.png" Width="18" Height="18" Click="_buttonSelection_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Selects the color in the palettes by clicking on the image.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+                    <styles:FancyButton x:Name="_buttonPen" ImagePath="cs_pen.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonPen_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Draws on the image with the selected color.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+                    <styles:FancyButton x:Name="_buttonBucket" ImagePath="cs_bucket.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonBucket_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Draws on the image with the selected color and fills all nearby pixels.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+                    <styles:FancyButton x:Name="_buttonEraser" ImagePath="cs_eraser.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonEraser_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Removes the selected colors of the image.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+                    <styles:FancyButton x:Name="_buttonStamp" ImagePath="cs_stamp.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonStamp_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Overwrites the pixels with the brush according the selected gradient.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+                    <styles:FancyButton x:Name="_buttonStamp2" ImagePath="copy.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonStamp2_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Clones a part of the image using the gradients as a base. First select the gradients that you want to copy, then click on this tool. You can then drag an overlay of the image and click to paste it.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+                </WrapPanel>
+                <ComboBox Width="100" IsEditable="True" Name="_cbSpriteId" Margin="100 0 0 0" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+            </Grid>
+        </Grid>
+        <!--<PaletteEditorTool:SpriteViewer MinWidth="300" MinHeight="300" x:Name="_spriteViewer" Grid.Row="1" FocusVisualStyle="{x:Null}" />-->
+        <Grid Name="_mainGrid" Grid.Row="1" Grid.Column="1" MinHeight="550" MinWidth="575">
+            <PaletteEditor:SingleColorEditControl PalAtTop="True" x:Name="_sce" VerticalAlignment="Top" />
+            <PaletteEditor:GradientColorEditControl PalAtTop="True" x:Name="_gceControl" VerticalAlignment="Top" />
+        </Grid>
+        <Grid Grid.Row="1" Margin="-100 0 0 0" Width="2" HorizontalAlignment="Left">
+            <TextBox Name="_focusDummy" />
+        </Grid>
+        <!--<ComboBox Grid.Row="1" Width="100" IsEditable="True" Name="_cbSpriteId" Margin="100 0 0 0" VerticalAlignment="Bottom" HorizontalAlignment="Left" />-->
+    </Grid>
+</UserControl>

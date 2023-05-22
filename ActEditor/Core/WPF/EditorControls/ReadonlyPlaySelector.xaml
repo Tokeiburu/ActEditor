@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="ActEditor.Core.WPF.EditorControls.ReadonlyPlaySelector"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Opacity="0.7" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary" FontSize="10"
+             xmlns:GenericControls1="clr-namespace:ActEditor.Core.WPF.GenericControls" mc:Ignorable="d" >
+    <Grid Background="White" >
+        <Styles:FancyButton x:Name="_play" Height="16" Width="16" Grid.Row="1" Grid.Column="1" />
+    </Grid>
+</UserControl>

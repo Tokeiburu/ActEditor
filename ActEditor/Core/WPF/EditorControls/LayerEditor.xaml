@@ -1,0 +1,47 @@
+﻿<UserControl x:Class="ActEditor.Core.WPF.EditorControls.LayerEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             FocusVisualStyle="{x:Null}"
+             xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+             xmlns:WPF="clr-namespace:ActEditor.Core.WPF" xmlns:Core="clr-namespace:ActEditor.Core"
+             xmlns:EditorControls="clr-namespace:ActEditor.Core.WPF.EditorControls" mc:Ignorable="d" >
+    <UserControl.ContextMenu>
+        <ContextMenu>
+            <Styles:TkMenuItem x:Name="_miDelete" Click="_miDelete_Click" HeaderText="Delete layer" ShortcutCmd="LayerEditor.DeleteSelected" IconPath="delete.png" />
+            <Separator />
+            <Styles:TkMenuItem x:Name="_miInvert" Click="_miInvert_Click" HeaderText="Invert selection" ShortcutCmd="LayerEditor.InvertSelection" />
+            <Styles:TkMenuItem x:Name="_miFront" Click="_miFront_Click" HeaderText="Frame - Bring to front" ShortcutCmd="LayerEditor.BringToFront" IconPath="front.png" />
+            <Styles:TkMenuItem x:Name="_miBack" Click="_miBack_Click" HeaderText="Frame - Bring to back" ShortcutCmd="LayerEditor.BringToBack" IconPath="back.png" />
+            <Separator />
+            <Styles:TkMenuItem x:Name="_miActionFront" Click="_miActionFront_Click" HeaderText="Action - Bring to front" ShortcutCmd="FrameEditor.LayerMoveUp" IconPath="front.png" />
+            <Styles:TkMenuItem x:Name="_miActionBack" Click="_miActionBack_Click" HeaderText="Action - Bring to back" ShortcutCmd="FrameEditor.LayerMoveDown" IconPath="back.png" />
+            <Separator />
+            <Styles:TkMenuItem x:Name="_miCopy" Click="_miCopy_Click" HeaderText="Copy" InputGestureText="Ctrl-C" IconPath="copy.png" />
+            <Styles:TkMenuItem x:Name="_miCut" Click="_miCut_Click" HeaderText="Cut" InputGestureText="Ctrl-X" IconPath="cut.png" />
+            <Separator />
+            <Styles:TkMenuItem x:Name="_miSelect" Click="_miSelect_Click" HeaderText="Select in sprite list" CanExecute="{Binding ImageExists}" IconPath="arrowdown.png" />
+        </ContextMenu>
+    </UserControl.ContextMenu>
+    <Grid FocusVisualStyle="{x:Null}">
+        <Grid Name="_displayGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <EditorControls:LayerControlHeader x:Name="_sfch" />
+            <Border BorderThickness="0 1 0 0" BorderBrush="{x:Static Core:ActEditorWindow.UIGridBackground}" VerticalAlignment="Top" />
+            <ScrollViewer Name="_sv" Grid.Row="1" Grid.ColumnSpan="2" MinHeight="50" FocusVisualStyle="{x:Null}">
+                <StackPanel VirtualizingStackPanel.IsVirtualizing="True" Name="_sp" FocusVisualStyle="{x:Null}">
+                </StackPanel>
+            </ScrollViewer>
+            <ListView Name="_listView" Visibility="Collapsed" Grid.Row="1" Foreground="Black" AllowDrop="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" FocusVisualStyle="{x:Null}" />
+        </Grid>
+        <Line  Name="_lineMoveLayer" X1="0" Margin="0 0 0 0" X2="1" Stretch="Fill" Stroke="Red" StrokeThickness="3" VerticalAlignment="Top" Visibility="Hidden" Grid.ColumnSpan="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" />
+    </Grid>
+</UserControl>

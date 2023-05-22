@@ -1,0 +1,929 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using ActEditor.Core.DrawingComponents;
+using ActEditor.Core.WPF.EditorControls;
+using ActEditor.Core.WPF.FrameEditor;
+using ActEditor.Core.WPF.InteractionComponent;
+using ErrorManager;
+using GRF.FileFormats.ActFormat;
+using GRF.FileFormats.SprFormat;
+using TokeiLibrary;
+using TokeiLibrary.Shortcuts;
+using TokeiLibrary.WPF.Styles;
+using TokeiLibrary.WPF.Styles.ListView;
+using Action = GRF.FileFormats.ActFormat.Action;
+using Frame = GRF.FileFormats.ActFormat.Frame;
+
+namespace ActEditor.Core.WPF.Dialogs {
+	/// <summary>
+	/// Interaction logic for HeadEditorDialog.xaml
+	/// </summary>
+	public partial class HeadEditorDialog : TkWindow, IFrameRendererEditor {
+		private TabAct _editor;
+		private Act _actSource;
+		private Act _actHeadReference;
+		private Act _actBodyReference;
+		private Spr _sprReference;
+		private readonly SelectionEngine _selectionEngine;
+		private readonly List<ReferenceControl> _references = new List<ReferenceControl>();
+		public HeadEditorActIndexSelector _actIndexSelector;
+		public SpriteManager _spriteManager;
+		private Act _actOriginal;
+		private Act _actReferenceOriginal;
+		private int _flag;
+
+		public class ActReferenceView {
+			public int Index { get; set; }
+			private readonly string _name;
+
+			public bool Default {
+				get { return true; }
+			}
+
+			public ActReferenceView(string name, int index) {
+				Index = index;
+				_name = name;
+			}
+
+			public string DisplayName {
+				get { return _name; }
+			}
+
+			public override string ToString() {
+				return _name;
+			}
+		}
+
+		public HeadEditorDialog(int flag)
+			: base(flag == 0 ? "Setup Headgear" : (flag == 1 ? "Setup Head" : "Setup Garment"), "advanced.png", SizeToContent.Manual, ResizeMode.CanResize) {
+			InitializeComponent();
+			ShowInTaskbar = true;
+			_flag = flag;
+
+			_selectionEngine = new SelectionEngine();
+			_actIndexSelector = new HeadEditorActIndexSelector(this);
+			_selectionEngine.Init(this);
+			_spriteManager = new SpriteManager();
+			_spriteManager.AddDisabledMode(SpriteEditMode.Add);
+			_spriteManager.AddDisabledMode(SpriteEditMode.After);
+			_spriteManager.AddDisabledMode(SpriteEditMode.Before);
+			_spriteManager.AddDisabledMode(SpriteEditMode.Convert);
+			_spriteManager.AddDisabledMode(SpriteEditMode.Remove);
+			_spriteManager.AddDisabledMode(SpriteEditMode.Replace);
+			_spriteManager.AddDisabledMode(SpriteEditMode.ReplaceFlipHorizontal);
+			_spriteManager.AddDisabledMode(SpriteEditMode.ReplaceFlipVertical);
+			_spriteManager.AddDisabledMode(SpriteEditMode.Usage);
+
+			_listViewHeads.PreviewKeyDown += new KeyEventHandler(_listViewHeads_PreviewKeyDown);
+			_rendererPrimary.PreviewDrop += new DragEventHandler(_rendererPrimary_PreviewDrop);
+
+			ListViewDataTemplateHelper.GenerateListViewTemplateNew(_listViewHeads, new ListViewDataTemplateHelper.GeneralColumnInfo[] {
+				new ListViewDataTemplateHelper.GeneralColumnInfo { Header = "File name", DisplayExpression = "DisplayName", SearchGetAccessor = "DisplayName", IsFill = true, TextAlignment = TextAlignment.Left, ToolTipBinding = "DisplayName" }
+			}, new DefaultListViewComparer<ActReferenceView>(), new string[] { "Default", "Black" }, "generateHeader", "true", "overrideSizeRedraw", "true");
+
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "HeadEditor.Undo"), () => {
+				if (Act != null) {
+					Act.Commands.Undo();
+					_selectionEngine.Select(0);
+				}
+			}, this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "HeadEditor.Redo"), () => {
+				if (Act != null) {
+					Act.Commands.Redo();
+					_selectionEngine.Select(0);
+				}
+			}, this);
+
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-A", "HeadEditor.ShowAdjacentFrames"), () => {
+				if (_rendererLeft.IsHitTestVisible || _rendererRight.IsHitTestVisible) {
+					_col0.Width = new GridLength(0);
+					_col2.Width = new GridLength(0);
+
+					_rendererLeft.Visibility = Visibility.Collapsed;
+					_rendererLeft.IsHitTestVisible = false;
+					_rendererRight.Visibility = Visibility.Collapsed;
+					_rendererRight.IsHitTestVisible = false;
+					_col1.Width = new GridLength(1, GridUnitType.Star);
+				}
+				else {
+					_createPreviewGrid(true);
+					_createPreviewGrid(false);
+					_col1.Width = new GridLength(1, GridUnitType.Star);
+				}
+			}, this);
+		}
+
+		private void _listViewHeads_PreviewKeyDown(object sender, KeyEventArgs e) {
+			_rendererPrimary.Edit.Renderer_KeyDown(sender, e);
+			e.Handled = true;
+		}
+
+		private void _rendererPrimary_PreviewDrop(object sender, DragEventArgs e) {
+			object imageIndexObj = e.Data.GetData("ImageIndex");
+
+			if (imageIndexObj == null) return;
+
+			int imageIndex = (int)imageIndexObj;
+			Point mousePosition = e.GetPosition(_rendererPrimary);
+
+			Act.Commands.BeginNoDelay();
+			Act.Commands.SetAbsoluteSpriteId(SelectedAction, SelectedFrame, 0, imageIndex);
+			Act.Commands.SetOffsets(SelectedAction, SelectedFrame, 0, (int)((mousePosition.X - _rendererPrimary.RelativeCenter.X * _rendererPrimary.ActualWidth) / _rendererPrimary.ZoomEngine.Scale), (int)((mousePosition.Y - _rendererPrimary.RelativeCenter.Y * _rendererPrimary.ActualHeight) / _rendererPrimary.ZoomEngine.Scale));
+			Act.Commands.End();
+
+			FrameSelector.OnFrameChanged(SelectedFrame);
+			SelectionEngine.SetSelection(0);
+
+			Keyboard.Focus(GridPrimary);
+
+			e.Handled = true;
+		}
+
+		private void _appendSprite2(int i, Act actHeadReference, Act actBodyReference, Act actOriginal, Act act) {
+			var actUsageReference = _actBodyReference.FindUsageOf(i).Where(p => !_actBodyReference[p].Mirror).ToList();
+
+			if (actUsageReference.Count <= 0) {
+				return;
+			}
+
+			{
+				Action action = new Action();
+				Frame frame = new Frame();
+				frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+				action.Frames.Add(frame);
+				frame.Layers.Add(_actHeadReference[actUsageReference[0]]);
+				actHeadReference.AddAction(action);
+			}
+			{
+				// Body
+				Action action = new Action();
+				Frame frame = new Frame();
+				action.Frames.Add(frame);
+				bool found = false;
+
+				foreach (var actIndex in actUsageReference) {
+					var sourceFrame = _actBodyReference.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
+
+					if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
+						var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+						if (sourceLayer != null) {
+							frame.Anchors.AddRange(sourceFrame.Anchors);
+							Layer newLayer = new Layer(sourceLayer);
+							frame.Layers.Add(newLayer);
+							found = true;
+							break;
+						}
+					}
+				}
+
+				if (!found) {
+					frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+					Layer dummyLayer = new Layer(0, _sprReference);
+					dummyLayer.SpriteIndex = -1;
+					frame.Layers.Add(dummyLayer);
+				}
+
+				actBodyReference.AddAction(action);
+			}
+			{
+				Action action = new Action();
+				Frame frame = new Frame();
+				action.Frames.Add(frame);
+				bool found = false;
+
+				foreach (var actIndex in actUsageReference) {
+					var sourceFrame = actOriginal.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
+
+					if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
+						var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+						if (sourceLayer != null) {
+							frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+							Layer newLayer = new Layer(sourceLayer);
+							frame.Layers.Add(newLayer);
+							found = true;
+							break;
+						}
+					}
+				}
+
+				if (!found) {
+					// Add dummy frame
+					frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+					Layer dummyLayer = new Layer(0, _sprReference);
+					dummyLayer.SpriteIndex = -1;
+					frame.Layers.Add(dummyLayer);
+				}
+
+				act.AddAction(action);
+			}
+		}
+
+		private void _appendSprite1(int i, Act actHeadReference, Act actBodyReference, Act actOriginal, Act act) {
+			var actUsageReference = _actHeadReference.FindUsageOf(i).Where(p => !_actHeadReference[p].Mirror).ToList();
+
+			if (actUsageReference.Count > 0) {
+				{
+					Action action = new Action();
+					Frame frame = new Frame();
+					frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+					action.Frames.Add(frame);
+					frame.Layers.Add(_actHeadReference[actUsageReference[0]]);
+					actHeadReference.AddAction(action);
+				}
+				{
+					// Body
+					Action action = new Action();
+					Frame frame = new Frame();
+					action.Frames.Add(frame);
+					bool found = false;
+
+					foreach (var actIndex in actUsageReference) {
+						var sourceFrame = _actBodyReference.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
+
+						if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
+							var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+							if (sourceLayer != null) {
+								frame.Anchors.AddRange(sourceFrame.Anchors);
+								Layer newLayer = new Layer(sourceLayer);
+								frame.Layers.Add(newLayer);
+								found = true;
+								break;
+							}
+						}
+					}
+
+					if (!found) {
+						frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+						Layer dummyLayer = new Layer(0, _sprReference);
+						dummyLayer.SpriteIndex = -1;
+						frame.Layers.Add(dummyLayer);
+					}
+
+					actBodyReference.AddAction(action);
+				}
+				{
+					Action action = new Action();
+					Frame frame = new Frame();
+					action.Frames.Add(frame);
+					bool found = false;
+
+					foreach (var actIndex in actUsageReference) {
+						var sourceFrame = actOriginal.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
+
+						if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
+							var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+							if (sourceLayer != null) {
+								frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+								Layer newLayer = new Layer(sourceLayer);
+								frame.Layers.Add(newLayer);
+								found = true;
+								break;
+							}
+						}
+					}
+
+					if (!found) {
+						// Add dummy frame
+						frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+						Layer dummyLayer = new Layer(0, _sprReference);
+						dummyLayer.SpriteIndex = -1;
+						frame.Layers.Add(dummyLayer);
+					}
+
+					act.AddAction(action);
+				}
+			}
+		}
+
+		public void Init(TabAct editor, Act actOriginal) {
+			_actOriginal = actOriginal;
+			_actSource = new Act(actOriginal);
+			_editor = editor;
+
+			var refHead = _editor.References.First(p => p.ReferenceName == "Head");
+			var refBody = _editor.References.First(p => p.ReferenceName == "Body");
+
+			refHead.MakeAct();
+			refBody.MakeAct();
+
+			_actHeadReference = new Act(refHead.Act);
+			_sprReference = new Spr(refHead.Spr);
+
+			if (_flag == 2) {
+				_actReferenceOriginal = new Act(new Act(refBody.Act));
+			}
+			else {
+				_actReferenceOriginal = new Act(new Act(refHead.Act));
+			}
+
+			_actBodyReference = new Act(refBody.Act);
+
+			Act act = new Act(actOriginal.Sprite);
+			Act actHeadReference = new Act(_sprReference);
+			Act actBodyReference = new Act(refBody.Spr);
+
+			if (_flag == 2) {
+				// Generate sprites from a known list
+				_appendSprite2(0, actHeadReference, actBodyReference, actOriginal, act);
+				_appendSprite2(1, actHeadReference, actBodyReference, actOriginal, act);
+				_appendSprite2(2, actHeadReference, actBodyReference, actOriginal, act);
+				_appendSprite2(3, actHeadReference, actBodyReference, actOriginal, act);
+				_appendSprite2(4, actHeadReference, actBodyReference, actOriginal, act);
+			}
+			else {
+				for (int i = 0; i < _sprReference.NumberOfIndexed8Images; i++) {
+					_appendSprite1(i, actHeadReference, actBodyReference, actOriginal, act);
+				}
+			}
+
+			_actSource = act;
+			_actSource.Commands.CommandIndexChanged += delegate {
+				_buttonOk.IsEnabled = _actSource.Commands.IsModified;
+			};
+
+			if (_flag == 2) {
+				_actHeadReference = actHeadReference;
+				_actHeadReference.Name = "Head";
+				_actHeadReference.AnchoredTo = _actBodyReference;
+
+				_actBodyReference = actBodyReference;
+				_actBodyReference.Name = "Body";
+				_actBodyReference.AnchoredTo = _actSource;
+			}
+			else {
+				_actHeadReference = actHeadReference;
+				_actHeadReference.Name = "Head";
+				_actHeadReference.AnchoredTo = _actSource;
+
+				_actBodyReference = actBodyReference;
+				_actBodyReference.Name = "Body";
+				_actBodyReference.AnchoredTo = _actHeadReference;
+			}
+
+			List<ActReferenceView> items = new List<ActReferenceView>(_sprReference.NumberOfIndexed8Images);
+
+			if (_flag == 2) {
+				for (int i = 0; i < 5; i++) {
+					items.Add(new ActReferenceView(i + " - Garment", i));
+				}
+			}
+			else {	
+				for (int i = 0; i < _sprReference.NumberOfIndexed8Images; i++) {
+					items.Add(new ActReferenceView(i + " - Head", i));
+				}
+			}
+
+			_listViewHeads.SelectionChanged += new SelectionChangedEventHandler(_listViewHeads_SelectionChanged);
+
+			_spriteSelector.Init(this);
+
+			_rendererPrimary.Init(this);
+			_rendererPrimary.InteractionEngine = new HeadInteraction(_rendererPrimary, this);
+
+			_rendererPrimary.DrawingModules.Clear();
+			_rendererPrimary.DrawingModules.Add(new DefaultDrawModule(delegate {
+				List<DrawingComponent> components = new List<DrawingComponent>();
+				if (_flag == 2) {
+					switch(_rendererPrimary.SelectedAction) {
+						case 0:
+						case 1:
+						case 2:
+							components.Add(new ActDraw(_actSource, this));
+							components.Add(new ActDraw(_actBodyReference, this));
+							components.Add(new ActDraw(_actHeadReference, this));
+							break;
+						default:
+							components.Add(new ActDraw(_actBodyReference, this));
+							components.Add(new ActDraw(_actHeadReference, this));
+							components.Add(new ActDraw(_actSource, this));
+							break;
+					}
+				}
+				else {
+					components.Add(new ActDraw(_actBodyReference, this));
+					components.Add(new ActDraw(_actHeadReference, this));
+					components.Add(new ActDraw(_actSource, this));
+				}
+
+				components.Last().Selected += new DrawingComponent.DrawingComponentDelegate(_headEditorDialog_Selected);
+				return components;
+			}, DrawingPriorityValues.Normal, false));
+
+			_listViewHeads.ItemsSource = items;
+			_listViewHeads.SelectedIndex = 0;
+			OnActLoaded();
+		}
+
+		private void _headEditorDialog_Selected(object sender, int index, bool selected) {
+			if (selected) {
+				SelectionEngine.AddSelection(index);
+			}
+			else {
+				SelectionEngine.RemoveSelection(index);
+			}
+		}
+
+		private void _listViewHeads_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			_actIndexSelector.OnActionChanged(SelectedAction);
+			_actIndexSelector.OnFrameChanged(SelectedFrame);
+			_selectionEngine.Select(0);
+			//_rendererPrimary.Update();
+		}
+
+		private void _buttonOk_Click(object sender, RoutedEventArgs e) {
+			try {
+				if (_createHeadSprite()) {
+					_buttonOk.IsEnabled = false;
+					Act.Commands.SaveCommandIndex();
+				}
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err);
+			}
+		}
+
+		private int _getReferenceFrameIndex(int actionIndex, int frameIndex, Act act) {
+			if (actionIndex >= act.NumberOfActions) return -1;
+			if (act.Name == "Head" || act.Name == "Body") {
+
+				if (act[actionIndex].NumberOfFrames == 3 &&
+					(0 <= actionIndex && actionIndex < 8) ||
+					(16 <= actionIndex && actionIndex < 24)) {
+					if (_actOriginal != null) {
+						Act editorAct = _actOriginal;
+
+						int group = editorAct[actionIndex].NumberOfFrames / 3;
+
+						if (group != 0) {
+							if (frameIndex < group) {
+								return 0;
+							}
+							if (frameIndex < 2 * @group) {
+								return 1;
+							}
+							if (frameIndex < 3 * @group) {
+								return 2;
+							}
+							return 2;
+						}
+					}
+				}
+			}
+
+			if (frameIndex >= act[actionIndex].NumberOfFrames) {
+				if (act[actionIndex].NumberOfFrames > 0)
+					return frameIndex % act[actionIndex].NumberOfFrames;
+
+				return 0;
+			}
+
+			return frameIndex;
+		}
+
+		private int _getRerenceSpriteIndex(int aid, int fid, Act act) {
+			var layer = act[aid, fid].Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+			if (layer == null)
+				return -1;
+
+			return layer.SpriteIndex;
+		}
+
+		private int _getSourceSpriteIndex(int referenceSpriteIndex) {
+			Frame frameSource = _actSource[referenceSpriteIndex, 0];
+
+			if (frameSource.Layers.Count <= 0)
+				return -1;
+
+			return frameSource.Layers[0].SpriteIndex;
+		}
+
+		private bool _createHeadSprite() {
+			return _editor.Element.Dispatch(delegate {
+				try {
+					_actOriginal.Commands.Begin();
+					_actOriginal.Commands.Backup(act => {
+						if (_flag == 2) {
+							for (int aid = 0; aid < _actOriginal.Actions.Count && aid < _actReferenceOriginal.Actions.Count; aid++) {
+								var action = _actOriginal.Actions[aid];
+
+								for (int fid = 0; fid < action.Frames.Count; fid++) {
+									_cleanUpFrame(aid, fid);	// There is always 1 layer per frame
+									int referenceFrameIndex = _getReferenceFrameIndex(aid, fid, _actReferenceOriginal);
+									int referenceSpriteIndex = _getRerenceSpriteIndex(aid, referenceFrameIndex, _actReferenceOriginal);
+
+									if (referenceSpriteIndex < 0)
+										continue;
+
+									if (_flag == 2 && referenceSpriteIndex >= 5)
+										continue;
+
+									int sourceSpriteIndex = _getSourceSpriteIndex(referenceSpriteIndex);
+
+									if (sourceSpriteIndex < 0)
+										continue;
+
+									Layer currentLayer = _actOriginal[aid, fid, 0];
+									currentLayer.SetAbsoluteSpriteId(sourceSpriteIndex, _actOriginal.Sprite);
+
+									_adjustLayerCoordinates(aid, fid, referenceFrameIndex, currentLayer, referenceSpriteIndex);
+
+									if (_flag == 1) {
+										_actOriginal[aid, fid].Layers.Insert(0, new Layer(_actOriginal[aid, fid, 0]));
+										_actOriginal[aid, fid, 0].SpriteIndex = -1;
+									}
+								}
+							}
+						}
+						else {
+							for (int aid = 0; aid < _actOriginal.Actions.Count && aid < _actReferenceOriginal.Actions.Count; aid++) {
+								var action = _actOriginal.Actions[aid];
+
+								for (int fid = 0; fid < action.Frames.Count; fid++) {
+									_cleanUpFrame(aid, fid);	// There is always 1 layer per frame
+									int referenceFrameIndex = _getReferenceFrameIndex(aid, fid, _actReferenceOriginal);
+									int referenceSpriteIndex = _getRerenceSpriteIndex(aid, referenceFrameIndex, _actReferenceOriginal);
+
+									if (referenceSpriteIndex < 0)
+										continue;
+
+									int sourceSpriteIndex = _getSourceSpriteIndex(referenceSpriteIndex);
+
+									if (sourceSpriteIndex < 0)
+										continue;
+
+									Layer currentLayer = _actOriginal[aid, fid, 0];
+									currentLayer.SetAbsoluteSpriteId(sourceSpriteIndex, _actOriginal.Sprite);
+
+									_adjustLayerCoordinates(aid, fid, referenceFrameIndex, currentLayer, referenceSpriteIndex);
+
+									if (_flag == 1) {
+										_actOriginal[aid, fid].Layers.Insert(0, new Layer(_actOriginal[aid, fid, 0]));
+										_actOriginal[aid, fid, 0].SpriteIndex = -1;
+									}
+								}
+							}
+						}
+					}, (_flag == 2 ? "Garment sprite generation" : "Head sprite generation"), true);
+				}
+				catch (Exception err) {
+					_actOriginal.Commands.CancelEdit();
+					ErrorHandler.HandleException(err);
+					return false;
+				}
+				finally {
+					_actOriginal.Commands.End();
+					_actOriginal.InvalidateVisual();
+					_actOriginal.InvalidateSpriteVisual();
+				}
+
+				return true;
+			});
+		}
+
+		private void _adjustLayerCoordinates(int aid, int fid, int referenceFrameIndex, Layer layerSource, int referenceSpriteIndex) {
+			Frame frameSource = _actOriginal[aid, fid];
+			Frame frameReference = _actReferenceOriginal[aid, referenceFrameIndex];
+			Layer layerReference = frameReference.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+			if (layerReference == null)
+				return;
+
+			Frame modelFrameSource = _actSource[referenceSpriteIndex, 0];
+			Frame modelFrameReference;
+
+			if (_flag == 2) {
+				modelFrameReference = _actBodyReference[referenceSpriteIndex, 0];
+			}
+			else {
+				modelFrameReference = _actHeadReference[referenceSpriteIndex, 0];
+			}
+
+			Layer modelLayerSource = modelFrameSource.Layers[0];
+			Layer modelLayerReference = modelFrameReference.Layers[0];
+
+			layerSource.Mirror = layerReference.Mirror;
+
+			// Ignore anchors for now...
+			// Ignore mirrors
+			int x0 = modelLayerSource.OffsetX;
+			int y0 = modelLayerSource.OffsetY;
+			int x1 = modelLayerReference.OffsetX;
+			int y1 = modelLayerReference.OffsetY;
+
+			if (frameSource.Anchors.Count > 0 && frameReference.Anchors.Count > 0) {
+				frameSource.Anchors[0].OffsetX = frameReference.Anchors[0].OffsetX;
+				frameSource.Anchors[0].OffsetY = frameReference.Anchors[0].OffsetY;
+			}
+
+			layerSource.OffsetX = layerReference.OffsetX;
+			layerSource.OffsetY = layerReference.OffsetY;
+			layerSource.ScaleX = modelLayerSource.ScaleX;
+			layerSource.ScaleY = modelLayerSource.ScaleY;
+			layerSource.Rotation = modelLayerSource.Rotation;
+
+			var vectorX = x0 - x1;
+			var vectorY = y0 - y1;
+
+			if (layerSource.Mirror) {
+				vectorX *= -1;
+
+				if (layerSource.Rotation > 0) {
+					int rotation = 360 - layerSource.Rotation;
+					layerSource.Rotation = rotation < 0 ? rotation + 360 : rotation;
+				}
+			}
+
+			layerSource.Translate(vectorX, vectorY);
+		}
+
+		private void _cleanUpFrame(int aid, int fid) {
+			var frame = _actOriginal[aid].Frames[fid];
+
+			while (frame.Layers.Count > 1) {
+				frame.Layers.RemoveAt(1);
+			}
+
+			if (frame.Layers.Count == 0) {
+				// Need to create a new layer, we do not care about the sprite index for now
+				Layer layer = new Layer(0, _actOriginal.Sprite);
+				frame.Layers.Add(layer);
+			}
+		}
+
+		private void _createPreviewGrid(bool left) {
+			if (left && _rendererLeft.IsHitTestVisible == false && (string)_rendererLeft.Tag == "created") {
+				_rendererLeft.Visibility = Visibility.Visible;
+				_rendererLeft.IsHitTestVisible = true;
+				_col0.Width = new GridLength(1, GridUnitType.Star);
+				return;
+			}
+
+			if (!left && _rendererRight.IsHitTestVisible == false && (string)_rendererRight.Tag == "created") {
+				_rendererRight.Visibility = Visibility.Visible;
+				_rendererRight.IsHitTestVisible = true;
+				_col2.Width = new GridLength(1, GridUnitType.Star);
+				return;
+			}
+
+			var renderer = left ? _rendererLeft : _rendererRight;
+
+			DummyFrameEditor editor = new DummyFrameEditor();
+			editor.ActFunc = () => Act;
+			editor.Element = this;
+			editor.FrameSelector = FrameSelector;
+			renderer.Editor = editor;
+			editor.SelectionEngine = new SelectionEngine();
+			editor.FrameRenderer = renderer;
+			editor.SelectionEngine.Init(editor);
+			editor.SelectedActionFunc = delegate {
+				if (left) {
+					int action = SelectedAction;
+
+					if (Act[SelectedAction].Frames.Count <= 1) {
+						if (SelectedAction < 0)
+							action = 0;
+						else
+							action = action - 1;
+
+						if (action < 0)
+							action = 0;
+					}
+
+					return action;
+				}
+				else {
+					int action = SelectedAction;
+
+					if (Act[SelectedAction].Frames.Count <= 1) {
+						if (SelectedAction >= Act.NumberOfActions - 1)
+							action = Act.NumberOfActions - 1;
+						else
+							action = action + 1;
+
+						if (action >= Act.NumberOfActions)
+							action = Act.NumberOfActions - 1;
+					}
+
+					return action;
+				}
+			};
+			editor.SelectedFrameFunc = delegate {
+				if (left)
+					return SelectedFrame - 1 < 0 ? Act[SelectedAction].Frames.Count - 1 : SelectedFrame - 1;
+
+				return SelectedFrame + 1 >= Act[SelectedAction].Frames.Count ? 0 : SelectedFrame + 1;
+			};
+
+			renderer.Init(editor);
+			renderer.ZoomEngine.ZoomInMultiplier = () => _rendererPrimary.ZoomEngine.Scale;
+
+			renderer.DrawingModules.Add(new AnchorDrawModule(renderer, editor));
+			renderer.DrawingModules.Add(new DefaultDrawModule(() => new List<DrawingComponent> { new ActDraw(_actBodyReference, editor), new ActDraw(_actHeadReference, editor) }, DrawingPriorityValues.Back, false));
+			renderer.DrawingModules.Add(new DefaultDrawModule(delegate {
+				if (Act != null) {
+					var primary = new ActDraw(Act, editor);
+					primary.Selected += (sender, index, selected) => {
+						if (selected) {
+							editor.SelectionEngine.AddSelection(index);
+						}
+						else {
+							editor.SelectionEngine.RemoveSelection(index);
+						}
+					};
+					return new List<DrawingComponent> { primary };
+				}
+
+				return new List<DrawingComponent>();
+			}, DrawingPriorityValues.Normal, false));
+
+			renderer._cbZoom.Visibility = Visibility.Collapsed;
+			FancyButton button = new FancyButton();
+
+			button.HorizontalAlignment = HorizontalAlignment.Right;
+			button.VerticalAlignment = VerticalAlignment.Top;
+			button.Height = 18;
+			button.Width = 18;
+			button.Opacity = 0.8;
+			button.Background = Brushes.White;
+			button.ImagePath = "reset.png";
+			renderer.FrameMouseUp += (s, e) => {
+				if (renderer.GetObjectAtPoint<FancyButton>(e.GetPosition(renderer)) != button)
+					return;
+
+				if (left)
+					_col0.Width = new GridLength(0);
+				else
+					_col2.Width = new GridLength(0);
+
+				_col1.Width = new GridLength(2, GridUnitType.Star);
+
+				renderer.Visibility = Visibility.Collapsed;
+				renderer.IsHitTestVisible = false;
+			};
+
+			if (left)
+				_col0.Width = new GridLength(1, GridUnitType.Star);
+			else
+				_col2.Width = new GridLength(1, GridUnitType.Star);
+
+			renderer.Visibility = Visibility.Visible;
+			renderer.IsHitTestVisible = true;
+
+			renderer._gridBackground.Children.Add(button);
+
+			_rendererPrimary.ZoomChanged += (e, scale) => {
+				renderer.ZoomEngine.SetZoom(scale);
+				renderer._cbZoom.Text = renderer.ZoomEngine.ScaleText;
+				renderer.RelativeCenter = _rendererPrimary.RelativeCenter;
+				renderer.SizeUpdate();
+			};
+
+			_rendererPrimary.ViewerMoved += (e, position) => {
+				renderer.RelativeCenter = position;
+				renderer.SizeUpdate();
+			};
+
+			_actIndexSelector.ActionChanged += delegate {
+				renderer.Update();
+			};
+
+			_actIndexSelector.FrameChanged += delegate {
+				renderer.Update();
+			};
+
+			Act.Commands.CommandIndexChanged += delegate {
+				renderer.SizeUpdate();
+			};
+
+			renderer.ZoomEngine.SetZoom(_rendererPrimary.ZoomEngine.Scale);
+			renderer.RelativeCenter = _rendererPrimary.RelativeCenter;
+			renderer.Update();
+			renderer.Tag = "created";
+		}
+
+		private void _buttonCancel_Click(object sender, RoutedEventArgs e) {
+			Close();
+		}
+
+		public UIElement Element {
+			get { return this; }
+		}
+
+		public Act Act {
+			get { return _actSource; }
+		}
+
+		public int SelectedAction {
+			get {
+				if (_listViewHeads.SelectedItem == null)
+					return 0;
+
+				return ((ActReferenceView)_listViewHeads.SelectedItem).Index;
+			}
+		}
+
+		public int SelectedFrame {
+			get { return 0; }
+		}
+
+		public SelectionEngine SelectionEngine {
+			get { return _selectionEngine; }
+		}
+
+		public List<ReferenceControl> References {
+			get { return _references; }
+		}
+
+		public class HeadEditorActIndexSelector : IActIndexSelector {
+			private readonly HeadEditorDialog _editor;
+
+			public HeadEditorActIndexSelector(HeadEditorDialog editor) {
+				_editor = editor;
+			}
+
+			public void OnFrameChanged(int actionindex) {
+				ActIndexSelector.FrameIndexChangedDelegate handler = FrameChanged;
+				if (handler != null) handler(this, actionindex);
+			}
+
+			public bool IsPlaying { get { return false; } }
+			public event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;
+
+			public void OnActionChanged(int actionindex) {
+				ActIndexSelector.FrameIndexChangedDelegate handler = ActionChanged;
+				if (handler != null) handler(this, actionindex);
+			}
+
+			public event ActIndexSelector.FrameIndexChangedDelegate FrameChanged;
+			public event ActIndexSelector.FrameIndexChangedDelegate SpecialFrameChanged;
+
+			public void OnSpecialFrameChanged(int actionindex) {
+				ActIndexSelector.FrameIndexChangedDelegate handler = SpecialFrameChanged;
+				if (handler != null) handler(this, actionindex);
+			}
+
+			public void OnAnimationPlaying(int actionindex) {
+			}
+
+			public void SetAction(int index) {
+				_editor._listViewHeads.SelectedIndex = index;
+			}
+
+			public void SetFrame(int index) {
+				// Nothing to do
+			}
+		}
+
+		public IActIndexSelector FrameSelector {
+			get { return _actIndexSelector; }
+		}
+
+		public event ActEditorWindow.ActEditorEventDelegate ReferencesChanged;
+
+		protected virtual void OnReferencesChanged() {
+			ActEditorWindow.ActEditorEventDelegate handler = ReferencesChanged;
+			if (handler != null) handler(this);
+		}
+
+		public event ActEditorWindow.ActEditorEventDelegate ActLoaded;
+
+		public void OnActLoaded() {
+			ActEditorWindow.ActEditorEventDelegate handler = ActLoaded;
+			if (handler != null) handler(this);
+		}
+
+		public Grid GridPrimary {
+			get { return _gridPrimary; }
+		}
+
+		public LayerEditor LayerEditor {
+			get {
+				return null;
+			}
+		}
+
+		public SpriteSelector SpriteSelector {
+			get { return _spriteSelector; }
+		}
+
+		public IFrameRenderer FrameRenderer {
+			get { return _rendererPrimary; }
+		}
+
+		public SpriteManager SpriteManager {
+			get {
+				return _spriteManager;
+			}
+		}
+	}
+}

@@ -1,0 +1,167 @@
+﻿<UserControl x:Class="ActEditor.Core.WPF.EditorControls.ActIndexSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:WPF1="clr-namespace:ActEditor.Core.WPF"
+             xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+             xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" mc:Ignorable="d" >
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0">
+                <Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid Height="auto" VerticalAlignment="Bottom">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Styles:FancyButton x:Name="_fancyButton3" Tag="3" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="0" />
+                            <Styles:FancyButton x:Name="_fancyButton4" Tag="4" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="1" />
+                            <Styles:FancyButton x:Name="_fancyButton5" Tag="5" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="2" />
+                            <Styles:FancyButton x:Name="_fancyButton2" Tag="2" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="1" Grid.Column="0" />
+                            <Styles:FancyButton x:Name="_fancyButton6" Tag="6" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="1" Grid.Column="2" />
+                            <Styles:FancyButton x:Name="_fancyButton1" Tag="1" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="0" />
+                            <Styles:FancyButton x:Name="_fancyButton0" Tag="0" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="1" />
+                            <Styles:FancyButton x:Name="_fancyButton7" Tag="7" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="2" />
+                        </Grid>
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock ToolTipService.ShowDuration="1000000" Text="Animation index (stand, walk, ...)" TextAlignment="Center" Margin="3" TextWrapping="Wrap" Width="100" >
+                                <TextBlock.ToolTip>
+                                    <TextBlock TextAlignment="Left">
+                                        Animations are not part of the Act structure. This simply makes the
+                                    <LineBreak />
+                                        action index selection easier.
+                                    </TextBlock>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                            <ComboBox Grid.Row="1" Name="_comboBoxAnimationIndex" Height="22" Width="100" HorizontalAlignment="Left" Margin="3" SelectionChanged="_comboBoxAnimationIndex_SelectionChanged" />
+                        </Grid>
+                        <Grid Grid.Column="2" HorizontalAlignment="Left">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Action index&#10;" Margin="3" TextAlignment="Center" TextWrapping="Wrap" Width="100" />
+                            <ComboBox Grid.Row="1" Name="_comboBoxActionIndex" Height="22" Width="100" HorizontalAlignment="Left" Margin="3" SelectionChanged="_comboBoxActionIndex_SelectionChanged" />
+                        </Grid>
+
+                        <ScrollBar Grid.ColumnSpan="2" Maximum="0" Grid.Row="1" Name="_sbFrameIndex" HorizontalAlignment="Left" Width="166" Orientation="Horizontal" Margin="0 3 0 3" />
+                        <Grid Grid.Row="1" Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Margin="3 0 0 0" BorderBrush="Transparent" Name="_borderFrameIndex" BorderThickness="1" VerticalAlignment="Center" CornerRadius="1" >
+                                <GenericControls:ClickSelectTextBox Grid.Row="1" Grid.Column="1" x:Name="_tbFrameIndex" BorderThickness="0" Text="0" TextAlignment="Right" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBox ToolTipService.ShowDuration="1000000" Grid.Row="1" Grid.Column="1" BorderThickness="0" IsHitTestVisible="False" Name="_labelFrameIndex" Text="/ 0 frames" Padding="0" VerticalAlignment="Center">
+                                <TextBox.ToolTip>
+                                    The index of the frame in the selected action. This index is 0 based.
+                                </TextBox.ToolTip>
+                            </TextBox>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="3" HorizontalAlignment="Left" Grid.RowSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Text="Rendering mode" Margin="3" VerticalAlignment="Center" TextAlignment="Left" TextWrapping="Wrap" ToolTipService.ShowDuration="1000000" >
+                    <TextBlock.ToolTip>
+                        <TextBlock>
+                            Changes how the images are displayed in the left panel.
+                            <LineBreak />
+                            <LineBreak />
+                            If "Editor" is selected, scaled images won't be blurry.
+                            <LineBreak />
+                            If "Ingame" is selected, the images will be scaled using a linear scaling, which
+                            <LineBreak />
+                            is similar to what is used in the official client.
+                            <LineBreak />
+                            <Run FontWeight="Bold">
+                                This setting also affects the output when saving a gif image.
+                            </Run>
+                        </TextBlock>
+                    </TextBlock.ToolTip>
+                </TextBlock>
+                <DockPanel Grid.Row="2" HorizontalAlignment="Left">
+                    <TextBlock ToolTipService.ShowDuration="1000000" Grid.Row="1" Text="Frame sound" Margin="3" VerticalAlignment="Center" TextAlignment="Left" TextWrapping="Wrap" HorizontalAlignment="Left" >
+                        <TextBlock.ToolTip>
+                            The sound to play when the frame is playing.
+                        </TextBlock.ToolTip>
+                    </TextBlock>
+                    <Styles:FancyButton x:Name="_cbSoundEnable" Grid.Row="1" Width="22" Height="22" Margin="0 0 2 0">
+                        <Styles:FancyButton.ToolTip>
+                            Sounds are currently enabled.
+                        </Styles:FancyButton.ToolTip>
+                    </Styles:FancyButton>
+                </DockPanel>
+                <Styles:FancyButton Grid.Row="0" Grid.Column="1" x:Name="_buttonRenderMode" Height="20" Margin="2" >
+                    <Styles:FancyButton.ToolTip>
+                        Render mode is currently set to "Editor".
+                    </Styles:FancyButton.ToolTip>
+                </Styles:FancyButton>
+                <ComboBox VerticalAlignment="Center" Name="_cbSound" Grid.Row="2" Grid.Column="3" Margin="3" Width="100" />
+                <Styles:FancyButton VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" x:Name="_play" Height="20" Margin="2" />
+                <Grid Grid.Row="1" Grid.Column="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label ToolTipService.ShowDuration="1000000" Content="Speed" Padding="0" Margin="2 0 3 0" VerticalAlignment="Center" >
+                        <Label.ToolTip>
+                            <TextBlock>
+                            This is the interval in miliseconds between two frames for the current
+                            <LineBreak />
+                            action. An interval of 200 ms means there will 5 frames per second.
+                            </TextBlock>
+                        </Label.ToolTip>
+                    </Label>
+                    <Border Grid.Column="1" BorderBrush="Transparent" Name="_borderAnimSpeed" BorderThickness="1" VerticalAlignment="Center" CornerRadius="1" >
+                        <GenericControls:ClickSelectTextBox TextAlignment="Right" BorderThickness="0" TextChanged="_interval_TextChanged" x:Name="_interval" VerticalAlignment="Center"  />
+                    </Border>
+                    <Label Grid.Column="2" Content="ms" HorizontalAlignment="Right" Padding="0" Margin="3 0 2 0" VerticalAlignment="Center" />
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <DockPanel>
+        </DockPanel>
+    </StackPanel>
+</UserControl>

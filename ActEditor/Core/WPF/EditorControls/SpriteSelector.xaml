@@ -1,0 +1,33 @@
+﻿<UserControl x:Class="ActEditor.Core.WPF.EditorControls.SpriteSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary" mc:Ignorable="d" Height="150"  MinHeight="100">
+    <Grid Name="_gridBackground" FocusVisualStyle="{x:Null}">
+        <Grid.Background>
+            <VisualBrush TileMode="Tile" Viewport="0,0,0,0" ViewportUnits="RelativeToBoundingBox" >
+                <VisualBrush.Visual>
+                    <Grid>
+                        <Image Source="../../../Resources/background.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Width="256" Height="256" />
+                    </Grid>
+                </VisualBrush.Visual>
+            </VisualBrush>
+        </Grid.Background>
+        <Canvas>
+            <ScrollViewer Name="_sv" FocusVisualStyle="{x:Null}" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled"
+                Height="{Binding Parent.ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}"
+                Width="{Binding Parent.ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}">
+                <ScrollViewer.ContextMenu>
+                    <ContextMenu>
+                        <Styles:TkMenuItem x:Name="_miAdd" Click="_miAdd_Click" HeaderText="Add image..." IconPath="add.png" />
+                    </ContextMenu>
+                </ScrollViewer.ContextMenu>
+                <DockPanel Name="_dp" FocusVisualStyle="{x:Null}" LastChildFill="False">
+                    <Rectangle Width="200" />
+                </DockPanel>
+            </ScrollViewer>
+        </Canvas>
+        <Line Name="_lineMoveLayer" Margin="-2 0 0 0" Visibility="Hidden" Stretch="Fill" HorizontalAlignment="Left" Y1="0" Y2="1" Stroke="Red" StrokeThickness="3" StrokeEndLineCap="Square" StrokeStartLineCap="Square" />
+    </Grid>
+</UserControl>

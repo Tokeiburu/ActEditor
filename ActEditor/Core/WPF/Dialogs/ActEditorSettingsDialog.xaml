@@ -1,0 +1,489 @@
+﻿<Styles:TkWindow x:Class="ActEditor.Core.WPF.Dialogs.ActEditorSettings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+                 xmlns:WPF1="clr-namespace:ActEditor.Core.WPF"
+                 xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
+                 xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
+                 xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" MaxWidth="470" MinWidth="470" MinHeight="475" MaxHeight="475">
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Border Background="#F7F9FD">
+            <Grid>
+                <TabControl Style="{DynamicResource ResourceKey=TabControlStyled}" Background="White">
+                    <TabItem Header="General" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="General" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Row="0" Content="Always reopen latest opened file" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            If checked, when opening the application, the last opened sprite 
+                                            <LineBreak />
+                                            will from the recent files menu will be opened.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="7" Content="Show horizontal grid line" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Show or hide the horizontal grid line in the Frame Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="8" Content="Show vertical grid line" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Show or hide the vertical grid line in the Frame Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <TextBlock Grid.Row="9" Text="Refresh layer editor while animations are playing" Width="180" Padding="5" TextWrapping="Wrap" HorizontalAlignment="Left">
+                                    <TextBlock.ToolTip>
+                                        Disabling this feature will render the animations much faster.
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+                                <TextBlock Grid.Row="10" Text="Use aliasing for the selected layers' border" Width="180" Padding="5" TextWrapping="Wrap" HorizontalAlignment="Left">
+                                    <TextBlock.ToolTip>
+                                        Turns anti-aliasing on or off for the selection border of the layers.
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
+
+                                <Label Grid.Row="11" Content="Disply encoding" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Changes how the file names are shown when loading a GRF.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                
+                                <Label Grid.Row="12" Content="Theme" Visibility="Visible" >
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                        Determines Act Editor's UI style.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+
+                                <CheckBox Name="_gridReopenLastest" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <CheckBox Name="_gridHVisible" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <CheckBox Name="_gridVVisible" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <CheckBox Name="_cbRefresh" Grid.Row="9" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <CheckBox Name="_cbAliasing" Grid.Row="10" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                                <ComboBox Grid.Row="11" Grid.Column="1" Margin="3" Name="_comboBoxEncoding" IsReadOnly="True" />
+                                
+                                <ComboBox Grid.Row="12" Grid.Column="1" Name="_comboBoxStyles" VerticalAlignment="Center" Margin="3" Visibility="Visible" >
+                                    <ComboBoxItem Content="Default" />
+                                    <ComboBoxItem Content="Dark theme" />
+                                </ComboBox>
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Editor colors" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="Editor colors" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Row="0" Content="Preview panel background color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the background color of the Frame Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="1" Content="Grid line horizontal color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the horizontal line color of the Frame Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="2" Content="Grid line vertical color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the vertical line color of the Frame Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="3" Content="Selected sprite border color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the border color of the selected sprite in the Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="4" Content="Selected sprite overlay color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the overlay color of the selected sprite in the Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="5" Content="Selection border color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the border color of the selection rectangle in the Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="6" Content="Selection overlay color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the overlay color of the selection rectangle in the Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="9" Content="Anchor selector color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the anchor line colors in the Sprite Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="10" Content="Preview sprite background color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the background color of Sprite Editor control.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+
+                                <GenericControls:QuickColorSelector x:Name="_colorPreviewPanelBakground" Grid.Row="0" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorGridLH" Grid.Row="1" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorGridLV" Grid.Row="2" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorSpriteBorder" Grid.Row="3" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorSpriteOverlay" Grid.Row="4" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorSelectionBorder" Grid.Row="5" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorSelectionOverlay" Grid.Row="6" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorAnchor" Grid.Row="9" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorSpritePanelBackground" Grid.Row="10" Grid.Column="1" />
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Mouse" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="Mouse" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Content="Zoom in" Grid.Row="1" Grid.Column="0" />
+                                    <Label Content="Zoom out" Grid.Row="1" Grid.Column="2" />
+                                    <ComboBox Name="_mz1" Grid.Column="1" Margin="3" Width="100">
+                                        <ComboBoxItem Content="Scroll up" />
+                                        <ComboBoxItem Content="Scroll down" />
+                                    </ComboBox>
+                                    <ComboBox Name="_mz2" Grid.Column="3" Margin="3" Width="100">
+                                        <ComboBoxItem Content="Scroll up" />
+                                        <ComboBoxItem Content="Scroll down" />
+                                    </ComboBox>
+                                </Grid>
+                                <Label Content="Fixed scaling" Grid.Row="1" />
+                                <Label Content="Ctrl-Alt-Left Mouse Button" Grid.Row="1" Grid.Column="1" />
+                                <Label Content="Horizontal scaling" Grid.Row="2" />
+                                <Label Content="Ctrl-Shift-Left Mouse Button" Grid.Row="2" Grid.Column="1" />
+                                <Label Content="Vertical scaling" Grid.Row="3" />
+                                <Label Content="Ctrl-Shift-Left Mouse Button" Grid.Row="3" Grid.Column="1" />
+                                <Label Content="Unbound scaling" Grid.Row="4" />
+                                <Label Content="Ctrl-Left Mouse Button" Grid.Row="4" Grid.Column="1" />
+                                <Label Content="Translate" Grid.Row="5" />
+                                <Label Content="Left Mouse Button" Grid.Row="5" Grid.Column="1" />
+                                <Label Content="Rotate" Grid.Row="6" />
+                                <Label Content="Shift-Left Mouse Button" Grid.Row="6" Grid.Column="1" />
+                                <Label Content="Preview panel move" Grid.Row="7" />
+                                <Label Content="Right Mouse Button" Grid.Row="7" Grid.Column="1" />
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Sound" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="Sound" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <TextBlock Margin="3" Text="Resource files or folders (drop a GRF or a data folder) : " />
+                            <Grid Name="_resourceGrfs">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Gif format" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="Gif format" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="2" Content="Uniform" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Adds margin on each side of the printed frames to center them.
+                                            <LineBreak />
+                                            All frames will have the same width and height (recommended).
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="3" Content="Background color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the background color for semi-transparent images. If your website
+                                            <LineBreak />
+                                            has a blue background, you might want to set this to blue as well.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="4" Content="Guidelines color" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Change the guidelines color. The guidelines are simply the
+                                            <LineBreak />
+                                            X-axis and Y-axis.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="7" Content="Delay factor" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            This is a multiplier value to change the speed of the animation.
+                                            <LineBreak />
+                                            If set to 2, the animation speed will be twice as <Run FontWeight="Bold">slow</Run>.
+                                            <LineBreak />
+                                            If set to 0.5, the animation speed will be twice as <Run FontWeight="Bold">fast</Run>.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="8" Content="Margin" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Adds a margin around the animation. A minimum margin of 1
+                                            <LineBreak />
+                                            must be used.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <Label Grid.Row="9" Content="Hide setting dialog when saving" ToolTipService.ShowDuration="1000000">
+                                    <Label.ToolTip>
+                                        <TextBlock>
+                                            Hides the settings dialog when saving a gif image.
+                                        </TextBlock>
+                                    </Label.ToolTip>
+                                </Label>
+                                <CheckBox Name="_cbUniform" Grid.Row="2" Grid.Column="1" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                <GenericControls:QuickColorSelector x:Name="_colorBackground" Grid.Row="3" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorGuildelines" Grid.Row="4" Grid.Column="1" />
+                                <TextBox Name="_tbDelayFactor" Grid.Row="7" Grid.Column="1" Margin="3" />
+                                <TextBox Name="_tbMargin" Grid.Row="8" Grid.Column="1" Margin="3" />
+                                <CheckBox Name="_cbHideGifDialog" Grid.Row="9" Grid.Column="1" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Shell integration" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="Shell integration" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <CheckBox Name="_assAct" Content=".act" Grid.Row="0" VerticalAlignment="Center" Margin="3" />
+                                </Grid>
+                                <TextBlock Text="Associate these file extensions with Act Editor." Margin="3" Grid.ColumnSpan="2" />
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Debugger" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <StackPanel>
+                            <StackPanel>
+                                <Label Content="Debugger" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Row="0" Grid.Column="0" Content="Log any exceptions (debug.log)" />
+                                <CheckBox HorizontalAlignment="Center" Name="_debuggerLogAnyExceptions" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3" />
+                            </Grid>
+                        </StackPanel>
+                    </TabItem>
+                    <TabItem Header="Shortcuts" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <StackPanel Focusable="True" FocusVisualStyle="{x:Null}">
+                                <Label Content="Shortcuts" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
+                                <Rectangle Margin="5 0 5 5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                                <WrapPanel>
+                                    <Styles:FancyButton x:Name="_fbResetShortcuts" Click="_fbResetShortcuts_Click" HorizontalAlignment="Left" TextHeader="Reset" TextDescription="Reset all shortcuts" />
+                                    <Styles:FancyButton x:Name="_fbRefreshhortcuts" Click="_fbRefreshhortcuts_Click" HorizontalAlignment="Left" TextHeader="Update" TextDescription="Look for new loaded shortcuts" />
+                                </WrapPanel>
+                                <Rectangle Margin="5" Stroke="#E3E9F1" VerticalAlignment="Stretch" />
+                                <DockPanel>
+                                    <Label Content="Search" />
+                                    <TextBox Name="_tbSearch" Margin="2" TextChanged="_tbSearch_TextChanged" VerticalContentAlignment="Center" />
+                                </DockPanel>
+                            </StackPanel>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Focusable="True" FocusVisualStyle="{x:Null}">
+                                <Grid Name="_gridShortcuts" Focusable="True" FocusVisualStyle="{x:Null}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                </Grid>
+                            </ScrollViewer>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Border>
+        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{x:Static TokeiLibrary:Configuration.UIDialogBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
+                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Ok" Height="25" Margin="3" MinWidth="100" />
+            </DockPanel>
+        </Grid>
+    </Grid>
+</Styles:TkWindow>

@@ -1,0 +1,73 @@
+
+
+
+                 █████╗  ██████╗████████╗ 
+                ██╔══██╗██╔════╝╚══██╔══╝ 
+                ███████║██║        ██║    
+                ██╔══██║██║        ██║    
+                ██║  ██║╚██████╗   ██║    
+                ╚═╝  ╚═╝ ╚═════╝   ╚═╝    
+
+      ███████╗██████╗ ██╗████████╗ ██████╗ ██████╗ 
+      ██╔════╝██╔══██╗██║╚══██╔══╝██╔═══██╗██╔══██╗
+      █████╗  ██║  ██║██║   ██║   ██║   ██║██████╔╝
+      ██╔══╝  ██║  ██║██║   ██║   ██║   ██║██╔══██╗
+      ███████╗██████╔╝██║   ██║   ╚██████╔╝██║  ██║
+      ╚══════╝╚═════╝ ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+
+
+
+//¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+//  About
+//______________________________________________________
+Author : Tokeiburu
+rAthena forum name : Tokei
+Hercules forum name : Tokeiburu
+Feel free to contact me for suggestions or bugs!
+
+
+//¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+//  Changelog legend
+//______________________________________________________
+[scope] library concerned : info.
+[Bug] : This is a known bug that needs to be fixed.
+[Added] : A new feature has been added.
+[Modified] : The behavior of a component or method has been changed.
+[Removed] : A feature has been disabled or removed.
+[Fixed] : This bug has been fixed.
+
+
+//¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+//  Changelog
+//______________________________________________________
+2015-06-18	[1.0.6]
+[Added] GRF : Created gifs will now also show the referenced sprites.
+[Added] ActEditor : When selecting a reference sprite, you will be able to open GRFs as well.
+[Added] ActEditor : Ability to change the background.
+[Modified] GRF : Core libraries updated.
+
+2015-01-08	[1.0.4]
+[Added] ActEditor : More anchors can be edited.
+[Added] ActEditor : The advanced interpolating dialog exposes more features and options (Animation > Advanced interpolation). It is also a lot more convenient.
+[Modified] GRF : Empty commands will be ignored and removed from the stack automatically.
+[Fixed] ActEditor : Default scripts updated.
+[Fixed] ActEditor : You can now zoom and move while animations are playing.
+[Fixed] ActEditor : Converting a sprite to Bgra32 or Indexed8 would have strange behaviors sometimes.
+
+2014-11-27	[1.0.3]
+[Added] ActEditor : Anti-aliasing setting added for the seletion border of the layers.
+[Fixed] ActEditor : Deleting actions now properly updates the frame preview.
+[Fixed] GRF : A method in the sprite removal was causing issues for Bgra32 images.
+
+2014-11-27	[1.0.2]
+[Added] ActEditor : Insert and replace can be used for a range of images (from the sprite list menu).
+[Added] ActEditor : The "New Act" menu now offers templates to create Acts from scratch more easily.
+[Added] ActEditor : New feature in the Anchors menu to copy anchors from a different act file and automatically adjust the layer offsets to keep them at the same position ingame. This is useful if you want to change the gender of a headgear (male <-> female).
+[Modified] ActEditor : The animation names will now be updated properly (and some names have changed).
+
+2014-11-26	[1.0.1]
+[Fixed] ActEditor : The deselect method no longer throws a null reference exception (so no more errors when undoing action insertions).
+
+2014-11-01	[0.2.1]
+[Added] ActEditor : Added tooltips.
+[Fixed] ActEditor : Fixed a bunch of stuff.

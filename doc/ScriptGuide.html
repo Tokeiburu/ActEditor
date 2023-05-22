@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/styles.css" rel="stylesheet">
+	</head>
+	<body>
+<div class="container">
+<div class="bs-docs-section">
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-warning">
+			<h4>Tutorial and script samples</h4>
+			<p>This guide will show you how to use scripts in Act Editor from a .cs file. This method allows you to use everything the libraries have to offer, but it requires more knowledge of C#. The Script Runner (<menu-shortcut>Scripts > Script Runner</menu-shortcut>) is much easier to use.</p>
+		</div>
+	</div>
+	
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-danger">
+			<h4>Backup command</h4>
+			<p>Do not make calls to other commands while executing a backup command. Mixing them up will render the command stack invalid. For example, the following code is not allowed : </p>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;">act.Commands.Backup(_&nbsp;=&gt;&nbsp;{
+	act[0,&nbsp;1,&nbsp;0].OffsetX&nbsp;+=&nbsp;20;
+ 
+	<span style="color:blue;">byte</span>[]&nbsp;imageFile&nbsp;=&nbsp;<span style="color:#2b91af;">File</span>.ReadAllBytes(<span style="color:#a31515;">@&quot;C:\myImage.bmp&quot;</span>);
+	<span style="color:#2b91af;">GrfImage</span>&nbsp;image&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">GrfImage</span>(<span style="color:blue;">ref</span>&nbsp;imageFile);
+	act.Commands.SpriteReplaceAt(act[0,&nbsp;1,&nbsp;0].SpriteIndex,&nbsp;image);
+});</pre>
+		</div>
+	</div>
+	
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info">
+			<h4>Sample #1</h4>
+<pre style="font-family:Consolas;font-size:11;color:black;background:white;"><span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Execute(<span style="color:#2b91af;">Act</span>&nbsp;act,&nbsp;<span style="color:blue;">int</span>&nbsp;selectedActionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;selectedFrameIndex,&nbsp;<span style="color:blue;">int</span>[]&nbsp;selectedLayerIndexes)&nbsp;{
+	<span style="color:blue;">try</span>&nbsp;{
+		<span style="color:green;">//&nbsp;If&nbsp;you&#39;re&nbsp;not&nbsp;familiar&nbsp;with&nbsp;C#,&nbsp;ignore&nbsp;the&nbsp;weird&nbsp;&#39;_&nbsp;=&gt;&nbsp;{&#39;</span>
+		<span style="color:green;">//&nbsp;part&nbsp;and&nbsp;move&nbsp;on.&nbsp;This&nbsp;is&nbsp;simply&nbsp;a&nbsp;lamdba&nbsp;expression.</span>
+		act.Commands.Backup(_&nbsp;=&gt;&nbsp;{
+			<span style="color:green;">//&nbsp;act.GetAllLayers()&nbsp;returns&nbsp;all&nbsp;the&nbsp;Layers&nbsp;in&nbsp;the&nbsp;Act&nbsp;file</span>
+			<span style="color:green;">//&nbsp;It&#39;s&nbsp;a&nbsp;handy&nbsp;method&nbsp;to&nbsp;avoid&nbsp;going&nbsp;through&nbsp;each&nbsp;index.</span>
+			<span style="color:blue;">foreach</span>&nbsp;(<span style="color:blue;">var</span>&nbsp;layer&nbsp;<span style="color:blue;">in</span>&nbsp;act.GetAllLayers())&nbsp;{
+				<span style="color:green;">//&nbsp;Offsets&nbsp;of&nbsp;the&nbsp;layer</span>
+				layer.OffsetX&nbsp;+=&nbsp;2;
+				layer.OffsetY&nbsp;=&nbsp;-5;
+ 
+				<span style="color:green;">//&nbsp;Scale&nbsp;of&nbsp;the&nbsp;layer</span>
+				layer.ScaleX&nbsp;*=&nbsp;1;
+				layer.ScaleY&nbsp;=&nbsp;5.8f;
+ 
+				<span style="color:green;">//&nbsp;The&nbsp;index&nbsp;of&nbsp;the&nbsp;image,&nbsp;which&nbsp;is&nbsp;NOT&nbsp;the&nbsp;absolute&nbsp;offset</span>
+				<span style="color:green;">//&nbsp;of&nbsp;the&nbsp;image.&nbsp;Act&nbsp;Editor&nbsp;abstract&nbsp;that&nbsp;layer&nbsp;for&nbsp;you.</span>
+				layer.SpriteIndex&nbsp;=&nbsp;layer.SpriteIndex;
+ 
+				<span style="color:green;">//&nbsp;The&nbsp;sprite&nbsp;type&nbsp;must&nbsp;be&nbsp;set&nbsp;to&nbsp;either&nbsp;Indexed8&nbsp;(palette)</span>
+				<span style="color:green;">//&nbsp;or&nbsp;Bgra32&nbsp;(semi-transparent).</span>
+				layer.SpriteType&nbsp;=&nbsp;<span style="color:#2b91af;">SpriteTypes</span>.Indexed8;
+ 
+				<span style="color:green;">//&nbsp;The&nbsp;color&nbsp;mask</span>
+				layer.Color&nbsp;=&nbsp;<span style="color:blue;">new</span>&nbsp;<span style="color:#2b91af;">GrfColor</span>(layer.Color.A,&nbsp;layer.Color.R,&nbsp;layer.Color.G,&nbsp;layer.Color.B);
+				layer.Color.A&nbsp;=&nbsp;127;
+				layer.Color.R&nbsp;=&nbsp;240;
+				layer.Color.G&nbsp;=&nbsp;0;
+				layer.Color.B&nbsp;=&nbsp;0;
+ 
+				<span style="color:green;">//&nbsp;If&nbsp;the&nbsp;frame&nbsp;should&nbsp;mirror&nbsp;or&nbsp;not.&nbsp;This&nbsp;is&nbsp;equivalent&nbsp;to&nbsp;multiplying&nbsp;the&nbsp;scale&nbsp;by&nbsp;-1</span>
+				layer.Mirror&nbsp;=&nbsp;<span style="color:blue;">false</span>;
+ 
+				<span style="color:green;">//&nbsp;The&nbsp;rotation&nbsp;of&nbsp;the&nbsp;layer</span>
+				layer.Rotation&nbsp;+=&nbsp;20;
+ 
+				<span style="color:green;">//&nbsp;There&nbsp;are&nbsp;also&nbsp;of&nbsp;other&nbsp;command&nbsp;methods&nbsp;available,&nbsp;such&nbsp;as...</span>
+				layer.Rotate(-20);
+				layer.Translate(-2,&nbsp;5);
+				layer.Scale(1,&nbsp;1f&nbsp;/&nbsp;5.8f);
+			}
+		},&nbsp;<span style="color:#a31515;">&quot;Sample&nbsp;script&quot;</span>);
+ 
+		<span style="color:green;">//&nbsp;&quot;Sample&nbsp;script&quot;&nbsp;is&nbsp;the&nbsp;name&nbsp;that&nbsp;will&nbsp;show&nbsp;up&nbsp;in&nbsp;the&nbsp;undo/redo&nbsp;menus</span>
+	}
+	<span style="color:blue;">catch</span>&nbsp;(<span style="color:#2b91af;">Exception</span>&nbsp;err)&nbsp;{
+		<span style="color:#2b91af;">ErrorHandler</span>.HandleException(err,&nbsp;<span style="color:#2b91af;">ErrorLevel</span>.Warning);
+	}
+	<span style="color:blue;">finally</span>&nbsp;{
+		<span style="color:green;">//&nbsp;Invalidate&nbsp;the&nbsp;visual&nbsp;elements&nbsp;of&nbsp;Act&nbsp;Editor.&nbsp;This&nbsp;is&nbsp;not&nbsp;always&nbsp;necessary,&nbsp;but&nbsp;</span>
+		<span style="color:green;">//&nbsp;it&nbsp;is&nbsp;easier&nbsp;to&nbsp;simply&nbsp;leave&nbsp;this&nbsp;line</span>
+		act.InvalidateVisual();
+	}
+}</pre>
+		</div>
+	</div>
+
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-warning">
+			<h4>More samples</h4>
+			<p>In the script folder (<menu-shortcut>Edit > Open scripts folder</menu-shortcut>), you can view and edit the scripts used for magnifying, changing the color, flipping a frame, etc. Feel free to edit them! If you mess up the script and it doesn't work anymore or you would like to retrieve the original, simply delete the file and reload the application.</p>
+			<p>The application is also open-source, which means you have access to all the other scripts used within the application. Yes, the application uses scripts for almost every single item in the menus.</p>
+		</div>
+	</div>
+	
+		</div>
+	</body>
+</html>

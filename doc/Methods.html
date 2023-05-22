@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/styles.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="container">
+<div class="bs-docs-section">
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-warning">
+			<h4>Commands</h4>
+			<p>This list presents all the available commands. This is for advanced uses, view <a href="scriptrunner.html" target="main">this page</a> for how to make and use scripts.</p>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-danger">
+			<h4>Warning</h4>
+			<p>These methods can NOT be used within the Script Runner. They are raw 'atomic' commands used by the application to apply and revert changes more easily. The Backup command (used by the Script Runner) is slow and consumes a lot more memory.</p>
+		</div>
+	</div>
+	<div class="bs-border" >
+		<div class="bs-callout bs-callout-info" >
+<pre style="background:white;"><span style="color:gray;">///</span><span style="color:green;">&nbsp;Backups&nbsp;the&nbsp;Act&nbsp;and&nbsp;execute&nbsp;the&nbsp;action</span>
+<span style="color:green;">//&nbsp;action&nbsp;:&nbsp;The&nbsp;action.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Backup(<span style="color:#2b91af;">Action</span>&lt;<span style="color:#2b91af;">Act</span>&gt;&nbsp;action);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Backups&nbsp;the&nbsp;Act&nbsp;and&nbsp;execute&nbsp;the&nbsp;action</span>
+<span style="color:green;">//&nbsp;action&nbsp;:&nbsp;The&nbsp;action.</span>
+<span style="color:green;">//&nbsp;commandName&nbsp;:&nbsp;Name&nbsp;of&nbsp;the&nbsp;command.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Backup(<span style="color:#2b91af;">Action</span>&lt;<span style="color:#2b91af;">Act</span>&gt;&nbsp;action,&nbsp;<span style="color:blue;">string</span>&nbsp;commandName);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Begins&nbsp;the&nbsp;commands&nbsp;stack&nbsp;grouping.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Begin();
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Begins&nbsp;the&nbsp;commands&nbsp;stack&nbsp;grouping&nbsp;and&nbsp;apply&nbsp;commands&nbsp;as&nbsp;soon&nbsp;as&nbsp;they&#39;re&nbsp;received.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;BeginNoDelay();
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Ends&nbsp;the&nbsp;commands&nbsp;stack&nbsp;grouping.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;End();
+
+<span style="color:blue;">#region</span>&nbsp;Transform
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Rotates&nbsp;all&nbsp;layers&nbsp;of&nbsp;the&nbsp;specified&nbsp;amount.</span>
+<span style="color:green;">//&nbsp;rotation&nbsp;:&nbsp;The&nbsp;rotation.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Rotate(<span style="color:blue;">int</span>&nbsp;rotation);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Rotates&nbsp;all&nbsp;layers&nbsp;in&nbsp;the&nbsp;action&nbsp;index.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;rotation&nbsp;:&nbsp;The&nbsp;rotation.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Rotate(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotation);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Rotates&nbsp;all&nbsp;layers&nbsp;in&nbsp;the&nbsp;frame&nbsp;specified.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;rotation&nbsp;:&nbsp;The&nbsp;rotation.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Rotate(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotation);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Rotates&nbsp;the&nbsp;specified&nbsp;suframe.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;rotation&nbsp;:&nbsp;The&nbsp;rotation.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Rotate(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotation);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Translates&nbsp;the&nbsp;entire&nbsp;Act&nbsp;by&nbsp;the&nbsp;specified&nbsp;offsets.</span>
+<span style="color:green;">//&nbsp;offsetX&nbsp;:&nbsp;The&nbsp;offset&nbsp;X.</span>
+<span style="color:green;">//&nbsp;offsetY&nbsp;:&nbsp;The&nbsp;offset&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Translate(<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Translates&nbsp;the&nbsp;specified&nbsp;action&nbsp;by&nbsp;the&nbsp;specified&nbsp;offsets.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;offsetX&nbsp;:&nbsp;The&nbsp;offset&nbsp;X.</span>
+<span style="color:green;">//&nbsp;offsetY&nbsp;:&nbsp;The&nbsp;offset&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Translate(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Translates&nbsp;the&nbsp;specified&nbsp;frame&nbsp;by&nbsp;the&nbsp;specified&nbsp;offsets.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;offsetX&nbsp;:&nbsp;The&nbsp;offset&nbsp;X.</span>
+<span style="color:green;">//&nbsp;offsetY&nbsp;:&nbsp;The&nbsp;offset&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Translate(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Translates&nbsp;the&nbsp;specified&nbsp;layer&nbsp;by&nbsp;the&nbsp;specified&nbsp;offsets.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;offsetX&nbsp;:&nbsp;The&nbsp;offset&nbsp;X.</span>
+<span style="color:green;">//&nbsp;offsetY&nbsp;:&nbsp;The&nbsp;offset&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Translate(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;rotation.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;rotation&nbsp;:&nbsp;The&nbsp;rotation.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetRotation(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;rotation);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Scales&nbsp;the&nbsp;entire&nbsp;Act.&nbsp;This&nbsp;method&nbsp;does&nbsp;not&nbsp;scale&nbsp;the&nbsp;anchors&#39;&nbsp;offsets.</span>
+<span style="color:green;">//&nbsp;scale&nbsp;:&nbsp;The&nbsp;scale.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Scale(<span style="color:blue;">float</span>&nbsp;scale);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Scales&nbsp;the&nbsp;entire&nbsp;Act.&nbsp;This&nbsp;method&nbsp;does&nbsp;not&nbsp;scale&nbsp;the&nbsp;anchor&#39;s&nbsp;offsets.</span>
+<span style="color:green;">//&nbsp;scaleX&nbsp;:&nbsp;The&nbsp;scale&nbsp;X.</span>
+<span style="color:green;">//&nbsp;scaleY&nbsp;:&nbsp;The&nbsp;scale&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Scale(<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Scales&nbsp;an&nbsp;action.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;scaleX&nbsp;:&nbsp;The&nbsp;scale&nbsp;X.</span>
+<span style="color:green;">//&nbsp;scaleY&nbsp;:&nbsp;The&nbsp;scale&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Scale(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Scales&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;scaleX&nbsp;:&nbsp;The&nbsp;scale&nbsp;X.</span>
+<span style="color:green;">//&nbsp;scaleY&nbsp;:&nbsp;The&nbsp;scale&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Scale(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Scales&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;scaleX&nbsp;:&nbsp;The&nbsp;scale&nbsp;X.</span>
+<span style="color:green;">//&nbsp;scaleY&nbsp;:&nbsp;The&nbsp;scale&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;Scale(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;scale&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;scaleX&nbsp;:&nbsp;The&nbsp;scale&nbsp;X.</span>
+<span style="color:green;">//&nbsp;scaleY&nbsp;:&nbsp;The&nbsp;scale&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetScale(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleX,&nbsp;<span style="color:blue;">float</span>&nbsp;scaleY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;scale&nbsp;X&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;scale&nbsp;:&nbsp;The&nbsp;scale.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetScaleX(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scale);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;scale&nbsp;Y&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;scale&nbsp;:&nbsp;The&nbsp;scale.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetScaleY(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;scale);
+<span style="color:blue;">#endregion</span>
+
+<span style="color:blue;">#region</span>&nbsp;Action
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;interval&nbsp;for&nbsp;an&nbsp;action.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;speed&nbsp;:&nbsp;The&nbsp;speed.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetInterval(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">float</span>&nbsp;speed);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Inserts&nbsp;an&nbsp;action&nbsp;at&nbsp;the&nbsp;specified&nbsp;index.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionInsertAt(<span style="color:blue;">int</span>&nbsp;actionIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Replaces&nbsp;the&nbsp;action&nbsp;at&nbsp;the&nbsp;specified&nbsp;index.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionReplaceTo(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Copies&nbsp;and&nbsp;inserts&nbsp;an&nbsp;action&nbsp;at&nbsp;the&nbsp;specified&nbsp;index.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionCopyAt(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Moves&nbsp;a&nbsp;range&nbsp;of&nbsp;actions.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;range&nbsp;:&nbsp;The&nbsp;range.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionMoveRange(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;range,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;an&nbsp;action&nbsp;with&nbsp;another.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionSwitch(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;a&nbsp;range&nbsp;of&nbsp;actions&nbsp;with&nbsp;another.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;range&nbsp;:&nbsp;The&nbsp;range.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionSwitchRange(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;range,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Deletes&nbsp;an&nbsp;action.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;ActionDelete(<span style="color:blue;">int</span>&nbsp;actionIndex);
+<span style="color:blue;">#endregion</span>
+
+<span style="color:blue;">#region</span>&nbsp;Frame
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;sound&nbsp;id&nbsp;for&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;soundId&nbsp;:&nbsp;The&nbsp;sound&nbsp;id.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetSoundId(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;soundId);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Inserts&nbsp;the&nbsp;a&nbsp;sound&nbsp;to&nbsp;the&nbsp;specified&nbsp;index.</span>
+<span style="color:green;">//&nbsp;sound&nbsp;:&nbsp;The&nbsp;sound.</span>
+<span style="color:green;">//&nbsp;soundId&nbsp;:&nbsp;The&nbsp;sound&nbsp;id.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;InsertSoundId(<span style="color:blue;">string</span>&nbsp;sound,&nbsp;<span style="color:blue;">int</span>&nbsp;soundId);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Removes&nbsp;a&nbsp;sound&nbsp;id.</span>
+<span style="color:green;">//&nbsp;soundId&nbsp;:&nbsp;The&nbsp;sound&nbsp;id.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;RemoveSoundId(<span style="color:blue;">int</span>&nbsp;soundId);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;anchor&nbsp;position.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;offsetX&nbsp;:&nbsp;The&nbsp;offset&nbsp;X.</span>
+<span style="color:green;">//&nbsp;offsetY&nbsp;:&nbsp;The&nbsp;offset&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetAnchorPosition(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Inserts&nbsp;a&nbsp;frame&nbsp;at&nbsp;the&nbsp;specified&nbsp;index.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameInsertAt(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Copies&nbsp;and&nbsp;replaces&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndexFrom&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexFrom&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameReplace(<span style="color:blue;">int</span>&nbsp;actionIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Copies&nbsp;and&nbsp;appends&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndexFrom&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexFrom&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;source.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameCopy(<span style="color:blue;">int</span>&nbsp;actionIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexFrom);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;copies&nbsp;and&nbsp;inserts&nbsp;a&nbsp;frame&nbsp;(to&nbsp;a&nbsp;different&nbsp;action).</span>
+<span style="color:green;">//&nbsp;actionIndexFrom&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexFrom&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameCopyTo(<span style="color:blue;">int</span>&nbsp;actionIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;copies&nbsp;and&nbsp;inserts&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndexFrom&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexFrom&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameCopyTo(<span style="color:blue;">int</span>&nbsp;actionIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Move&nbsp;a&nbsp;range&nbsp;of&nbsp;frames.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;range&nbsp;:&nbsp;The&nbsp;range.</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameMoveRange(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;range,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;a&nbsp;frame&nbsp;(from&nbsp;a&nbsp;different&nbsp;action).</span>
+<span style="color:green;">//&nbsp;actionIndexFrom&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexFrom&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;actionIndexTo&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;destination</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameSwitch(<span style="color:blue;">int</span>&nbsp;actionIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;actionIndexTo,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndexFrom&nbsp;:&nbsp;The&nbsp;action&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexFrom&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameSwitch(<span style="color:blue;">int</span>&nbsp;actionIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;a&nbsp;range&nbsp;of&nbsp;frames&nbsp;with&nbsp;another.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;range&nbsp;:&nbsp;The&nbsp;range.</span>
+<span style="color:green;">//&nbsp;frameIndexTo&nbsp;:&nbsp;The&nbsp;frame&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameSwitchRange(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;range,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Deletes&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameDelete(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Deletes&nbsp;a&nbsp;range&nbsp;of&nbsp;frames.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;count&nbsp;:&nbsp;The&nbsp;count.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;FrameDeleteRange(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;count);
+<span style="color:blue;">#endregion</span>
+
+<span style="color:blue;">#region</span>&nbsp;Layers
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;offsets&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;offsetX&nbsp;:&nbsp;The&nbsp;offset&nbsp;X.</span>
+<span style="color:green;">//&nbsp;offsetY&nbsp;:&nbsp;The&nbsp;offset&nbsp;Y.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetOffsets(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetX,&nbsp;<span style="color:blue;">int</span>&nbsp;offsetY);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;offset&nbsp;X&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;offset&nbsp;:&nbsp;The&nbsp;offset.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetOffsetX(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offset);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;offset&nbsp;Y&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;offset&nbsp;:&nbsp;The&nbsp;offset.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetOffsetY(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;offset);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;mirror&nbsp;property&nbsp;of&nbsp;all&nbsp;the&nbsp;layers.</span>
+<span style="color:green;">//&nbsp;mirror&nbsp;:&nbsp;if&nbsp;set&nbsp;to&nbsp;&lt;c&gt;true&lt;/c&gt;&nbsp;[mirror].</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetMirror(<span style="color:blue;">bool</span>&nbsp;mirror);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;mirror&nbsp;property&nbsp;for&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;mirror&nbsp;:&nbsp;if&nbsp;set&nbsp;to&nbsp;&lt;c&gt;true&lt;/c&gt;&nbsp;[mirror].</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetMirror(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">bool</span>&nbsp;mirror);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;relative&nbsp;sprite&nbsp;id.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;spriteId&nbsp;:&nbsp;The&nbsp;sprite&nbsp;id.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetSpriteId(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;spriteId);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;sprite&nbsp;id&nbsp;of&nbsp;a&nbsp;layer&nbsp;based&nbsp;on&nbsp;the&nbsp;image&nbsp;absoltue&nbsp;index.</span>
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;This&nbsp;command&nbsp;may&nbsp;use&nbsp;a&nbsp;create&nbsp;a&nbsp;subgroup&nbsp;command.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;absoluteId&nbsp;:&nbsp;The&nbsp;absolute&nbsp;id.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetAbsoluteSpriteId(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;absoluteId);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;type&nbsp;of&nbsp;the&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;spriteType&nbsp;:&nbsp;Type&nbsp;of&nbsp;the&nbsp;sprite.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetSpriteType(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;spriteType);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;color&nbsp;of&nbsp;all&nbsp;layers.</span>
+<span style="color:green;">//&nbsp;color&nbsp;:&nbsp;The&nbsp;color.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetColor(<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;color&nbsp;of&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;color&nbsp;:&nbsp;The&nbsp;color.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetColor(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex,&nbsp;<span style="color:#2b91af;">GrfColor</span>&nbsp;color);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Appends&nbsp;a&nbsp;layer&nbsp;to&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndexTo&nbsp;:&nbsp;The&nbsp;layer&nbsp;index&nbsp;to.</span>
+<span style="color:green;">//&nbsp;absoluteSpriteIndex&nbsp;:&nbsp;Absolute&nbsp;index&nbsp;of&nbsp;the&nbsp;sprite.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;LayerAdd(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndexTo,&nbsp;<span style="color:blue;">int</span>&nbsp;absoluteSpriteIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Appends&nbsp;a&nbsp;layer&nbsp;to&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;absoluteSpriteIndex&nbsp;:&nbsp;Absolute&nbsp;index&nbsp;of&nbsp;the&nbsp;sprite.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;LayerAdd(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;absoluteSpriteIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Appends&nbsp;layers&nbsp;to&nbsp;a&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layers&nbsp;:&nbsp;The&nbsp;layers.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;LayerAdd(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:#2b91af;">Layer</span>[]&nbsp;layers);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Inserts&nbsp;layers&nbsp;to&nbsp;a&nbsp;frame&nbsp;at&nbsp;the&nbsp;specified&nbsp;index.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layers&nbsp;:&nbsp;The&nbsp;layers.</span>
+<span style="color:green;">//&nbsp;addToIndex&nbsp;:&nbsp;The&nbsp;layer&nbsp;index&nbsp;destination.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;LayerAdd(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:#2b91af;">Layer</span>[]&nbsp;layers,&nbsp;<span style="color:blue;">int</span>&nbsp;addToIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;a&nbsp;range&nbsp;of&nbsp;layers.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndexFrom&nbsp;:&nbsp;The&nbsp;layer&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;layerIndexTo&nbsp;:&nbsp;The&nbsp;layer&nbsp;index&nbsp;destination.</span>
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;</span><span style="color:gray;">&lt;returns&gt;&lt;/returns&gt;</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">bool</span>&nbsp;LayerSwitch(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Switches&nbsp;a&nbsp;range&nbsp;of&nbsp;layers.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndexFrom&nbsp;:&nbsp;The&nbsp;layer&nbsp;index&nbsp;source.</span>
+<span style="color:green;">//&nbsp;count&nbsp;:&nbsp;The&nbsp;count.</span>
+<span style="color:green;">//&nbsp;layerIndexTo&nbsp;:&nbsp;The&nbsp;layer&nbsp;index&nbsp;destination.</span>
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;</span><span style="color:gray;">&lt;returns&gt;&lt;/returns&gt;</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">bool</span>&nbsp;LayerSwitchRange(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndexFrom,&nbsp;<span style="color:blue;">int</span>&nbsp;count,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndexTo);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Deletes&nbsp;a&nbsp;layer.</span>
+<span style="color:green;">//&nbsp;actionIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;action.</span>
+<span style="color:green;">//&nbsp;frameIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;frame.</span>
+<span style="color:green;">//&nbsp;layerIndex&nbsp;:&nbsp;Index&nbsp;of&nbsp;the&nbsp;layer.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;LayerDelete(<span style="color:blue;">int</span>&nbsp;actionIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;frameIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;layerIndex);
+<span style="color:blue;">#endregion</span>
+
+<span style="color:blue;">#region</span>&nbsp;Sprite
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Sets&nbsp;the&nbsp;sprite&nbsp;of&nbsp;the&nbsp;Act&nbsp;(this&nbsp;command&nbsp;should&nbsp;be&nbsp;avoided).</span>
+<span style="color:green;">//&nbsp;sprite&nbsp;:&nbsp;The&nbsp;sprite.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SetSprite(<span style="color:#2b91af;">Spr</span>&nbsp;sprite);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Append&nbsp;a&nbsp;sprite&nbsp;image.</span>
+<span style="color:green;">//&nbsp;image&nbsp;:&nbsp;The&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteAdd(<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Insert&nbsp;a&nbsp;sprite&nbsp;at&nbsp;a&nbsp;specific&nbsp;position.</span>
+<span style="color:green;">//&nbsp;position&nbsp;:&nbsp;The&nbsp;position.</span>
+<span style="color:green;">//&nbsp;image&nbsp;:&nbsp;The&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteInsertAt(<span style="color:blue;">int</span>&nbsp;position,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Overwrites&nbsp;a&nbsp;sprite&nbsp;at&nbsp;the&nbsp;absolute&nbsp;index.</span>
+<span style="color:green;">//&nbsp;absoluteIndex&nbsp;:&nbsp;The&nbsp;absolute&nbsp;index.</span>
+<span style="color:green;">//&nbsp;image&nbsp;:&nbsp;The&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteReplaceAt(<span style="color:blue;">int</span>&nbsp;absoluteIndex,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Set&nbsp;the&nbsp;palette&nbsp;of&nbsp;the&nbsp;Sprite&nbsp;file.</span>
+<span style="color:green;">//&nbsp;palette&nbsp;:&nbsp;The&nbsp;palette.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteSetPalette(<span style="color:blue;">byte</span>[]&nbsp;palette);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Flips&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;relativeIndex&nbsp;:&nbsp;The&nbsp;relative&nbsp;index.</span>
+<span style="color:green;">//&nbsp;imageType&nbsp;:&nbsp;Type&nbsp;of&nbsp;the&nbsp;image.</span>
+<span style="color:green;">//&nbsp;direction&nbsp;:&nbsp;The&nbsp;direction.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteFlip(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;imageType,&nbsp;<span style="color:#2b91af;">FlipDirection</span>&nbsp;direction);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Flips&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;absoluteIndex&nbsp;:&nbsp;The&nbsp;absolute&nbsp;index.</span>
+<span style="color:green;">//&nbsp;direction&nbsp;:&nbsp;The&nbsp;direction.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteFlip(<span style="color:blue;">int</span>&nbsp;absoluteIndex,&nbsp;<span style="color:#2b91af;">FlipDirection</span>&nbsp;direction);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Inserts&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;relativeIndex&nbsp;:&nbsp;The&nbsp;relative&nbsp;index.</span>
+<span style="color:green;">//&nbsp;imageType&nbsp;:&nbsp;Type&nbsp;of&nbsp;the&nbsp;image.</span>
+<span style="color:green;">//&nbsp;image&nbsp;:&nbsp;The&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteInsert(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;imageType,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Inserts&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;absoluteIndex&nbsp;:&nbsp;The&nbsp;absolute&nbsp;index.</span>
+<span style="color:green;">//&nbsp;image&nbsp;:&nbsp;The&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteInsert(<span style="color:blue;">int</span>&nbsp;absoluteIndex,&nbsp;<span style="color:#2b91af;">GrfImage</span>&nbsp;image);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Removes&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;relativeIndex&nbsp;:&nbsp;The&nbsp;relative&nbsp;index.</span>
+<span style="color:green;">//&nbsp;imageType&nbsp;:&nbsp;Type&nbsp;of&nbsp;the&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteRemove(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:blue;">int</span>&nbsp;imageType);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Removes&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;relativeIndex&nbsp;:&nbsp;The&nbsp;relative&nbsp;index.</span>
+<span style="color:green;">//&nbsp;imageType&nbsp;:&nbsp;Type&nbsp;of&nbsp;the&nbsp;image.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteRemove(<span style="color:blue;">int</span>&nbsp;relativeIndex,&nbsp;<span style="color:#2b91af;">GrfImageType</span>&nbsp;imageType);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Removes&nbsp;a&nbsp;sprite.</span>
+<span style="color:green;">//&nbsp;absoluteIndex&nbsp;:&nbsp;The&nbsp;absolute&nbsp;index.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteRemove(<span style="color:blue;">int</span>&nbsp;absoluteIndex);
+
+<span style="color:gray;">///</span><span style="color:green;">&nbsp;Remove&nbsp;a&nbsp;ranged&nbsp;amount&nbsp;of&nbsp;sprites.</span>
+<span style="color:green;">//&nbsp;position&nbsp;:&nbsp;The&nbsp;sprite&nbsp;position.</span>
+<span style="color:green;">//&nbsp;count&nbsp;:&nbsp;The&nbsp;count.</span>
+<span style="color:blue;">public</span>&nbsp;<span style="color:blue;">void</span>&nbsp;SpriteRemoveRange(<span style="color:blue;">int</span>&nbsp;position,&nbsp;<span style="color:blue;">int</span>&nbsp;count);
+<span style="color:blue;">#endregion</span></pre>
+		</div>
+	</div>
+</div>
+		</div>
+	</body>
+</html>

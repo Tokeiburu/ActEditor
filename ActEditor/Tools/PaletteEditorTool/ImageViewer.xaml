@@ -1,0 +1,44 @@
+﻿<UserControl x:Class="ActEditor.Tools.PaletteEditorTool.ImageViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" SnapsToDevicePixels="True"
+             d:DesignHeight="300" d:DesignWidth="300" >
+    <Grid Name="_primary" Background="#BEBEBE">
+        <Canvas ClipToBounds="True">
+            <Border Background="#555555" SnapsToDevicePixels="False" HorizontalAlignment="Left" VerticalAlignment="Top" Name="_borderSpriteGlow"  Width="32" Height="32">
+                <Border.Effect>
+                    <BlurEffect Radius="8" />
+                </Border.Effect>
+            </Border>
+            <Border Name="_borderSprite" SnapsToDevicePixels="False" HorizontalAlignment="Left" VerticalAlignment="Top" Width="32" Height="32">
+                <Border.Background>
+                    <VisualBrush TileMode="Tile" Viewport="0,0,0.5,0.5" ViewportUnits="RelativeToBoundingBox" >
+                        <VisualBrush.Visual>
+                            <Grid>
+                                <Image Source="../../Resources/background.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Width="256" Height="256" />
+                            </Grid>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </Border.Background>
+            </Border>
+            <Image Name="_imageSprite" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+            <!--<Rectangle Name="_imageRectGridX" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                    <Rectangle Name="_imageRectGridY" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+                    <Image Name="_imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />-->
+        </Canvas>
+        <Grid Name="_gridZoom">
+            <ComboBox Name="_cbZoom" IsTextSearchEnabled="false" SelectionChanged="_cbZoom_SelectionChanged"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="100" IsEditable="True" IsReadOnly="False" PreviewKeyDown="_cbZoom_PreviewKeyDown">
+                <ComboBoxItem Content="25 %" />
+                <ComboBoxItem Content="50 %" />
+                <ComboBoxItem Content="100 %" />
+                <ComboBoxItem Content="200 %" />
+                <ComboBoxItem Content="300 %" />
+                <ComboBoxItem Content="400 %" />
+                <ComboBoxItem Content="500 %" />
+            </ComboBox>
+        </Grid>
+        <Border IsHitTestVisible="False" Name="_spriteOverlay" Background="#01000000" />
+    </Grid>
+</UserControl>
