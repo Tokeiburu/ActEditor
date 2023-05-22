@@ -168,7 +168,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			button.Height = 18;
 			button.Width = 18;
 			button.Opacity = 0.8;
-			button.Background = Brushes.White;
+			button.Background = (Brush)this.TryFindResource("TabItemBackground");
 			button.ImagePath = "reset.png";
 			renderer.FrameMouseUp += (s, e) => {
 				if (renderer.GetObjectAtPoint<FancyButton>(e.GetPosition(renderer)) != button)

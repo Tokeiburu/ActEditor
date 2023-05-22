@@ -60,14 +60,14 @@
             <PreviewTabs:PreviewImage Background="White" x:Name="_previewImage" Visibility="Collapsed" />
             <PreviewTabs:PreviewAct Background="White" x:Name="_previewAct" Visibility="Collapsed" />
         </Grid>
-        <Grid Name="_gridActionPresenter" Grid.ColumnSpan="2" ListView:WpfUtils.IsDraggable="True" Grid.Row="2" Height="50" Background="{x:Static TokeiLibrary:Configuration.UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" Grid.ColumnSpan="2" ListView:WpfUtils.IsDraggable="True" Grid.Row="2" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
-                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Select" Height="25" Margin="3" MinWidth="100" />
-                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Cancel" Height="25" Margin="3" MinWidth="100" />
+                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Select" Height="24" Margin="3" MinWidth="100" />
+                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Cancel" Height="24" Margin="3" MinWidth="100" />
             </DockPanel>
         </Grid>
     </Grid>

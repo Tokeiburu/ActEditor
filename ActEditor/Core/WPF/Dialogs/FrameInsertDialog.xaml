@@ -4,9 +4,9 @@
               xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
                  xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
                  xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-                 xmlns:WPF="clr-namespace:ActEditor.Core.WPF"
                  xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls"
-                 xmlns:EditorControls="clr-namespace:ActEditor.Core.WPF.EditorControls">
+                 xmlns:EditorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
+                 Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -45,7 +45,7 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <Label Name="_labelStartIndex" Content="Start index" VerticalAlignment="Center" Grid.Row="0" />
-                <Grid Grid.Row="1" Grid.ColumnSpan="3" Background="WhiteSmoke" />
+                <Grid Grid.Row="1" Grid.ColumnSpan="3" Background="{StaticResource UIThemeScriptRunnerConsoleErrorBrush}" />
                 <Label Name="_labelRange" Content="Count" Grid.Row="1" />
                 <Grid Grid.Row="2" Name="_gridEndIndex">
                     <Grid.ColumnDefinitions>
@@ -76,14 +76,14 @@
                 </Border>
             </Grid>
         </Grid>
-        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{x:Static TokeiLibrary:Configuration.UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
-                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Ok" Height="25" Margin="3" MinWidth="100" />
-                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Cancel" Height="25" Margin="3" MinWidth="100" />
+                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Ok" Height="24" Margin="3" MinWidth="100" />
+                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Cancel" Height="24" Margin="3" MinWidth="100" />
             </DockPanel>
         </Grid>
     </Grid>

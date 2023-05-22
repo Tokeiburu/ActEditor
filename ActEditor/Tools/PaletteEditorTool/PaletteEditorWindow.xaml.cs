@@ -14,19 +14,6 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			SizeToContent = SizeToContent.WidthAndHeight;
 
 			Loaded += delegate {
-				// Fixes the width and height of the window
-				double left = Left;
-
-				if (Left + 300 + 840 > SystemParameters.PrimaryScreenWidth) {
-					left = SystemParameters.PrimaryScreenWidth - (300 + 840);
-				}
-
-				if (left < 0) {
-					left = 0;
-				}
-
-				Left = left;
-
 				SizeToContent = SizeToContent.Manual;
 				MinHeight = 440;
 

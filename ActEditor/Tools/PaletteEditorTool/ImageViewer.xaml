@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" SnapsToDevicePixels="True"
              d:DesignHeight="300" d:DesignWidth="300" >
-    <Grid Name="_primary" Background="#BEBEBE">
+    <Grid Name="_primary" Background="{StaticResource UIThemeImageViewerBackground}">
         <Canvas ClipToBounds="True">
             <Border Background="#555555" SnapsToDevicePixels="False" HorizontalAlignment="Left" VerticalAlignment="Top" Name="_borderSpriteGlow"  Width="32" Height="32">
                 <Border.Effect>

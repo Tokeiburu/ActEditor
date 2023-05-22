@@ -3,23 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Search;
 using TokeiLibrary;
+using TokeiLibrary.Shortcuts;
 using Utilities.Extension;
 
 namespace ActEditor.Core.Avalon {
 	/// <summary>
-	/// Class imported from GrfEditor
+	/// This class is used to attach default settings to an avalon text editor.
+	/// It adds the search feature (the search panel), the folding strategies,
+	/// the word highlighting.
 	/// </summary>
 	public class AvalonDefaultLoading {
 		private readonly object _lock = new object();
-		private readonly List<string> _toIgnore = new List<string> {"\t", Environment.NewLine, "\n", "\r", " ", ",", ".", "!", "\"", "?"};
+		private readonly List<string> _toIgnore = new List<string> { "\t", Environment.NewLine, "\n", "\r", " ", ",", ".", "!", "\"", "?" };
 		private string _currentWord;
 		private SearchPanel.SearchResultBackgroundRenderer _renderer;
 		private TextArea _textArea;
@@ -35,18 +40,21 @@ namespace ActEditor.Core.Avalon {
 			foldingUpdateTimer.Interval = TimeSpan.FromSeconds(2);
 			foldingUpdateTimer.Start();
 
+			_textEditor.Foreground = Application.Current.Resources["TextForeground"] as Brush;
+			_textEditor.Background = Application.Current.Resources["AvalonEditorBackground"] as Brush;
 			_textEditor.Dispatch(p => p.TextArea.SelectionCornerRadius = 0);
 			_textEditor.Dispatch(p => p.TextArea.SelectionBorder = new Pen(_textEditor.TextArea.SelectionBrush, 0));
-			_textEditor.TextArea.SelectionBrush = new SolidColorBrush(Color.FromArgb(160, 172, 213, 254));
+			_textEditor.TextArea.SelectionBrush = Application.Current.Resources["AvalonEditorSelectionBrush"] as Brush;
 			_textEditor.TextArea.SelectionBorder = new Pen(_textEditor.TextArea.SelectionBrush, 1);
 			_textEditor.TextArea.SelectionForeground = new SolidColorBrush(Colors.Black);
+			_textEditor.KeyDown += new KeyEventHandler(_textEditor_KeyDown);
 			SearchPanel panel = new SearchPanel();
 			panel.Attach(_textEditor.TextArea, _textEditor);
 
 			FontFamily oldFamily = _textEditor.FontFamily;
 			double oldSize = _textEditor.FontSize;
 
-			_renderer = new SearchPanel.SearchResultBackgroundRenderer {MarkerBrush = new SolidColorBrush(Color.FromArgb(255, 143, 255, 143))};
+			_renderer = new SearchPanel.SearchResultBackgroundRenderer { MarkerBrush = Application.Current.Resources["AvalonScriptRenderer"] as Brush };
 			_textEditor.TextArea.Caret.PositionChanged += _caret_PositionChanged;
 
 			try {
@@ -66,6 +74,111 @@ namespace ActEditor.Core.Avalon {
 			_textEditor.TextArea.TextView.BackgroundRenderers.Add(_renderer);
 			_textEditor.TextArea.KeyDown += new KeyEventHandler(_textArea_KeyDown);
 			_textArea = _textEditor.TextArea;
+		}
+
+		private void _move(bool up) {
+			int lineStart = _textArea.Selection.StartPosition.Line;
+			int lineEnd = _textArea.Selection.EndPosition.Line;
+			bool reselect = true;
+
+			TextViewPosition posStart = new TextViewPosition(_textArea.Selection.StartPosition.Location);
+			TextViewPosition posEnd = new TextViewPosition(_textArea.Selection.EndPosition.Location);
+
+			if (_textArea.Document.GetOffset(posStart.Location) > _textArea.Document.GetOffset(posEnd.Location)) {
+				TextViewPosition t = posEnd;
+				posEnd = posStart;
+				posStart = t;
+				int t2 = lineEnd;
+				lineEnd = lineStart;
+				lineStart = t2;
+			}
+
+			if (up) {
+				posStart.Line--;
+				posEnd.Line--;
+			}
+			else {
+				posStart.Line++;
+				posEnd.Line++;
+			}
+
+			if (_textArea.Selection.GetText() == "") {
+				lineStart = _textArea.Caret.Line;
+				lineEnd = _textArea.Caret.Line;
+				reselect = false;
+			}
+
+			List<DocumentLine> lines = new List<DocumentLine>();
+
+			if (up && lineStart == 1)
+				return;
+			if (!up && lineEnd == _textArea.Document.LineCount)
+				return;
+
+			if (up)
+				for (int i = lineStart - 1; i <= lineEnd; i++) {
+					lines.Add(_textArea.Document.GetLineByNumber(i));
+				}
+			else
+				for (int i = lineStart; i <= lineEnd + 1; i++) {
+					lines.Add(_textArea.Document.GetLineByNumber(i));
+				}
+
+			if (lines.Count > 0) {
+				int caretLine = _textArea.Caret.Line + (up ? -1 : 1);
+				int caretPos = _textArea.Caret.Column;
+
+				_textArea.Selection = Selection.Create(_textArea, lines[0].Offset, lines.Last().Offset + lines.Last().TotalLength);
+
+				if (up) {
+					using (_textArea.Document.RunUpdate()) {
+						var start = Selection.Create(_textArea, lines[1].Offset, lines.Last().Offset + lines.Last().TotalLength).GetText();
+						var end = Selection.Create(_textArea, lines[0].Offset, lines[0].Offset + lines[0].TotalLength).GetText();
+
+						if (!start.EndsWith("\r\n")) {
+							start += "\r\n";
+							end = end.Substring(0, end.Length - 2);
+						}
+
+						var newText = start + end;
+						_textArea.Selection.ReplaceSelectionWithText(newText);
+					}
+				}
+				else {
+					using (_textArea.Document.RunUpdate()) {
+						var start = Selection.Create(_textArea, lines[lines.Count - 1].Offset, lines[lines.Count - 1].Offset + lines[lines.Count - 1].TotalLength).GetText();
+						var end = Selection.Create(_textArea, lines[0].Offset, lines[lines.Count - 2].Offset + lines[lines.Count - 2].TotalLength).GetText();
+
+						if (!start.EndsWith("\r\n")) {
+							start += "\r\n";
+							end = end.Substring(0, end.Length - 2);
+						}
+
+						var newText = start + end;
+						_textArea.Selection.ReplaceSelectionWithText(newText);
+					}
+				}
+
+				_textArea.Caret.Line = caretLine;
+				_textArea.Caret.Column = caretPos;
+
+				if (reselect)
+					_textArea.Selection = Selection.Create(_textArea, _textArea.Document.GetOffset(posStart.Location), _textArea.Document.GetOffset(posEnd.Location));
+
+				_textArea.Caret.BringCaretToView();
+				//_textEditor.ScrollToLine(caretLine);
+			}
+		}
+
+		private void _textEditor_KeyDown(object sender, KeyEventArgs e) {
+			if (ApplicationShortcut.Is(ApplicationShortcut.MoveLineUp)) {
+				_move(true);
+				e.Handled = true;
+			}
+			else if (ApplicationShortcut.Is(ApplicationShortcut.MoveLineDown)) {
+				_move(false);
+				e.Handled = true;
+			}
 		}
 
 		private void _textArea_KeyDown(object sender, KeyEventArgs e) {
@@ -124,7 +237,7 @@ namespace ActEditor.Core.Avalon {
 
 				if (_textEditor.CaretOffset > 0) {
 					if (currentWord.Length <= 0 || !char.IsLetterOrDigit(currentWord[0])) {
-						foreach (char c in new char[] {'{', '}', '(', ')', '[', ']'}) {
+						foreach (char c in new char[] { '{', '}', '(', ')', '[', ']' }) {
 							if (_isBefore(c) || _isAfter(c)) {
 								currentWord = "" + c;
 							}
@@ -186,22 +299,22 @@ namespace ActEditor.Core.Avalon {
 				_renderer.CurrentResults.Clear();
 
 				if (_isAfter(current)) {
-					_renderer.CurrentResults.Add(new SearchResult {StartOffset = _textEditor.CaretOffset, Length = 1});
+					_renderer.CurrentResults.Add(new SearchResult { StartOffset = _textEditor.CaretOffset, Length = 1 });
 
 					int before = _findBefore(back, forward, _textEditor.CaretOffset - 1, 1);
 
 					if (before >= 0) {
-						_renderer.CurrentResults.Add(new SearchResult {StartOffset = before, Length = 1});
+						_renderer.CurrentResults.Add(new SearchResult { StartOffset = before, Length = 1 });
 					}
 				}
 
 				if (_isBefore(current)) {
-					_renderer.CurrentResults.Add(new SearchResult {StartOffset = _textEditor.CaretOffset - 1, Length = 1});
+					_renderer.CurrentResults.Add(new SearchResult { StartOffset = _textEditor.CaretOffset - 1, Length = 1 });
 
 					int before = _findBefore(back, forward, _textEditor.CaretOffset - 2, 1);
 
 					if (before >= 0) {
-						_renderer.CurrentResults.Add(new SearchResult {StartOffset = before, Length = 1});
+						_renderer.CurrentResults.Add(new SearchResult { StartOffset = before, Length = 1 });
 					}
 				}
 
@@ -213,22 +326,22 @@ namespace ActEditor.Core.Avalon {
 				_renderer.CurrentResults.Clear();
 
 				if (_isBefore(current)) {
-					_renderer.CurrentResults.Add(new SearchResult {StartOffset = _textEditor.CaretOffset - 1, Length = 1});
+					_renderer.CurrentResults.Add(new SearchResult { StartOffset = _textEditor.CaretOffset - 1, Length = 1 });
 
 					int after = _findAfter(back, forward, _textEditor.CaretOffset, 1);
 
 					if (after >= 0) {
-						_renderer.CurrentResults.Add(new SearchResult {StartOffset = after, Length = 1});
+						_renderer.CurrentResults.Add(new SearchResult { StartOffset = after, Length = 1 });
 					}
 				}
 
 				if (_isAfter(current)) {
-					_renderer.CurrentResults.Add(new SearchResult {StartOffset = _textEditor.CaretOffset, Length = 1});
+					_renderer.CurrentResults.Add(new SearchResult { StartOffset = _textEditor.CaretOffset, Length = 1 });
 
 					int after = _findAfter(back, forward, _textEditor.CaretOffset + 1, 1);
 
 					if (after >= 0) {
-						_renderer.CurrentResults.Add(new SearchResult {StartOffset = after, Length = 1});
+						_renderer.CurrentResults.Add(new SearchResult { StartOffset = after, Length = 1 });
 					}
 				}
 

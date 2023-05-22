@@ -84,7 +84,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			ListViewDataTemplateHelper.GenerateListViewTemplateNew(_listViewHeads, new ListViewDataTemplateHelper.GeneralColumnInfo[] {
 				new ListViewDataTemplateHelper.GeneralColumnInfo { Header = "File name", DisplayExpression = "DisplayName", SearchGetAccessor = "DisplayName", IsFill = true, TextAlignment = TextAlignment.Left, ToolTipBinding = "DisplayName" }
-			}, new DefaultListViewComparer<ActReferenceView>(), new string[] { "Default", "Black" }, "generateHeader", "true", "overrideSizeRedraw", "true");
+			}, new DefaultListViewComparer<ActReferenceView>(), new string[] { "Default", "{DynamicResource TextForeground}" }, "generateHeader", "true", "overrideSizeRedraw", "true");
 
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "HeadEditor.Undo"), () => {
 				if (Act != null) {
@@ -754,7 +754,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			button.Height = 18;
 			button.Width = 18;
 			button.Opacity = 0.8;
-			button.Background = Brushes.White;
+			button.Background = (Brush)this.TryFindResource("TabItemBackground");
 			button.ImagePath = "reset.png";
 			renderer.FrameMouseUp += (s, e) => {
 				if (renderer.GetObjectAtPoint<FancyButton>(e.GetPosition(renderer)) != button)

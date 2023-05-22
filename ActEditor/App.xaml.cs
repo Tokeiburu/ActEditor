@@ -50,7 +50,7 @@ namespace ActEditor {
 
 			Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/GRFEditorStyles.xaml", UriKind.RelativeOrAbsolute) });
 
-			ActEditorConfiguration.ThemeIndex = 0;
+			//ActEditorConfiguration.ThemeIndex = 1;
 
 			if (ActEditorConfiguration.ThemeIndex == 0) {
 				//Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/StyleLightBlue.xaml", UriKind.RelativeOrAbsolute) });
@@ -68,7 +68,7 @@ namespace ActEditor {
 
 						return _applyShader(img, shader);
 					}
-					else if (name.Contains("eye.png") || name.Contains("smallArrow.png")) {
+					else if (name.Contains("eye.png") || name.Contains("smallArrow.png") || name.Contains("cs_pen.png") || name.Contains("cs_eraser.png")) {
 						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
 							return Color.FromArgb(A, _clamp((255 - R) * 0.8), _clamp((255 - G) * 0.8), _clamp((255 - B) * 0.8));
 						};

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
         xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-        Title="Extract sprite" MinWidth="600" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
+        Title="Extract sprite" MinWidth="600" MaxWidth="600" SizeToContent="WidthAndHeight" ResizeMode="NoResize" Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
     <StackPanel>
         <Grid>
             <Grid.ColumnDefinitions>

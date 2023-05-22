@@ -5,9 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:editorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
              xmlns:frameEditor="clr-namespace:ActEditor.Core.WPF.FrameEditor"
-             mc:Ignorable="d" Header="Test" Background="White" FocusVisualStyle="{x:Null}"
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid Focusable="True" FocusVisualStyle="{x:Null}" Name="_gridPrimary">
+             mc:Ignorable="d" Header="Test" Background="White" FocusVisualStyle="{x:Null}">
+    <Grid Focusable="True" FocusVisualStyle="{x:Null}" Name="_gridPrimary" Background="{StaticResource TabItemBackground}" TextBlock.Foreground="{StaticResource TextForeground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />

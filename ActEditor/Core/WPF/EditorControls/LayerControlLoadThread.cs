@@ -98,5 +98,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			Enabled = true;
 		}
+
+		/// <summary>
+		/// Updates the specified frame indexes, async.
+		/// </summary>
+		/// <param name="layerIndexes">Indexes of the frame.</param>
+		public void Update(int[] layerIndexes) {
+			lock (_lock) {
+				foreach (var layerIndex in layerIndexes)
+					_frames.Add(layerIndex);
+			}
+
+			Enabled = true;
+		}
 	}
 }

@@ -129,6 +129,7 @@ namespace ActEditor.Core {
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Alt-Right", "FrameEditor.NextAction"), () => _tabEngine.ActionMove(1), this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Alt-Left", "FrameEditor.PreviousAction"), () => _tabEngine.ActionMove(-1), this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Delete", "LayerEditor.DeleteSelected"), () => _tabEngine.Execute(v => v._rendererPrimary.InteractionEngine.Delete()), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Alt-P", "Dialog.StyleEditor"), () => WindowProvider.Show(new StyleEditor(), new Control()), this);
 
 			try {
 				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
@@ -196,30 +197,6 @@ namespace ActEditor.Core {
 
 		public MultiGrfReader MetaGrf {
 			get { return _metaGrf; }
-		}
-
-		public static Brush UIGridBackground {
-			get {
-				if (_uiGridBackground == null) {
-					var brush = new SolidColorBrush(Color.FromArgb(255, 189, 189, 189));
-					brush.Freeze();
-					_uiGridBackground = brush;
-				}
-
-				return _uiGridBackground;
-			}
-		}
-
-		public static Brush UIGridBackgroundLight {
-			get {
-				if (_uiGridBackgroundLight == null) {
-					var brush = new SolidColorBrush(Color.FromArgb(255, 235, 235, 235));
-					brush.Freeze();
-					_uiGridBackgroundLight = brush;
-				}
-
-				return _uiGridBackgroundLight;
-			}
 		}
 
 		public TabEngine TabEngine { get { return _tabEngine; } }

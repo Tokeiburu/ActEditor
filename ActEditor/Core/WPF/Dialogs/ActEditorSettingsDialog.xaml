@@ -2,19 +2,18 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
-                 xmlns:WPF1="clr-namespace:ActEditor.Core.WPF"
                  xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
                  xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-                 xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" MaxWidth="470" MinWidth="470" MinHeight="475" MaxHeight="475">
-    <Grid Background="White">
+                 xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" Foreground="{StaticResource TextForeground}" MaxWidth="470" MinWidth="470" MinHeight="475" MaxHeight="475">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <Border Background="#F7F9FD">
+        <Border Background="{DynamicResource ResourceKey=TabControlBackground}">
             <Grid>
-                <TabControl Style="{DynamicResource ResourceKey=TabControlStyled}" Background="White">
-                    <TabItem Header="General" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                <TabControl Style="{DynamicResource ResourceKey=TabControlStyled}">
+                    <TabItem Header="General" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="General" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -107,7 +106,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Editor colors" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Editor colors" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Editor colors" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -209,7 +208,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Mouse" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Mouse" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Mouse" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -266,7 +265,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Sound" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Sound" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Sound" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -288,7 +287,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Gif format" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Gif format" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Gif format" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -374,7 +373,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Shell integration" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Shell integration" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Shell integration" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -413,7 +412,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Debugger" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Debugger" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Debugger" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -440,7 +439,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Shortcuts" Style="{DynamicResource ResourceKey=TabItemStyled}">
+                    <TabItem Header="Shortcuts" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto" />
@@ -476,13 +475,13 @@
                 </TabControl>
             </Grid>
         </Border>
-        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{x:Static TokeiLibrary:Configuration.UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
-                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Ok" Height="25" Margin="3" MinWidth="100" />
+                <Button Name="_buttonOk" Click="_buttonOk_Click" Content="Ok" Height="24" Margin="3" MinWidth="100" />
             </DockPanel>
         </Grid>
     </Grid>

@@ -19,6 +19,7 @@ using GRF.Image;
 using GRF.Threading;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using Utilities;
 using Utilities.Extension;
 using Control = System.Windows.Forms.Control;
 using Frame = GRF.FileFormats.ActFormat.Frame;
@@ -58,6 +59,21 @@ namespace ActEditor.Core.WPF.EditorControls {
 			};
 
 			PreviewKeyDown += new KeyEventHandler(_layerEditor_PreviewKeyDown);
+
+			double previousOffsetY = 0;
+
+			_sv.ScrollChanged += delegate {
+				if (previousOffsetY == _sv.VerticalOffset)
+					return;
+
+				previousOffsetY = _sv.VerticalOffset;
+
+				foreach (var layerControl in _sp.Children.OfType<LayerControl>()) {
+					if (layerControl.Dirty) {
+						layerControl.Update();
+					}
+				}
+			};
 		}
 
 		public LayerControlProvider Provider {
@@ -138,6 +154,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		public void AsyncUpdateLayerControl(int layerIndex) {
 			_layerControlThread.Update(layerIndex);
+		}
+
+		public void AsyncUpdateLayerControl(int[] layerIndexes) {
+			_layerControlThread.Update(layerIndexes);
 		}
 
 		private void _frameSelector_AnimationPlaying(object sender, int actionindex) {
@@ -521,6 +541,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 					return;
 				}
 
+				int[] layerIndexes = new int[_actEditor.Act[SelectedAction, SelectedFrame].Layers.Count];
+
+				for (int i = 0; i < layerIndexes.Length; i++)
+					layerIndexes[i] = i;
+				
+				//AsyncUpdateLayerControl(layerIndexes);
 				_updateThread.Add(new UpdateInfo(SelectedAction, SelectedFrame));
 			}
 			else {
@@ -597,9 +623,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			double offsetYEnd = offsetYBegin + _sv.ViewportHeight;
 
 			for (int i = 0, count = max; i < count; i++) {
-				if (currentHeight > offsetYEnd) {
-					return;
-				}
+				//if (currentHeight > offsetYEnd) {
+				//	return;
+				//}
 
 				LayerControl ctr = _provider.Get(i);
 
@@ -610,15 +636,15 @@ namespace ActEditor.Core.WPF.EditorControls {
 					}
 				});
 
-				if (currentHeight < offsetYBegin) {
-					currentHeight += LayerControl.ActualHeightBuffered;
-
-					if (currentHeight < offsetYBegin)
-						continue;
-				}
-				else {
-					currentHeight += LayerControl.ActualHeightBuffered;
-				}
+				//if (currentHeight < offsetYBegin) {
+				//	currentHeight += LayerControl.ActualHeightBuffered;
+				//
+				//	if (currentHeight < offsetYBegin)
+				//		continue;
+				//}
+				//else {
+				//	currentHeight += LayerControl.ActualHeightBuffered;
+				//}
 
 				if (!DoNotRemove) return;
 

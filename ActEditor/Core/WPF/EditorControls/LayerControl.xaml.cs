@@ -33,12 +33,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		#endregion
 
-		public const string PreviewSelectedBrush = "PreviewSelectedBrush";
-		public const string SelectedBrush = "SelectedBrush";
 		public static double ActualHeightBuffered;
 		private static Size _bufferedSize;
 
-		private readonly List<ClickSelectTextBox> _boxes = new List<ClickSelectTextBox>(8);
+		private readonly List<ClickSelectTextBox2> _boxes = new List<ClickSelectTextBox2>(8);
 		private readonly FrameRenderer _renderer;
 		private readonly bool _isReference;
 		private readonly string _name;
@@ -55,13 +53,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private bool _isSelected;
 		private int _layerIndex;
 		private TabAct _actEditor;
+		private bool _dirty;
 
-		static LayerControl() {
-			GrfColor previewSelectedColor = new GrfColor(255, 255, 237, 122);
-			GrfColor selectedColor = new GrfColor(255, 222, 251, 169);
-
-			BufferedBrushes.Register(PreviewSelectedBrush, () => previewSelectedColor);
-			BufferedBrushes.Register(SelectedBrush, () => selectedColor);
+		public bool Dirty {
+			get { return _dirty; }
 		}
 
 		/// <summary>
@@ -129,7 +124,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 				_isSelected = value;
 
-				_grid.Background = _isSelected ? BufferedBrushes.GetBrush(SelectedBrush) : Brushes.White;
+				_grid.Background = _isSelected ? (Brush)this.FindResource("UIThemeLayerControlSelectedBrush") : (Brush)this.FindResource("UIThemeTextBoxBackgroundBrush");
 			}
 		}
 
@@ -145,7 +140,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 				if (IsSelected) return;
 
-				_grid.Background = _isPreviewSelected ? BufferedBrushes.GetBrush(PreviewSelectedBrush) : Brushes.White;
+				_grid.Background = _isPreviewSelected ? (Brush)this.FindResource("UIThemeLayerControlPreviewSelectedBrush") : (Brush)this.FindResource("UIThemeTextBoxBackgroundBrush");
 			}
 		}
 
@@ -176,7 +171,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				if (!_eventsEnabled) return;
 
 				int ival;
-				if (_getVal(sender as TextBox, out ival)) {
+				if (_getVal(sender as ClickSelectTextBox2, out ival)) {
 					_applyCommands();
 				}
 			};
@@ -185,7 +180,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				if (!_eventsEnabled) return;
 
 				float dval;
-				if (_getDecimalVal(((TextBox) sender).Text, out dval)) {
+				if (_getDecimalVal(((ClickSelectTextBox2)sender).Text, out dval)) {
 					_applyCommands();
 				}
 			};
@@ -318,7 +313,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			int ival;
-			if (_getVal(sender as TextBox, out ival)) {
+			if (_getVal(sender as ClickSelectTextBox2, out ival)) {
 				_act.Commands.SetRotation(_actionIndex, _frameIndex, _layerIndex, ival);
 
 				if (_renderer != null) {
@@ -398,7 +393,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			int ival;
-			if (_getVal(sender as TextBox, out ival)) {
+			if (_getVal(sender as ClickSelectTextBox2, out ival)) {
 				_act.Commands.SetOffsetY(_actionIndex, _frameIndex, _layerIndex, ival);
 
 				if (_renderer != null) {
@@ -411,7 +406,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			int ival;
-			if (_getVal(sender as TextBox, out ival)) {
+			if (_getVal(sender as ClickSelectTextBox2, out ival)) {
 				_act.Commands.SetOffsetX(_actionIndex, _frameIndex, _layerIndex, ival);
 
 				if (_renderer != null) {
@@ -424,7 +419,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			int ival;
-			if (_getVal(sender as TextBox, out ival)) {
+			if (_getVal(sender as ClickSelectTextBox2, out ival)) {
 				_act.Commands.SetAbsoluteSpriteId(_actionIndex, _frameIndex, _layerIndex, ival);
 
 				if (_renderer != null) {
@@ -453,7 +448,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		private static bool _getVal(TextBox box, out int ival) {
+		private static bool _getVal(ClickSelectTextBox2 box, out int ival) {
 			return Int32.TryParse(box.Text, out ival);
 		}
 
@@ -474,10 +469,14 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (ignoreVisibility || _isVisible()) {
 				_update();
 			}
+			else {
+				_dirty = true;
+			}
 		}
 
 		private void _update(bool disableEvents = true) {
 			Layer layer = _layer;
+			_dirty = false;
 
 			if (layer == null) {
 				SetNull();

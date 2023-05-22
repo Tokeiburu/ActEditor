@@ -105,7 +105,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			TextBlock tb = (TextBlock) _refZState.FindName("_tbIdentifier");
 			tb.Margin = new Thickness(2);
 			tb.FontSize = 12;
-			tb.Foreground = Brushes.Black;
+			tb.Foreground = (Brush)this.FindResource("TextForeground");
 
 			Grid grid = ((Grid) ((Grid) ((Border) _refZState.FindName("_border")).Child).Children[2]);
 
@@ -178,6 +178,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 				Mode = Mode == ZMode.Front ? ZMode.Back : ZMode.Front;
 				action();
 			};
+
+			_buttonSprite.NormalBrush = (Brush)this.TryFindResource("UIThemeHyperlinkForegroundBrush");
+			_buttonSprite.MouseOverBrush = (Brush)this.TryFindResource("UIThemeHyperlinkMouseOverBrush");
 
 			action();
 

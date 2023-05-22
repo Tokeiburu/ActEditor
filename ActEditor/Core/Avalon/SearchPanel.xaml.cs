@@ -7,6 +7,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using ActEditor.ApplicationConfiguration;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
@@ -17,27 +18,27 @@ using TokeiLibrary;
 namespace ActEditor.Core.Avalon {
 	public partial class SearchPanel : UserControl {
 		public static readonly DependencyProperty MatchCaseProperty =
-			DependencyProperty.Register("MatchCase", typeof (bool), typeof (SearchPanel),
+			DependencyProperty.Register("MatchCase", typeof(bool), typeof(SearchPanel),
 			                            new FrameworkPropertyMetadata(false, _searchPatternChangedCallback));
 
 		public static readonly DependencyProperty SearchPatternProperty =
-			DependencyProperty.Register("SearchPattern", typeof (string), typeof (SearchPanel),
+			DependencyProperty.Register("SearchPattern", typeof(string), typeof(SearchPanel),
 			                            new FrameworkPropertyMetadata("", _searchPatternChangedCallback));
 
 		public static readonly DependencyProperty WholeWordsProperty =
-			DependencyProperty.Register("WholeWords", typeof (bool), typeof (SearchPanel),
+			DependencyProperty.Register("WholeWords", typeof(bool), typeof(SearchPanel),
 			                            new FrameworkPropertyMetadata(false, _searchPatternChangedCallback));
 
 		public static readonly DependencyProperty UseRegexProperty =
-			DependencyProperty.Register("UseRegex", typeof (bool), typeof (SearchPanel),
+			DependencyProperty.Register("UseRegex", typeof(bool), typeof(SearchPanel),
 			                            new FrameworkPropertyMetadata(false, _searchPatternChangedCallback));
 
 		public static readonly RoutedCommand Find = new RoutedCommand(
-			"Find", typeof (SearchPanel),
-			new InputGestureCollection {new KeyGesture(Key.F, ModifierKeys.Control)}
+			"Find", typeof(SearchPanel),
+			new InputGestureCollection { new KeyGesture(Key.F, ModifierKeys.Control) }
 			);
 
-		private readonly ToolTip _messageView = new ToolTip {Placement = PlacementMode.Bottom, StaysOpen = false};
+		readonly ToolTip _messageView = new ToolTip { Placement = PlacementMode.Bottom, StaysOpen = false };
 		private SearchPanelAdorner _adorner;
 
 		private TextDocument _currentDocument;
@@ -48,6 +49,10 @@ namespace ActEditor.Core.Avalon {
 
 		public SearchPanel() {
 			InitializeComponent();
+
+			if (ActEditorConfiguration.ThemeIndex == 1) {
+				_unclickableBorder.Margin = new Thickness(-6, -4, -6, -4);
+			}
 
 			_isSearch = true;
 
@@ -63,28 +68,28 @@ namespace ActEditor.Core.Avalon {
 		public bool IsClosed { get; set; }
 
 		public string SearchPattern {
-			get { return (string) GetValue(SearchPatternProperty); }
+			get { return (string)GetValue(SearchPatternProperty); }
 			set { SetValue(SearchPatternProperty, value); }
 		}
 
 		public bool MatchCase {
-			get { return (bool) GetValue(MatchCaseProperty); }
+			get { return (bool)GetValue(MatchCaseProperty); }
 			set { SetValue(MatchCaseProperty, value); }
 		}
 
 		public bool WholeWords {
-			get { return (bool) GetValue(WholeWordsProperty); }
+			get { return (bool)GetValue(WholeWordsProperty); }
 			set { SetValue(WholeWordsProperty, value); }
 		}
 
 		public bool UseRegex {
-			get { return (bool) GetValue(UseRegexProperty); }
+			get { return (bool)GetValue(UseRegexProperty); }
 			set { SetValue(UseRegexProperty, value); }
 		}
 
 		private bool _isSearch { get; set; }
 
-		private static void _searchPatternChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+		static void _searchPatternChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
 			SearchPanel panel = d as SearchPanel;
 			if (panel != null) {
 				panel.ValidateSearchText();
@@ -135,7 +140,7 @@ namespace ActEditor.Core.Avalon {
 			_editor = editor;
 			_textArea = textArea;
 			_currentDocument = textArea.Document;
-			_renderer = new SearchResultBackgroundRenderer {MarkerBrush = new SolidColorBrush(Colors.Yellow)};
+			_renderer = new SearchResultBackgroundRenderer { MarkerBrush = new SolidColorBrush(Colors.Yellow) };
 			_searchTextBox.TextChanged += new TextChangedEventHandler(_searchTextBox_TextChanged);
 
 			_adorner = new SearchPanelAdorner(textArea, this);
@@ -149,7 +154,7 @@ namespace ActEditor.Core.Avalon {
 			_replaceTextBox.LostFocus += new RoutedEventHandler(_replaceTextBox_LostFocus);
 			_searchTextBox.GotFocus += new RoutedEventHandler(_searchTextBox_GotFocus);
 			_replaceTextBox.GotFocus += new RoutedEventHandler(_replaceTextBox_GotFocus);
-			KeyDown += new KeyEventHandler(_searchPanel_KeyDown);
+			KeyDown +=new KeyEventHandler(_searchPanel_KeyDown);
 
 			CommandBindings.Add(new CommandBinding(Find, (sender, e) => Open()));
 			CommandBindings.Add(new CommandBinding(SearchCommands.FindNext, (sender, e) => FindNext()));
@@ -288,8 +293,7 @@ namespace ActEditor.Core.Avalon {
 				OnSearchOptionsChanged(new SearchOptionsChangedEventArgs(SearchPattern, MatchCase, UseRegex, WholeWords));
 				DoSearch(true);
 			}
-			catch {
-			}
+			catch { }
 		}
 
 		public event EventHandler<SearchOptionsChangedEventArgs> SearchOptionsChanged;
@@ -517,7 +521,7 @@ namespace ActEditor.Core.Avalon {
 		#region Nested type: SearchPanelAdorner
 
 		public class SearchPanelAdorner : Adorner {
-			private readonly SearchPanel _panel;
+			readonly SearchPanel _panel;
 
 			public SearchPanelAdorner(TextArea textArea, SearchPanel panel)
 				: base(textArea) {
@@ -548,10 +552,10 @@ namespace ActEditor.Core.Avalon {
 		#region Nested type: SearchResultBackgroundRenderer
 
 		public class SearchResultBackgroundRenderer : IBackgroundRenderer {
-			private readonly TextSegmentCollection<SearchResult> _currentResults = new TextSegmentCollection<SearchResult>();
+			readonly TextSegmentCollection<SearchResult> _currentResults = new TextSegmentCollection<SearchResult>();
 
-			private Brush _markerBrush;
-			private Pen _markerPen;
+			Brush _markerBrush;
+			Pen _markerPen;
 
 			public SearchResultBackgroundRenderer() {
 				_markerBrush = Brushes.LightGreen;

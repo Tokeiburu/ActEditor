@@ -134,7 +134,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
 			AvalonLoader.Load(_textEditor);
-			_textEditor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinition("C#");
+			AvalonLoader.SetSyntax(_textEditor, "C#");
 			SizeToContent = SizeToContent.WidthAndHeight;
 
 			ListViewDataTemplateHelper.GenerateListViewTemplateNew(_listView, new ListViewDataTemplateHelper.GeneralColumnInfo[] {
@@ -142,14 +142,14 @@ namespace ActEditor.Core.WPF.Dialogs {
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Description", DisplayExpression = "Description", ToolTipBinding = "ToolTipDescription", TextAlignment = TextAlignment.Left, TextWrapping = TextWrapping.Wrap, IsFill = true},
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Line", DisplayExpression = "Line", FixedWidth = 50, ToolTipBinding = "Line", TextAlignment = TextAlignment.Right},
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Col", DisplayExpression = "Column", FixedWidth = 30, ToolTipBinding = "Column", TextAlignment = TextAlignment.Right},
-			}, new DefaultListViewComparer<CompilerErrorView>(), new string[] {"Default", "Black"});
+			}, new DefaultListViewComparer<CompilerErrorView>(), new string[] { "Default", "{DynamicResource TextForeground}" });
 
 			Loaded += delegate {
 				SizeToContent = SizeToContent.Manual;
 				//_listView.MaxWidth = _mainGrid.ActualWidth;
 				MinWidth = 600;
 				Width = MinWidth;
-				MinHeight = _textEditor.MinHeight + _sp.ActualHeight + _gridActionPresenter.ActualHeight + 50;
+				MinHeight = _textEditor.MinHeight + _sp.ActualHeight + _gridActionPresenter.ActualHeight + 70;
 				Height = MinHeight;
 
 				Left = (SystemParameters.FullPrimaryScreenWidth - MinWidth) / 2d;

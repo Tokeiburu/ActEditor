@@ -314,6 +314,7 @@ namespace ActEditor.Core.Scripts {
 			act.Sprite.Converter.Save(act.Sprite, tempPath);
 			if (dialog.PaletteEditor.Open(tempPath)) {
 				dialog.Owner = WpfUtilities.TopWindow;
+				dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 				dialog.Closing += delegate {
 					EditPalette.CanOpen = true;
 					tempPath = TemporaryFilesManager.GetTemporaryFilePath("tmp_sprite_{0:0000}.spr");

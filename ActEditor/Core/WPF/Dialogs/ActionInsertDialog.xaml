@@ -45,7 +45,7 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <Label Name="_labelStartIndex" Content="Start index" VerticalAlignment="Center" Grid.Row="0" />
-                <Grid Grid.Row="1" Grid.ColumnSpan="3" Background="WhiteSmoke" />
+                <Grid Grid.Row="1" Grid.ColumnSpan="3" Background="{StaticResource UIThemeScriptRunnerConsoleErrorBrush}" />
                 <Label Name="_labelRange" Content="Count" Grid.Row="1" />
                 <Grid Grid.Row="2" Name="_gridEndIndex">
                     <Grid.ColumnDefinitions>

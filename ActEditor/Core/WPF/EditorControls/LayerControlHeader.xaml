@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:Core="clr-namespace:ActEditor.Core"
              mc:Ignorable="d" >
-    <Grid Background="{x:Static Core:ActEditorWindow.UIGridBackground}" Name="_grid">
+    <Grid Background="{StaticResource UIGridBackgroundBrush}" Name="_grid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="53" />
             <ColumnDefinition MinWidth="53" />
@@ -16,15 +16,15 @@
             <ColumnDefinition MinWidth="53" />
             <ColumnDefinition MinWidth="53" />
         </Grid.ColumnDefinitions>
-        <Rectangle Grid.Column="0" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="1" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="2" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="3" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="4" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="5" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="6" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="7" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
-        <Rectangle Grid.Column="8" Margin="0 0 1 1" Fill="{x:Static Core:ActEditorWindow.UIGridBackgroundLight}" />
+        <Rectangle Grid.Column="0" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="1" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="2" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="3" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="4" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="5" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="6" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="7" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
+        <Rectangle Grid.Column="8" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
 
         <Label Name="_lab0" Grid.Column="0" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Id" />
         <Label Name="_lab1" Grid.Column="1" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Sprite" />

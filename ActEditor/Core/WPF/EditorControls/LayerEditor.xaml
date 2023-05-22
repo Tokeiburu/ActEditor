@@ -35,7 +35,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <EditorControls:LayerControlHeader x:Name="_sfch" />
-            <Border BorderThickness="0 1 0 0" BorderBrush="{x:Static Core:ActEditorWindow.UIGridBackground}" VerticalAlignment="Top" />
+            <Border BorderThickness="0 1 0 0" BorderBrush="{StaticResource UIGridBackgroundBrush}" VerticalAlignment="Top" />
             <ScrollViewer Name="_sv" Grid.Row="1" Grid.ColumnSpan="2" MinHeight="50" FocusVisualStyle="{x:Null}">
                 <StackPanel VirtualizingStackPanel.IsVirtualizing="True" Name="_sp" FocusVisualStyle="{x:Null}">
                 </StackPanel>

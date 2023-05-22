@@ -1,63 +1,54 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using TokeiLibrary.Shortcuts;
 
 namespace ActEditor.Core.WPF.GenericControls {
-	public class ClickSelectTextBox : TextBox {
-		private static readonly Thickness _sharedThickness = new Thickness(3, 0, 3, 1);
-		private readonly QuickTextPreviewAdorner _adorner;
-		private readonly TextBlock _tblock = new TextBlock();
-
-		static ClickSelectTextBox() {
-			EventsEnabled = true;
-		}
-
-		public ClickSelectTextBox() {
-			AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(_selectivelyIgnoreMouseButton), true);
-			AddHandler(GotKeyboardFocusEvent, new RoutedEventHandler(_selectAllText), true);
-			AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(_selectAllText), true);
-
-			IsUndoEnabled = false;
-
-			PreviewKeyDown += new KeyEventHandler(_clickSelectTextBox_KeyDown);
-
-			_tblock.Padding = _sharedThickness;
-			_tblock.IsHitTestVisible = false;
-			_tblock.Visibility = Visibility.Collapsed;
-			_tblock.Background = (Brush)this.TryFindResource("UIThemeTextBoxBorderBrush");
-			_tblock.VerticalAlignment = VerticalAlignment.Center;
-			_tblock.TextAlignment = TextAlignment.Right;
-			_tblock.ClipToBounds = true;
-
-			_adorner = new QuickTextPreviewAdorner(_tblock, this);
-
-			bool isLoaded = false;
-
-			Loaded += delegate {
-				if (isLoaded) return;
-				var layer = AdornerLayer.GetAdornerLayer(this);
-				if (layer != null) {
-					layer.Add(_adorner);
-				}
-
-				if (!EventsEnabled)
-					Text = _tblock.Text;
-
-				isLoaded = true;
-			};
-		}
-
-		public static bool EventsEnabled { get; set; }
-
-		public new string Text {
-			get { return (string) GetValue(TextProperty); }
+	/// <summary>
+	/// Interaction logic for ClickSelectTextBox2.xaml
+	/// </summary>
+	public partial class ClickSelectTextBox2 : UserControl {
+		public TextAlignment TextAlignment {
 			set {
-				if (EventsEnabled) {
+				_tbox.TextAlignment = value;
+				_tblock.TextAlignment = value;
+			}
+		}
+
+		public bool IsReadOnly {
+			get { return _tbox.IsReadOnly; }
+			set { _tbox.IsReadOnly = value; }
+		}
+
+		public event TextChangedEventHandler TextChanged;
+
+		protected virtual void OnTextChanged(TextChangedEventArgs e) {
+			TextChangedEventHandler handler = TextChanged;
+			if (handler != null) handler(this, e);
+		}
+
+		public ClickSelectTextBox2() {
+			InitializeComponent();
+
+			_tbox.AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(_selectivelyIgnoreMouseButton), true);
+			_tbox.AddHandler(GotKeyboardFocusEvent, new RoutedEventHandler(_selectAllText), true);
+			_tbox.AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(_selectAllText), true);
+
+			_tbox.IsUndoEnabled = false;
+			_tbox.TextChanged += new TextChangedEventHandler(_tbox_TextChanged);
+			_tbox.PreviewKeyDown += new KeyEventHandler(_clickSelectTextBox_KeyDown);
+
+			_tbox.DragOver += new DragEventHandler(_tbox_DragOver);
+			_tbox.DragEnter += new DragEventHandler(_tbox_DragEnter);
+		}
+
+		public string Text {
+			get { return _tbox.Text; }
+			set {
+				if (ClickSelectTextBox.EventsEnabled) {
 					_tblock.Visibility = Visibility.Collapsed;
-					SetValue(TextProperty, value);
+					_tbox.Text = value;
 				}
 				else {
 					if (IsLoaded) {
@@ -68,15 +59,10 @@ namespace ActEditor.Core.WPF.GenericControls {
 		}
 
 		private void _setText(string value) {
-			if (_adorner.Parent == null) {
-				_tblock.Text = value;
-				return;
-			}
-
 			if (_tblock.Visibility != Visibility.Visible || _tblock.Width <= 0) {
 				_tblock.Visibility = Visibility.Visible;
 				_tblock.Width = ActualWidth;
-				_tblock.Background = ((Grid) (Parent)).Background;
+				_tblock.Background = ((Grid)(Parent)).Background;
 			}
 
 			_tblock.Text = value;
@@ -102,27 +88,27 @@ namespace ActEditor.Core.WPF.GenericControls {
 			}
 		}
 
-		protected override void OnTextChanged(TextChangedEventArgs e) {
-			if (EventsEnabled)
-				base.OnTextChanged(e);
+		private void _tbox_TextChanged(object sender, TextChangedEventArgs e) {
+			if (!ClickSelectTextBox.EventsEnabled) {
+				e.Handled = true;
+			}
+			else {
+				OnTextChanged(e);
+			}
 		}
 
-		protected override void OnDragOver(DragEventArgs e) {
+		private void _tbox_DragEnter(object sender, DragEventArgs e) {
 			if (e.Data.GetData("ImageIndex") != null) {
 				e.Effects = DragDropEffects.All;
-				return;
+				e.Handled = true;
 			}
-
-			base.OnDragOver(e);
 		}
 
-		protected override void OnDragEnter(DragEventArgs e) {
+		private void _tbox_DragOver(object sender, DragEventArgs e) {
 			if (e.Data.GetData("ImageIndex") != null) {
 				e.Effects = DragDropEffects.All;
-				return;
+				e.Handled = true;
 			}
-
-			base.OnDragEnter(e);
 		}
 
 		private static void _selectivelyIgnoreMouseButton(object sender, MouseButtonEventArgs e) {
@@ -132,7 +118,7 @@ namespace ActEditor.Core.WPF.GenericControls {
 				parent = VisualTreeHelper.GetParent(parent);
 
 			if (parent != null) {
-				var textBox = (TextBox) parent;
+				var textBox = (TextBox)parent;
 				if (!textBox.IsKeyboardFocusWithin) {
 					// If the text box is not yet focussed, give it the focus and
 					// stop further processing of this click event.
@@ -150,7 +136,7 @@ namespace ActEditor.Core.WPF.GenericControls {
 
 		public void UpdateBackground() {
 			if (_tblock != null) {
-				_tblock.Background = ((Grid) (Parent)).Background;
+				_tblock.Background = ((Grid)(Parent)).Background;
 			}
 		}
 	}

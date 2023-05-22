@@ -4,7 +4,8 @@
                  xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
                  xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
                  xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
-                 xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit">
+                 xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                 Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
     <Grid Name="_mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -45,23 +46,23 @@
 					ShowLineNumbers="True">
             </avalonedit:TextEditor>
             <StackPanel Name="_sp" Grid.Row="2" Grid.ColumnSpan="2" Background="White">
-                <Label Background="#CBFAFBFD" Content="Error console" />
+                <Label Background="{StaticResource UIThemeScriptRunnerConsoleErrorBrush}" Content="Error console" />
                 <ListView MouseDoubleClick="_listView_MouseDoubleClick" MaxHeight="120" MinHeight="120" BorderThickness="0 1 0 1" ListView:WpfUtils.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Name="_listView" Grid.Row="2" />
             </StackPanel>
         </Grid>
-        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{x:Static TokeiLibrary:Configuration.UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
-                <Button Click="_buttonRun_Click" Height="25" Margin="3" MinWidth="100">
+                <Button Click="_buttonRun_Click" Height="24" Margin="3" MinWidth="100">
                     <DockPanel>
                         <Image ListView:WpfUtils.ImagePath="play.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" Width="16" />
-                        <Label Content="Run" Padding="0" Margin="3 0 0 0" VerticalAlignment="Center" />
+                        <Label Content="Run" Padding="0" Margin="3 0 0 0" VerticalAlignment="Center" Foreground="{StaticResource TextForeground}" />
                     </DockPanel>
                 </Button>
-                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Close" Height="25" Margin="3" MinWidth="100" />
+                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Close" Height="24" Margin="3" MinWidth="100" />
             </DockPanel>
         </Grid>
     </Grid>

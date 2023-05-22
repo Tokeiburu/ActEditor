@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary" mc:Ignorable="d" Height="150"  MinHeight="100">
-    <Grid Name="_gridBackground" FocusVisualStyle="{x:Null}">
+    <Grid Name="_gridBackground" TextBlock.Foreground="Black" FocusVisualStyle="{x:Null}">
         <Grid.Background>
             <VisualBrush TileMode="Tile" Viewport="0,0,0,0" ViewportUnits="RelativeToBoundingBox" >
                 <VisualBrush.Visual>

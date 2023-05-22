@@ -398,6 +398,42 @@
 
     <SolidColorBrush x:Key="ToggleMemoryBorderBrush" Color="#9AA6B6"/>
     <SolidColorBrush x:Key="UIDragDropBrush" Color="#FFD3FDC5"/>
+    <SolidColorBrush x:Key="UIGridBackgroundLightBrush" Color="#EBEBEB"/>
+    <SolidColorBrush x:Key="UIGridBackgroundBrush" Color="#BDBDBD"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlSelectedBrush" Color="#DEFBA9"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlPreviewSelectedBrush" Color="#FFED7A"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlOverlay" Color="#C9FFFFFF"/>
+    <SolidColorBrush x:Key="UIThemeHyperlinkForegroundBrush" Color="#FF0000FE"/>
+    <SolidColorBrush x:Key="UIThemeHyperlinkMouseOverBrush" Color="#FF005BFF"/>
+    <SolidColorBrush x:Key="UIThemeTextBoxBackgroundBrush" Color="White" />
+    <SolidColorBrush x:Key="UIThemeScriptRunnerConsoleErrorBrush" Color="#CBFAFBFD" />
+    <SolidColorBrush x:Key="UIThemeImageViewerBackground" Color="#BEBEBE" />
+    
+    <SolidColorBrush x:Key="UIThemeMainTabControlBorderBrush" Color="#CED6E3"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateBackground" Color="#F8F8F8"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateStroke" Color="#929292"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger1" Color="#838383"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger2" Color="#DBEAFB"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger3" Color="#92BCEF"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger4" Color="#EDF4FB"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger5" Color="#A3C4EC"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger6" Color="#7DA1CD"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger7" Color="Black"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger8" Color="#797979"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger9" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger10" Color="Black"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger11" Color="#DBEAFB"/>
+    
+    <SolidColorBrush x:Key="GSearchEngineOk" Color="White"/>
+    <SolidColorBrush x:Key="GSearchEngineProcessing" Color="#DCFFCC"/>
+    <SolidColorBrush x:Key="GSearchEnginePredicate" Color="#32FFD400"/>
+    <SolidColorBrush x:Key="GSearchEngineError" Color="Pink"/>
+
+    <SolidColorBrush x:Key="GSearchEngineExtendBorder" Color="#9AA6B6"/>
+    <LinearGradientBrush x:Key="GSearchEngineExtendBackground" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Offset="0" Color="#DEDEDE" />
+        <GradientStop Offset="0.5" Color="White" />
+    </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="SearchDialogSubmenuBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Offset="0" Color="#DEDEDE" />

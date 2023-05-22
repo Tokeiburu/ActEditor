@@ -152,6 +152,9 @@
     <Compile Include="Core\WPF\Dialogs\BatchScriptDialog.xaml.cs">
       <DependentUpon>BatchScriptDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\WPF\Dialogs\StyleEditorDialog.xaml.cs">
+      <DependentUpon>StyleEditorDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\WPF\Dialogs\EffectPreviewDialog.xaml.cs">
       <DependentUpon>EffectPreviewDialog.xaml</DependentUpon>
     </Compile>
@@ -175,6 +178,9 @@
       <DependentUpon>FrameRenderer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\WPF\FrameEditor\FrameRendererEdit.cs" />
+    <Compile Include="Core\WPF\GenericControls\ClickSelectTextBox2.xaml.cs">
+      <DependentUpon>ClickSelectTextBox2.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\WPF\InteractionComponent\HeadInteraction.cs" />
     <Compile Include="Core\WPF\InteractionComponent\DefaultInteractionEngine.cs" />
     <Compile Include="Core\WPF\InteractionComponent\EditorInteraction.cs" />
@@ -294,6 +300,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Core\WPF\Dialogs\StyleEditorDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Core\WPF\Dialogs\EffectPreviewDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -402,6 +412,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Core\WPF\GenericControls\ClickSelectTextBox2.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Core\WPF\GenericControls\QuickColorSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -435,6 +449,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="WPF\Styles\GRFEditorStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WPF\Styles\StyleLightBlue.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -695,7 +713,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

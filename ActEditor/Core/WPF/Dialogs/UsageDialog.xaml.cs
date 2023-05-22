@@ -30,7 +30,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Action", DisplayExpression = "ActionIndex", SearchGetAccessor = "ActionIndex", TextAlignment = TextAlignment.Right, ToolTipBinding = "ActionIndex", FixedWidth = 70},
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Frame", DisplayExpression = "FrameIndex", SearchGetAccessor = "FrameIndex", TextAlignment = TextAlignment.Right, ToolTipBinding = "FrameIndex", FixedWidth = 70},
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Layer", DisplayExpression = "LayerIndex", SearchGetAccessor = "LayerIndex", TextAlignment = TextAlignment.Right, ToolTipBinding = "LayerIndex", FixedWidth = 70},
-			}, new DefaultListViewComparer<ActIndex>(), new string[] {"Default", "Black"});
+			}, new DefaultListViewComparer<ActIndex>(), new string[] { "Default", "{DynamicResource TextForeground}" });
 
 			_listView.SelectionChanged += new SelectionChangedEventHandler(_listView_SelectionChanged);
 		}

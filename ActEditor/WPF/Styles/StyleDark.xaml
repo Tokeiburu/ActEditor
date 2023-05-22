@@ -6,7 +6,8 @@
                     xmlns:wpfBugFix="clr-namespace:TokeiLibrary.WpfBugFix;assembly=TokeiLibrary"
                     xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
                     xmlns:application="clr-namespace:GrfToWpfBridge.Application;assembly=GrfToWpfBridge"
-                    xmlns:genericControls="clr-namespace:ActEditor.Core.WPF.GenericControls">
+                    xmlns:genericControls="clr-namespace:ActEditor.Core.WPF.GenericControls"
+                    xmlns:colorTextBox="clr-namespace:ColorPicker.ColorTextBox;assembly=ColorPicker">
     <!-- Dark theme colors and brushes -->
     <Color x:Key="UIThemeDefaultTextColor">#D6D4D8</Color>
     <Color x:Key="UIThemeBackground1Color">#2F3136</Color>
@@ -63,6 +64,31 @@
     <SolidColorBrush x:Key="UIThemeListViewBorderBrush" Color="{StaticResource UIThemeListViewBorderColor}"/>
     <SolidColorBrush x:Key="UIThemeListViewMouseOverBackgroundBrush" Color="{StaticResource UIThemeListViewMouseOverBackgroundColor}"/>
     <SolidColorBrush x:Key="UIThemeComboBoxDisabledBrush" Color="{StaticResource UIThemeComboBoxDisabled}"/>
+    <SolidColorBrush x:Key="UIGridBackgroundLightBrush" Color="{StaticResource UIThemePopupBackgroundColor}"/>
+    <SolidColorBrush x:Key="UIGridBackgroundBrush" Color="{StaticResource UIThemeContextMenuMouseOverBackgroundColor}"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlSelectedBrush" Color="#347D39"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlPreviewSelectedBrush" Color="#AD7C13"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlOverlay" Color="#C936393F"/>
+    <SolidColorBrush x:Key="UIThemeHyperlinkForegroundBrush" Color="#F68D00"/>
+    <SolidColorBrush x:Key="UIThemeHyperlinkMouseOverBrush" Color="#F6B35A"/>
+    <SolidColorBrush x:Key="UIThemeScriptRunnerConsoleErrorBrush" Color="{StaticResource UIThemeDialogFooterColor}" />
+    <SolidColorBrush x:Key="UIThemeImageViewerBackground" Color="#2D2D2D" />
+
+    <SolidColorBrush x:Key="UIThemeMainTabControlBorderBrush" Color="{StaticResource UIThemeBackground1Color}"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateBackground" Color="{StaticResource UIThemeSelectBackgroundColor}"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateStroke" Color="#333333"/>
+
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger4" Color="{StaticResource UIThemeTextBoxBorderColor}"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger5" Color="{StaticResource UIThemeBackground1Color}"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger11" Color="{StaticResource UIThemeTextBoxBorderColor}"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger3" Color="{StaticResource UIThemeBackground1Color}"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger2" Color="#2B672F"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger6" Color="#204C23"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger7" Color="#E6E6E6"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger8" Color="#797979"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger1" Color="#373737"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger9" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger10" Color="#E6E6E6"/>
 
     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="{StaticResource UIThemeMouseOverBorderColor}"/>
     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrush}" Color="White"/>
@@ -190,6 +216,68 @@
         <Setter Property="UnableBackgroundBrush" Value="{StaticResource UITreeViewUnableBackgroundBrush}" />
         <Setter Property="UnableBorderBrush" Value="{StaticResource UITreeViewUnableBorderBrush}" />
     </Style>
+    
+    <!-- Avalon styles -->
+    <TextBlock x:Key="AvalonPythonComment" Foreground="#A0A0A0" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonPythonString" Foreground="#E5DB6D" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonPythonKeywordsStructure" Foreground="#FE9700" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonPythonKeywordsDb" Foreground="#FB1E70" FontWeight="Bold" FontStyle="Italic"/>
+    <TextBlock x:Key="AvalonPythonKeywordsApi" Foreground="#60D8F0" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonPythonKeywordsOthers" Foreground="#A3E305" FontWeight="Bold" FontStyle="Italic"/>
+    <TextBlock x:Key="AvalonPythonKeywordsDigit" Foreground="#AE7DFE" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonPythonCommentFont" Foreground="#A0A0A0" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonPythonDefault" Foreground="{StaticResource TextForeground}" FontWeight="Bold" />
+
+    <TextBlock x:Key="AvalonDebugDbComment" Foreground="#A0A0A0" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonDebugDbString" Foreground="#E5DB6D" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonDebugDbKeywordsStructure" Foreground="#FE9700" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonDebugDbKeywordsDb" Foreground="#FB1E70" FontWeight="Bold" FontStyle="Italic"/>
+    <TextBlock x:Key="AvalonDebugDbKeywordsApi" Foreground="#60D8F0" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonDebugDbKeywordsOthers" Foreground="#FB1E70" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonDebugDbKeywordsDigit" Foreground="#AE7DFE" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonDebugDbCommentFont" Foreground="#A0A0A0" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonDebugDbDefault" Foreground="{StaticResource TextForeground}" FontWeight="Bold" />
+
+    <TextBlock x:Key="AvalonScriptComment" Foreground="#A0A0A0" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonScriptString" Foreground="#E5DB6D" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonScriptKeywordsStructure" Foreground="#FE9700" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonScriptKeywordsDb" Foreground="#FB1E70" FontWeight="Bold" FontStyle="Italic"/>
+    <TextBlock x:Key="AvalonScriptKeywordsApi" Foreground="#60D8F0" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonScriptKeywordsOthers" Foreground="#FB1E70" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonScriptKeywordsDigit" Foreground="#AE7DFE" FontWeight="Bold"/>
+    <TextBlock x:Key="AvalonScriptCommentFont" Foreground="#A0A0A0" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonScriptKeywordsConstant" Foreground="#A3E305" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonScriptDefault" Foreground="{StaticResource TextForeground}" FontWeight="Bold" />
+
+    <TextBlock x:Key="AvalonC#TrueFalse" Foreground="#A3E305" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#Keywords" Foreground="#FE9700" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#GotoKeywords" Foreground="#FE9700" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#ContextKeywords" Foreground="#FE9700" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#TypeKeywords" Foreground="#FE9700" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#ExceptionKeywords" Foreground="#FB1E70" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#Comment" Foreground="#A0A0A0" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#String" Foreground="#E5DB6D" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#NumberLiteral" Foreground="#AE7DFE" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#MethodCall" Foreground="#60D8F0" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#ThisOrBaseReference" Foreground="#60D8F0" FontWeight="Bold" />
+    <TextBlock x:Key="AvalonC#NullOrValueKeywords" Foreground="#FB1E70" FontWeight="Bold" />
+
+    <SolidColorBrush x:Key="AvalonScriptRenderer" Color="#1E1E1E" />
+
+    <!-- Scrollbar styles -->
+    <SolidColorBrush x:Key="ScrollbarForeground" Color="{StaticResource UIThemeBackground1Color}" />
+    <SolidColorBrush x:Key="ScrollbarBackground" Color="{StaticResource UIThemeSelectBackgroundColor}" />
+    <SolidColorBrush x:Key="NormalBrush" Color="#555" />
+    <SolidColorBrush x:Key="NormalBorderBrush" Color="#555" />
+    <SolidColorBrush x:Key="HorizontalNormalBrush" Color="#555" />
+    <SolidColorBrush x:Key="HorizontalNormalBorderBrush" Color="#555" />
+    <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource UIThemeSelectBackgroundColor}" />
+    <SolidColorBrush x:Key="HoverBrush2" Color="{StaticResource UIThemeBackground2Color}" />
+    <SolidColorBrush x:Key="PressedBrush2" Color="{StaticResource UIThemeBackground2Color}" />
+    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource UIThemeSelectBackgroundColor}"/>
+
+    <!-- Others -->
+    <SolidColorBrush x:Key="TextBoxOverlayBrush" Color="#A0A0A0"/>
 
     <Style TargetType="styles:TkWindow">
         <Setter Property="Foreground" Value="{DynamicResource TextForeground}" />
@@ -370,18 +458,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <!-- Scrollbar styles -->
-    <SolidColorBrush x:Key="ScrollbarForeground" Color="{StaticResource UIThemeBackground1Color}" />
-    <SolidColorBrush x:Key="ScrollbarBackground" Color="{StaticResource UIThemeSelectBackgroundColor}" />
-    <SolidColorBrush x:Key="NormalBrush" Color="#555" />
-    <SolidColorBrush x:Key="NormalBorderBrush" Color="#555" />
-    <SolidColorBrush x:Key="HorizontalNormalBrush" Color="#555" />
-    <SolidColorBrush x:Key="HorizontalNormalBorderBrush" Color="#555" />
-    <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource UIThemeSelectBackgroundColor}" />
-    <SolidColorBrush x:Key="HoverBrush2" Color="{StaticResource UIThemeBackground2Color}" />
-    <SolidColorBrush x:Key="PressedBrush2" Color="{StaticResource UIThemeBackground2Color}" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="{StaticResource UIThemeSelectBackgroundColor}"/>
 
     <!-- SrollViewer ScrollBar Repeat Buttons (at each end) -->
     <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
@@ -801,39 +877,6 @@
         </Setter>
     </Style>
 
-    <TextBlock x:Key="AvalonPythonComment" Foreground="#A0A0A0" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonPythonString" Foreground="#E5DB6D" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonPythonKeywordsStructure" Foreground="#FE9700" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonPythonKeywordsDb" Foreground="#FB1E70" FontWeight="Bold" FontStyle="Italic"/>
-    <TextBlock x:Key="AvalonPythonKeywordsApi" Foreground="#60D8F0" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonPythonKeywordsOthers" Foreground="#A3E305" FontWeight="Bold" FontStyle="Italic"/>
-    <TextBlock x:Key="AvalonPythonKeywordsDigit" Foreground="#AE7DFE" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonPythonCommentFont" Foreground="#A0A0A0" FontWeight="Bold" />
-    <TextBlock x:Key="AvalonPythonDefault" Foreground="{StaticResource TextForeground}" FontWeight="Bold" />
-
-    <TextBlock x:Key="AvalonDebugDbComment" Foreground="#A0A0A0" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonDebugDbString" Foreground="#E5DB6D" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonDebugDbKeywordsStructure" Foreground="#FE9700" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonDebugDbKeywordsDb" Foreground="#FB1E70" FontWeight="Bold" FontStyle="Italic"/>
-    <TextBlock x:Key="AvalonDebugDbKeywordsApi" Foreground="#60D8F0" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonDebugDbKeywordsOthers" Foreground="#FB1E70" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonDebugDbKeywordsDigit" Foreground="#AE7DFE" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonDebugDbCommentFont" Foreground="#A0A0A0" FontWeight="Bold" />
-    <TextBlock x:Key="AvalonDebugDbDefault" Foreground="{StaticResource TextForeground}" FontWeight="Bold" />
-
-    <TextBlock x:Key="AvalonScriptComment" Foreground="#A0A0A0" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonScriptString" Foreground="#E5DB6D" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonScriptKeywordsStructure" Foreground="#FE9700" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonScriptKeywordsDb" Foreground="#FB1E70" FontWeight="Bold" FontStyle="Italic"/>
-    <TextBlock x:Key="AvalonScriptKeywordsApi" Foreground="#60D8F0" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonScriptKeywordsOthers" Foreground="#FB1E70" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonScriptKeywordsDigit" Foreground="#AE7DFE" FontWeight="Bold"/>
-    <TextBlock x:Key="AvalonScriptCommentFont" Foreground="#A0A0A0" FontWeight="Bold" />
-    <TextBlock x:Key="AvalonScriptKeywordsConstant" Foreground="#A3E305" FontWeight="Bold" />
-    <TextBlock x:Key="AvalonScriptDefault" Foreground="{StaticResource TextForeground}" FontWeight="Bold" />
-
-    <SolidColorBrush x:Key="AvalonScriptRenderer" Color="#1E1E1E" />
-
     <Style TargetType="{x:Type wpfBugFix:RangeListView}">
         <Setter Property="Background" Value="{StaticResource TabItemBackground}" />
     </Style>
@@ -863,56 +906,7 @@
     <SolidColorBrush x:Key="PreviewItemTextBackground" Color="#2F3136"/>
 
     <SolidColorBrush x:Key="ListBorder" Color="#828790"/>
-    <SolidColorBrush x:Key="TextBoxOverlayBrush" Color="#A0A0A0"/>
-
-    <Style x:Key="Test22"
-           TargetType="{x:Type ListView}">
-        <Setter Property="Background"
-                Value="Red"/>
-        <Setter Property="BorderBrush"
-                Value="Orange"/>
-        <Setter Property="BorderThickness"
-                Value="5"/>
-        <Setter Property="Foreground"
-                Value="#FF042271"/>
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
-                Value="Auto"/>
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
-                Value="Auto"/>
-        <Setter Property="ScrollViewer.CanContentScroll"
-                Value="true"/>
-        <Setter Property="Stylus.IsFlicksEnabled"
-                Value="False"/>
-        <Setter Property="VerticalContentAlignment"
-                Value="Center"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ListView}">
-                    <themes:ListBoxChrome Name="Bd"
-                                         BorderThickness="{TemplateBinding BorderThickness}"
-                                         BorderBrush="{TemplateBinding BorderBrush}"
-                                         Background="{TemplateBinding Background}"
-                                         RenderMouseOver="{TemplateBinding IsMouseOver}"
-                                         RenderFocused="{TemplateBinding IsKeyboardFocusWithin}"
-                                         SnapsToDevicePixels="true">
-                        <ScrollViewer Style="{DynamicResource {x:Static GridView.GridViewScrollViewerStyleKey}}"
-                                      Padding="{TemplateBinding Padding}">
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                        </ScrollViewer>
-                    </themes:ListBoxChrome>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsEnabled"
-                                 Value="false">
-                            <Setter TargetName="Bd"
-                                    Property="Background"
-                                    Value="Red"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
+    
     <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -1059,6 +1053,21 @@
     </Style>
 
     <Style TargetType="{x:Type ComboBox}" BasedOn="{StaticResource ComboBoxTheme}">
+    </Style>
+
+    <Style TargetType="{x:Type colorTextBox:ArgbTextBlock}">
+        <Setter Property="Foreground" Value="{StaticResource TextForeground}" />
+        <Setter Property="Background" Value="{StaticResource TabControlBackground}" />
+    </Style>
+
+    <Style TargetType="{x:Type colorTextBox:WebTextBlock}">
+        <Setter Property="Foreground" Value="{StaticResource TextForeground}" />
+        <Setter Property="Background" Value="{StaticResource TabControlBackground}" />
+    </Style>
+
+    <Style TargetType="{x:Type colorTextBox:AhsbTextBlock}">
+        <Setter Property="Foreground" Value="{StaticResource TextForeground}" />
+        <Setter Property="Background" Value="{StaticResource TabControlBackground}" />
     </Style>
 
     <Style TargetType="{x:Type genericControls:ClickSelectTextBox}">

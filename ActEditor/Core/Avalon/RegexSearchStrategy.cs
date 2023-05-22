@@ -6,9 +6,6 @@ using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Search;
 
 namespace ActEditor.Core.Avalon {
-	/// <summary>
-	/// Class imported from GrfEditor
-	/// </summary>
 	public class RegexSearchStrategy : ISearchStrategy {
 		private readonly bool _matchWholeWords;
 		private readonly Regex _searchPattern;
@@ -21,7 +18,6 @@ namespace ActEditor.Core.Avalon {
 		}
 
 		#region ISearchStrategy Members
-
 		public IEnumerable<ISearchResult> FindAll(ITextSource document, int offset, int length) {
 			int endOffset = offset + length;
 			foreach (Match result in _searchPattern.Matches(document.Text)) {
@@ -30,7 +26,7 @@ namespace ActEditor.Core.Avalon {
 					continue;
 				if (_matchWholeWords && (!AvalonLoader.IsWordBorder(document, result.Index) || !AvalonLoader.IsWordBorder(document, resultEndOffset)))
 					continue;
-				yield return new SearchResult {StartOffset = result.Index, Length = result.Length, Data = result};
+				yield return new SearchResult { StartOffset = result.Index, Length = result.Length, Data = result };
 			}
 		}
 
@@ -41,7 +37,6 @@ namespace ActEditor.Core.Avalon {
 		public bool Equals(ISearchStrategy other) {
 			return other == this;
 		}
-
 		#endregion
 	}
 }

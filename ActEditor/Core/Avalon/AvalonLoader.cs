@@ -1,18 +1,45 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Media;
+using System.Xml;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using ICSharpCode.AvalonEdit.Rendering;
 
 namespace ActEditor.Core.Avalon {
-	/// <summary>
-	/// Class imported from GrfEditor
-	/// </summary>
 	public class AvalonLoader {
+		static AvalonLoader() {
+			//string[] syntaxes = {
+			//	"Custom Highlighting", "ActEditor.Core.Avalon.Syntax.CustomHighlighting.xshd",
+			//	"Lua", "ActEditor.Core.Avalon.Syntax.Lua.xshd",
+			//	"Imf", "ActEditor.Core.Avalon.Syntax.Imf.xshd",
+			//	//"DefaultColors", "ActEditor.Core.Avalon.Syntax.DefaultColors.xshd",
+			//	"Python", "ActEditor.Core.Avalon.Syntax.Python.xshd",
+			//	"DebugDb", "ActEditor.Core.Avalon.Syntax.DebugDb.xshd",
+			//};
+			//
+			//for (int i = 0; i < syntaxes.Length; i += 2) {
+			//	IHighlightingDefinition customHighlighting;
+			//
+			//	using (Stream s = typeof(App).Assembly.GetManifestResourceStream(syntaxes[i + 1])) {
+			//		if (s == null)
+			//			throw new InvalidOperationException("Could not find embedded resource");
+			//		using (XmlReader reader = new XmlTextReader(s)) {
+			//			customHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+			//		}
+			//	}
+			//
+			//	HighlightingManager.Instance.RegisterHighlighting(syntaxes[i], new[] { ".cool" }, customHighlighting);
+			//}
+		}
+
 		public static void Load(TextEditor editor) {
 			new AvalonDefaultLoading().Attach(editor);
 		}
@@ -48,7 +75,41 @@ namespace ActEditor.Core.Avalon {
 			return true;
 		}
 
-		public static string GetWholeWord(TextDocument document, TextEditor textEditor) {
+		public const string Latin = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
+
+		public static bool IsLatinOnly(string value) {
+			return value.All(c => Latin.Contains(c));
+		}
+
+		public static string GetWholeWordAdv(TextDocument document, TextEditor textEditor) {
+			string left = GetWholeWord(document, textEditor, LogicalDirection.Backward);
+			string right = GetWholeWord(document, textEditor, LogicalDirection.Forward);
+
+			if (right != left) {
+				if (!IsLatinOnly(right)) {
+					if (IsLatinOnly(left))
+						right = left;
+				}
+			}
+
+			return right;
+		}
+
+		public static LogicalDirection GetDirection(TextDocument document, TextEditor textEditor) {
+			string left = GetWholeWord(document, textEditor, LogicalDirection.Backward);
+			string right = GetWholeWord(document, textEditor, LogicalDirection.Forward);
+
+			if (right != left) {
+				if (!IsLatinOnly(right)) {
+					if (IsLatinOnly(left))
+						return LogicalDirection.Backward;
+				}
+			}
+
+			return LogicalDirection.Forward;
+		}
+
+		public static string GetWholeWord(TextDocument document, TextEditor textEditor, LogicalDirection direction = LogicalDirection.Forward) {
 			TextArea textArea = textEditor.TextArea;
 			TextView textView = textArea.TextView;
 
@@ -70,26 +131,34 @@ namespace ActEditor.Core.Avalon {
 
 				if (wordStartVc == -1)
 					wordStartVc = 0;
-				int wordEndVc = line.GetNextCaretPosition(wordStartVc, LogicalDirection.Forward, CaretPositioningMode.WordBorderOrSymbol, textArea.Selection.EnableVirtualSpace);
+				int wordEndVc = line.GetNextCaretPosition(wordStartVc, direction, CaretPositioningMode.WordBorderOrSymbol, textArea.Selection.EnableVirtualSpace);
 				if (wordEndVc == -1)
 					wordEndVc = line.VisualLength;
 
-				if (visualColumn < wordStartVc || visualColumn > wordEndVc)
+				if (visualColumn < wordStartVc || (direction == LogicalDirection.Forward && visualColumn > wordEndVc))
 					return "";
+
+				if (direction == LogicalDirection.Backward && wordStartVc > wordEndVc) {
+					int temp = wordEndVc;
+					wordEndVc = wordStartVc;
+					wordStartVc = temp;
+				}
 
 				int relOffset = line.FirstDocumentLine.Offset;
 				int wordStartOffset = line.GetRelativeOffset(wordStartVc) + relOffset;
 				int wordEndOffset = line.GetRelativeOffset(wordEndVc) + relOffset;
-
 
 				return textEditor.TextArea.Document.GetText(wordStartOffset, wordEndOffset - wordStartOffset);
 			}
-			else {
-				return null;
-			}
+
+			return null;
 		}
 
-		public static ISegment GetWholeWordSegment(TextDocument document, TextEditor textEditor) {
+		public static ISegment GetWholeWordSegmentAdv(TextDocument document, TextEditor textEditor) {
+			return GetWholeWordSegment(document, textEditor, GetDirection(document, textEditor));
+		}
+
+		public static ISegment GetWholeWordSegment(TextDocument document, TextEditor textEditor, LogicalDirection direction = LogicalDirection.Forward) {
 			TextArea textArea = textEditor.TextArea;
 			TextView textView = textArea.TextView;
 
@@ -111,23 +180,64 @@ namespace ActEditor.Core.Avalon {
 
 				if (wordStartVc == -1)
 					wordStartVc = 0;
-				int wordEndVc = line.GetNextCaretPosition(wordStartVc, LogicalDirection.Forward, CaretPositioningMode.WordBorderOrSymbol, textArea.Selection.EnableVirtualSpace);
+				int wordEndVc = line.GetNextCaretPosition(wordStartVc, direction, CaretPositioningMode.WordBorderOrSymbol, textArea.Selection.EnableVirtualSpace);
 				if (wordEndVc == -1)
 					wordEndVc = line.VisualLength;
 
-				if (visualColumn < wordStartVc || visualColumn > wordEndVc)
+				if (visualColumn < wordStartVc || (direction == LogicalDirection.Forward && visualColumn > wordEndVc))
 					return new SimpleSegment();
+
+				if (direction == LogicalDirection.Backward && wordStartVc > wordEndVc) {
+					int temp = wordEndVc;
+					wordEndVc = wordStartVc;
+					wordStartVc = temp;
+				}
 
 				int relOffset = line.FirstDocumentLine.Offset;
 				int wordStartOffset = line.GetRelativeOffset(wordStartVc) + relOffset;
 				int wordEndOffset = line.GetRelativeOffset(wordEndVc) + relOffset;
 
-
 				return new SimpleSegment(wordStartOffset, wordEndOffset - wordStartOffset);
 			}
-			else {
-				return null;
+
+			return null;
+		}
+
+		public static void SetSyntax(TextEditor editor, string ext) {
+			if (HighlightingManager.Instance.GetDefinition(ext) == null) {
+				IHighlightingDefinition customHighlighting;
+				using (Stream s = typeof(App).Assembly.GetManifestResourceStream("ActEditor.Core.Avalon.Syntax." + ext + ".xshd")) {
+					if (s == null)
+						throw new InvalidOperationException("Could not find embedded resource");
+					using (XmlReader reader = new XmlTextReader(s)) {
+						customHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+					}
+				}
+
+				HighlightingManager.Instance.RegisterHighlighting(ext, new[] { ".cool" }, customHighlighting);
 			}
+
+			var def = HighlightingManager.Instance.GetDefinition(ext);
+
+			foreach (var color in def.NamedHighlightingColors) {
+				var tb = Application.Current.TryFindResource("Avalon" + ext + color.Name) as TextBlock;
+
+				if (tb != null) {
+					color.Foreground = new SimpleHighlightingBrush(tb.Foreground as SolidColorBrush);
+					color.FontStyle = tb.FontStyle;
+					color.FontWeight = tb.FontWeight;
+				}
+			}
+
+			var tbDef = Application.Current.TryFindResource("Avalon" + ext + "Default") as TextBlock;
+
+			if (tbDef != null) {
+				editor.Foreground = tbDef.Foreground;
+				editor.FontWeight = tbDef.FontWeight;
+				editor.FontStyle = tbDef.FontStyle;
+			}
+
+			editor.SyntaxHighlighting = def;
 		}
 	}
 }
