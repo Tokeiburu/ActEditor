@@ -428,7 +428,7 @@ namespace ActEditor.ApplicationConfiguration {
 		#region Program's internal configuration and information
 
 		public static string PublicVersion {
-			get { return "1.2.0"; }
+			get { return "1.2.1"; }
 		}
 
 		public static string Author {

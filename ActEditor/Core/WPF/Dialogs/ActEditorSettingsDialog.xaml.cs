@@ -148,8 +148,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_comboBoxStyles.Items.Add("Default");
 			_comboBoxStyles.Items.Add("Dark theme");
 
-			foreach (var file in Directory.GetFiles(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes"), "*.xaml")) {
-				_comboBoxStyles.Items.Add(Path.GetFileNameWithoutExtension(file));
+			if (Directory.Exists(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes"))) {	
+				foreach (var file in Directory.GetFiles(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes"), "*.xaml")) {
+					_comboBoxStyles.Items.Add(Path.GetFileNameWithoutExtension(file));
+				}
 			}
 
 			var name = ActEditorConfiguration.StyleTheme == "" ? "Default" : (ActEditorConfiguration.StyleTheme == "StyleDark.xaml" ? "Dark theme" : ActEditorConfiguration.StyleTheme);
@@ -176,7 +178,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 					if (theme != "Dark theme") {
 						ActEditorConfiguration.StyleTheme = theme;
-						Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes", theme + ".xaml"), UriKind.RelativeOrAbsolute) });
+
+						if (Directory.Exists(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes"))) {
+							Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes", theme + ".xaml"), UriKind.RelativeOrAbsolute) });
+						}
 					}
 				}
 				finally {

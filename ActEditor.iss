@@ -2,7 +2,7 @@
 
 [Setup]
 AppName=Act Editor
-AppVersion=1.1.8
+AppVersion=1.2.1
 DefaultDirName={pf}\Act Editor
 DefaultGroupName=Act Editor
 UninstallDisplayIcon={app}\Act Editor.exe
