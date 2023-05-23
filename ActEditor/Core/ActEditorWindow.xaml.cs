@@ -139,10 +139,10 @@ namespace ActEditor.Core {
 				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
 				ErrorHandler.HandleException("Failed to load the custom key bindings. The bindings will be reset to their default values.", err);
 			}
-			
-			_miReverseAnchors.Loaded += (e, s) => _miReverseAnchors.IsChecked = ActEditorConfiguration.ReverseAnchor;
+
 			_miReverseAnchors.Checked += (e, s) => _tabEngine.ReverseAnchorChecked();
 			_miReverseAnchors.Unchecked += (e, s) => _tabEngine.ReverseAnchorUnchecked();
+			_miReverseAnchors.IsChecked = ActEditorConfiguration.ReverseAnchor;
 
 			_metaGrfViewer.SaveResourceMethod = delegate(string resources) {
 				ActEditorConfiguration.Resources = Methods.StringToList(resources);

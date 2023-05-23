@@ -428,7 +428,7 @@ namespace ActEditor.ApplicationConfiguration {
 		#region Program's internal configuration and information
 
 		public static string PublicVersion {
-			get { return "1.1.9"; }
+			get { return "1.2.0"; }
 		}
 
 		public static string Author {
@@ -451,6 +451,11 @@ namespace ActEditor.ApplicationConfiguration {
 		public static int ThemeIndex {
 			get { return Int32.Parse(ConfigAsker["[ActEditor - ThemeIndex]", "1"]); }
 			set { ConfigAsker["[ActEditor - ThemeIndex]"] = value.ToString(CultureInfo.InvariantCulture); }
+		}
+
+		public static string StyleTheme {
+			get { return ConfigAsker["[ActEditor - StyleTheme]", ""]; }
+			set { ConfigAsker["[ActEditor - StyleTheme]"] = value; }
 		}
 
 		#endregion

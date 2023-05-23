@@ -50,10 +50,8 @@ namespace ActEditor {
 
 			Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/GRFEditorStyles.xaml", UriKind.RelativeOrAbsolute) });
 
-			//ActEditorConfiguration.ThemeIndex = 1;
-
-			if (ActEditorConfiguration.ThemeIndex == 0) {
-				//Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/StyleLightBlue.xaml", UriKind.RelativeOrAbsolute) });
+			if (ActEditorConfiguration.StyleTheme == "") {
+				
 			}
 			else {
 				Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/StyleDark.xaml", UriKind.RelativeOrAbsolute) });
@@ -86,6 +84,18 @@ namespace ActEditor {
 
 					return img;
 				};
+
+				if (ActEditorConfiguration.StyleTheme != "Dark theme") {
+					var path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes", ActEditorConfiguration.StyleTheme + ".xaml");
+
+					try {
+						Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(path, UriKind.RelativeOrAbsolute) });
+					}
+					catch (Exception err) {
+						ActEditorConfiguration.StyleTheme = "Dark theme";
+						ErrorHandler.HandleException(err);
+					}
+				}
 			}
 
 			if (!Methods.IsWinVistaOrHigher() && Methods.IsWinXPOrHigher()) {

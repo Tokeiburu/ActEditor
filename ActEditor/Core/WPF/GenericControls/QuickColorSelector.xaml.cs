@@ -22,7 +22,6 @@ namespace ActEditor.Core.WPF.GenericControls {
 		private static readonly Brush _sharedGridBackground;
 		private static readonly HashSet<char> _allowed = new HashSet<char> {'a', 'b', 'c', 'd', 'e', 'f'};
 		private Point _oldPosition;
-		private ConfigAskerSetting _setting;
 		private readonly List<Color> _timerColors = new List<Color>();
 
 		public int PreviewUpdateInterval {
@@ -47,6 +46,10 @@ namespace ActEditor.Core.WPF.GenericControls {
 			if (_timerColors.Count > 0) {
 				var lastColor = _timerColors.Last();
 				_timerColors.Clear();
+
+				if (_defaultColor != null) {
+					_reset.Visibility = _defaultColor().Replace("0x", "#") == lastColor.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
+				}
 
 				_previewPanelBg.Fill = new SolidColorBrush(lastColor);
 				SliderGradient.GradientPickerColorEventHandler handler = PreviewColorChanged;
@@ -113,8 +116,13 @@ namespace ActEditor.Core.WPF.GenericControls {
 		public Color Color {
 			get { return ((SolidColorBrush) _previewPanelBg.Fill).Color; }
 			set {
-				if (value == ((SolidColorBrush) _previewPanelBg.Fill).Color)
+				if (value == ((SolidColorBrush)_previewPanelBg.Fill).Color) {
+					if (_defaultColor != null) {
+						_reset.Visibility = _defaultColor().Replace("0x", "#") == value.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
+					}
+
 					return;
+				}
 
 				_previewPanelBg.Fill = new SolidColorBrush(value);
 				OnColorChanged(value);
@@ -134,6 +142,10 @@ namespace ActEditor.Core.WPF.GenericControls {
 				}
 			}
 			else {
+				if (_defaultColor != null) {
+					_reset.Visibility = _defaultColor().Replace("0x", "#") == value.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
+				}
+
 				_previewPanelBg.Fill = new SolidColorBrush(value);
 				SliderGradient.GradientPickerColorEventHandler handler = PreviewColorChanged;
 				if (handler != null) handler(this, value);
@@ -141,6 +153,10 @@ namespace ActEditor.Core.WPF.GenericControls {
 		}
 
 		public void OnColorChanged(Color value) {
+			if (_defaultColor != null) {
+				_reset.Visibility = _defaultColor().Replace("0x", "#") == value.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
+			}
+
 			SliderGradient.GradientPickerColorEventHandler handler = ColorChanged;
 			if (handler != null) handler(this, value);
 		}
@@ -277,23 +293,26 @@ namespace ActEditor.Core.WPF.GenericControls {
 		}
 
 		public void Init(ConfigAskerSetting setting) {
-			_setting = setting;
+			_defaultColor = () => setting.Default;
 
-			if (_setting != null) {
-				_reset.Visibility = _setting.Get().Replace("0x", "#") == _setting.Default.Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
-				_setting.PreviewPropertyChanged += new ConfigAskerSetting.ConfigAskerSettingEventHandler(_setting_PreviewPropertyChanged);
+			if (_defaultColor != null) {
+				_reset.Visibility = _defaultColor().Replace("0x", "#") == Color.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
 			}
 		}
 
-		private void _setting_PreviewPropertyChanged(object sender, string oldvalue, string newvalue) {
-			_reset.Visibility = _setting.Default.Replace("0x", "#") == newvalue.Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
+		public void Init(Func<string> setting) {
+			_defaultColor = setting;
+
+			if (_defaultColor != null) {
+				_reset.Visibility = _defaultColor().Replace("0x", "#") == Color.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
+			}
 		}
 
+		private Func<string> _defaultColor;
+
 		private void _reset_Click(object sender, RoutedEventArgs e) {
-			if (_setting != null) {
-				_setting.Set(_setting.Default);
-				_reset.Visibility = _setting.IsDefault ? Visibility.Collapsed : Visibility.Visible;
-				Color = new GrfColor(_setting.Get()).ToColor();
+			if (_defaultColor != null) {
+				Color = new GrfColor(_defaultColor()).ToColor();
 			}
 		}
 	}

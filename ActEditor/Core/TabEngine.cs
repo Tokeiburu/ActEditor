@@ -134,7 +134,9 @@ namespace ActEditor.Core {
 					}
 				}
 
+				tab._rendererLeft.Update();
 				tab._rendererPrimary.Update();
+				tab._rendererRight.Update();
 			}
 		}
 
@@ -153,7 +155,9 @@ namespace ActEditor.Core {
 					}
 				}
 
+				tab._rendererLeft.Update();
 				tab._rendererPrimary.Update();
+				tab._rendererRight.Update();
 			}
 		}
 

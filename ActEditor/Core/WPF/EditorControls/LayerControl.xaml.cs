@@ -326,7 +326,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			float dval;
-			if (_getDecimalVal(((TextBox) sender).Text, out dval)) {
+			if (_getDecimalVal(((ClickSelectTextBox2)sender).Text, out dval)) {
 				_act.Commands.SetScaleX(_actionIndex, _frameIndex, _layerIndex, dval);
 
 				if (_renderer != null) {
@@ -339,7 +339,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			float dval;
-			if (_getDecimalVal(((TextBox) sender).Text, out dval)) {
+			if (_getDecimalVal(((ClickSelectTextBox2)sender).Text, out dval)) {
 				_act.Commands.SetScaleY(_actionIndex, _frameIndex, _layerIndex, dval);
 
 				if (_renderer != null) {

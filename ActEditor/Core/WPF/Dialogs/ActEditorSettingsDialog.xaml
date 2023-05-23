@@ -100,8 +100,6 @@
                                 <ComboBox Grid.Row="11" Grid.Column="1" Margin="3" Name="_comboBoxEncoding" IsReadOnly="True" />
                                 
                                 <ComboBox Grid.Row="12" Grid.Column="1" Name="_comboBoxStyles" VerticalAlignment="Center" Margin="3" Visibility="Visible" >
-                                    <ComboBoxItem Content="Default" />
-                                    <ComboBoxItem Content="Dark theme" />
                                 </ComboBox>
                             </Grid>
                         </StackPanel>

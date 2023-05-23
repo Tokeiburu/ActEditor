@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -12,6 +13,7 @@ using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.WPF.GenericControls;
 using ErrorManager;
 using GRF.Image;
+using GRF.IO;
 using GrfToWpfBridge;
 using GrfToWpfBridge.MultiGrf;
 using TokeiLibrary;
@@ -143,23 +145,44 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 			});
 
-			Binder.Bind(_comboBoxStyles, () => ActEditorConfiguration.ThemeIndex, v => {
-				ActEditorConfiguration.ThemeIndex = v;
-				Application.Current.Resources.MergedDictionaries.RemoveAt(Application.Current.Resources.MergedDictionaries.Count - 1);
+			_comboBoxStyles.Items.Add("Default");
+			_comboBoxStyles.Items.Add("Dark theme");
 
-				var path = "pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/";
+			foreach (var file in Directory.GetFiles(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes"), "*.xaml")) {
+				_comboBoxStyles.Items.Add(Path.GetFileNameWithoutExtension(file));
+			}
 
-				if (ActEditorConfiguration.ThemeIndex == 0) {
-					path += "StyleLightBlue.xaml";
+			var name = ActEditorConfiguration.StyleTheme == "" ? "Default" : (ActEditorConfiguration.StyleTheme == "StyleDark.xaml" ? "Dark theme" : ActEditorConfiguration.StyleTheme);
+
+			_comboBoxStyles.SelectedItem = name;
+			_comboBoxStyles.SelectionChanged += delegate {
+				if (_comboBoxStyles.SelectedItem == null)
+					return;
+
+				try {
+					var theme = _comboBoxStyles.SelectedItem.ToString();
+
+					while (Application.Current.Resources.MergedDictionaries.Count > 2) {
+						Application.Current.Resources.MergedDictionaries.RemoveAt(2);
+					}
+
+					if (theme == "Default") {
+						ActEditorConfiguration.StyleTheme = "";
+						return;
+					}
+
+					Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/StyleDark.xaml", UriKind.RelativeOrAbsolute) });
+					ActEditorConfiguration.StyleTheme = "Dark theme";
+
+					if (theme != "Dark theme") {
+						ActEditorConfiguration.StyleTheme = theme;
+						Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes", theme + ".xaml"), UriKind.RelativeOrAbsolute) });
+					}
 				}
-				else if (ActEditorConfiguration.ThemeIndex == 1) {
-					path += "StyleDark.xaml";
+				finally {
+					ErrorHandler.HandleException("For the theme to apply properly, please restart the application.");
 				}
-
-				//Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(path, UriKind.RelativeOrAbsolute) });
-				Application.Current.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(path, UriKind.RelativeOrAbsolute) });
-				ErrorHandler.HandleException("For the theme to apply properly, please restart the application.");
-			});
+			};
 
 			_loadShortcuts();
 		}

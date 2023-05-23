@@ -39,7 +39,19 @@
     <Color x:Key="UIThemePopupBackgroundColor">#212226</Color>
     <Color x:Key="UIThemeListViewBorderColor">#242529</Color>
     <Color x:Key="UIThemeListViewMouseOverBackgroundColor">#4C4F57</Color>
-    <Color x:Key="UIThemeComboBoxDisabled">#3D4146</Color>
+    <Color x:Key="UIThemeComboBoxDisabledColor">#3D4146</Color>
+    <Color x:Key="UIThemeLayerControlColor">#347D39</Color>
+    <Color x:Key="UIThemeLayerControlPreviewColor">#AD7C13</Color>
+    <Color x:Key="UIThemeLayerControlOverlayColor">#C936393F</Color>
+    <Color x:Key="UIThemeHyperlinkForegroundColor">#F68D00</Color>
+    <Color x:Key="UIThemeHyperlinkMouseOverColor">#F6B35A</Color>
+    <Color x:Key="UIThemeImageViewerBackgroundColor">#2D2D2D</Color>
+    <Color x:Key="FancyButtonDisabledBorderColor">#81202225</Color>
+    <Color x:Key="FancyButtonDisabledBackgroundColor">#81202225</Color>
+    <Color x:Key="UIThemeScrollBarColor">#555</Color>
+    <Color x:Key="UIThemeComboBoxToggleArrowColor">#B8BABD</Color>
+    <Color x:Key="UIThemeComboBoxToggleArrowDisabledColor">#888888</Color>
+    <Color x:Key="UIThemeMainTabControlTemplateStrokeColor">#333333</Color>
 
     <SolidColorBrush x:Key="UIThemeBackground1Brush" Color="{StaticResource UIThemeBackground1Color}" />
     <SolidColorBrush x:Key="UIThemeBackground2Brush" Color="{StaticResource UIThemeBackground2Color}" />
@@ -63,20 +75,23 @@
     <SolidColorBrush x:Key="UIThemePopupBackgroundBrush" Color="{StaticResource UIThemePopupBackgroundColor}"/>
     <SolidColorBrush x:Key="UIThemeListViewBorderBrush" Color="{StaticResource UIThemeListViewBorderColor}"/>
     <SolidColorBrush x:Key="UIThemeListViewMouseOverBackgroundBrush" Color="{StaticResource UIThemeListViewMouseOverBackgroundColor}"/>
-    <SolidColorBrush x:Key="UIThemeComboBoxDisabledBrush" Color="{StaticResource UIThemeComboBoxDisabled}"/>
+    <SolidColorBrush x:Key="UIThemeComboBoxDisabledBrush" Color="{StaticResource UIThemeComboBoxDisabledColor}"/>
     <SolidColorBrush x:Key="UIGridBackgroundLightBrush" Color="{StaticResource UIThemePopupBackgroundColor}"/>
     <SolidColorBrush x:Key="UIGridBackgroundBrush" Color="{StaticResource UIThemeContextMenuMouseOverBackgroundColor}"/>
-    <SolidColorBrush x:Key="UIThemeLayerControlSelectedBrush" Color="#347D39"/>
-    <SolidColorBrush x:Key="UIThemeLayerControlPreviewSelectedBrush" Color="#AD7C13"/>
-    <SolidColorBrush x:Key="UIThemeLayerControlOverlay" Color="#C936393F"/>
-    <SolidColorBrush x:Key="UIThemeHyperlinkForegroundBrush" Color="#F68D00"/>
-    <SolidColorBrush x:Key="UIThemeHyperlinkMouseOverBrush" Color="#F6B35A"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlSelectedBrush" Color="{StaticResource UIThemeLayerControlColor}"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlPreviewSelectedBrush" Color="{StaticResource UIThemeLayerControlPreviewColor}"/>
+    <SolidColorBrush x:Key="UIThemeLayerControlOverlay" Color="{StaticResource UIThemeLayerControlOverlayColor}"/>
+    <SolidColorBrush x:Key="UIThemeHyperlinkForegroundBrush" Color="{StaticResource UIThemeHyperlinkForegroundColor}"/>
+    <SolidColorBrush x:Key="UIThemeHyperlinkMouseOverBrush" Color="{StaticResource UIThemeHyperlinkMouseOverColor}"/>
     <SolidColorBrush x:Key="UIThemeScriptRunnerConsoleErrorBrush" Color="{StaticResource UIThemeDialogFooterColor}" />
-    <SolidColorBrush x:Key="UIThemeImageViewerBackground" Color="#2D2D2D" />
+    <SolidColorBrush x:Key="UIThemeImageViewerBackground" Color="{StaticResource UIThemeImageViewerBackgroundColor}" />
 
     <SolidColorBrush x:Key="UIThemeMainTabControlBorderBrush" Color="{StaticResource UIThemeBackground1Color}"/>
     <SolidColorBrush x:Key="UIThemeMainTabControlTemplateBackground" Color="{StaticResource UIThemeSelectBackgroundColor}"/>
-    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateStroke" Color="#333333"/>
+    <SolidColorBrush x:Key="UIThemeMainTabControlTemplateStroke" Color="{StaticResource UIThemeMainTabControlTemplateStrokeColor}"/>
+        
+    <SolidColorBrush x:Key="UIThemeComboBoxToggleArrowBrush" Color="{StaticResource UIThemeComboBoxToggleArrowColor}"/>
+    <SolidColorBrush x:Key="UIThemeComboBoxToggleArrowDisabledBrush" Color="{StaticResource UIThemeComboBoxToggleArrowDisabledColor}"/>
 
     <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger4" Color="{StaticResource UIThemeTextBoxBorderColor}"/>
     <SolidColorBrush x:Key="UIThemeMainTabControlTemplateTrigger5" Color="{StaticResource UIThemeBackground1Color}"/>
@@ -126,8 +141,8 @@
 
     <!-- GRF Editor style overrides - FancyButton -->
     <SolidColorBrush x:Key="FancyButtonHeaderForeground" Color="White"/>
-    <SolidColorBrush x:Key="FancyButtonDisabledBorderBrush" Color="#81202225"/>
-    <SolidColorBrush x:Key="FancyButtonDisabledBackgroundBrush" Color="#81202225"/>
+    <SolidColorBrush x:Key="FancyButtonDisabledBorderBrush" Color="{StaticResource FancyButtonDisabledBorderColor}"/>
+    <SolidColorBrush x:Key="FancyButtonDisabledBackgroundBrush" Color="{StaticResource FancyButtonDisabledBackgroundColor}"/>
     <SolidColorBrush x:Key="FancyButtonMouseOverBorderBrush" Color="{StaticResource UIThemeMouseOverBorderColor}"/>
     <SolidColorBrush x:Key="FancyButtonMouseOverBackgroundBrush" Color="{StaticResource UIThemeMouseOverBackgroundColor}"/>
     <SolidColorBrush x:Key="FancyButtonPressedBorderBrush" Color="{StaticResource UIThemeSelectBorderColor}"/>
@@ -267,10 +282,10 @@
     <!-- Scrollbar styles -->
     <SolidColorBrush x:Key="ScrollbarForeground" Color="{StaticResource UIThemeBackground1Color}" />
     <SolidColorBrush x:Key="ScrollbarBackground" Color="{StaticResource UIThemeSelectBackgroundColor}" />
-    <SolidColorBrush x:Key="NormalBrush" Color="#555" />
-    <SolidColorBrush x:Key="NormalBorderBrush" Color="#555" />
-    <SolidColorBrush x:Key="HorizontalNormalBrush" Color="#555" />
-    <SolidColorBrush x:Key="HorizontalNormalBorderBrush" Color="#555" />
+    <SolidColorBrush x:Key="NormalBrush" Color="{StaticResource UIThemeScrollBarColor}" />
+    <SolidColorBrush x:Key="NormalBorderBrush" Color="{StaticResource UIThemeScrollBarColor}" />
+    <SolidColorBrush x:Key="HorizontalNormalBrush" Color="{StaticResource UIThemeScrollBarColor}" />
+    <SolidColorBrush x:Key="HorizontalNormalBorderBrush" Color="{StaticResource UIThemeScrollBarColor}" />
     <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource UIThemeSelectBackgroundColor}" />
     <SolidColorBrush x:Key="HoverBrush2" Color="{StaticResource UIThemeBackground2Color}" />
     <SolidColorBrush x:Key="PressedBrush2" Color="{StaticResource UIThemeBackground2Color}" />
@@ -931,7 +946,7 @@
                   x:Name="Arrow"
                   IsHitTestVisible="False"
                   Grid.Column="1"     
-                  Fill="#B8BABD"
+                  Fill="{StaticResource UIThemeComboBoxToggleArrowBrush}"
                   Margin="-2 0 0 0"
                   HorizontalAlignment="Center"
                   VerticalAlignment="Center"
@@ -940,14 +955,14 @@
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="ToggleButton.IsMouseOver" Value="true">
-                <Setter TargetName="Border" Property="BorderBrush" Value="#CBCCCD" />
+                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMouseOverTextBrush}" />
             </Trigger>
             <Trigger SourceName="Border" Property="IsMouseOver" Value="true">
-                <Setter TargetName="Arrow" Property="Fill" Value="#DBDCDD" />
+                <Setter TargetName="Arrow" Property="Fill" Value="{StaticResource UIThemeMouseOverTextBrush}" />
                 <Setter Property="Cursor" Value="Hand" />
             </Trigger>
             <Trigger Property="ToggleButton.IsChecked" Value="true">
-                <Setter TargetName="Border" Property="BorderBrush" Value="#CBCCCD" />
+                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMouseOverTextBrush}" />
                 <Setter TargetName="Border" Property="BorderThickness" Value="1 1 1 1" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -955,7 +970,7 @@
                 <Setter TargetName="ContentBorder" Property="Background" Value="{StaticResource UIThemeComboBoxDisabledBrush}" />
                 <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeComboBoxDisabledBrush}" />
                 <Setter Property="Foreground" Value="{StaticResource TextBoxOverlayBrush}"/>
-                <Setter TargetName="Arrow" Property="Fill" Value="#888888" />
+                <Setter TargetName="Arrow" Property="Fill" Value="{StaticResource UIThemeComboBoxToggleArrowDisabledBrush}" />
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -1030,7 +1045,7 @@
                             <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Foreground" Value="#888888"/>
+                            <Setter Property="Foreground" Value="{StaticResource UIThemeComboBoxToggleArrowDisabledBrush}"/>
                         </Trigger>
                         <Trigger Property="IsGrouping" Value="true">
                             <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
@@ -1133,7 +1148,7 @@
     </Style>
 
     <Storyboard x:Key="DT_MouseEnter">
-        <ColorAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="(BorderBrush).(SolidColorBrush.Color)" To="#CBCCCD" Duration="0:0:0.100" />
+        <ColorAnimation Storyboard.TargetName="Border" Storyboard.TargetProperty="(BorderBrush).(SolidColorBrush.Color)" To="{StaticResource UIThemeMouseOverTextColor}" Duration="0:0:0.100" />
     </Storyboard>
 
     <Storyboard x:Key="DT_MouseLeave">
@@ -1155,7 +1170,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="Border" Property="BorderBrush" Value="#CBCCCD" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMouseOverTextBrush}" />
                         </Trigger>
 
                         <Trigger Property="IsEnabled" Value="False">

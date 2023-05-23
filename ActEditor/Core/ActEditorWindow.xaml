@@ -120,7 +120,16 @@
                     <Label Content="Anchors" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
                 <MenuItem Name="_miShowAnchors" Header="Show anchors" IsCheckable="True" Checked="_miShowAnchors_Checked" Unchecked="_miShowAnchors_Unchecked" Loaded="_miShowAnchors_Loaded" />
-                <MenuItem Name="_miReverseAnchors" Header="Use body as base" IsCheckable="True" />
+                <MenuItem Name="_miReverseAnchors" IsCheckable="True">
+                    <MenuItem.Header>
+                        <TextBlock>
+                        Use body as base<LineBreak/>
+                        - Unchecked for headgears<LineBreak/>
+                        - Checked for garments/wings
+                        </TextBlock>
+                    </MenuItem.Header>
+                </MenuItem>
+                <Separator />
                 <MenuItem x:Name="_miAnchor" Header="Anchor">
                     <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="0" HeaderText="Anchor 1" ShortcutCmd="FrameEditor.ShowAnchor1" Shortcut="Ctrl-1" IsCheckable="True" />
                     <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="1" HeaderText="Anchor 2" ShortcutCmd="FrameEditor.ShowAnchor2" Shortcut="Ctrl-2" IsCheckable="True"  />

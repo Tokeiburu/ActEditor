@@ -44,6 +44,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private bool _sex;
 		private bool _directional;
 
+		public string ActName {
+			get {
+				return _name;
+			}
+		}
+
 		public ReferenceControl() {
 			InitializeComponent();
 		}
@@ -378,6 +384,11 @@ namespace ActEditor.Core.WPF.EditorControls {
 						Act.AnchoredTo = _actEditor.Act;
 					}
 					break;
+			}
+
+			if (ActEditorConfiguration.ReverseAnchor && _name == "Body" && _actEditor.Act != null && Act != null) {
+				_actEditor.Act.AnchoredTo = Act;
+				Act.AnchoredTo = null;
 			}
 
 			// There is always a render pass after a frame update or act loading event
