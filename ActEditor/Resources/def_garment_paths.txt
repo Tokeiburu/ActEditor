@@ -1,0 +1,238 @@
+// ----------------------
+// Novice Class
+// ----------------------
+초보자					// Novice Class\Novice
+노비스포링				// Novice Class\Novice\Poring
+슈퍼노비스				// Novice Class\Super Novice
+슈퍼노비스포링			// Novice Class\Super Novice\Poring
+hyper_novice			// Novice Class\[4th] Hyper Novice
+hyper_novice_riding		// Novice Class\[4th] Hyper Novice\Poring
+
+
+// ----------------------
+// Archer Class
+// ----------------------
+궁수					// Archer Class\Archer
+타조궁수				// Archer Class\Archer\Ostrich
+
+헌터					// Archer Class\Hunter Class\Hunter
+타조헌터				// Archer Class\Hunter Class\Hunter\Ostrich
+스나이퍼				// Archer Class\Hunter Class\Sniper
+타조스나이퍼			// Archer Class\Hunter Class\Sniper\Ostrich
+레인져					// Archer Class\Hunter Class\Ranger
+레인져늑대				// Archer Class\Hunter Class\Ranger\Warg
+타조레인져				// Archer Class\Hunter Class\Ranger\Ostrich
+windhawk				// Archer Class\Hunter Class\[4th] Wind Hawk
+wolf_windhawk			// Archer Class\Hunter Class\[4th] Wind Hawk\Warg
+windhawk_riding			// Archer Class\Hunter Class\[4th] Wind Hawk\Ostrich
+
+바드#무희				// Archer Class\Bard Class\Bard
+						// Archer Class\Dancer Class\Dancer
+타조바드#타조무희		// Archer Class\Bard Class\Bard\Ostrich
+						// Archer Class\Dancer Class\Dancer\Ostrich
+클라운#집시				// Archer Class\Bard Class\Clown
+						// Archer Class\Dancer Class\Gypsy
+타조크라운#타조짚시		// Archer Class\Bard Class\Clown\Ostrich
+						// Archer Class\Dancer Class\Gypsy\Ostrich
+민스트럴#원더러			// Archer Class\Bard Class\Minstrel
+						// Archer Class\Dancer Class\Wanderer
+타조민스트럴#타조원더러	// Archer Class\Bard Class\Minstrel\Ostrich
+						// Archer Class\Dancer Class\Wanderer\Ostrich
+troubadour#trouvere		// Archer Class\Bard Class\[4th] Troubadour
+						// Archer Class\Dancer Class\[4th] Trouvere
+troubadour_riding#trouvere_riding	// Archer Class\Bard Class\[4th] Troubadour\Ostrich
+									// Archer Class\Dancer Class\[4th] Trouvere\Ostrich
+무희바지				// Unknown?
+
+
+// ----------------------
+// Swordman Class
+// ----------------------
+검사					// Swordman Class\Swordman
+페코검사				// Swordman Class\Swordman\Peco
+
+크루세이더				// Swordman Class\Crusader Class\Crusader
+신페코크루세이더		// Swordman Class\Crusader Class\Crusader\Peco
+구페코크루세이더		// Swordman Class\Crusader Class\Crusader\Old Peco
+사자크루세이더			// Swordman Class\Crusader Class\Crusader\Lion
+팔라딘					// Swordman Class\Crusader Class\Paladin
+페코팔라딘				// Swordman Class\Crusader Class\Paladin\Peco
+사자팔라딘				// Swordman Class\Crusader Class\Paladin\Lion
+가드					// Swordman Class\Crusader Class\Royal Guard
+그리폰가드				// Swordman Class\Crusader Class\Royal Guard\Gryphon
+사자로얄가드			// Swordman Class\Crusader Class\Royal Guard\Lion
+imperial_guard			// Swordman Class\Crusader Class\[4th] Imperial Guard
+imperial_guard_chicken	// Swordman Class\Crusader Class\[4th] Imperial Guard\Gryphon
+imperial_guard_riding	// Swordman Class\Crusader Class\[4th] Imperial Guard\Lion
+
+기사					// Swordman Class\Knight Class\Knight
+페코페코_기사			// Swordman Class\Knight Class\Knight\Peco
+사자기사				// Swordman Class\Knight Class\Knight\Lion
+로드나이트				// Swordman Class\Knight Class\Lord Knight
+로드페코				// Swordman Class\Knight Class\Lord Knight\Peco
+사자로드나이트			// Swordman Class\Knight Class\Lord Knight\Lion
+룬나이트				// Swordman Class\Knight Class\Rune Knight
+룬나이트쁘띠			// Swordman Class\Knight Class\Rune Knight\Dragon
+사자룬나이트			// Swordman Class\Knight Class\Rune Knight\Lion
+dragon_knight			// Swordman Class\Knight Class\[4th] Dragon Knight
+dragon_knight_riding	// Swordman Class\Knight Class\[4th] Dragon Knight\Lion
+dragon_knight_chicken	// Swordman Class\Knight Class\[4th] Dragon Knight\Dragon
+
+
+// ----------------------
+// Thief Class
+// ----------------------
+도둑					// Thief Class\Thief
+켈베로스도둑			// Thief Class\Thief\Galleon
+
+로그					// Thief Class\Rogue Class\Rogue
+켈베로스로그			// Thief Class\Rogue Class\Rogue\Galleon
+스토커					// Thief Class\Rogue Class\Stalker
+켈베로스스토커			// Thief Class\Rogue Class\Stalker\Galleon
+쉐도우체이서				// Thief Class\Rogue Class\Shadow Chaser	
+켈베로스쉐도우체이서		// Thief Class\Rogue Class\Shadow Chaser\Galleon
+abyss_chaser			// Thief Class\Rogue Class\[4th] Abyss Chaser
+abyss_chaser_riding		// Thief Class\Rogue Class\[4th] Abyss Chaser\Galleon
+
+어세신					// Thief Class\Assassin Class\Assassin
+켈베로스어쎄신			// Thief Class\Assassin Class\Assassin\Galleon
+어쌔신크로스			// Thief Class\Assassin Class\Assassin Cross
+켈베로스어쎄신크로스	// Thief Class\Assassin Class\Assassin Cross\Galleon
+길로틴크로스			// Thief Class\Assassin Class\Guillotine Cross
+켈베로스길로틴크로스	// Thief Class\Assassin Class\Guillotine Cross\Galleon
+shadow_cross			// Thief Class\Assassin Class\[4th] Shadow Cross
+shadow_cross_riding		// Thief Class\Assassin Class\[4th] Shadow Cross\Galleon
+
+
+// ----------------------
+// Merchant Class
+// ----------------------
+상인					// Merchant Class\Merchant
+상인멧돼지				// Merchant Class\Merchant\Pig
+
+제철공					// Merchant Class\Blacksmith Class\Blacksmith
+제철공멧돼지			// Merchant Class\Blacksmith Class\Blacksmith\Pig
+화이트스미스				// Merchant Class\Blacksmith Class\Whitesmith
+화이트스미스멧돼지		// Merchant Class\Blacksmith Class\Whitesmith\Pig
+미케닉					// Merchant Class\Blacksmith Class\Mechanic
+미케닉멧돼지			// Merchant Class\Blacksmith Class\Mechanic\Pig
+//마도기어				// Merchant Class\Blacksmith Class\Mado
+meister					// Merchant Class\Blacksmith Class\[4th] Meister
+meister_riding			// Merchant Class\Blacksmith Class\[4th] Meister\Pig
+
+연금술사				// Merchant Class\Alchemist Class\Alchemist
+연금술사멧돼지			// Merchant Class\Alchemist Class\Alchemist\Pig
+크리에이터				// Merchant Class\Alchemist Class\Creator
+크리에이터멧돼지		// Merchant Class\Alchemist Class\Creator\Pig
+제네릭					// Merchant Class\Alchemist Class\Genetic
+제네릭멧돼지			// Merchant Class\Alchemist Class\Genetic\Pig
+biolo					// Merchant Class\Alchemist Class\[4th] Biolo
+biolo_riding			// Merchant Class\Alchemist Class\[4th] Biolo\Pig
+
+
+// ----------------------
+// Mage Class
+// ----------------------
+마법사					// Mage Class\Mage
+여우마법사				// Mage Class\Mage\Foxtail
+
+위저드					// Mage Class\Wizard Class\Wizard
+여우위저드				// Mage Class\Wizard Class\Wizard\Foxtail
+하이위저드				// Mage Class\Wizard Class\High Wizard
+여우하이위저드			// Mage Class\Wizard Class\High Wizard\Foxtail
+워록					// Mage Class\Wizard Class\Warlock
+여우워록				// Mage Class\Wizard Class\Warlock\Foxtail
+arch_mage				// Mage Class\Wizard Class\[4th] Arch Mage
+arch_mage_riding		// Mage Class\Wizard Class\[4th] Arch Mage\Foxtail
+
+세이지					// Mage Class\Sage Class\Sage
+여우세이지				// Mage Class\Sage Class\Sage\Foxtail
+프로페서					// Mage Class\Sage Class\Professor
+여우프로페서				// Mage Class\Sage Class\Professor\Foxtail
+소서러					// Mage Class\Sage Class\Sorcerer
+여우소서러				// Mage Class\Sage Class\Sorcerer\Foxtail
+elemetal_master			// Mage Class\Sage Class\[4th] Elemental Master
+elemetal_master_riding	// Mage Class\Sage Class\[4th] Elemental Master\Foxtail
+
+
+// ----------------------
+// Acolyte Class
+// ----------------------
+성직자					// Acolyte Class\Acolyte
+복사알파카				// Acolyte Class\Acolyte\Alpaca
+
+프리스트				// Acolyte Class\Priest Class\Priest
+프리스트알파카			// Acolyte Class\Priest Class\Priest\Alpaca
+하이프리				// Acolyte Class\Priest Class\High Priest
+하이프리스트알파카		// Acolyte Class\Priest Class\High Priest\Alpaca
+아크비숍				// Acolyte Class\Priest Class\Arch Bishop
+아크비숍알파카			// Acolyte Class\Priest Class\Arch Bishop\Alpaca
+cardinal				// Acolyte Class\Priest Class\[4th] Cardinal
+cardinal_riding			// Acolyte Class\Priest Class\[4th] Cardinal\Alpaca
+
+몽크					// Acolyte Class\Monk Class\Monk
+몽크알파카				// Acolyte Class\Monk Class\Monk\Alpaca
+챔피온					// Acolyte Class\Monk Class\Champion
+챔피온알파카			// Acolyte Class\Monk Class\Champion\Alpaca
+슈라					// Acolyte Class\Monk Class\Sura
+슈라알파카				// Acolyte Class\Monk Class\Sura\Alpaca
+inquisitor				// Acolyte Class\Monk Class\[4th] Inquisitor
+inquisitor_riding		// Acolyte Class\Monk Class\[4th] Inquisitor\Alpaca
+
+
+// ----------------------
+// Extended Class
+// ----------------------
+shinkiro#shiranui		// Extended Class\Ninja Class\Shinkiro
+						// Extended Class\Ninja Class\Shiranui
+shinkiro_riding#shiranui_riding		// Extended Class\Ninja Class\Shiranui\Frog
+									// Extended Class\Ninja Class\Shinkiro\Frog
+kagerou#oboro			// Extended Class\Ninja Class\Kagerou
+						// Extended Class\Ninja Class\Oboro
+frog_kagerou#frog_oboro	// Extended Class\Ninja Class\Kagerou\Frog
+						// Extended Class\Ninja Class\Oboro\Frog
+닌자					// Extended Class\Ninja Class\Ninja
+두꺼비닌자				// Extended Class\Ninja Class\Ninja\Frog
+
+건너					// Extended Class\Gunslinger Class\Gunslinger
+페코건너				// Extended Class\Gunslinger Class\Gunslinger\Peco
+rebellion				// Extended Class\Gunslinger Class\Rebellion
+peco_rebellion			// Extended Class\Gunslinger Class\Rebellion\Peco
+night_watch				// Extended Class\Gunslinger Class\Night Watch
+night_watch_riding		// Extended Class\Gunslinger Class\Night Watch\Riding
+
+태권소년				// Extended Class\Taekwon
+태권소년포링			// Extended Class\Taekwon\Poring
+
+권성					// Extended Class\Star Gladiator
+권성융합				// Extended Class\Star Gladiator Floating
+권성포링				// Extended Class\Star Gladiator\Poring
+성제					// Extended Class\Star Emperor
+성제융합				// Extended Class\Star Emperor Floating
+해태성제				// Extended Class\Star Emperor\Beast
+sky_emperor				// Extended Class\Sky Emperor
+sky_emperor2			// Extended Class\Sky Emperor Floating
+sky_emperor_riding		// Extended Class\Sky Emperor\Beast
+
+소울링커				// Extended Class\Soul Linker
+두꺼비소울링커			// Extended Class\Soul Linker\Frog
+소울리퍼				// Extended Class\Soul Reaper
+해태소울리퍼			// Extended Class\Soul Reaper\Beast
+soul_ascetic			// Extended Class\Soul Ascetic
+soul_ascetic_riding		// Extended Class\Soul Ascetic\Beast
+
+
+// ----------------------
+// Other Class
+// ----------------------
+산타					// Other Class\Santa
+결혼					// Other Class\Tuxedo
+//턱시도				// Other Class\Tuxedo2
+여름					// Other Class\Summer Outfit
+summoner				// Other Class\Summoner
+cart_summoner			// Other Class\Summoner\Cart
+spirit_handler			// Other Class\Spirit Handler
+spirit_handler_riding	// Other Class\Spirit Handler\Cart
+여름2					// Other Class\Summer Outfit
+옥토버패스트			// Other Class\Oktober Fest
+한복					// Other Class\Hanbok

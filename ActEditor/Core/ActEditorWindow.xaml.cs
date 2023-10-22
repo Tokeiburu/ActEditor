@@ -43,14 +43,10 @@ namespace ActEditor.Core {
 
 		public static ActEditorWindow Instance { get; private set; }
 
-		private static Brush _uiGridBackground;
-		private static Brush _uiGridBackgroundLight;
-
 		private readonly MultiGrfReader _metaGrf = new MultiGrfReader();
 		private readonly MetaGrfResourcesViewer _metaGrfViewer = new MetaGrfResourcesViewer();
 		private readonly WpfRecentFiles _recentFiles;
 		private readonly ScriptLoader _scriptLoader;
-		
 		private readonly TabEngine _tabEngine;
 
 		public RecentFilesManager RecentFiles {
@@ -135,8 +131,13 @@ namespace ActEditor.Core {
 				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
 			}
 			catch (Exception err) {
-				ActEditorConfiguration.Remapper.Clear();
-				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
+				try {
+					ActEditorConfiguration.Remapper.Clear();
+					ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
+				}
+				catch {
+				}
+
 				ErrorHandler.HandleException("Failed to load the custom key bindings. The bindings will be reset to their default values.", err);
 			}
 
@@ -202,6 +203,7 @@ namespace ActEditor.Core {
 		public TabEngine TabEngine { get { return _tabEngine; } }
 
 		private void _loadMenu() {
+			_scriptLoader.AddScriptsToMenu(new SpriteExportNormal(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SpriteExport(), this, _mainMenu, null);
 
 			_scriptLoader.AddScriptsToMenu(new EditSelectAll(), this, _mainMenu, null);
@@ -252,6 +254,7 @@ namespace ActEditor.Core {
 			_scriptLoader.AddScriptsToMenu(new FrameAdvanced(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new FrameDuplicate(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FrameAddLayerToAllFrames(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new FrameMirrorVertical(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new FrameMirrorHorizontal(), this, _mainMenu, null);
@@ -486,6 +489,25 @@ namespace ActEditor.Core {
 			SaveAs();
 		}
 
+		private void _miSaveAsGarment_Click(object sender, RoutedEventArgs e) {
+			try {
+				var dialog = new SaveGarmentDialog(this);
+
+				dialog.Owner = WpfUtilities.TopWindow;
+
+				dialog.Closing += delegate {
+					dialog.Owner.Focus();
+					_miSaveAsGarment.IsEnabled = true;
+				};
+
+				_miSaveAsGarment.IsEnabled = false;
+				dialog.Show();
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err);
+			}
+		}
+
 		private void _miCloseCurrent_Click(object sender, RoutedEventArgs e) {
 			try {
 				_tabEngine.CloseAct();
@@ -502,8 +524,8 @@ namespace ActEditor.Core {
 			var dialog = new AboutDialog(ActEditorConfiguration.PublicVersion, ActEditorConfiguration.RealVersion, ActEditorConfiguration.Author, ActEditorConfiguration.ProgramName);
 			dialog.Owner = WpfUtilities.TopWindow;
 			((TextBox)dialog.FindName("_textBlock")).Text += "\r\n\r\nCredits : Nebraskka (suggestions and feedback)";
+			dialog.AboutTextBox.Background = this.FindResource("UIThemeAboutDialogBrush") as Brush;
 			dialog.ShowDialog();
-
 			_tabEngine.RestoreFocus();
 		}
 

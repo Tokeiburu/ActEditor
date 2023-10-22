@@ -13,7 +13,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// <summary>
 	/// Interaction logic for FrameSelector.xaml
 	/// </summary>
-	public partial class ReadonlyPlaySelector : UserControl, ISelector {
+	public partial class ReadonlyPlaySelector : UserControl {
 		#region Delegates
 
 		public delegate void FrameIndexChangedDelegate(object sender, int actionIndex);

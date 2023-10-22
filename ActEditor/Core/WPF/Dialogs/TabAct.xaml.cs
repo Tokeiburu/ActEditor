@@ -59,7 +59,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_references.Add(new ReferenceControl(this, "ref_body_m", "ref_body_f", "Body", false));
 			_references.Add(new ReferenceControl(this, "ref_head_m", "ref_head_f", "Head", false));
 			_references.Add(new ReferenceControl(this, "ref_body_m", "ref_body_f", "Other", false));
-			_references.Add(new ReferenceControl(this, "ref_body_f", "ref_body_f", "Neighbor", true));
+			_references.Add(new ReferenceControl(this, "ref_body_f", "ref_body_f", "Nearby", true));
 
 			_stackPanelReferences.Children.Add(_references[0]);
 			_stackPanelReferences.Children.Add(_references[1]);

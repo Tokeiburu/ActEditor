@@ -34,6 +34,6 @@
         <Label Grid.Column="5" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Color" />
         <Label Grid.Column="6" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Scale X" FontSize="12" />
         <Label Grid.Column="7" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Scale Y" FontSize="12" />
-        <Label Grid.Column="8" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Rot" />
+        <Label Grid.Column="8" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Angle" />
     </Grid>
 </UserControl>

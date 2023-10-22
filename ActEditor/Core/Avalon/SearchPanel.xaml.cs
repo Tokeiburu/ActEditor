@@ -154,7 +154,8 @@ namespace ActEditor.Core.Avalon {
 			_replaceTextBox.LostFocus += new RoutedEventHandler(_replaceTextBox_LostFocus);
 			_searchTextBox.GotFocus += new RoutedEventHandler(_searchTextBox_GotFocus);
 			_replaceTextBox.GotFocus += new RoutedEventHandler(_replaceTextBox_GotFocus);
-			KeyDown +=new KeyEventHandler(_searchPanel_KeyDown);
+			KeyDown += new KeyEventHandler(_searchPanel_KeyDown);
+			PreviewKeyDown += new KeyEventHandler(_searchPanel_PreviewKeyDown);
 
 			CommandBindings.Add(new CommandBinding(Find, (sender, e) => Open()));
 			CommandBindings.Add(new CommandBinding(SearchCommands.FindNext, (sender, e) => FindNext()));
@@ -170,15 +171,15 @@ namespace ActEditor.Core.Avalon {
 		private void _replaceTextBox_GotFocus(object sender, RoutedEventArgs e) {
 			_labelReplace.Visibility = Visibility.Hidden;
 			_border2.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 186, 86, 0));
-			_replaceTextBox.Foreground = new SolidColorBrush(Colors.Black);
-			_searchTextBox.Foreground = new SolidColorBrush(Colors.Black);
+			_replaceTextBox.Foreground = (Brush)this.FindResource("TextForeground");
+			_searchTextBox.Foreground = (Brush)this.FindResource("TextForeground");
 		}
 
 		private void _searchTextBox_GotFocus(object sender, RoutedEventArgs e) {
 			_labelFind.Visibility = Visibility.Hidden;
 			_border1.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 186, 86, 0));
-			_replaceTextBox.Foreground = new SolidColorBrush(Colors.Black);
-			_searchTextBox.Foreground = new SolidColorBrush(Colors.Black);
+			_replaceTextBox.Foreground = (Brush)this.FindResource("TextForeground");
+			_searchTextBox.Foreground = (Brush)this.FindResource("TextForeground");
 		}
 
 		private void _replaceTextBox_LostFocus(object sender, RoutedEventArgs e) {
@@ -342,6 +343,13 @@ namespace ActEditor.Core.Avalon {
 			//_textArea.Caret.Show();
 		}
 
+		private void _searchPanel_PreviewKeyDown(object sender, KeyEventArgs e) {
+			if (e.Key == Key.Escape) {	
+				e.Handled = true;
+				Close();
+			}
+		}
+
 		private void _searchPanel_KeyDown(object sender, KeyEventArgs e) {
 			switch (e.Key) {
 				case Key.Enter:
@@ -359,10 +367,6 @@ namespace ActEditor.Core.Avalon {
 							_messageView.IsOpen = true;
 						}
 					}
-					break;
-				case Key.Escape:
-					e.Handled = true;
-					Close();
 					break;
 			}
 		}

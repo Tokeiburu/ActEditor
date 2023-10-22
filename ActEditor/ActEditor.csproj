@@ -68,8 +68,8 @@
     <Reference Include="ActImaging">
       <HintPath>..\Libraries\ActImaging.dll</HintPath>
     </Reference>
-    <Reference Include="ColorPicker">
-      <HintPath>..\Libraries\ColorPicker.dll</HintPath>
+    <Reference Include="ColorPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\ColorPicker.dll</HintPath>
     </Reference>
     <Reference Include="Encryption">
       <HintPath>..\Libraries\Encryption.dll</HintPath>
@@ -80,17 +80,15 @@
     <Reference Include="Gif.Components">
       <HintPath>..\Libraries\Gif.Components.dll</HintPath>
     </Reference>
-    <Reference Include="GRF">
-      <HintPath>..\Libraries\GRF.dll</HintPath>
+    <Reference Include="GRF, Version=1.2.8542.22323, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\GRF.dll</HintPath>
     </Reference>
-    <Reference Include="GrfToWpfBridge">
-      <HintPath>..\Libraries\GrfToWpfBridge.dll</HintPath>
+    <Reference Include="GrfToWpfBridge, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\GrfToWpfBridge.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.AvalonEdit">
       <HintPath>..\Libraries\ICSharpCode.AvalonEdit.dll</HintPath>
-    </Reference>
-    <Reference Include="PaletteEditor">
-      <HintPath>..\Libraries\PaletteEditor.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
@@ -98,11 +96,12 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="TokeiLibrary">
-      <HintPath>..\Libraries\TokeiLibrary.dll</HintPath>
+    <Reference Include="TokeiLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\TokeiLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Utilities">
-      <HintPath>..\Libraries\Utilities.dll</HintPath>
+    <Reference Include="Utilities, Version=1.2.8542.22321, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\Utilities.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -151,6 +150,9 @@
     </Compile>
     <Compile Include="Core\WPF\Dialogs\BatchScriptDialog.xaml.cs">
       <DependentUpon>BatchScriptDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\Dialogs\SaveGarmentDialog.xaml.cs">
+      <DependentUpon>SaveGarmentDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\WPF\Dialogs\StyleEditorDialog.xaml.cs">
       <DependentUpon>StyleEditorDialog.xaml</DependentUpon>
@@ -257,6 +259,15 @@
     <Compile Include="Core\WPF\GenericControls\QuickColorSelector.xaml.cs">
       <DependentUpon>QuickColorSelector.xaml</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Resources\script11_palette_sheet.cs" />
+    <Compile Include="Tools\PaletteEditorTool\PalettePreset.xaml.cs">
+      <DependentUpon>PalettePreset.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\PaletteSheetGenerator\PreviewSheetDialog.xaml.cs">
+      <DependentUpon>PreviewSheetDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\PaletteSheetGenerator\SpriteResource.cs" />
+    <Compile Include="Tools\PaletteSheetGenerator\SpsManager.cs" />
     <EmbeddedResource Include="Resources\script_sample.cs" />
     <EmbeddedResource Include="Resources\script0_magnify.cs" />
     <EmbeddedResource Include="Resources\script1_replace_color.cs" />
@@ -297,6 +308,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Core\WPF\Dialogs\BatchScriptDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Core\WPF\Dialogs\SaveGarmentDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -440,7 +455,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Tools\PaletteEditorTool\PalettePreset.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Tools\PaletteEditorTool\SpriteEditorControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Tools\PaletteSheetGenerator\PreviewSheetDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -486,6 +509,12 @@
     <EmbeddedResource Include="Resources\script7_add_effect2.spr" />
     <EmbeddedResource Include="Resources\script7_add_effect3.act" />
     <EmbeddedResource Include="Resources\script7_add_effect3.spr" />
+    <EmbeddedResource Include="Resources\sprites.conf" />
+    <EmbeddedResource Include="Resources\preset_0.pal" />
+    <EmbeddedResource Include="Resources\preset_1.pal" />
+    <EmbeddedResource Include="Resources\preset_2.pal" />
+    <EmbeddedResource Include="Resources\preset_3.pal" />
+    <EmbeddedResource Include="Resources\sprites_old.conf" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -709,6 +738,27 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\addgrf.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PaletteEditor\PaletteEditor.csproj">
+      <Project>{19ACA37E-ACA3-47D4-962C-7DC5004B3C9E}</Project>
+      <Name>PaletteEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\def_garment_paths.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\minus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\font.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\shadow.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\busy.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

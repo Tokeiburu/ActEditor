@@ -1,13 +1,23 @@
-﻿namespace ActEditor.Core.WPF.EditorControls {
+﻿using System;
+
+namespace ActEditor.Core.WPF.EditorControls {
 	public class ReadonlyActIndexSelector : IActIndexSelector {
-		private readonly ReadonlyPlaySelector _rps;
+		private Func<bool> _isPlaying;
 
 		public ReadonlyActIndexSelector(ReadonlyPlaySelector rps) {
-			_rps = rps;
+			_isPlaying = rps.IsPlaying;
 
-			_rps.FrameChanged += (sender, actionIndex) => OnFrameChanged(actionIndex);
-			_rps.ActionChanged += (sender, actionIndex) => OnActionChanged(actionIndex);
-			_rps.SpecialFrameChanged += (sender, actionIndex) => OnSpecialFrameChanged(actionIndex);
+			rps.FrameChanged += (sender, actionIndex) => OnFrameChanged(actionIndex);
+			rps.ActionChanged += (sender, actionIndex) => OnActionChanged(actionIndex);
+			rps.SpecialFrameChanged += (sender, actionIndex) => OnSpecialFrameChanged(actionIndex);
+		}
+
+		public ReadonlyActIndexSelector(CompactActIndexSelector rps) {
+			_isPlaying = rps.IsPlaying;
+
+			rps.FrameChanged += (sender, actionIndex) => OnFrameChanged(actionIndex);
+			rps.ActionChanged += (sender, actionIndex) => OnActionChanged(actionIndex);
+			rps.SpecialFrameChanged += (sender, actionIndex) => OnSpecialFrameChanged(actionIndex);
 		}
 
 		public void OnFrameChanged(int actionindex) {
@@ -16,7 +26,7 @@
 		}
 
 		public bool IsPlaying {
-			get { return _rps.IsPlaying(); }
+			get { return _isPlaying(); }
 		}
 
 		public event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;

@@ -68,6 +68,9 @@
     <SolidColorBrush x:Key="CellBrushEncrypted" Color="#FFE08000"/>
     <SolidColorBrush x:Key="CellBrushRemoved" Color="Red"/>
     <SolidColorBrush x:Key="CellBrushAdded" Color="Blue"/>
+    
+    <Color x:Key="UIThemeAboutDialogColor">Transparent</Color>
+    <SolidColorBrush x:Key="UIThemeAboutDialogBrush" Color="{DynamicResource UIThemeAboutDialogColor}"/>
 
     <ControlTemplate x:Key="ButtonTemplate" TargetType="{x:Type Button}">
         <ControlTemplate.Resources>
@@ -264,7 +267,7 @@
         <Setter Property="BorderBrush" Value="#CED6E3" />
         <Setter Property="Padding" Value="0" />
     </Style>
-
+    
     <Style x:Key="TabItemSprite" TargetType="{x:Type TabItem}">
         <Setter Property="Background" Value="Blue" />
         <Setter Property="Template">
@@ -316,6 +319,9 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    
+    <Style x:Key="TabItemSimple" TargetType="{x:Type TabItem}">
     </Style>
 
     <Style x:Key="TabItemStyledLess" TargetType="{x:Type TabItem}">

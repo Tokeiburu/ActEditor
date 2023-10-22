@@ -42,7 +42,7 @@
                                 </Grid>
                             </Border>
                         </wpf:LeftComboBox>
-                        <TextBox AcceptsReturn="False" AcceptsTab="False" PreviewKeyDown="_textArea_PreviewKeyDown" Padding="3" BorderThickness="0" Name="_searchTextBox" VerticalAlignment="Center" HorizontalAlignment="Left" Width="145">
+                        <TextBox AcceptsReturn="False" Foreground="{DynamicResource TextForeground}" AcceptsTab="False" PreviewKeyDown="_textArea_PreviewKeyDown" Padding="3" BorderThickness="0" Name="_searchTextBox" VerticalAlignment="Center" HorizontalAlignment="Left" Width="145">
                             <TextBox.Text>
                                 <Binding Path="SearchPattern" RelativeSource="{RelativeSource TemplatedParent}" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
@@ -69,7 +69,7 @@
                 </Styles:FancyButton>
                 <Border Margin="3 0 3 0" Name="_border2" Visibility="{Binding ElementName=_replaceTextBox, Path=Visibility}" BorderBrush="#8490A1" VerticalAlignment="Center" BorderThickness="1">
                     <Grid>
-                        <TextBox AcceptsReturn="False" AcceptsTab="False" Padding="3" PreviewKeyDown="_replaceTextBox_PreviewKeyDown" Visibility="Collapsed" BorderThickness="0" Name="_replaceTextBox" VerticalAlignment="Center" Width="150">
+                        <TextBox Foreground="{DynamicResource TextForeground}" AcceptsReturn="False" AcceptsTab="False" Padding="3" PreviewKeyDown="_replaceTextBox_PreviewKeyDown" Visibility="Collapsed" BorderThickness="0" Name="_replaceTextBox" VerticalAlignment="Center" Width="150">
                         </TextBox>
                         <TextBlock  Name="_labelReplace" Margin="3 0 0 0" VerticalAlignment="Center" Text="Replace..." FontStyle="Italic" Foreground="Gray" IsHitTestVisible="False" />
                     </Grid>

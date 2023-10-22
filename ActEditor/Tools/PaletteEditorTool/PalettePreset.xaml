@@ -1,0 +1,22 @@
+﻿<styles:TkWindow x:Class="ActEditor.Tools.PaletteEditorTool.PalettePreset"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+        xmlns:paletteEditor="clr-namespace:PaletteEditor;assembly=PaletteEditor">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <paletteEditor:PaletteSelector Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Margin="1" VerticalAlignment="Top" x:Name="_paletteSelector0" />
+        <paletteEditor:PaletteSelector Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="1" VerticalAlignment="Top" x:Name="_paletteSelector1" />
+        <paletteEditor:PaletteSelector Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Margin="1" VerticalAlignment="Top" x:Name="_paletteSelector2" />
+        <paletteEditor:PaletteSelector Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" Margin="1" VerticalAlignment="Top" x:Name="_paletteSelector3" />
+    </Grid>
+</styles:TkWindow>

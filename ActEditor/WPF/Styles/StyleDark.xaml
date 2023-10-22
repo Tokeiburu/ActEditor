@@ -29,10 +29,11 @@
     <Color x:Key="UIThemeTreeViewDragUnableBorderColor">#B50505</Color>
     <Color x:Key="UIThemeTreeViewDragUnableBackgroundColor">#641B1B</Color>
     <Color x:Key="UIThemeMenuBackgroundColor">#202225</Color>
-    <Color x:Key="UIThemeContextMenuDefaultTextColor">#9B9B9C</Color>
+    <Color x:Key="UIThemeContextMenuDefaultTextColor">#B5B5B5</Color>
     <Color x:Key="UIThemeContextMenuDisabledTextColor">#5B5B5B</Color>
     <Color x:Key="UIThemeContextMenuMouseOverTextColor">#F1F1F1</Color>
-    <Color x:Key="UIThemeContextMenuMouseOverBackgroundColor">#040405</Color>
+    <Color x:Key="UIThemeContextMenuMouseOverBackgroundColor">#4A54C0</Color>
+    <Color x:Key="UIGridBackgroundColor">#040405</Color>
     <Color x:Key="UIThemeTextBoxBorderColor">#484C52</Color>
     <Color x:Key="UIThemeTextBoxBackgroundColor">#484C52</Color>
     <Color x:Key="UIThemePopupBorderColor">#18191C</Color>
@@ -52,6 +53,7 @@
     <Color x:Key="UIThemeComboBoxToggleArrowColor">#B8BABD</Color>
     <Color x:Key="UIThemeComboBoxToggleArrowDisabledColor">#888888</Color>
     <Color x:Key="UIThemeMainTabControlTemplateStrokeColor">#333333</Color>
+    <Color x:Key="UIThemeAboutDialogColor">#484C52</Color>
 
     <SolidColorBrush x:Key="UIThemeBackground1Brush" Color="{StaticResource UIThemeBackground1Color}" />
     <SolidColorBrush x:Key="UIThemeBackground2Brush" Color="{StaticResource UIThemeBackground2Color}" />
@@ -77,7 +79,7 @@
     <SolidColorBrush x:Key="UIThemeListViewMouseOverBackgroundBrush" Color="{StaticResource UIThemeListViewMouseOverBackgroundColor}"/>
     <SolidColorBrush x:Key="UIThemeComboBoxDisabledBrush" Color="{StaticResource UIThemeComboBoxDisabledColor}"/>
     <SolidColorBrush x:Key="UIGridBackgroundLightBrush" Color="{StaticResource UIThemePopupBackgroundColor}"/>
-    <SolidColorBrush x:Key="UIGridBackgroundBrush" Color="{StaticResource UIThemeContextMenuMouseOverBackgroundColor}"/>
+    <SolidColorBrush x:Key="UIGridBackgroundBrush" Color="{StaticResource UIGridBackgroundColor}"/>
     <SolidColorBrush x:Key="UIThemeLayerControlSelectedBrush" Color="{StaticResource UIThemeLayerControlColor}"/>
     <SolidColorBrush x:Key="UIThemeLayerControlPreviewSelectedBrush" Color="{StaticResource UIThemeLayerControlPreviewColor}"/>
     <SolidColorBrush x:Key="UIThemeLayerControlOverlay" Color="{StaticResource UIThemeLayerControlOverlayColor}"/>
@@ -85,11 +87,12 @@
     <SolidColorBrush x:Key="UIThemeHyperlinkMouseOverBrush" Color="{StaticResource UIThemeHyperlinkMouseOverColor}"/>
     <SolidColorBrush x:Key="UIThemeScriptRunnerConsoleErrorBrush" Color="{StaticResource UIThemeDialogFooterColor}" />
     <SolidColorBrush x:Key="UIThemeImageViewerBackground" Color="{StaticResource UIThemeImageViewerBackgroundColor}" />
+    <SolidColorBrush x:Key="UIThemeAboutDialogBrush" Color="{DynamicResource UIThemeAboutDialogColor}"/>
 
     <SolidColorBrush x:Key="UIThemeMainTabControlBorderBrush" Color="{StaticResource UIThemeBackground1Color}"/>
     <SolidColorBrush x:Key="UIThemeMainTabControlTemplateBackground" Color="{StaticResource UIThemeSelectBackgroundColor}"/>
     <SolidColorBrush x:Key="UIThemeMainTabControlTemplateStroke" Color="{StaticResource UIThemeMainTabControlTemplateStrokeColor}"/>
-        
+
     <SolidColorBrush x:Key="UIThemeComboBoxToggleArrowBrush" Color="{StaticResource UIThemeComboBoxToggleArrowColor}"/>
     <SolidColorBrush x:Key="UIThemeComboBoxToggleArrowDisabledBrush" Color="{StaticResource UIThemeComboBoxToggleArrowDisabledColor}"/>
 
@@ -231,7 +234,7 @@
         <Setter Property="UnableBackgroundBrush" Value="{StaticResource UITreeViewUnableBackgroundBrush}" />
         <Setter Property="UnableBorderBrush" Value="{StaticResource UITreeViewUnableBorderBrush}" />
     </Style>
-    
+
     <!-- Avalon styles -->
     <TextBlock x:Key="AvalonPythonComment" Foreground="#A0A0A0" FontWeight="Bold"/>
     <TextBlock x:Key="AvalonPythonString" Foreground="#E5DB6D" FontWeight="Bold"/>
@@ -346,9 +349,9 @@
     </Style>
 
     <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}" TargetType="MenuItem">
-        <Border Name="Border">
+        <Border Name="Border" BorderThickness="1 2 1 2">
             <Grid Background="Transparent">
-                <ContentPresenter Margin="6,3,6,3" ContentSource="Header" RecognizesAccessKey="True" />
+                <ContentPresenter Name="_contentPresenter" Margin="5,1,5,1" ContentSource="Header" RecognizesAccessKey="True" />
                 <Popup Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
                     <Border Name="SubmenuBorder"
                         SnapsToDevicePixels="True"
@@ -365,12 +368,14 @@
                 <Setter TargetName="Popup" Property="PopupAnimation" Value="None"/>
             </Trigger>
             <Trigger Property="IsHighlighted" Value="true">
-                <Setter TargetName="Border" Property="Background" Value="{DynamicResource UIThemePopupBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource UIThemeContextMenuMouseOverTextBrush}"/>
+                <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeContextMenuMouseOverBackgroundBrush}"/>
+                <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
+                <Setter TargetName="Border" Property="CornerRadius" Value="3"/>
+                <Setter TargetName="_contentPresenter" Property="Control.Foreground" Value="{StaticResource UIThemeContextMenuMouseOverTextBrush}"/>
             </Trigger>
             <Trigger Property="IsHighlighted" Value="false">
                 <Setter TargetName="Border" Property="Background" Value="{DynamicResource UIThemePopupBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{StaticResource UIThemeContextMenuDefaultTextBrush}"/>
+                <Setter TargetName="_contentPresenter" Property="Control.Foreground" Value="{StaticResource UIThemeContextMenuDefaultTextBrush}"/>
             </Trigger>
             <!--Snippettoplevelheader-->
             <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
@@ -378,7 +383,7 @@
                 <Setter TargetName="SubmenuBorder" Property="Padding" Value="0,0,0,3"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="{StaticResource UIThemeContextMenuDisabledTextBrush}"/>
+                <Setter TargetName="_contentPresenter" Property="Control.Foreground" Value="{StaticResource UIThemeContextMenuDisabledTextBrush}"/>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -390,7 +395,7 @@
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="38" SharedSizeGroup="Space" />
-                    <ColumnDefinition Width="Auto" SharedSizeGroup="Shortcut" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="MenuItemIGTColumnGroup" />
                     <ColumnDefinition MaxWidth="13" MinWidth="13" SharedSizeGroup="Arrow" />
                 </Grid.ColumnDefinitions>
                 <ContentPresenter Name="Icon" Margin="6,0,6,0" VerticalAlignment="Center" ContentSource="Icon" />
@@ -414,6 +419,7 @@
             </Trigger>
             <Trigger Property="IsHighlighted" Value="true">
                 <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeContextMenuMouseOverBackgroundBrush}" />
+                <Setter TargetName="Border" Property="CornerRadius" Value="3" />
                 <Setter Property="Foreground" Value="{StaticResource UIThemeContextMenuMouseOverTextBrush}" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="false">
@@ -423,7 +429,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="MenuItem">
-        <Border>
+        <Border Name="RealBorder">
             <Grid Name="Border" HorizontalAlignment="Stretch" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />
@@ -449,15 +455,16 @@
                 <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
             </Trigger>
             <Trigger Property="IsHighlighted" Value="true">
-                <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeContextMenuMouseOverBackgroundBrush}" />
-                <Setter Property="Foreground" Value="{StaticResource UIThemeContextMenuMouseOverTextBrush}" />
+                <Setter TargetName="RealBorder" Property="Background" Value="{StaticResource UIThemeContextMenuMouseOverBackgroundBrush}" />
+                <Setter TargetName="RealBorder" Property="CornerRadius" Value="3" />
+                <Setter TargetName="HeaderHost" Property="Control.Foreground" Value="{StaticResource UIThemeContextMenuMouseOverTextBrush}" />
                 <Setter TargetName="Arrow" Property="Fill" Value="{StaticResource UIThemeContextMenuMouseOverTextBrush}" />
             </Trigger>
             <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
                 <Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="4" />
             </Trigger>
             <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Foreground" Value="{StaticResource UIThemeContextMenuDisabledTextBrush}" />
+                <Setter TargetName="HeaderHost" Property="Control.Foreground" Value="{StaticResource UIThemeContextMenuDisabledTextBrush}" />
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -765,6 +772,49 @@
         </Setter>
     </Style>
 
+    <Style x:Key="TabItemSimple" TargetType="{x:Type TabItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabItem}">
+                    <Grid x:Name="Grid">
+                        <Border x:Name="Border" Margin="-1,0,0,0" Background="{StaticResource UIThemeBackground1Brush}" BorderBrush="{StaticResource UIThemeSpriteEditorSeparatorBrush}" BorderThickness="1,1,1,0">
+                            <Border Name="SubBorder" Margin="1,1,1,1">
+                                <ContentPresenter x:Name="ContentSite" TextElement.FontSize="13" VerticalAlignment="Center" ContentSource="Header" Margin="3 2 3 2" RecognizesAccessKey="False">
+                                </ContentPresenter>
+                            </Border>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger SourceName="Border" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeMouseOverBackgroundBrush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMouseOverBorderBrush}" />
+                            <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeSelectTextBrush}" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Panel.ZIndex" Value="100" />
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeBackground2Brush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeSpriteEditorSeparatorBrush}" />
+                            <Setter TargetName="Border" Property="Margin" Value="-1,0,0,-1" />
+                            <Setter TargetName="SubBorder" Property="Margin" Value="1,1,1,2" />
+                            <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeSelectTextBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeFadeTextBrush}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="False" />
+                                <Condition SourceName="Border" Property="IsMouseOver" Value="True" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeSelectTextBrush}" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="ListView">
         <Setter Property="Background" Value="{StaticResource UIThemeBackground2Brush}" />
         <Setter Property="ItemContainerStyle">
@@ -921,7 +971,7 @@
     <SolidColorBrush x:Key="PreviewItemTextBackground" Color="#2F3136"/>
 
     <SolidColorBrush x:Key="ListBorder" Color="#828790"/>
-    
+
     <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
         <Grid>
             <Grid.ColumnDefinitions>

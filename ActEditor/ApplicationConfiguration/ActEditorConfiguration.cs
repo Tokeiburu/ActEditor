@@ -298,6 +298,126 @@ namespace ActEditor.ApplicationConfiguration {
 			}
 		}
 
+		public static string ActEditorGarmentPaths {
+			get { return ConfigAsker["[ActEditor - Garment paths]", ""]; }
+			set { ConfigAsker["[ActEditor - Garment paths]"] = value; }
+		}
+
+		public static bool ActEditorGarmentCopySpr {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - ActEditorGarmentCopySpr]", false.ToString()]); }
+			set { ConfigAsker["[ActEditor - ActEditorGarmentCopySpr]"] = value.ToString(); }
+		}
+
+		public static bool ActEditorGarmentGuessAnchor {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - ActEditorGarmentGuessAnchor]", true.ToString()]); }
+			set { ConfigAsker["[ActEditor - ActEditorGarmentGuessAnchor]"] = value.ToString(); }
+		}
+
+		public static string ActEditorGarmentSpriteName {
+			get { return ConfigAsker["[ActEditor - ActEditorGarmentSpriteName]", "Custom_Wing"]; }
+			set { ConfigAsker["[ActEditor - ActEditorGarmentSpriteName]"] = value; }
+		}
+
+		public static string GarmentSavePath {
+			get { return ConfigAsker["[ActEditor - Garment save path]", Configuration.ApplicationPath]; }
+			set { ConfigAsker["[ActEditor - Garment save path]"] = value; }
+		}
+
+		public static bool PreviewSheetHeadAffected {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetHeadAffected]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetHeadAffected]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetAutomaticPath {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetAutomaticPath]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetAutomaticPath]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetBodyAffected {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetBodyAffected]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetBodyAffected]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetShowBody {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetShowBody]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetShowBody]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetTransparentBackground {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - Transparent background]", "false"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - Transparent background]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetShowShadow {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - Show shadow]", "false"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - Show shadow]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetShowHead {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetShowHead]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetShowHead]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetUsePredefinedPalettePath {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetUsePredefinedPalettePath]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetUsePredefinedPalettePath]"] = value.ToString(); }
+		}
+
+		public static string PreviewSheetPredefinedPalettePath {
+			get { return ConfigAsker["[ActEditor - PreviewSheetPredefinedPalettePath]", "³ëºñ½ºÆ÷¸µ"]; }
+			set { ConfigAsker["[ActEditor - PreviewSheetPredefinedPalettePath]"] = value; }
+		}
+
+		public static bool PreviewSheetShowPalIndex {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetShowPalIndex]", "true"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetShowPalIndex]"] = value.ToString(); }
+		}
+
+		public static bool PreviewSheetUseOldConfig {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetUseOldConfig]", "false"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetUseOldConfig]"] = value.ToString(); }
+		}
+
+		public static string PreviewSheetIndexes {
+			get { return ConfigAsker["[ActEditor - Preview sheet - Indexes]", "0-199"]; }
+			set { ConfigAsker["[ActEditor - Preview sheet - Indexes]"] = value; }
+		}
+
+		public static string PreviewSheetLastSelectedJob {
+			get { return ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedJob]", ""]; }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedJob]"] = value; }
+		}
+
+		public static int PreviewSheetLastSelectedJobList {
+			get { return Int32.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedJobList]", "0"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedJobList]"] = value.ToString(CultureInfo.InvariantCulture); }
+		}
+
+		public static string PreviewSheetLastSelectedHead {
+			get { return ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedHead]", ""]; }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedHead]"] = value; }
+		}
+
+		public static int PreviewSheetLastSelectedHeadList {
+			get { return Int32.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedHeadList]", "0"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewSheetLastSelectedHeadList]"] = value.ToString(CultureInfo.InvariantCulture); }
+		}
+
+		public static int PreviewSheetMaxPerLine {
+			get { return int.Parse(ConfigAsker["[ActEditor - Preview sheet - Max per line]", "10"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - Max per line]"] = value.ToString(CultureInfo.InvariantCulture); }
+		}
+
+		public static string PreviewSheetPalPath {
+			get { return ConfigAsker["[ActEditor - Preview sheet - Pal path]", "C:\\YourRO.grf"]; }
+			set { ConfigAsker["[ActEditor - Preview sheet - Pal path]"] = value; }
+		}
+
+		public static int PreviewSheetActionIndex {
+			get { return Int32.Parse(ConfigAsker["[ActEditor - Preview sheet - Action index]", "0"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - Action index]"] = value.ToString(CultureInfo.InvariantCulture); }
+		}
+
 		#endregion
 
 		#region GrfShell
@@ -401,6 +521,9 @@ namespace ActEditor.ApplicationConfiguration {
 
 					string[] values = sub.Split('|');
 
+					if (values.Length < 2)
+						continue;
+
 					gestures[values[0]] = values[1];
 				}
 
@@ -428,7 +551,7 @@ namespace ActEditor.ApplicationConfiguration {
 		#region Program's internal configuration and information
 
 		public static string PublicVersion {
-			get { return "1.2.1"; }
+			get { return "1.2.5"; }
 		}
 
 		public static string Author {

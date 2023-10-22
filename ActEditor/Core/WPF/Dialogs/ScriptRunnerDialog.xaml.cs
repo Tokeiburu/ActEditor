@@ -7,11 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.Avalon;
 using ErrorManager;
 using GRF.FileFormats.LubFormat;
+using GRF.Image;
 using GRF.IO;
 using GRF.System;
 using GrfToWpfBridge.Application;
@@ -51,6 +53,13 @@ namespace ActEditor.Core.WPF.Dialogs {
 											 "using TokeiLibrary.WPF;\r\n" +
 											 "using Utilities;\r\n" +
 											 "using Utilities.Extension;\r\n" +
+											 "using Utilities.Parsers;\r\n" +
+											 "using Utilities.Parsers.Yaml;\r\n" +
+											 "using Utilities.Parsers.Libconfig;\r\n" +
+											 "using Utilities.Services;\r\n" +
+											 "using GRF.FileFormats.LubFormat.Preset;\r\n" +
+											 "using GRF.Core.GroupedGrf;\r\n" +
+											 "using System.Text;\r\n" +
 		                                     "using Action = GRF.FileFormats.ActFormat.Action;\r\n" +
 		                                     "using Frame = GRF.FileFormats.ActFormat.Frame;\r\n" +
 		                                     "using Point = System.Windows.Point;\r\n" +
@@ -168,10 +177,20 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Closed += delegate {
 				Owner = ActEditorWindow.Instance;
 				ActEditorWindow.Instance.Focus();
+				GC.Collect();
 			};
 		}
 
 		private void _textEditor_PreviewKeyDown(object sender, KeyEventArgs e) {
+			var layer = AdornerLayer.GetAdornerLayer(_textEditor.TextArea);
+
+			if (layer != null) {
+				var adorners = layer.GetAdorners(_textEditor.TextArea);
+
+				if (adorners != null && adorners.Length > 0)
+					return;
+			}
+			
 			if (e.Key == Key.Escape) {
 				Close();
 				e.Handled = true;
@@ -224,6 +243,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 					}
 					catch (Exception err) {
 						ErrorHandler.HandleException(err);
+					}
+					finally {
+						GC.Collect();
 					}
 				}
 			}
@@ -311,9 +333,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				string path = PathRequest.OpenFileEditor("filter", "C# Files|*.cs");
 
 				if (path != null) {
-					string text = File.ReadAllText(path);
-					text = _extractBackup(text);
-					_textEditor.Text = text;
+					_textEditor.Text = _loadScriptFromFile(File.ReadAllText(path));
 					_rcm.AddRecentFile(path);
 				}
 			}
@@ -363,6 +383,19 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 				List<string> lines = text.Split(new string[] {"\r\n"}, StringSplitOptions.None).ToList();
 				LineHelper.FixIndent(lines, 0);
+
+				var backupErrIndex = text.IndexOf("backupErr = err;", StringComparison.Ordinal);
+				if (backupErrIndex > -1) {
+					lines.RemoveAt(0);
+
+					for (int i = 0; i < 9; i++) {
+						if (lines.Count < 1)
+							break;
+
+						lines.RemoveAt(lines.Count - 1);
+					}
+				}
+
 				return string.Join("\r\n", lines.ToArray()).TrimEnd('\r', '\n', ' ', '\t');
 			}
 			catch {
@@ -381,9 +414,13 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
+		private string _loadScriptFromFile(string text) {
+			return _extractBackup(text);
+		}
+
 		private void _rcm_FileClicked(string file) {
 			try {
-				_textEditor.Document.Replace(0, _textEditor.Document.TextLength, File.ReadAllText(file));
+				_textEditor.Document.Replace(0, _textEditor.Document.TextLength, _loadScriptFromFile(File.ReadAllText(file)));
 			}
 			catch (Exception err) {
 				_rcm.RemoveRecentFile(file);
@@ -397,8 +434,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			public CompilerErrorView(CompilerError error) {
 				Description = error.ErrorText;
 				ToolTipDescription = error.ToString();
-
-				Line = error.Line - 56;
+				Line = error.Line - 63;
 				Column = error.Column - 6;
 
 				IsWarning = error.IsWarning ? 0 : 1;

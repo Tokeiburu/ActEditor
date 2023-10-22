@@ -21,6 +21,7 @@ using PaletteEditor;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.Shortcuts;
+using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
 using Utilities.Controls;
@@ -98,8 +99,6 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_gceControl.PaletteSelector.SelectionChanged += new ObservableList.ObservableListEventHandler(_paletteSelector_SelectionChanged);
 
 			ApplicationShortcut.Link(ApplicationShortcut.Save, () => _menuItemSave_Click(null, null), this);
-			ApplicationShortcut.Link(ApplicationShortcut.Make("SpriteEditor.BrushDecrease", Key.Subtract, ModifierKeys.None), () => _brushIncrease(-1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.Make("SpriteEditor.BrushIncrease", Key.Add, ModifierKeys.None), () => _brushIncrease(1), this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Q", "SpriteEditor.Select"), () => _buttonSelection_Click(_buttonSelection, null), this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-B", "SpriteEditor.Bucket"), () => _buttonBucket_Click(_buttonBucket, null), this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-T", "SpriteEditor.Stamp"), () => _buttonStamp_Click(_buttonStamp, null), this);
@@ -934,7 +933,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 
 		private void _menuItemSaveAs_Click(object sender, RoutedEventArgs e) {
 			SaveAs(TkPathRequest.SaveFile(new Setting(v => Configuration.ConfigAsker["[ActEditor - App recent]"] = v.ToString(), () => Configuration.ConfigAsker["[ActEditor - App recent]", "C:\\"]),
-										  "filter", FileFormat.MergeFilters(Format.PalAndSpr)));
+										  "filter", "Sprite and Palette Files|*.spr;*.pal|Sprite Files|*.spr|Palette Files|*.pal"));
 		}
 
 		public void Save() {
@@ -1355,6 +1354,18 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private void _buttonEraser_Click(object sender, RoutedEventArgs e) {
 			_buttonSelect((FancyButton)sender);
 			_setEditMode(EditMode.Eraser);
+		}
+
+		private void _menuItemBrushPlus_Click(object sender, RoutedEventArgs e) {
+			_brushIncrease(1);
+		}
+
+		private void _menuItemBrushMinus_Click(object sender, RoutedEventArgs e) {
+			_brushIncrease(-1);
+		}
+
+		private void _menuItemPaletteSelector_Click(object sender, RoutedEventArgs e) {
+			WindowProvider.Show(new PalettePreset(), _menuItemPaletteSelector, WpfUtilities.FindDirectParentControl<Window>(this));
 		}
 	}
 }

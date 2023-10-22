@@ -425,7 +425,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			conv.BackgroundColor = new GrfColor(transparentColor.A, transparentColor.R, transparentColor.G, transparentColor.B);
 
 			if (useDithering) {
-				conv.Options |= Indexed8FormatConverter.PaletteOptions.UseDithering;
+				conv.Options |= Indexed8FormatConverter.PaletteOptions.UseDithering | Indexed8FormatConverter.PaletteOptions.AutomaticallyGeneratePalette;
 			}
 
 			conv.ExistingPalette = newPalette;

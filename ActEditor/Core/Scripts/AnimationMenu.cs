@@ -293,6 +293,7 @@ namespace ActEditor.Core.Scripts {
 			_canUse = false;
 			diag2.Show();
 			diag2.Closed += delegate {
+				_editor.Focus();
 				_canUse = true;
 			};
 		}
@@ -340,6 +341,7 @@ namespace ActEditor.Core.Scripts {
 			_canUse = false;
 			diag2.Show();
 			diag2.Closed += delegate {
+				_editor.Focus();
 				_canUse = true;
 			};
 		}
@@ -387,12 +389,16 @@ namespace ActEditor.Core.Scripts {
 			_canUse = false;
 			diag2.Show();
 			diag2.Closed += delegate {
+				_editor.Focus();
 				_canUse = true;
 			};
 		}
 
 		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
-			return act != null && _canUse;
+			//return act != null && _canUse;
+			// TODO: Disabled the Setup Garment feature,
+			// it's just too buggy to begin with. File > Save as Garment... is way better.
+			return false;
 		}
 
 		#endregion

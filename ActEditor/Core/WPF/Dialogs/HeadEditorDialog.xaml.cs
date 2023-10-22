@@ -145,18 +145,47 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		private void _appendSprite2(int i, Act actHeadReference, Act actBodyReference, Act actOriginal, Act act) {
-			var actUsageReference = _actBodyReference.FindUsageOf(i).Where(p => !_actBodyReference[p].Mirror).ToList();
-
-			if (actUsageReference.Count <= 0) {
-				return;
+			ActIndex actIndex;
+			
+			switch(i) {
+				case 0:
+					actIndex = new ActIndex() { ActionIndex = 0, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 1:
+					actIndex = new ActIndex() { ActionIndex = 1, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 2:
+					actIndex = new ActIndex() { ActionIndex = 2, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 3:
+					actIndex = new ActIndex() { ActionIndex = 3, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 4:
+					actIndex = new ActIndex() { ActionIndex = 4, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 5:
+					actIndex = new ActIndex() { ActionIndex = 24, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 6:
+					actIndex = new ActIndex() { ActionIndex = 24, FrameIndex = 1, LayerIndex = 0 };
+					break;
+				case 7:
+					actIndex = new ActIndex() { ActionIndex = 26, FrameIndex = 0, LayerIndex = 0 };
+					break;
+				case 8:
+					actIndex = new ActIndex() { ActionIndex = 26, FrameIndex = 1, LayerIndex = 0 };
+					break;
+				default:
+					actIndex = new ActIndex() { ActionIndex = 0, FrameIndex = 0, LayerIndex = 0 };
+					break;
 			}
 
 			{
 				Action action = new Action();
 				Frame frame = new Frame();
-				frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+				frame.Anchors.AddRange(_actHeadReference[actIndex.ActionIndex, actIndex.FrameIndex].Anchors);
 				action.Frames.Add(frame);
-				frame.Layers.Add(_actHeadReference[actUsageReference[0]]);
+				frame.Layers.Add(_actHeadReference[actIndex]);
 				actHeadReference.AddAction(action);
 			}
 			{
@@ -166,24 +195,21 @@ namespace ActEditor.Core.WPF.Dialogs {
 				action.Frames.Add(frame);
 				bool found = false;
 
-				foreach (var actIndex in actUsageReference) {
-					var sourceFrame = _actBodyReference.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
+				var sourceFrame = _actBodyReference.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
 
-					if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
-						var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+				if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
+					var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
 
-						if (sourceLayer != null) {
-							frame.Anchors.AddRange(sourceFrame.Anchors);
-							Layer newLayer = new Layer(sourceLayer);
-							frame.Layers.Add(newLayer);
-							found = true;
-							break;
-						}
+					if (sourceLayer != null) {
+						frame.Anchors.AddRange(sourceFrame.Anchors);
+						Layer newLayer = new Layer(sourceLayer);
+						frame.Layers.Add(newLayer);
+						found = true;
 					}
 				}
 
 				if (!found) {
-					frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+					frame.Anchors.AddRange(_actHeadReference[actIndex.ActionIndex, actIndex.FrameIndex].Anchors);
 					Layer dummyLayer = new Layer(0, _sprReference);
 					dummyLayer.SpriteIndex = -1;
 					frame.Layers.Add(dummyLayer);
@@ -197,25 +223,22 @@ namespace ActEditor.Core.WPF.Dialogs {
 				action.Frames.Add(frame);
 				bool found = false;
 
-				foreach (var actIndex in actUsageReference) {
-					var sourceFrame = actOriginal.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
+				var sourceFrame = actOriginal.TryGetFrame(actIndex.ActionIndex, actIndex.FrameIndex);
 
-					if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
-						var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+				if (sourceFrame != null && sourceFrame.NumberOfLayers > 0) {
+					var sourceLayer = sourceFrame.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
 
-						if (sourceLayer != null) {
-							frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
-							Layer newLayer = new Layer(sourceLayer);
-							frame.Layers.Add(newLayer);
-							found = true;
-							break;
-						}
+					if (sourceLayer != null) {
+						frame.Anchors.AddRange(_actHeadReference[actIndex.ActionIndex, actIndex.FrameIndex].Anchors);
+						Layer newLayer = new Layer(sourceLayer);
+						frame.Layers.Add(newLayer);
+						found = true;
 					}
 				}
 
 				if (!found) {
 					// Add dummy frame
-					frame.Anchors.AddRange(_actHeadReference[actUsageReference[0].ActionIndex, actUsageReference[0].FrameIndex].Anchors);
+					frame.Anchors.AddRange(_actHeadReference[actIndex.ActionIndex, actIndex.FrameIndex].Anchors);
 					Layer dummyLayer = new Layer(0, _sprReference);
 					dummyLayer.SpriteIndex = -1;
 					frame.Layers.Add(dummyLayer);
@@ -332,12 +355,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Act actBodyReference = new Act(refBody.Spr);
 
 			if (_flag == 2) {
-				// Generate sprites from a known list
-				_appendSprite2(0, actHeadReference, actBodyReference, actOriginal, act);
-				_appendSprite2(1, actHeadReference, actBodyReference, actOriginal, act);
-				_appendSprite2(2, actHeadReference, actBodyReference, actOriginal, act);
-				_appendSprite2(3, actHeadReference, actBodyReference, actOriginal, act);
-				_appendSprite2(4, actHeadReference, actBodyReference, actOriginal, act);
+				for (int i = 0; i < _actSource.Sprite.NumberOfIndexed8Images; i++) {
+					_appendSprite2(i, actHeadReference, actBodyReference, actOriginal, act);
+				}
 			}
 			else {
 				for (int i = 0; i < _sprReference.NumberOfIndexed8Images; i++) {
@@ -372,7 +392,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			List<ActReferenceView> items = new List<ActReferenceView>(_sprReference.NumberOfIndexed8Images);
 
 			if (_flag == 2) {
-				for (int i = 0; i < 5; i++) {
+				for (int i = 0; i < _actSource.Sprite.NumberOfIndexed8Images; i++) {
 					items.Add(new ActReferenceView(i + " - Garment", i));
 				}
 			}
@@ -536,11 +556,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 									currentLayer.SetAbsoluteSpriteId(sourceSpriteIndex, _actOriginal.Sprite);
 
 									_adjustLayerCoordinates(aid, fid, referenceFrameIndex, currentLayer, referenceSpriteIndex);
-
-									if (_flag == 1) {
-										_actOriginal[aid, fid].Layers.Insert(0, new Layer(_actOriginal[aid, fid, 0]));
-										_actOriginal[aid, fid, 0].SpriteIndex = -1;
-									}
 								}
 							}
 						}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +9,7 @@ using ActEditor.Core.WPF.Dialogs;
 using ActEditor.Core.WPF.GenericControls;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
@@ -290,6 +292,88 @@ namespace ActEditor.Core.Scripts {
 
 		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			return act != null && act[selectedActionIndex].NumberOfFrames > 0;
+		}
+
+		#endregion
+	}
+
+	public class FrameAddLayerToAllFrames : IActScript {
+		#region IActScript Members
+
+		public object DisplayName {
+			get { return "Add sprite to all frames..."; }
+		}
+
+		public string Group {
+			get { return "Frame"; }
+		}
+
+		public string InputGesture {
+			get { return "{Dialog.AddSpriteToAllFrame}"; }
+		}
+
+		public string Image {
+			get { return "empty.png"; }
+		}
+
+		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			if (act == null) return;
+
+			try {
+				var effect = new EffectConfiguration("AddSpriteToAllFrames");
+				effect.AddProperty("OffsetX", 0, -100, 100);
+				effect.AddProperty("OffsetY", 0, -150, 150);
+				effect.AddProperty("Back/Front", 1, 0, 1);
+				effect.AddProperty("Scale", 1f, 0f, 5f);
+				effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
+				effect.AddProperty("Animation", "0;1;2;3;4;5;6;7;8;9;10;11;12", "", "");
+				effect.AddProperty("Sprite Index", 0, 0, act.Sprite.Images.Count - 1);
+
+				effect.InvalidateSprite = true;
+				effect.Apply(actInput => {
+					int offsetX = effect.GetProperty<int>("OffsetX");
+					int offsetY = effect.GetProperty<int>("OffsetY");
+					int frontBack = effect.GetProperty<int>("Back/Front");
+					float scale = effect.GetProperty<float>("Scale");
+					GrfColor color = effect.GetProperty<GrfColor>("Color");
+					string animation = effect.GetProperty<string>("Animation");
+					int spriteIndex = effect.GetProperty<int>("Sprite Index");
+
+					// Only process the animation indexes provided by the animation variable; QueryIndexProvider provides index for the format such as 1-5;7;8
+					var animIndexes = new HashSet<int>(new Utilities.IndexProviders.QueryIndexProvider(animation).GetIndexes());
+
+					// Copy effect from actEffect
+					actInput.Commands.Backup(_ => actInput.AllFrames((frame, aid, fid) => {
+						int animIndex = aid / 8;
+
+						if (!animIndexes.Contains(animIndex))
+							return;
+
+						var layer = new Layer(spriteIndex, act.Sprite);
+
+						layer.OffsetX = offsetX;
+						layer.OffsetY = offsetY;
+						layer.Color = color;
+						layer.ScaleX = scale;
+						layer.ScaleY = scale;
+
+						if (frontBack == 1) {
+							frame.Layers.Add(layer);
+						}
+						else {
+							frame.Layers.Insert(0, layer);
+						}
+					}), "Add sprite to all frames");
+				});
+				effect.Display(act, selectedActionIndex);
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err, ErrorLevel.Warning);
+			}
+		}
+
+		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			return act != null;
 		}
 
 		#endregion

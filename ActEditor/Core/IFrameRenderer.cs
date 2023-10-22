@@ -22,16 +22,6 @@ namespace ActEditor.Core {
 		Point PointToScreen(Point point);
 	}
 
-	public interface ISelector {
-		event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;
-		event ActIndexSelector.FrameIndexChangedDelegate FrameChanged;
-		event ActIndexSelector.FrameIndexChangedDelegate SpecialFrameChanged;
-
-		int SelectedAction { get; }
-		int SelectedFrame { get; }
-		Act Act { get; }
-	}
-
 	/// <summary>
 	/// Interface for a frame editor, includes all related components.
 	/// </summary>

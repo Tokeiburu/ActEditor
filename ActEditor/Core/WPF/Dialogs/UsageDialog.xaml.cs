@@ -12,7 +12,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 	/// Interaction logic for SoundEditDialog.xaml
 	/// </summary>
 	public partial class UsageDialog : TkWindow {
-		private readonly IFrameRendererEditor _editor;
+		private IFrameRendererEditor _editor;
 
 		public UsageDialog() {
 			InitializeComponent();
@@ -33,6 +33,11 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}, new DefaultListViewComparer<ActIndex>(), new string[] { "Default", "{DynamicResource TextForeground}" });
 
 			_listView.SelectionChanged += new SelectionChangedEventHandler(_listView_SelectionChanged);
+		}
+
+		public void UpdateUsage(IFrameRendererEditor editor, IEnumerable<ActIndex> indexes) {
+			_editor = editor;
+			_listView.ItemsSource = indexes;
 		}
 
 		private void _listView_SelectionChanged(object sender, SelectionChangedEventArgs e) {

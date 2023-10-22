@@ -24,23 +24,28 @@
                 <MenuItem.Header>
                     <Label Content="File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
-                <MenuItem Name="_menuItemOpen" Header="Open..." Click="_menuItemOpen_Click" />
+                <styles:TkMenuItem Name="_menuItemOpen" Click="_menuItemOpen_Click" HeaderText="Open..." ShortcutCmd="SpriteEditor.Open" Shortcut="Ctrl-O" IconPath="newFile.png" />
                 <MenuItem Name="_menuItemOpenRecent" Header="Open recent" />
                 <Separator />
-                <MenuItem Name="_menuItemSave" Header="Save" Click="_menuItemSave_Click" />
-                <MenuItem Name="_menuItemSaveAs" Header="Save as..." Click="_menuItemSaveAs_Click" />
+                <styles:TkMenuItem Name="_menuItemSave" Click="_menuItemSave_Click" HeaderText="Save" IconPath="save.png" ShortcutCmd="SpriteEditor.Save" Shortcut="Ctrl-S"  />
+                <styles:TkMenuItem Name="_menuItemSaveAs" Click="_menuItemSaveAs_Click" HeaderText="Save as..." ShortcutCmd="SpriteEditor.SaveAs" Shortcut="Ctrl-Shift-S"  />
                 <Separator />
-                <MenuItem Name="_menuItemClose" Header="Close" Click="_menuItemClose_Click" />
+                <styles:TkMenuItem Name="_menuItemClose" Header="Close" Click="_menuItemClose_Click" />
             </MenuItem>
             <MenuItem Name="_miTools">
                 <MenuItem.Header>
                     <Label Content="Tools" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
-                <MenuItem Name="_menuItemSwitchGradient3" Click="_menuItemSwitchGradient_Click" Header="Switch colors" listView:WpfUtils.ImagePath="reverse.png" />
-                <MenuItem Name="_menuItemSwitchGradient2" Click="_menuItemSwitchGradient_Click" Header="Switch colors (by switching indexes)" listView:WpfUtils.ImagePath="reverse.png" />
-                <MenuItem Name="_menuItemSwitchGradient1" Click="_menuItemSwitchGradient_Click" Header="Switch indexes (keep colors)" />
-                <MenuItem Name="_menuItemSwitchGradient4" Click="_menuItemSwitchGradient4_Click" Header="Redirect to" listView:WpfUtils.ImagePath="arrowdown.png" />
-                <MenuItem Name="_menuItemStampLock" Click="_menuItemStampLock_Click" Header="Stamp lock" />
+                <styles:TkMenuItem Name="_menuItemSwitchGradient3" Click="_menuItemSwitchGradient_Click" Header="Switch colors" IconPath="reverse.png" ShortcutCmd="SpriteEditor.SwitchColors" Shortcut="Ctrl-1" />
+                <styles:TkMenuItem Name="_menuItemSwitchGradient2" Click="_menuItemSwitchGradient_Click" Header="Switch colors (by switching indexes)" IconPath="reverse.png" ShortcutCmd="SpriteEditor.SwitchColorsIndex" Shortcut="Ctrl-2" />
+                <styles:TkMenuItem Name="_menuItemSwitchGradient1" Click="_menuItemSwitchGradient_Click" Header="Switch indexes (keep colors)" ShortcutCmd="SpriteEditor.SwitchColorsKeep" Shortcut="Ctrl-3" />
+                <styles:TkMenuItem Name="_menuItemSwitchGradient4" Click="_menuItemSwitchGradient4_Click" Header="Redirect to" IconPath="arrowdown.png" ShortcutCmd="SpriteEditor.RedirectTo" Shortcut="Ctrl-4" />
+                <styles:TkMenuItem Name="_menuItemStampLock" Click="_menuItemStampLock_Click" Header="Stamp lock" ShortcutCmd="SpriteEditor.StampLock" Shortcut="Ctrl-L" />
+                <Separator />
+                <styles:TkMenuItem Name="_menuItemBrushPlus" Click="_menuItemBrushPlus_Click" Header="Brush size increase" IconPath="add.png" ShortcutCmd="SpriteEditor.BrushIncrease" Shortcut="Add" />
+                <styles:TkMenuItem Name="_menuItemBrushMinus" Click="_menuItemBrushMinus_Click" Header="Brush size decrease" IconPath="minus.png" ShortcutCmd="SpriteEditor.BrushDecrease" Shortcut="Subtract" />
+                <Separator />
+                <styles:TkMenuItem Name="_menuItemPaletteSelector" Click="_menuItemPaletteSelector_Click" Header="Palette selector" IconPath="pal.png" ShortcutCmd="SpriteEditor.PaletteSelector" Shortcut="Ctrl-U" />
             </MenuItem>
         </Menu>
         <DockPanel Name="_dpUndoRedo" Margin="85 0 0 0" HorizontalAlignment="Left">

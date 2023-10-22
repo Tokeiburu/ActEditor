@@ -213,7 +213,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_cbAnchor.SelectionChanged += new SelectionChangedEventHandler(_cbAnchor_SelectionChanged);
 			_cbAnchor_SelectionChanged(null, null);
 
-			if (name == "Neighbor") {
+			if (name == "Nearby") {
 				_buttonAnchor.Visibility = Visibility.Collapsed;
 				_cbAnchor.Visibility = Visibility.Collapsed;
 			}
@@ -335,7 +335,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 				Updated += _frame_Updated;
 				//_actEditor.References.First(p => p.Frame._name == "Body").Frame.Updated += new ReferenceFrameEventHandler(_frame_Updated);
-				_actEditor.References.First(p => p._name == "Neighbor").Updated += new ReferenceFrameEventHandler(_frame_Updated);
+				_actEditor.References.First(p => p._name == "Nearby").Updated += new ReferenceFrameEventHandler(_frame_Updated);
 				_actEditor.ActLoaded += e => {
 					_frame_Updated(null);
 
@@ -374,7 +374,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				case 0:
 				case 1:
 				case 2:
-					refCtr = _actEditor.References.First(p => p._name == (index == 0 ? "Body" : index == 1 ? "Other" : "Neighbor"));
+					refCtr = _actEditor.References.First(p => p._name == (index == 0 ? "Body" : index == 1 ? "Other" : "Nearby"));
 					if (Act != null && ShowReference && refCtr.ShowReference) {
 						Act.AnchoredTo = refCtr.Act;
 					}

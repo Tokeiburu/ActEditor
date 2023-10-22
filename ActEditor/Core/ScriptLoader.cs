@@ -33,7 +33,7 @@ namespace ActEditor.Core {
 	public class ScriptLoader : IDisposable {
 		public const string OutputPath = "Scripts";
 		public const string OverrideIndex = "__IndexOverride";
-		internal static string[] ScriptNames = { "script_sample", "script0_magnify", "script1_replace_color", "script1_replace_color_all", "script2_expand", "script4_generate_single_sprite", "script5_remove_unused_sprites", "script6_merge_layers", "script7_add_effect1", "script8_add_frames", "script9_chibi_grf", "script10_trim_images" };
+		internal static string[] ScriptNames = { "script_sample", "script0_magnify", "script1_replace_color", "script1_replace_color_all", "script2_expand", "script4_generate_single_sprite", "script5_remove_unused_sprites", "script6_merge_layers", "script7_add_effect1", "script8_add_frames", "script9_chibi_grf", "script10_trim_images", "script11_palette_sheet" };
 		internal static string[] Libraries = {"GRF.dll", "Utilities.dll", "TokeiLibrary.dll", "ErrorManager.dll"};
 		private static ConfigAsker _librariesConfiguration;
 		private readonly FileSystemWatcher _fsw;
@@ -148,7 +148,7 @@ namespace ActEditor.Core {
 				ReloadLibraries();
 				DeleteDlls();
 
-				AlphanumComparator alphanumComparer = new AlphanumComparator();
+				AlphanumComparator alphanumComparer = new AlphanumComparator(StringComparison.OrdinalIgnoreCase);
 				
 				foreach (string script in Directory.GetFiles(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, OutputPath), "*.cs").OrderBy(p => p, alphanumComparer)) {
 					try {
@@ -303,6 +303,9 @@ namespace ActEditor.Core {
 				compilerParams.ReferencedAssemblies.Add(name.Name + ".dll");
 			}
 
+			// Add current executable as an assembly
+			compilerParams.ReferencedAssemblies.Add(typeof(ActEditorWindow).Assembly.Location);
+			
 			var res = provider.CompileAssemblyFromFile(compilerParams, scriptPath);
 			dll = newPath;
 			return res;
@@ -659,17 +662,32 @@ namespace ActEditor.Core {
 			try {
 				if (actScript.InputGesture != null) {
 					if (actScript.InputGesture.StartsWith("{")) {
+						scriptMenu.InputGestureText = "NA";
+
+						var gestureCmd = actScript.InputGesture.Trim('{', '}').Split('|');
+
+						if (gestureCmd.Length > 1) {
+							scriptMenu.InputGestureText = gestureCmd[1];
+						}
+
 						scriptMenu.Loaded += delegate {
-							var gestureCmd = actScript.InputGesture.Trim('{', '}').Split('|');
 							var gesture = ApplicationShortcut.GetGesture(gestureCmd[0]);
 
 							if (gesture == null) {
 								ApplicationShortcut.Link(ApplicationShortcut.FromString(gestureCmd.Length > 1 ? gestureCmd[1] : "NULL", gestureCmd[0]), action, actEditor);
+							}
+
+							gesture = ApplicationShortcut.GetGesture(gestureCmd[0]);
+
+							if (gesture == null) {
 								scriptMenu.InputGestureText = "NA";
 							}
 							else {
 								scriptMenu.InputGestureText = ApplicationShortcut.FindDislayNameMenuItem(gesture);
 							}
+
+							scriptMenu.InvalidateMeasure();
+							scriptMenu.InvalidateArrange();
 						};
 					}
 					else {

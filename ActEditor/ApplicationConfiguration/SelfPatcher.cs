@@ -15,6 +15,7 @@ namespace ActEditor.ApplicationConfiguration {
 		public static readonly SelfPatch Patch0013 = new RefreshScripts(13);
 		public static readonly SelfPatch Patch0016 = new RefreshScripts(16);
 		public static readonly SelfPatch Patch0024 = new RefreshScripts2(24);
+		public static readonly SelfPatch Patch0125 = new RefreshScripts2(125);
 
 		static SelfPatcher() {
 			Patches = Patches.OrderBy(p => p.PatchId).ToList();
@@ -99,6 +100,26 @@ namespace ActEditor.ApplicationConfiguration {
 				GrfPath.Delete(Path.Combine(path, "script3_mirror_frame.dll"));
 				GrfPath.Delete(Path.Combine(path, "script0_magnifyAll.cs"));
 				GrfPath.Delete(Path.Combine(path, "script0_magnifyAll.dll"));
+			}
+			catch {
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	public class RefreshScripts3 : SelfPatch {
+		public RefreshScripts3(int patchId)
+			: base(patchId) {
+		}
+
+		public override bool PatchAppliaction() {
+			try {
+				string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, ScriptLoader.OutputPath);
+
+				GrfPath.Delete(Path.Combine(path, "script9_chibi_grf.cs"));
+				GrfPath.Delete(Path.Combine(path, "script9_chibi_grf.dll"));
 			}
 			catch {
 				return false;

@@ -32,6 +32,7 @@ namespace ActEditor.Core.DrawingComponents {
 		private readonly int _imageIndex;
 		private Image _image;
 		private string _toolTip = "";
+		private static UsageDialog _usageDialog;
 
 		public ImageDraw(int imageIndex, IFrameRendererEditor editor) {
 			_imageIndex = imageIndex;
@@ -332,9 +333,17 @@ namespace ActEditor.Core.DrawingComponents {
 				case SpriteEditMode.Usage:
 					var res = _editor.Act.FindUsageOf(_imageIndex);
 
-					UsageDialog dialog = new UsageDialog(_editor, res);
-					dialog.Show();
-
+					if (_usageDialog == null) {
+						_usageDialog = new UsageDialog(_editor, res);
+						_usageDialog.Show();
+						_usageDialog.Closed += delegate {
+							_usageDialog = null;
+						};
+					}
+					else {
+						_usageDialog.UpdateUsage(_editor, res);
+					}
+					
 					break;
 			}
 		}

@@ -4,6 +4,7 @@
               xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
                  SnapsToDevicePixels="True"
                  xmlns:WpfBugFix="clr-namespace:TokeiLibrary.WpfBugFix;assembly=TokeiLibrary"
+                 xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
                  Icon="..\Resources\app.ico" MinHeight="600" MinWidth="890" ShowInTaskbar="True">
     <Styles:TkWindow.Resources>
         <Style x:Key="TabControlSprite" TargetType="{x:Type TabControl}">
@@ -76,7 +77,7 @@
                 <MenuItem.Header>
                     <Label Content="File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
-                <Styles:TkMenuItem HeaderText="New Act" IconPath="add.png">
+                <MenuItem Header="New Act" listView:WpfUtils.IconPath="add.png">
                     <Styles:TkMenuItem Name="_miNew" Click="_miNew_Click" HeaderText="Default (empty)" IconPath="internalapp.png" ShortcutCmd="ActEditor.NewFile" Shortcut="Ctrl-N" />
                     <Separator />
                     <Styles:TkMenuItem Name="_miNewHeadgearMale" Click="_miNewHeadgearMale_Click" HeaderText="Headgear (male)" />
@@ -85,16 +86,17 @@
                     <Styles:TkMenuItem Name="_miNewHomunculus" Click="_miNewHomunculus_Click" HeaderText="Homunculus template" />
                     <Styles:TkMenuItem Name="_miNewWeapon" Click="_miNewWeapon_Click" HeaderText="Weapon template" />
                     <Styles:TkMenuItem Name="_miNewNpc" Click="_miNewNpc_Click" HeaderText="NPC template" />
-                </Styles:TkMenuItem>
+                </MenuItem>
                 <Styles:TkMenuItem Name="_miOpen" Click="_miOpen_Click" HeaderText="Open..." ShortcutCmd="ActEditor.Open" Shortcut="Ctrl-O" IconPath="newFile.png" />
                 <Styles:TkMenuItem Name="_miOpenFromGrf" Click="_miOpenFromGrf_Click" HeaderText="Open from Grf..." IconPath="grf-16.png" />
                 <MenuItem Name="_miOpenRecent" Header="Open recent" />
                 <Separator />
-                <Styles:TkMenuItem Name="_miCloseCurrent" Click="_miCloseCurrent_Click" HeaderText="Close Act" IconPath="delete.png" ShortcutCmd="ActEditor.CloseTab"  Shortcut="Ctrl-Q" />
+                <Styles:TkMenuItem Name="_miCloseCurrent" Click="_miCloseCurrent_Click" HeaderText="Close Act" IconPath="delete.png" ShortcutCmd="ActEditor.CloseTab" Shortcut="Ctrl-Q" />
                 <Styles:TkMenuItem Name="_miSelectAct" Click="_miSelectAct_Click" HeaderText="Select Act" IconPath="arrowdown.png"  />
                 <Separator />
-                <Styles:TkMenuItem Name="_miSave" Click="_miSave_Click" HeaderText="Save" IconPath="save.png" ShortcutCmd="ActEditor.Save" Shortcut="Ctrl-S"  />
-                <Styles:TkMenuItem Name="_miSaveAs" Click="_miSaveAs_Click" HeaderText="Save as..." ShortcutCmd="ActEditor.SaveAs" Shortcut="Ctrl-Shift-S"  />
+                <Styles:TkMenuItem Name="_miSave" Click="_miSave_Click" HeaderText="Save" IconPath="save.png" ShortcutCmd="ActEditor.Save" Shortcut="Ctrl-S" />
+                <Styles:TkMenuItem Name="_miSaveAs" Click="_miSaveAs_Click" HeaderText="Save as..." ShortcutCmd="ActEditor.SaveAs" Shortcut="Ctrl-Shift-S" />
+                <Styles:TkMenuItem Name="_miSaveAsGarment" Click="_miSaveAsGarment_Click" HeaderText="Save as garment..." ShortcutCmd="ActEditor.SaveAsGarment" Shortcut="NULL" />
                 <Separator />
                 <Styles:TkMenuItem Name="_miSettings" Click="_miSettings_Click" HeaderText="Settings" IconPath="settings.png" />
                 <Separator />

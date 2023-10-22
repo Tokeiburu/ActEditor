@@ -70,6 +70,8 @@ namespace Scripts {
 					window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 					window.Title = "Chibi Grf Utility";
 					window.Icon = WpfUtilities.TopWindow.Icon;
+					window.Background = (Brush)window.FindResource("TabItemBackground");
+					window.Foreground = (Brush)window.FindResource("TextForeground");
 					
 					Grid grid = new Grid();
 					window.Content = grid;

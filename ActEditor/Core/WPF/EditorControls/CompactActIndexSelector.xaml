@@ -4,8 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary" FontSize="10"
-             xmlns:GenericControls1="clr-namespace:ActEditor.Core.WPF.GenericControls" mc:Ignorable="d" >
-    <Grid Background="White" >
+             xmlns:GenericControls1="clr-namespace:ActEditor.Core.WPF.GenericControls" mc:Ignorable="d"
+             Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
+    <Grid Background="{StaticResource TabItemBackground}" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="auto" />

@@ -25,12 +25,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// Interaction logic for FrameSelector.xaml
 	/// </summary>
 	public partial class CompactActIndexSelector : UserControl {
-		#region Delegates
-
-		public delegate void FrameIndexChangedDelegate(object sender, int actionIndex);
-
-		#endregion
-
 		private readonly List<FancyButton> _fancyButtons;
 		private readonly object _lock = new object();
 		private bool _eventsEnabled = true;
@@ -79,8 +73,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_fancyButton7.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
 				_fancyButton7.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
 
-				_fancyButtons.ForEach(p => p.IsEnabled = false);
-
 				_sbFrameIndex.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(_sbFrameIndex_MouseLeftButtonDown);
 				_sbFrameIndex.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(_sbFrameIndex_MouseLeftButtonUp);
 			}
@@ -110,6 +102,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 			MouseLeave += delegate {
 				Opacity = 0.7f;
 			};
+
+			ActionChanged += _frameSelector_ActionChanged;
+			_sbFrameIndex.ValueChanged += _sbFrameIndex_ValueChanged;
+			_tbFrameIndex.TextChanged += _tbFrameIndex_TextChanged;
+
+			_sbFrameIndex.SmallChange = 1;
+			_sbFrameIndex.LargeChange = 1;
 		}
 
 		private void _actIndexSelector_MouseDown(object sender, MouseButtonEventArgs e) {
@@ -119,20 +118,24 @@ namespace ActEditor.Core.WPF.EditorControls {
 		public int SelectedAction { get; set; }
 		public int SelectedFrame { get; set; }
 
-		public event FrameIndexChangedDelegate ActionChanged;
-		public event FrameIndexChangedDelegate FrameChanged;
-		public event FrameIndexChangedDelegate SpecialFrameChanged;
+		public Act Act {
+			get { return _act; }
+		}
+
+		public event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;
+		public event ActIndexSelector.FrameIndexChangedDelegate FrameChanged;
+		public event ActIndexSelector.FrameIndexChangedDelegate SpecialFrameChanged;
 
 		public void OnSpecialFrameChanged(int actionindex) {
 			if (!_handlersEnabled) return;
-			FrameIndexChangedDelegate handler = SpecialFrameChanged;
+			ActIndexSelector.FrameIndexChangedDelegate handler = SpecialFrameChanged;
 			if (handler != null) handler(this, actionindex);
 		}
 
-		public event FrameIndexChangedDelegate AnimationPlaying;
+		public event ActIndexSelector.FrameIndexChangedDelegate AnimationPlaying;
 
 		public void OnAnimationPlaying(int actionindex) {
-			FrameIndexChangedDelegate handler = AnimationPlaying;
+			ActIndexSelector.FrameIndexChangedDelegate handler = AnimationPlaying;
 			if (handler != null) handler(this, actionindex);
 		}
 
@@ -142,13 +145,14 @@ namespace ActEditor.Core.WPF.EditorControls {
 				OnSpecialFrameChanged(actionindex);
 				return;
 			}
-			FrameIndexChangedDelegate handler = FrameChanged;
+			ActIndexSelector.FrameIndexChangedDelegate handler = FrameChanged;
 			if (handler != null) handler(this, actionindex);
 		}
 
 		public void OnActionChanged(int actionindex) {
+			_updateAction();
 			if (!_handlersEnabled) return;
-			FrameIndexChangedDelegate handler = ActionChanged;
+			ActIndexSelector.FrameIndexChangedDelegate handler = ActionChanged;
 			if (handler != null) handler(this, actionindex);
 		}
 
@@ -249,6 +253,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 			});
 
 			e.Handled = true;
+		}
+
+		public bool IsPlaying() {
+			return _play.Dispatch(() => _play.IsPressed);
 		}
 
 		private void _play_Click(object sender, RoutedEventArgs e) {
@@ -356,6 +364,26 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
+		public void Play() {
+			if (IsPlaying()) return;
+
+			_play.Dispatch(delegate {
+				_play.IsPressed = true;
+				_updatePlay();
+			});
+
+			if (_play.Dispatch(() => _play.IsPressed)) {
+				GrfThread.Start(_playAnimation);
+			}
+		}
+
+		public void Stop() {
+			_play.Dispatch(delegate {
+				_play.IsPressed = false;
+				_updatePlay();
+			});
+		}
+
 		private void _updatePlay() {
 			//((TextBlock) _play.FindName("_tbIdentifier")).Margin = new Thickness(3, 0, 0, 3);
 			//((Grid) ((Grid) ((Border) _play.FindName("_border")).Child).Children[2]).HorizontalAlignment = HorizontalAlignment.Left;
@@ -371,15 +399,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_play.ImageIcon.Width = 16;
 				_play.ImageIcon.Stretch = Stretch.Fill;
 			}
-		}
-
-		public void Init() {
-			ActionChanged += _frameSelector_ActionChanged;
-			_sbFrameIndex.ValueChanged += _sbFrameIndex_ValueChanged;
-			_tbFrameIndex.TextChanged += _tbFrameIndex_TextChanged;
-
-			_sbFrameIndex.SmallChange = 1;
-			_sbFrameIndex.LargeChange = 1;
 		}
 
 		private void _tbFrameIndex_TextChanged(object sender, TextChangedEventArgs e) {
@@ -464,7 +483,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_act.VisualInvalidated += s => Update();
 			_act.Commands.CommandIndexChanged += new AbstractCommand<IActCommand>.AbstractCommandsEventHandler(_commands_CommandUndo);
 
-			if (oldAction < _act.NumberOfActions) {
+			if (oldAction < _act.NumberOfActions && oldAction >= 0) {
 				_comboBoxActionIndex.SelectedIndex = oldAction;
 			}
 		}
@@ -764,6 +783,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_updatePlay();
 
 			_eventsEnabled = true;
+		}
+
+		public IActIndexSelector ToActIndexSelector() {
+			return new ReadonlyActIndexSelector(this);
 		}
 	}
 }

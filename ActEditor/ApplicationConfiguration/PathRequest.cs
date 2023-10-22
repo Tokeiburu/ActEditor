@@ -18,6 +18,10 @@ namespace ActEditor.ApplicationConfiguration {
 			return TkPathRequest.SaveFile(new Setting(null, typeof (ActEditorConfiguration).GetProperty("AppLastPath")), extra);
 		}
 
+		public static string SaveFolderGarment(params string[] extra) {
+			return TkPathRequest.SaveFile(new Setting(null, typeof(ActEditorConfiguration).GetProperty("GarmentSavePath")), extra);
+		}
+
 		public static string SaveFileExtract(params string[] extra) {
 			return TkPathRequest.SaveFile(ExtractSetting, extra);
 		}

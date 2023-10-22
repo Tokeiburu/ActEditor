@@ -128,7 +128,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					if (i == 0 || i == Action.NumberOfFrames - 1) {
 						var last = _gridBlocks.ColumnDefinitions.Last();
 
-						last.Width = new GridLength((166 - 2 * SystemParameters.HorizontalScrollBarButtonWidth) / ((Action.NumberOfFrames - 1) * 2d));
+						last.Width = new GridLength((166 - 2 * SystemParameters.HorizontalScrollBarButtonWidth) / Action.NumberOfFrames);
 					}
 				}
 

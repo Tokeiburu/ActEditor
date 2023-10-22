@@ -1,0 +1,149 @@
+﻿<Styles:TkWindow x:Class="ActEditor.Tools.PaletteSheetGenerator.PreviewSheetDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" SnapsToDevicePixels="True"
+              xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+                 xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
+                 xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
+                 mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:genericControls="clr-namespace:ActEditor.Core.WPF.GenericControls"
+                 Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}"
+                 Height="490" Width="950">
+    <Grid Focusable="True">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TabControl Width="200" Name="_mainTabControlBody" Grid.Column="1" Background="{StaticResource TabItemBackground}" >
+                <TabItem Header="Body - m" FontSize="10" Style="{DynamicResource TabItemSimple}" Foreground="{StaticResource TextForeground}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0">
+                            <Image Margin="5,0,0,0" Source="..\..\Resources\filter.png" Height="16" Width="16"  />
+                            <TextBox Name="_textBoxSearchCM" Margin="3" FontSize="12" />
+                        </DockPanel>
+                        <ListView Name="_lvCM" Grid.Row="1" FontSize="12" Foreground="{StaticResource TextForeground}" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Body - f" FontSize="10" Style="{DynamicResource TabItemSimple}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0">
+                            <Image Margin="5,0,0,0" Source="..\..\Resources\filter.png" Height="16" Width="16"  />
+                            <TextBox Name="_textBoxSearchCF" Margin="3" FontSize="12" />
+                        </DockPanel>
+                        <ListView Name="_lvCF" Grid.Row="1" FontSize="12" />
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            <TabControl Name="_tabControlHead" Width="200" Grid.Column="2" Background="{StaticResource TabItemBackground}">
+                <TabItem Header="Hair - m" FontSize="10" Style="{DynamicResource TabItemSimple}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0">
+                            <Image Margin="5,0,0,0" Source="..\..\Resources\filter.png" Height="16" Width="16"  />
+                            <TextBox Name="_textBoxSearchHM" Margin="3" FontSize="12" />
+                        </DockPanel>
+                        <ListView Name="_lvHM" Grid.Row="1" FontSize="12" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Hair - f" FontSize="10" Style="{DynamicResource TabItemSimple}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0">
+                            <Image Margin="5,0,0,0" Source="..\..\Resources\filter.png" Height="16" Width="16"  />
+                            <TextBox Name="_textBoxSearchHF" Margin="3" FontSize="12" />
+                        </DockPanel>
+                        <ListView Name="_lvHF" Grid.Row="1" FontSize="12" />
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Look action" Padding="0" Margin="3" VerticalAlignment="Center" />
+                <ComboBox Name="_cbDirection" Grid.Column="1" Width="100" VerticalAlignment="Center" Margin="3" HorizontalAlignment="Left" />
+                <Label Content="Grf path (for job sprites)" Padding="0" Grid.Row="1" Margin="3" VerticalAlignment="Center" />
+                <Styles:PathBrowser Grid.Row="1" Grid.Column="1" x:Name="_pbJob" Filter="GRF Files|*.grf" BrowseMode="File" MinWidth="180" UseSavePath="True" SavePathUniqueName="PreviewSheet - Job - " />
+                <Label Content="Grf palette path" Padding="0" Grid.Row="2" Margin="3" VerticalAlignment="Center" />
+                <Styles:PathBrowser Grid.Row="2" Grid.Column="1" x:Name="_pbPalettes" Filter="GRF Files|*.grf" BrowseMode="File" MinWidth="180" UseSavePath="True" SavePathUniqueName="PreviewSheet - Palette - " />
+                <Label Content="Palette" Padding="0" Grid.Row="3" Margin="3" VerticalAlignment="Center" />
+                <StackPanel Grid.Row="3" Grid.Column="1">
+                    <CheckBox Name="_cbPalette" Margin="3" HorizontalAlignment="Left" Content="Use pre-defined palette path for each job" />
+                    <CheckBox Name="_cbPaletteOld" Margin="23 3 3 3 " HorizontalAlignment="Left" Content="Use old palette pathing version (useful for 2022 or older)" />
+                    <Grid>    
+                        <Border Margin="3" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Center" CornerRadius="1" HorizontalAlignment="Left" >
+                            <genericControls:ClickSelectTextBox BorderThickness="0" x:Name="_tbPalette" VerticalAlignment="Center" Width="150" />
+                        </Border>
+                        <Border Margin="3" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Center" CornerRadius="1" HorizontalAlignment="Left" >
+                            <genericControls:ClickSelectTextBox BorderThickness="0" x:Name="_tbPaletteOverlay" VerticalAlignment="Center" IsReadOnly="True" FontStyle="Italic" Width="150" />
+                        </Border>
+                    </Grid>
+                </StackPanel>
+                <Label Content="Palette id, start :" Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" />
+                <DockPanel Grid.Column="1" Grid.Row="4">
+                    <Border Margin="3" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Center" CornerRadius="1" HorizontalAlignment="Left" >
+                        <genericControls:ClickSelectTextBox TextAlignment="Right" BorderThickness="0" x:Name="_tbFrom" VerticalAlignment="Center" Width="150" />
+                    </Border>
+                    <Label  Content="(ex: 50-70;72;80-200)" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" />
+                </DockPanel>
+
+                <Label Content="Max per line :" Grid.Row="5" VerticalAlignment="Center" />
+                <DockPanel Grid.Row="5" Grid.Column="1">
+                    <Border Margin="3" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Center" CornerRadius="1" HorizontalAlignment="Left" >
+                        <genericControls:ClickSelectTextBox TextAlignment="Right" BorderThickness="0" x:Name="_tbMax" VerticalAlignment="Center" Width="50" />
+                    </Border>
+                </DockPanel>
+                <StackPanel Grid.Row="6" Grid.ColumnSpan="2">
+                    <CheckBox Name="_cbShowBodySprite" Margin="3" Content="Show body sprite" HorizontalAlignment="Left" />
+                    <CheckBox Name="_cbBodyAffectedPalette" Margin="23 3 3 3" Content="Affected by palette" HorizontalAlignment="Left" />
+                    <CheckBox Name="_cbShowHeadSprite" Margin="3" Content="Show head sprite" HorizontalAlignment="Left" />
+                    <CheckBox Name="_cbHeadAffectedPalette" Margin="23 3 3 3" Content="Affected by palette" HorizontalAlignment="Left" />
+                    <CheckBox Name="_cbShowPalId" Margin="3" Content="Show palette id" HorizontalAlignment="Left" />
+                    <CheckBox Name="_cTransparentBackground" Margin="3" Content="Transparent background" HorizontalAlignment="Left" />
+                    <CheckBox Name="_cShowShadow" Margin="3" Content="Show shadow" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Grid>
+            <Image Name="_imagePreview" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+        </Grid>
+        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="2" Height="50" Background="{DynamicResource UIDialogBackground}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
+                <Button Name="_buttonGenerate" Click="_buttonGenerate_Click" Content="Generate" Height="24" Margin="3" MinWidth="100" />
+                <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Close" Height="24" Margin="3" MinWidth="100" />
+            </DockPanel>
+        </Grid>
+    </Grid>
+</Styles:TkWindow>

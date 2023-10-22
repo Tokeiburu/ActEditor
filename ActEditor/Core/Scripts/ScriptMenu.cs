@@ -42,7 +42,7 @@ namespace ActEditor.Core.Scripts {
 		}
 
 		public string InputGesture {
-			get { return null; }
+			get { return "{ActEditor.OpenScriptRunner|Ctrl-R}"; }
 		}
 
 		public string Image {

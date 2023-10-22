@@ -122,7 +122,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 				if (effectProperty.Type == typeof(float)) {
 					SliderColor slider = new SliderColor();
-					slider.Width = 100;
+					slider.Width = 150;
 					slider.Margin = new Thickness(2);
 					slider.HorizontalAlignment = HorizontalAlignment.Left;
 					slider.SetValue(Grid.ColumnProperty, 1);
@@ -167,7 +167,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 				else if (effectProperty.Type == typeof(int)) {
 					SliderColor slider = new SliderColor();
-					slider.Width = 100;
+					slider.Width = 150;
 					slider.Margin = new Thickness(2);
 					slider.HorizontalAlignment = HorizontalAlignment.Left;
 					slider.SetValue(Grid.ColumnProperty, 1);
@@ -270,7 +270,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 					var colorSetting = ActEditorConfiguration.ConfigAsker[effectProperty.SettingName, ((GrfColor)effectProperty.DefValue).ToHexString()];
 
 					QuickColorSelector qcs = new QuickColorSelector();
-					qcs.Width = 100;
+					qcs.Width = 150;
 					qcs.Margin = new Thickness(2);
 					qcs.SetValue(Grid.ColumnProperty, 1);
 					qcs.SetValue(Grid.RowProperty, gridIndex);

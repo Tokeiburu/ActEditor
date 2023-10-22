@@ -17,7 +17,7 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <CheckBox Name="_cbRef" Content="Neighbor" VerticalAlignment="Center" Margin="3" />
+        <CheckBox Name="_cbRef" Content="Nearby" VerticalAlignment="Center" Margin="3" />
         <Grid Name="_grid" Visibility="Collapsed" Grid.Column="2">
             <Grid Height="auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 3 0">
                 <Grid.ColumnDefinitions>

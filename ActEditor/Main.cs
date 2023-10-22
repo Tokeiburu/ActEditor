@@ -75,6 +75,7 @@ namespace ActEditor {
 
 			var app = new App();
 			app.StartupUri = new Uri("Core\\ActEditorWindow.xaml", UriKind.Relative);
+			//app.StartupUri = new Uri("Tools\\PaletteSheetGenerator\\PreviewSheetDialog.xaml", UriKind.Relative);
 			//app.StartupUri = new Uri("Tools\\PaletteEditorTool\\PaletteEditorWindow.xaml", UriKind.Relative);
 			//app.StartupUri = new Uri("Core\\WPF\\Dialogs\\StyleEditorDialog.xaml", UriKind.Relative);
 			app.Run();
