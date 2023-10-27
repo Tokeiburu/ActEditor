@@ -13,6 +13,7 @@ using ErrorManager;
 using GRF.Core;
 using GRF.IO;
 using GRF.Threading;
+using GrfToWpfBridge;
 using GrfToWpfBridge.TreeViewManager;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
@@ -365,7 +366,7 @@ namespace ActEditor.Tools.GrfShellExplorer {
 						List<KeyValuePair<string, FileEntry>> entries = _grfHolder.FileTable.FastAccessEntries;
 						List<string> search = currentSearch.Split(' ').ToList();
 						_itemSearchEntries = new ObservableCollection<FileEntry>(entries.Where(p => search.All(q => p.Key.IndexOf(q, StringComparison.InvariantCultureIgnoreCase) != -1)).Select(p => p.Value).OrderBy(p => p, _grfSearchEntrySorter));
-						_itemSearchEntries.Where(p => p.DataImage == null).ToList().ForEach(p => p.DataImage = GrfEditorIconProvider.GetIcon(p.RelativePath));
+						_itemSearchEntries.Where(p => p.DataImage == null).ToList().ForEach(p => p.DataImage = IconProvider.GetSmallIcon(p.RelativePath));
 						_listBoxResults.Dispatch(p => p.ItemsSource = _itemSearchEntries);
 					}
 					catch (Exception err) {
@@ -399,7 +400,7 @@ namespace ActEditor.Tools.GrfShellExplorer {
 						List<Tuple<string, string, FileEntry>> entries = _grfHolder.FileTable.FastTupleAccessEntries;
 						List<string> search = currentSearch.Split(' ').ToList();
 						_itemEntries = new ObservableCollection<FileEntry>(entries.Where(p => p.Item1 == _searchSelectedPath && search.All(q => p.Item2.IndexOf(q, StringComparison.InvariantCultureIgnoreCase) != -1)).Select(p => p.Item3).OrderBy(p => p, _grfEntrySorter));
-						_itemEntries.Where(p => p.DataImage == null).ToList().ForEach(p => p.DataImage = GrfEditorIconProvider.GetIcon(p.RelativePath));
+						_itemEntries.Where(p => p.DataImage == null).ToList().ForEach(p => p.DataImage = IconProvider.GetSmallIcon(p.RelativePath));
 						_items.Dispatch(p => p.ItemsSource = _itemEntries);
 					}
 					catch {

@@ -19,7 +19,7 @@ namespace ActEditor.ApplicationConfiguration {
 	/// make a new property instead. The properties should also always
 	/// have a default value.
 	/// </summary>
-	public static class ActEditorConfiguration {
+	public sealed class ActEditorConfiguration {
 		private static ConfigAsker _configAsker;
 
 		public static ConfigAsker ConfigAsker {
@@ -56,6 +56,10 @@ namespace ActEditor.ApplicationConfiguration {
 		public static string SaveAdvancedLastPath {
 			get { return ConfigAsker["[ActEditor - Save advanced path]", ExtractingServiceLastPath]; }
 			set { ConfigAsker["[ActEditor - Save advanced path]"] = value; }
+		}
+
+		public static Setting ExtractSetting {
+			get { return new Setting(null, typeof(ActEditorConfiguration).GetProperty("ExtractingServiceLastPath")); }
 		}
 
 		public static string AppLastPath {
@@ -551,7 +555,7 @@ namespace ActEditor.ApplicationConfiguration {
 		#region Program's internal configuration and information
 
 		public static string PublicVersion {
-			get { return "1.2.5"; }
+			get { return "1.2.7"; }
 		}
 
 		public static string Author {

@@ -16,6 +16,7 @@ using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.IO;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
@@ -435,7 +436,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					fileName = FilePath;
 				}
 
-				string file = PathRequest.OpenFileExtract("fileName", fileName, "filter", "Act or Container Files|*.act;*.grf;*.rgz;*.gpf;*.thor|Act Files|*.act|Container Files|*.grf;*.rgz;*.gpf;*.thor");
+				string file = TkPathRequest.OpenFile<ActEditorConfiguration>("ExtractingServiceLastPath", "fileName", fileName, "filter", "Act or Container Files|*.act;*.grf;*.rgz;*.gpf;*.thor|Act Files|*.act|Container Files|*.grf;*.rgz;*.gpf;*.thor");
 
 				if (file != null) {
 					if (file.IsExtension(".grf", ".rgz", ".gpf", ".thor")) {

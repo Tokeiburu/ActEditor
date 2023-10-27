@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
+using ActEditor.Core.WPF.EditorControls;
 using ActEditor.Core.WPF.FrameEditor;
 using ActEditor.Core.WPF.GenericControls;
 using ColorPicker.Sliders;
@@ -30,9 +31,15 @@ namespace ActEditor.Core.WPF.Dialogs {
 	public partial class EffectPreviewDialog : TkWindow {
 		private readonly Act _act;
 		private readonly EffectConfiguration _effectConfiguration;
+		private Act _rendererAct;
+		private DummyFrameEditor _editor;
 		public int ActionIndex { get; set; }
 		public int StartIndex { get; set; }
 		public static bool Displayed { get; set; }
+
+		private IActIndexSelector _selector {
+			get { return _effectConfiguration.ActIndexSelectorReadonly ? (IActIndexSelector)_actIndexReadonly : _actIndexSelector; }
+		}
 
 		public EffectPreviewDialog() : base("Effect properties", "advanced.png") {
 			InitializeComponent();
@@ -44,14 +51,19 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_effectConfiguration = effectConfiguration;
 			ActionIndex = actionIndex;
 			_act = act;
-			_rps.Init(_act, ActionIndex);
+			_rendererAct = new Act(act);
+			((UIElement)_selector).Visibility = Visibility.Visible;
 
 			DummyFrameEditor editor = new DummyFrameEditor();
-			editor.ActFunc = () => _rps.Act;
+			editor.ActFunc = () => _rendererAct;
 			editor.Element = this;
-			editor.FrameSelector = _rps.ToActIndexSelector();
-			editor.SelectedActionFunc = () => _rps.SelectedAction;
-			editor.SelectedFrameFunc = () => _rps.SelectedFrame;
+			editor.IndexSelector = _selector;
+			editor.SelectedActionFunc = () => _selector.SelectedAction;
+			editor.SelectedFrameFunc = () => _selector.SelectedFrame;
+			_editor = editor;
+
+			_selector.SelectedAction = actionIndex;
+			_loadSelector();
 
 			_rfp.DrawingModules.Add(new DefaultDrawModule(delegate {
 				if (editor.Act != null) {
@@ -337,6 +349,15 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
+		private void _loadSelector() {
+			if (_selector is CompactActIndexSelector) {
+				((CompactActIndexSelector)_selector).Load(_editor, _selector.SelectedAction);
+			}
+			else {
+				((ReadonlyPlaySelector)_selector).Init(_editor, _selector.SelectedAction);
+			}
+		}
+
 		private void _updatePreview() {
 			if (_act == null) return;
 
@@ -349,15 +370,19 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 				try {
 					Execute(act, true);
-					this.BeginDispatch(() => _rps.SelectedFrame = StartIndex);
-					_rps.Play();
+					this.BeginDispatch(() => _selector.SelectedFrame = StartIndex);
+
+					if (_effectConfiguration.AutoPlay) {
+						_selector.Play();
+					}
 				}
 				catch (Exception err) {
-					_rps.Stop();
+					_selector.Stop();
 					ErrorHandler.HandleException(err);
 				}
 
-				_rps.Init(act, ActionIndex);
+				_rendererAct = act;
+				this.Dispatch(p => _loadSelector());
 			}, GetHashCode());
 		}
 
@@ -371,7 +396,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		protected override void OnClosing(CancelEventArgs e) {
 			if (!e.Cancel) {
-				_rps.Stop();
+				_selector.Stop();
 				Displayed = false;
 			}
 		}

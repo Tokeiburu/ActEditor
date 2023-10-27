@@ -116,8 +116,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ApplicationConfiguration\ActEditorConfiguration.cs" />
-    <Compile Include="ApplicationConfiguration\GrfEditorIconProvider.cs" />
-    <Compile Include="ApplicationConfiguration\PathRequest.cs" />
     <Compile Include="ApplicationConfiguration\SelfPatcher.cs" />
     <Compile Include="Core\ActEditorWindow.xaml.cs">
       <DependentUpon>ActEditorWindow.xaml</DependentUpon>
@@ -173,7 +171,6 @@
       <DependentUpon>CompactActIndexSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\WPF\FrameEditor\AnchorDrawModule.cs" />
-    <Compile Include="Core\WPF\EditorControls\ReadonlyActIndexSelector.cs" />
     <Compile Include="Core\WPF\FrameEditor\DefaultDrawModule.cs" />
     <Compile Include="Core\WPF\FrameEditor\PrimaryFrameRenderer.cs" />
     <Compile Include="Core\WPF\FrameEditor\FrameRenderer.xaml.cs">
@@ -763,7 +760,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

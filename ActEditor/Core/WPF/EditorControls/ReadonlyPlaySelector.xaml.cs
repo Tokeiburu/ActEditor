@@ -13,7 +13,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// <summary>
 	/// Interaction logic for FrameSelector.xaml
 	/// </summary>
-	public partial class ReadonlyPlaySelector : UserControl {
+	public partial class ReadonlyPlaySelector : UserControl, IActIndexSelector {
 		#region Delegates
 
 		public delegate void FrameIndexChangedDelegate(object sender, int actionIndex);
@@ -24,23 +24,22 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private bool _frameChangedEventEnabled = true;
 		private bool _handlersEnabled = true;
 		private int _frameIndex;
+		private IFrameRendererEditor _renderer;
 
 		public int SelectedFrame {
 			get { return _frameIndex; }
 			set {
 				_frameIndex = value;
 
-				if (_frameIndex >= Act[SelectedAction].NumberOfFrames)
+				if (_frameIndex >= _renderer.Act[SelectedAction].NumberOfFrames)
 					_frameIndex = 0;
 
 				if (!_eventsEnabled) return;
-				if (Act == null) return;
+				if (_renderer.Act == null) return;
 
 				OnFrameChanged(value);
 			}
 		}
-
-		public Act Act { get; private set; }
 
 		public ReadonlyPlaySelector() {
 			InitializeComponent();
@@ -80,6 +79,15 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (handler != null) handler(this, actionindex);
 		}
 
+		public void SetAction(int index) {
+			SelectedAction = index;
+			OnActionChanged(index);
+		}
+
+		public void SetFrame(int index) {
+			SelectedFrame = index;
+		}
+
 		public void OnFrameChanged(int actionindex) {
 			if (!_handlersEnabled) return;
 			if (!_frameChangedEventEnabled) {
@@ -107,12 +115,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public bool IsPlaying() {
-			return _play.Dispatch(() => _play.IsPressed);
+		public bool IsPlaying {
+			get { return _play.Dispatch(() => _play.IsPressed); }
 		}
 
 		public void Play() {
-			if (IsPlaying()) return;
+			if (IsPlaying) return;
 
 			_play.Dispatch(delegate {
 				_play.IsPressed = true;
@@ -132,20 +140,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _playAnimation() {
-			Act act = Act;
-
-			if (act == null) {
+			if (_renderer.Act == null) {
 				_play_Click(null, null);
 				return;
 			}
 
-			if (act[SelectedAction].NumberOfFrames <= 1) {
+			if (_renderer.Act[SelectedAction].NumberOfFrames <= 1) {
 				this.Dispatch(p => p.OnFrameChanged(0));
 				_play_Click(null, null);
 				return;
 			}
 
-			if (act[SelectedAction].AnimationSpeed < 0.8f) {
+			if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
 				_play_Click(null, null);
 				ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 				return;
@@ -153,7 +159,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			Stopwatch watch = new Stopwatch();
 
-			int interval = (int)(act[SelectedAction].AnimationSpeed * 25f);
+			int interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * 25f);
 
 			int intervalsToShow = 1;
 			int intervalsToHide = 0;
@@ -168,7 +174,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				intervalsToHide = 2;
 			}
 
-			if (intervalsToShow + intervalsToHide == act[SelectedAction].NumberOfFrames) {
+			if (intervalsToShow + intervalsToHide == _renderer.Act[SelectedAction].NumberOfFrames) {
 				intervalsToShow++;
 			}
 
@@ -181,9 +187,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 					watch.Reset();
 					watch.Start();
 
-					interval = (int)(act[SelectedAction].AnimationSpeed * 25f);
+					interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * 25f);
 
-					if (act[SelectedAction].AnimationSpeed < 0.8f) {
+					if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
 						_play_Click(null, null);
 						ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 						return;
@@ -225,9 +231,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public void Init(Act act, int selectedAction) {
+		public void Init(IFrameRendererEditor renderer, int selectedAction) {
 			SelectedAction = selectedAction;
-			Act = act;
+			_renderer = renderer;
 		}
 
 		public void Update() {
@@ -239,10 +245,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 					_handlersEnabled = false;
 				}
 
-				if (Act == null) return;
+				if (_renderer.Act == null) return;
 
-				if (SelectedAction >= 0 && SelectedAction < Act.NumberOfActions) {
-					if (oldFrame < Act[SelectedAction].NumberOfFrames) {
+				if (SelectedAction >= 0 && SelectedAction < _renderer.Act.NumberOfActions) {
+					if (oldFrame < _renderer.Act[SelectedAction].NumberOfFrames) {
 						if (differedUpdate) {
 							_handlersEnabled = true;
 							SelectedFrame = oldFrame;
@@ -260,10 +266,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
 			}
-		}
-
-		public IActIndexSelector ToActIndexSelector() {
-			return new ReadonlyActIndexSelector(this);
 		}
 	}
 }

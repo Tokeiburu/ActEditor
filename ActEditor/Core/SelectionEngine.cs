@@ -144,9 +144,9 @@ namespace ActEditor.Core {
 
 			Components = _renderer.Components;
 
-			_editor.FrameSelector.FrameChanged += (s, e) => _refreshSelection();
-			_editor.FrameSelector.SpecialFrameChanged += (s, e) => _refreshSelection();
-			_editor.FrameSelector.ActionChanged += (s, e) => _internalFullClearSelection();
+			_editor.IndexSelector.FrameChanged += (s, e) => _refreshSelection();
+			_editor.IndexSelector.SpecialFrameChanged += (s, e) => _refreshSelection();
+			_editor.IndexSelector.ActionChanged += (s, e) => _internalFullClearSelection();
 
 			_editor.ActLoaded += delegate {
 				if (_editor.Act == null) return;
@@ -545,8 +545,8 @@ namespace ActEditor.Core {
 		}
 
 		public void UpdateSelection(Rect rect, bool show) {
-			if (_editor.FrameSelector == null) return;
-			if (_editor.FrameSelector.IsPlaying) return;
+			if (_editor.IndexSelector == null) return;
+			if (_editor.IndexSelector.IsPlaying) return;
 
 			var selectionDraw = Components.OfType<SelectionDraw>().FirstOrDefault();
 

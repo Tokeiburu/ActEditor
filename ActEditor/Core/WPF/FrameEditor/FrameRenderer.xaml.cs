@@ -116,9 +116,9 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			Editor = editor;
 			Editor.ReferencesChanged += s => UpdateAndSelect();
 
-			Editor.FrameSelector.FrameChanged += (s, e) => Update();
-			Editor.FrameSelector.SpecialFrameChanged += (s, e) => Update();
-			Editor.FrameSelector.ActionChanged += (s, e) => Update();
+			Editor.IndexSelector.FrameChanged += (s, e) => Update();
+			Editor.IndexSelector.SpecialFrameChanged += (s, e) => Update();
+			Editor.IndexSelector.ActionChanged += (s, e) => Update();
 
 			Editor.ActLoaded += delegate {
 				if (Editor.Act == null) return;

@@ -175,7 +175,7 @@ namespace ActEditor.Core {
 						fileName = tab.Act.LoadedPath;
 					}
 
-					string file = PathRequest.SaveFileEditor("fileName", fileName, "filter", "Act and Spr files|*.act;*.spr|Act, Spr and Pal files|*.act;*.spr;*.pal|" + FileFormat.MergeFilters(Format.Act | Format.Spr | Format.Gif | Format.Pal | Format.Image));
+					string file = TkPathRequest.SaveFile<ActEditorConfiguration>("AppLastPath", "fileName", fileName, "filter", "Act and Spr files|*.act;*.spr|Act, Spr and Pal files|*.act;*.spr;*.pal|" + FileFormat.MergeFilters(Format.Act | Format.Spr | Format.Gif | Format.Pal | Format.Image));
 
 					if (file != null) {
 						var sfd = TkPathRequest.LatestSaveFileDialog;

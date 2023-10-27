@@ -72,7 +72,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 		public void Renderer_KeyDown(object sender, KeyEventArgs e) {
 			if (!EnableEdit) return;
-			if (_editor.FrameSelector.IsPlaying) return;
+			if (_editor.IndexSelector.IsPlaying) return;
 
 			if (ApplicationShortcut.IsCommandActive())
 				return;
@@ -120,7 +120,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 					_renderer.CaptureMouse();
 				}
 
-				if (e.LeftButton == MouseButtonState.Pressed && !_editor.FrameSelector.IsPlaying && _editor.SelectionEngine != null) {
+				if (e.LeftButton == MouseButtonState.Pressed && !_editor.IndexSelector.IsPlaying && _editor.SelectionEngine != null) {
 					if (_editor.SelectionEngine.SelectedItems.Count > 0) {
 						if (_noSelectedComponentsUnderMouse(e) &&
 							((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.Shift) &&
@@ -179,7 +179,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 					_frti.Moved = true;
 				}
 
-				if (_editor.FrameSelector.IsPlaying) return;
+				if (_editor.IndexSelector.IsPlaying) return;
 				if (e.LeftButton == MouseButtonState.Pressed && EnableEdit) {
 					if (!_renderer.IsMouseCaptured)
 						_renderer.CaptureMouse();
@@ -214,7 +214,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 						}
 
 						if (_renderer.MainDrawingComponent != null && _editor.SelectionEngine != null) {
-							_editor.FrameSelector.OnAnimationPlaying(1);
+							_editor.IndexSelector.OnAnimationPlaying(1);
 							List<LayerDraw> layers = _editor.SelectionEngine.SelectedLayerDraws;
 							List<Layer> layersAct = _editor.SelectionEngine.SelectedLayers.ToList();
 
@@ -277,7 +277,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 				_frti.AnyMouseDown = false;
 
-				if (!_editor.FrameSelector.IsPlaying && EnableEdit) {
+				if (!_editor.IndexSelector.IsPlaying && EnableEdit) {
 					if (_frti.Scaled) {
 						_applyScale();
 						_frti.Scaled = false;
@@ -355,7 +355,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 						}
 					}
 
-					_editor.FrameSelector.OnAnimationPlaying(0);
+					_editor.IndexSelector.OnAnimationPlaying(0);
 				}
 				else {
 					if (_renderer.GetObjectAtPoint<ComboBox>(e.GetPosition(_renderer)) != _renderer._cbZoom)

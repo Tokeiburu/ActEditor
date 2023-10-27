@@ -19,6 +19,7 @@ using GRF.System;
 using GrfToWpfBridge.Application;
 using ICSharpCode.AvalonEdit.Highlighting;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
@@ -155,7 +156,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			Loaded += delegate {
 				SizeToContent = SizeToContent.Manual;
-				//_listView.MaxWidth = _mainGrid.ActualWidth;
 				MinWidth = 600;
 				Width = MinWidth;
 				MinHeight = _textEditor.MinHeight + _sp.ActualHeight + _gridActionPresenter.ActualHeight + 70;
@@ -171,8 +171,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			_rcm = new WpfRecentFiles(ActEditorConfiguration.ConfigAsker, 6, _miLoadRecent, "Act Editor - ScriptRunner recent files");
 			_rcm.FileClicked += new RecentFilesManager.RFMFileClickedEventHandler(_rcm_FileClicked);
-
-			//Binder.Bind(_miAutocomplete, () => GrfEditorConfiguration.ActEditorScriptRunnerAutocomplete);
 
 			Closed += delegate {
 				Owner = ActEditorWindow.Instance;
@@ -197,17 +195,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		public string ScriptName {
-			get { return "\"MyCustomScript\""; }
-		}
-
-		public string InputGesture {
-			get { return "null"; }
-		}
-
-		public string Image {
-			get { return "null"; }
-		}
+		public const string DefaultScriptName = "\"MyCustomScript\"";
+		public const string DefaultInputGesture = "null";
+		public const string DefaultImage = "null";
 
 		private void _buttonCancel_Click(object sender, RoutedEventArgs e) {
 			Close();
@@ -218,7 +208,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				string tmp = TemporaryFilesManager.GetTemporaryFilePath(TmpFilePattern);
 
 				string script = _fixIndent(_textEditor.Text);
-				script = ScriptTemplate.Replace("{0}", ScriptName).Replace("{1}", InputGesture).Replace("{2}", Image).Replace("{3}", script);
+				script = ScriptTemplate.Replace("{0}", DefaultScriptName).Replace("{1}", DefaultInputGesture).Replace("{2}", DefaultImage).Replace("{3}", script);
 				File.WriteAllText(tmp, script);
 
 				string outDll;
@@ -314,11 +304,11 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _buttonSaveAs_Click(object sender, RoutedEventArgs e) {
 			try {
-				string path = PathRequest.SaveFileEditor("filter", "C# Files|*.cs");
+				string path = TkPathRequest.SaveFile<ActEditorConfiguration>("AppLastPath", "filter", "C# Files|*.cs");
 
 				if (path != null) {
 					string script = _fixIndent(_textEditor.Text);
-					script = ScriptTemplate.Replace("{0}", ScriptName).Replace("{1}", InputGesture).Replace("{2}", Image).Replace("{3}", script);
+					script = ScriptTemplate.Replace("{0}", DefaultScriptName).Replace("{1}", DefaultInputGesture).Replace("{2}", DefaultImage).Replace("{3}", script);
 					File.WriteAllText(path, script);
 					_rcm.AddRecentFile(path);
 				}
@@ -330,7 +320,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _buttonLoad_Click(object sender, RoutedEventArgs e) {
 			try {
-				string path = PathRequest.OpenFileEditor("filter", "C# Files|*.cs");
+				string path = TkPathRequest.OpenFile<ActEditorConfiguration>("AppLastPath", "filter", "C# Files|*.cs");
 
 				if (path != null) {
 					_textEditor.Text = _loadScriptFromFile(File.ReadAllText(path));

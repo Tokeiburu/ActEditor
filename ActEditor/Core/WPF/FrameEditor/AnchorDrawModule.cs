@@ -43,7 +43,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		}
 
 		public void EditAnchors() {
-			if (_editor.FrameSelector.IsPlaying) return;
+			if (_editor.IndexSelector.IsPlaying) return;
 			if (_renderer.GridBackground.IsMouseCaptured) return;
 			if (_anchorEdit) return;
 			if (!ActEditorConfiguration.ShowAnchors) {

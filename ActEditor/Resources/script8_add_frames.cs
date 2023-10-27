@@ -50,6 +50,7 @@ namespace Scripts {
 			effect.AddProperty("OffsetX", 0, -100, 100);
 			effect.AddProperty("OffsetY", 0, -100, 100);
 			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
+			effect.AddProperty("Animation", "0;1;2;3;4;5;6;7;8;9;10;11;12", "", "");
 			
 			effect.Apply(actInput => {
 				int offsetX = effect.GetProperty<int>("OffsetX");
@@ -57,11 +58,22 @@ namespace Scripts {
 				GrfColor color = effect.GetProperty<GrfColor>("Color");
 				int spriteFrom = effect.GetProperty<int>("SpriteFrom");
 				int spriteTo = effect.GetProperty<int>("SpriteTo");
+				string animation = effect.GetProperty<string>("Animation");
 				
 				if (spriteTo < spriteFrom)
 					return;
 				
-				int spriteCount = spriteTo - spriteFrom + 1;
+				int spriteCount = spriteTo - spriteFrom;
+				
+				// Only process the animation indexes provided by the animation variable; QueryIndexProvider provides index for the format such as 1-5;7;8
+				HashSet<int> animIndexes;
+				
+				try {
+					animIndexes = new HashSet<int>(new Utilities.IndexProviders.QueryIndexProvider(animation).GetIndexes());
+				}
+				catch {
+					return;
+				}
 				
 				actInput.Commands.Backup(_ => {
 					for (int i = 0; i < spriteCount; i++) {
@@ -73,7 +85,11 @@ namespace Scripts {
 						l.Color = color;
 						f.Layers.Add(l);
 						
-						actInput[selectedActionIndex].Frames.Add(f);
+						foreach(var aid in animIndexes) {
+							if (aid >= 0 && aid < actInput.Actions.Count) {
+								actInput[aid].Frames.Add(f);
+							}
+						}
 					}
 				}, "Add frames");
 			});

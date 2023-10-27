@@ -217,6 +217,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		private void _exportSub(GrfImage im, int k, string outputPath, Act act) {
+			if (im != null)
+				im = im.Copy();
+
 			string path = GrfPath.Combine(String.Format(outputPath, Path.GetFileNameWithoutExtension(act.LoadedPath), k, im == null ? "gif" : (im.GrfImageType == GrfImageType.Indexed8 ? "bmp" : "png"), Path.GetDirectoryName(act.LoadedPath)));
 
 			if (path.EndsWith(".gif")) {

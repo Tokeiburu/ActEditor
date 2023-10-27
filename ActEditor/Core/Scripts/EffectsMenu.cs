@@ -48,6 +48,7 @@ namespace ActEditor.Core.Scripts {
 					}
 				}, "Generate fade animation");
 			});
+			effect.ActIndexSelectorReadonly = true;
 			effect.Display(act, selectedActionIndex);
 		}
 

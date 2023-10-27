@@ -16,6 +16,7 @@ using GRF.Image;
 using GRF.IO;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
@@ -412,7 +413,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 
 		private void _buttonGenerate_Click(object sender, RoutedEventArgs e) {
 			try {
-				string path = PathRequest.SaveFileExtract("filter", "PNG Files|*.png");
+				string path = TkPathRequest.SaveFile<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", "PNG Files|*.png");
 
 				if (path != null) {
 					var image = _previewReloadSub(ActEditorConfiguration.PreviewSheetIndexes);

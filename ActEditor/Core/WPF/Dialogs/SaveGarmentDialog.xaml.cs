@@ -93,7 +93,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			DummyFrameEditor editor = new DummyFrameEditor();
 			editor.ActFunc = () => _actRefBody;
 			editor.Element = this;
-			editor.FrameSelector = _rps.ToActIndexSelector();
+			editor.IndexSelector = _rps;
 			editor.SelectedActionFunc = () => _rps.SelectedAction;
 			editor.SelectedFrameFunc = () => _rps.SelectedFrame;
 
@@ -122,7 +122,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				return new List<DrawingComponent>();
 			}, DrawingPriorityValues.Normal, false));
 
-			_rps.Load(_actRefBody);
+			_rps.Load(editor);
 			_rfp.Init(editor);
 
 			_pathBrowserDataGrf.TextChanged += delegate {

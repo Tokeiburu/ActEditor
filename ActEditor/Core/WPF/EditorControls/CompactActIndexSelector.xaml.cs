@@ -12,7 +12,6 @@ using System.Windows.Media.Imaging;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.ActFormat.Commands;
-using GRF.Image;
 using GRF.Threading;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
@@ -24,14 +23,14 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// <summary>
 	/// Interaction logic for FrameSelector.xaml
 	/// </summary>
-	public partial class CompactActIndexSelector : UserControl {
+	public partial class CompactActIndexSelector : UserControl, IActIndexSelector {
 		private readonly List<FancyButton> _fancyButtons;
 		private readonly object _lock = new object();
 		private bool _eventsEnabled = true;
 		private bool _frameChangedEventEnabled = true;
 		private bool _handlersEnabled = true;
 		private int _pending;
-		private Act _act;
+		private IFrameRendererEditor _renderer;
 
 		public CompactActIndexSelector() {
 			InitializeComponent();
@@ -90,11 +89,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			MouseDown += new MouseButtonEventHandler(_actIndexSelector_MouseDown);
 
-			Loaded += delegate {
-				//_parent = this.Parent as UIElement;
-				//_parent.MouseMove += new MouseEventHandler(_actIndexSelector_MouseMove);
-			};
-
 			MouseEnter += delegate {
 				Opacity = 1f;
 			};
@@ -118,8 +112,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 		public int SelectedAction { get; set; }
 		public int SelectedFrame { get; set; }
 
-		public Act Act {
-			get { return _act; }
+		public bool IsPlaying {
+			get { return _play.Dispatch(() => _play.IsPressed); }
 		}
 
 		public event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;
@@ -182,16 +176,16 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		public void SetAction(int index) {
 			if (index < _comboBoxActionIndex.Items.Count && index > -1) {
-				_comboBoxActionIndex.SelectedIndex = index;
+				this.Dispatch(p => _comboBoxActionIndex.SelectedIndex = index);
 			}
 		}
 
 		public void SetFrame(int index) {
-			_sbFrameIndex.Value = index;
+			this.Dispatch(p => _sbFrameIndex.Value = index);
 		}
 
 		private void _sbFrameIndex_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-			if (_act == null) {
+			if (_renderer.Act == null) {
 				lock (_lock) {
 					_pending--;
 				}
@@ -228,12 +222,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 					if (isLeft) {
 						SelectedFrame--;
 						if (SelectedFrame < 0)
-							SelectedFrame = _act[SelectedAction].NumberOfFrames - 1;
+							SelectedFrame = _renderer.Act[SelectedAction].NumberOfFrames - 1;
 					}
 
 					if (isRight) {
 						SelectedFrame++;
-						if (SelectedFrame >= _act[SelectedAction].NumberOfFrames)
+						if (SelectedFrame >= _renderer.Act[SelectedAction].NumberOfFrames)
 							SelectedFrame = 0;
 					}
 
@@ -255,10 +249,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 			e.Handled = true;
 		}
 
-		public bool IsPlaying() {
-			return _play.Dispatch(() => _play.IsPressed);
-		}
-
 		private void _play_Click(object sender, RoutedEventArgs e) {
 			_play.Dispatch(delegate {
 				_play.IsPressed = !_play.IsPressed;
@@ -272,19 +262,17 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _playAnimation() {
-			Act act = _act;
-
-			if (act == null) {
+			if (_renderer.Act == null) {
 				_play_Click(null, null);
 				return;
 			}
 
-			if (act[SelectedAction].NumberOfFrames <= 1) {
+			if (_renderer.Act[SelectedAction].NumberOfFrames <= 1) {
 				_play_Click(null, null);
 				return;
 			}
 
-			if (act[SelectedAction].AnimationSpeed < 0.8f) {
+			if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
 				_play_Click(null, null);
 				ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 				return;
@@ -293,7 +281,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			Stopwatch watch = new Stopwatch();
 			SelectedFrame--;
 
-			int interval = (int) (act[SelectedAction].AnimationSpeed * 25f);
+			int interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * 25f);
 
 			int intervalsToShow = 1;
 			int intervalsToHide = 0;
@@ -308,7 +296,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				intervalsToHide = 2;
 			}
 
-			if (intervalsToShow + intervalsToHide == act[SelectedAction].NumberOfFrames) {
+			if (intervalsToShow + intervalsToHide == _renderer.Act[SelectedAction].NumberOfFrames) {
 				intervalsToShow++;
 			}
 
@@ -321,9 +309,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 					watch.Reset();
 					watch.Start();
 
-					interval = (int) (act[SelectedAction].AnimationSpeed * 25f);
+					interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * 25f);
 
-					if (act[SelectedAction].AnimationSpeed < 0.8f) {
+					if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
 						_play_Click(null, null);
 						ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 						return;
@@ -331,7 +319,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 					SelectedFrame++;
 
-					if (SelectedFrame >= act[SelectedAction].NumberOfFrames) {
+					if (SelectedFrame >= _renderer.Act[SelectedAction].NumberOfFrames) {
 						SelectedFrame = 0;
 					}
 
@@ -358,6 +346,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 					Thread.Sleep(interval);
 				}
 			}
+			catch {
+				_play_Click(null, null);
+			}
 			finally {
 				_frameChangedEventEnabled = true;
 				OnAnimationPlaying(0);
@@ -365,7 +356,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		public void Play() {
-			if (IsPlaying()) return;
+			if (IsPlaying) return;
 
 			_play.Dispatch(delegate {
 				_play.IsPressed = true;
@@ -403,13 +394,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _tbFrameIndex_TextChanged(object sender, TextChangedEventArgs e) {
 			if (!_eventsEnabled) return;
-			if (_act == null) return;
+			if (_renderer.Act == null) return;
 
 			int ival;
 
 			Int32.TryParse(_tbFrameIndex.Text, out ival);
 
-			if (ival > _act[SelectedAction].NumberOfFrames || ival < 0) {
+			if (ival > _renderer.Act[SelectedAction].NumberOfFrames || ival < 0) {
 				ival = 0;
 			}
 
@@ -418,7 +409,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _sbFrameIndex_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
 			if (!_eventsEnabled) return;
-			if (_act == null) return;
+			if (_renderer.Act == null) return;
 
 			int value = (int) Math.Round(_sbFrameIndex.Value);
 
@@ -431,18 +422,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _updateAction() {
-			if (_act == null) return;
-			if (SelectedAction >= _act.NumberOfActions) return;
+			if (_renderer.Act == null) return;
+			if (SelectedAction >= _renderer.Act.NumberOfActions) return;
 
 			_eventsEnabled = false;
 
-			while (SelectedFrame >= _act[SelectedAction].NumberOfFrames && SelectedFrame > 0) {
+			while (SelectedFrame >= _renderer.Act[SelectedAction].NumberOfFrames && SelectedFrame > 0) {
 				SelectedFrame--;
 			}
 
 			_eventsEnabled = true;
 
-			int max = _act[SelectedAction].NumberOfFrames - 1;
+			int max = _renderer.Act[SelectedAction].NumberOfFrames - 1;
 			max = max < 0 ? 0 : max;
 
 			_sbFrameIndex.Minimum = 0;
@@ -456,8 +447,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_sbFrameIndex.Value = 0;
 		}
 
-		public void Load(Act act) {
-			_act = act;
+		public void Load(IFrameRendererEditor renderer, int actionIndex = -1) {
+			_renderer = renderer;
 			_fancyButtons.ForEach(p => p.IsPressed = false);
 
 			int oldAction = _comboBoxActionIndex.SelectedIndex;
@@ -468,10 +459,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_comboBoxAnimationIndex.ItemsSource = null;
 			_comboBoxAnimationIndex.Items.Clear();
 
-			_eventsEnabled = false;
 			_eventsEnabled = true;
 
-			int actions = _act.NumberOfActions;
+			int actions = renderer.Act.NumberOfActions;
 
 			_comboBoxAnimationIndex.ItemsSource = GetAnimations(actions);
 			_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, actions);
@@ -480,10 +470,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_comboBoxActionIndex.SelectedIndex = 0;
 			}
 
-			_act.VisualInvalidated += s => Update();
-			_act.Commands.CommandIndexChanged += new AbstractCommand<IActCommand>.AbstractCommandsEventHandler(_commands_CommandUndo);
+			renderer.Act.VisualInvalidated += s => Update();
+			renderer.Act.Commands.CommandIndexChanged += new AbstractCommand<IActCommand>.AbstractCommandsEventHandler(_commands_CommandUndo);
 
-			if (oldAction < _act.NumberOfActions && oldAction >= 0) {
+			if (actionIndex > -1 && actionIndex < renderer.Act.NumberOfActions) {
+				_comboBoxActionIndex.SelectedIndex = actionIndex;
+			}
+			else if (oldAction < renderer.Act.NumberOfActions && oldAction >= 0) {
 				_comboBoxActionIndex.SelectedIndex = oldAction;
 			}
 		}
@@ -504,8 +497,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 					if (SelectedAction < 0)
 						SelectedAction = 0;
 
-					if (SelectedAction >= _act.NumberOfActions)
-						SelectedAction = _act.NumberOfActions - 1;
+					if (SelectedAction >= _renderer.Act.NumberOfActions)
+						SelectedAction = _renderer.Act.NumberOfActions - 1;
 
 					_updateActionSelection();
 				}
@@ -556,9 +549,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 				int selectedAction = SelectedAction;
 
 				_comboBoxAnimationIndex.ItemsSource = null;
-				_comboBoxAnimationIndex.ItemsSource = GetAnimations(_act.NumberOfActions);
+				_comboBoxAnimationIndex.ItemsSource = GetAnimations(_renderer.Act.NumberOfActions);
 				_comboBoxActionIndex.ItemsSource = null;
-				_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, _act.NumberOfActions);
+				_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, _renderer.Act.NumberOfActions);
 
 				if (selectedAction >= _comboBoxActionIndex.Items.Count) {
 					_comboBoxActionIndex.SelectedIndex = _comboBoxActionIndex.Items.Count - 1;
@@ -673,10 +666,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 			Dispatcher.Invoke(new Action(delegate {
 				int animationIndex = _comboBoxActionIndex.SelectedIndex / 8;
 
-				if ((animationIndex + 1) * 8 > _act.NumberOfActions) {
+				if ((animationIndex + 1) * 8 > _renderer.Act.NumberOfActions) {
 					_fancyButtons.ForEach(p => p.IsButtonEnabled = true);
 
-					int toDisable = (animationIndex + 1) * 8 - _act.NumberOfActions;
+					int toDisable = (animationIndex + 1) * 8 - _renderer.Act.NumberOfActions;
 
 					for (int i = 0; i < toDisable; i++) {
 						int disabledIndex = 7 - i;
@@ -694,7 +687,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			int direction = _comboBoxActionIndex.SelectedIndex % 8;
 
-			if (8 * _comboBoxAnimationIndex.SelectedIndex + direction >= _act.NumberOfActions) {
+			if (8 * _comboBoxAnimationIndex.SelectedIndex + direction >= _renderer.Act.NumberOfActions) {
 				_comboBoxActionIndex.SelectedIndex = 8 * _comboBoxAnimationIndex.SelectedIndex;
 			}
 			else {
@@ -704,7 +697,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _comboBoxActionIndex_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 			if (_comboBoxActionIndex.SelectedIndex < 0) return;
-			if (_comboBoxActionIndex.SelectedIndex >= _act.NumberOfActions) return;
+			if (_comboBoxActionIndex.SelectedIndex >= _renderer.Act.NumberOfActions) return;
 
 			int actionIndex = _comboBoxActionIndex.SelectedIndex;
 			int animationIndex = actionIndex / 8;
@@ -729,10 +722,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 				_comboBoxActionIndex_SelectionChanged(null, null);
 
-				if (_act == null) return;
+				if (_renderer.Act == null) return;
 
-				if (SelectedAction >= 0 && SelectedAction < _act.NumberOfActions) {
-					if (oldFrame < _act[SelectedAction].NumberOfFrames) {
+				if (SelectedAction >= 0 && SelectedAction < _renderer.Act.NumberOfActions) {
+					if (oldFrame < _renderer.Act[SelectedAction].NumberOfFrames) {
 						if (differedUpdate) {
 							_handlersEnabled = true;
 							SelectedFrame = oldFrame;
@@ -783,10 +776,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_updatePlay();
 
 			_eventsEnabled = true;
-		}
-
-		public IActIndexSelector ToActIndexSelector() {
-			return new ReadonlyActIndexSelector(this);
 		}
 	}
 }

@@ -136,7 +136,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Act.Commands.SetOffsets(SelectedAction, SelectedFrame, 0, (int)((mousePosition.X - _rendererPrimary.RelativeCenter.X * _rendererPrimary.ActualWidth) / _rendererPrimary.ZoomEngine.Scale), (int)((mousePosition.Y - _rendererPrimary.RelativeCenter.Y * _rendererPrimary.ActualHeight) / _rendererPrimary.ZoomEngine.Scale));
 			Act.Commands.End();
 
-			FrameSelector.OnFrameChanged(SelectedFrame);
+			IndexSelector.OnFrameChanged(SelectedFrame);
 			SelectionEngine.SetSelection(0);
 
 			Keyboard.Focus(GridPrimary);
@@ -695,7 +695,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			DummyFrameEditor editor = new DummyFrameEditor();
 			editor.ActFunc = () => Act;
 			editor.Element = this;
-			editor.FrameSelector = FrameSelector;
+			editor.IndexSelector = IndexSelector;
 			renderer.Editor = editor;
 			editor.SelectionEngine = new SelectionEngine();
 			editor.FrameRenderer = renderer;
@@ -897,9 +897,20 @@ namespace ActEditor.Core.WPF.Dialogs {
 			public void SetFrame(int index) {
 				// Nothing to do
 			}
+
+			public int SelectedAction { get; set; }
+			public int SelectedFrame { get; set; }
+			
+			public void Play() {
+				// Nothing to do
+			}
+
+			public void Stop() {
+				// Nothing to do
+			}
 		}
 
-		public IActIndexSelector FrameSelector {
+		public IActIndexSelector IndexSelector {
 			get { return _actIndexSelector; }
 		}
 

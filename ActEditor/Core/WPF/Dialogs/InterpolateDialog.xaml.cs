@@ -91,6 +91,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		private readonly Act _act;
+		private DummyFrameEditor _editor;
+		private Act _rendererAct;
 		public int ActionIndex { get; set; }
 
 		public int StartIndex {
@@ -231,14 +233,16 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_asIndexStart.Set(act, actionIndex);
 			_asIndexEnd.Set(act, actionIndex);
 			_act = act;
-			_rps.Init(_act, ActionIndex);
+			_rendererAct = new Act(act);
 
 			DummyFrameEditor editor = new DummyFrameEditor();
-			editor.ActFunc = () => _rps.Act;
+			editor.ActFunc = () => _rendererAct;
 			editor.Element = this;
-			editor.FrameSelector = _rps.ToActIndexSelector();
+			editor.IndexSelector = _rps;
 			editor.SelectedActionFunc = () => _rps.SelectedAction;
 			editor.SelectedFrameFunc = () => _rps.SelectedFrame;
+			_editor = editor;
+			_rps.Init(editor, ActionIndex);
 
 			_rfp.DrawingModules.Add(new DefaultDrawModule(delegate {
 				if (editor.Act != null) {
@@ -257,11 +261,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			if (_act == null) return;
 
 			LazyAction.Execute(delegate {
-				Act act = new Act(_act.Sprite);
-
-				foreach (var action in _act) {
-					act.AddAction(new Action(action));
-				}
+				Act act = new Act(_act);
 
 				if (CanExecute(act)) {
 					Execute(act, true);
@@ -272,7 +272,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 					_rps.Stop();
 				}
 
-				_rps.Init(act, ActionIndex);
+				_rendererAct = act;
+				_rps.Init(_editor, ActionIndex);
 			}, GetHashCode());
 		}
 

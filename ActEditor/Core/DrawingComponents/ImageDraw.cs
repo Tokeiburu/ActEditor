@@ -19,6 +19,7 @@ using GRF.Image;
 using GRF.System;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using Utilities.Extension;
 
 namespace ActEditor.Core.DrawingComponents {
@@ -296,7 +297,7 @@ namespace ActEditor.Core.DrawingComponents {
 				case SpriteEditMode.Before:
 				case SpriteEditMode.After:
 				case SpriteEditMode.Replace:
-					string[] files = PathRequest.OpenFilesExtract("filter", FileFormat.MergeFilters(Format.Image));
+					string[] files = TkPathRequest.OpenFiles<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.Image));
 
 					if (files != null && files.Length > 0) {
 						try {

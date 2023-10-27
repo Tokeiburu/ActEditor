@@ -18,6 +18,7 @@ using GRF.Image;
 using GRF.Threading;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using Utilities.Extension;
 
 namespace ActEditor.Core.WPF.EditorControls {
@@ -324,7 +325,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _miAdd_Click(object sender, RoutedEventArgs e) {
 			try {
-				string[] files = PathRequest.OpenFilesExtract("filter", FileFormat.MergeFilters(Format.Image));
+				string[] files = TkPathRequest.OpenFiles<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.Image));
 
 				if (files != null && files.Length > 0) {
 					try {

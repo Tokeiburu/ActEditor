@@ -48,7 +48,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 
 		private void _menuItemImageExport_Click(object sender, RoutedEventArgs e) {
 			if (_wrapper.Image != null)
-				_wrapper.Image.SaveTo(_entry.RelativePath, PathRequest.ExtractSetting);
+				_wrapper.Image.SaveTo(_entry.RelativePath, ActEditorConfiguration.ExtractSetting);
 		}
 
 		protected override void _load(FileEntry entry) {
@@ -69,12 +69,12 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 
 		private void _buttonExportAt_Click(object sender, RoutedEventArgs e) {
 			if (_wrapper.Image != null)
-				_wrapper.Image.SaveTo(_entry.RelativePath, PathRequest.ExtractSetting);
+				_wrapper.Image.SaveTo(_entry.RelativePath, ActEditorConfiguration.ExtractSetting);
 		}
 
 		private void _menuItemImageExport2_Click(object sender, RoutedEventArgs e) {
 			if (_wrapper2.Image != null)
-				_wrapper2.Image.SaveTo(_imagePreviewSprite.Tag.ToString(), PathRequest.ExtractSetting);
+				_wrapper2.Image.SaveTo(_imagePreviewSprite.Tag.ToString(), ActEditorConfiguration.ExtractSetting);
 		}
 	}
 }

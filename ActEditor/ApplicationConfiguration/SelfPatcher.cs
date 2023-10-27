@@ -16,6 +16,7 @@ namespace ActEditor.ApplicationConfiguration {
 		public static readonly SelfPatch Patch0016 = new RefreshScripts(16);
 		public static readonly SelfPatch Patch0024 = new RefreshScripts2(24);
 		public static readonly SelfPatch Patch0125 = new RefreshScripts2(125);
+		public static readonly SelfPatch Patch0126 = new RefreshScripts3(126);
 
 		static SelfPatcher() {
 			Patches = Patches.OrderBy(p => p.PatchId).ToList();
@@ -117,6 +118,15 @@ namespace ActEditor.ApplicationConfiguration {
 		public override bool PatchAppliaction() {
 			try {
 				string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, ScriptLoader.OutputPath);
+
+				GrfPath.Delete(Path.Combine(path, "script2_expand.cs"));
+				GrfPath.Delete(Path.Combine(path, "script2_expand.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script7_add_effect1.cs"));
+				GrfPath.Delete(Path.Combine(path, "script7_add_effect1.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script8_add_frames.cs"));
+				GrfPath.Delete(Path.Combine(path, "script8_add_frames.dll"));
 
 				GrfPath.Delete(Path.Combine(path, "script9_chibi_grf.cs"));
 				GrfPath.Delete(Path.Combine(path, "script9_chibi_grf.dll"));

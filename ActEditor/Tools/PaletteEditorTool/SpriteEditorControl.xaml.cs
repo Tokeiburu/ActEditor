@@ -836,7 +836,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 
 		private void _miOpenFromGrf(string grfPath) {
 			try {
-				string file = grfPath ?? PathRequest.OpenGrfFile("filter", FileFormat.MergeFilters(Format.AllContainers, Format.Grf, Format.Gpf, Format.Thor));
+				string file = grfPath ?? TkPathRequest.OpenFile<ActEditorConfiguration>("AppLastGrfPath", "filter", FileFormat.MergeFilters(Format.AllContainers, Format.Grf, Format.Gpf, Format.Thor));
 
 				if (file != null) {
 					GrfExplorer dialog = new GrfExplorer(file, SelectMode.Pal);

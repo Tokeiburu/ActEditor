@@ -43,7 +43,6 @@ namespace Scripts {
 						layer.OffsetY = (int)(layer.OffsetY * scaleY);
 						layer.ScaleX *= scaleX;
 						layer.ScaleY *= scaleY;
-						
 					}
 					
 					if (anchors == 1) {

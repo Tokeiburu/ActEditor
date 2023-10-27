@@ -50,7 +50,7 @@ namespace Scripts {
 			effect.AddProperty("Back/Front", 1, 0, 1);
 			effect.AddProperty("Scale", 1f, 0f, 5f);
 			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
-			effect.AddProperty("Animation", "0;1;2;3;4;5;6;7;8;9;10", "", "");
+			effect.AddProperty("Animation", "0;1;2;3;4;5;6;7;8;9;10;11;12", "", "");
 			effect.AddProperty("Delay", 0, 0, 10);
 			effect.AddProperty("Effect", "script7_add_effect*.act", "FileSelect", null);
 			
@@ -89,7 +89,14 @@ namespace Scripts {
 				}
 				
 				// Only process the animation indexes provided by the animation variable; QueryIndexProvider provides index for the format such as 1-5;7;8
-				var animIndexes = new HashSet<int>(new Utilities.IndexProviders.QueryIndexProvider(animation).GetIndexes());
+				HashSet<int> animIndexes;
+				
+				try {
+					animIndexes = new HashSet<int>(new Utilities.IndexProviders.QueryIndexProvider(animation).GetIndexes());
+				}
+				catch {
+					return;
+				}
 
 				// Copy effect from actEffect
 				actInput.Commands.Backup(_ => {

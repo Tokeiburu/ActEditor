@@ -666,6 +666,26 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_updateInterval();
 		}
 
+		public void Play() {
+			if (IsPlaying) return;
+
+			_play.Dispatch(delegate {
+				_play.IsPressed = true;
+				_updatePlay();
+			});
+
+			if (_play.Dispatch(() => _play.IsPressed)) {
+				GrfThread.Start(_playAnimation);
+			}
+		}
+
+		public void Stop() {
+			_play.Dispatch(delegate {
+				_play.IsPressed = false;
+				_updatePlay();
+			});
+		}
+
 		private void _updateInterval() {
 			_interval.Text = (_actEditor.Act[SelectedAction].AnimationSpeed * 25f).ToString(CultureInfo.InvariantCulture);
 		}

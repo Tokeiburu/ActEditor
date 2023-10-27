@@ -93,7 +93,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			DummyFrameEditor editor = new DummyFrameEditor();
 			editor.ActFunc = () => Act;
 			editor.Element = this;
-			editor.FrameSelector = FrameSelector;
+			editor.IndexSelector = IndexSelector;
 			renderer.Editor = editor;
 			editor.SelectionEngine = new SelectionEngine();
 			editor.FrameRenderer = renderer;
@@ -287,7 +287,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			set { _references = value; }
 		}
 
-		public IActIndexSelector FrameSelector {
+		public IActIndexSelector IndexSelector {
 			get { return _frameSelector; }
 		}
 

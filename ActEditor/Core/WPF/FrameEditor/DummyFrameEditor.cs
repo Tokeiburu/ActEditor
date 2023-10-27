@@ -13,7 +13,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		public int SelectedFrame { get { return SelectedFrameFunc(); } }
 		public SelectionEngine SelectionEngine { get; set; }
 		public List<ReferenceControl> References { get { return ReferencesFunc(); } }
-		public IActIndexSelector FrameSelector { get; set; }
+		public IActIndexSelector IndexSelector { get; set; }
 		public event ActEditorWindow.ActEditorEventDelegate ReferencesChanged;
 
 		protected virtual void OnReferencesChanged() {

@@ -152,7 +152,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			int lastIndex = Editor.Act[Editor.SelectedAction, Editor.SelectedFrame].NumberOfLayers - 1;
 			Layer layer = Editor.Act[Editor.SelectedAction, Editor.SelectedFrame, lastIndex];
 			_posFrameToAct(e.GetPosition(this), out layer.OffsetX, out layer.OffsetY);
-			Editor.FrameSelector.OnFrameChanged(Editor.SelectedFrame);
+			Editor.IndexSelector.OnFrameChanged(Editor.SelectedFrame);
 			Editor.SelectionEngine.SetSelection(lastIndex);
 
 			Keyboard.Focus(Editor.GridPrimary);

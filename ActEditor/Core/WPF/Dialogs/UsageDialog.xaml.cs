@@ -44,8 +44,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 			var element = _listView.SelectedItem as ActIndex;
 
 			if (element != null) {
-				_editor.FrameSelector.SetAction(element.ActionIndex);
-				_editor.FrameSelector.SetFrame(element.FrameIndex);
+				_editor.IndexSelector.SetAction(element.ActionIndex);
+				_editor.IndexSelector.SetFrame(element.FrameIndex);
 				_editor.SelectionEngine.DeselectAll();
 				_editor.SelectionEngine.Select(element.LayerIndex);
 			}

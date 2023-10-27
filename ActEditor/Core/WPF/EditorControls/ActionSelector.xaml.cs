@@ -90,10 +90,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 				Loaded += delegate {
 					Window window = WpfUtilities.FindParentControl<Window>(this);
 
-					window.Closed += delegate {
-						_isRunning = false;
-						_enableActThread = true;
-					};
+					if (window != null) {
+						window.Closed += delegate {
+							_isRunning = false;
+							_enableActThread = true;
+						};
+					}
 
 					if (SelectedAction < _comboBoxActionIndex.Items.Count)
 						_comboBoxActionIndex_SelectionChanged(null, null);

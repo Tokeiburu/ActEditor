@@ -35,7 +35,8 @@
                 <Label Content="Preview" FontStyle="Italic" Margin="3" Padding="0" />
                 <Grid>
                     <frameEditor:ReadonlyFrameRenderer x:Name="_rfp" MinHeight="180" Margin="2" />
-                    <EditorControls:ReadonlyPlaySelector x:Name="_rps" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2" />
+                    <EditorControls:CompactActIndexSelector x:Name="_actIndexSelector" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2" Visibility="Collapsed" />
+                    <EditorControls:ReadonlyPlaySelector x:Name="_actIndexReadonly" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2" Visibility="Collapsed" />
                 </Grid>
             </Grid>
         </Grid>

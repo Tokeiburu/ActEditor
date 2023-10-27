@@ -46,10 +46,10 @@ namespace ActEditor.Core {
 
 			switch (mode) {
 				case SpriteEditMode.Export:
-					image.SaveTo(String.Format("image_{0:000}{1}", absoluteIndex, image.GrfImageType == GrfImageType.Indexed8 ? ".bmp" : ".png"), PathRequest.ExtractSetting);
+					image.SaveTo(String.Format("image_{0:000}{1}", absoluteIndex, image.GrfImageType == GrfImageType.Indexed8 ? ".bmp" : ".png"), ActEditorConfiguration.ExtractSetting);
 
 					try {
-						string path = PathRequest.ExtractSetting.Get() as string;
+						string path = ActEditorConfiguration.ExtractSetting.Get() as string;
 
 						if (path != null) {
 							if (File.Exists(path)) {

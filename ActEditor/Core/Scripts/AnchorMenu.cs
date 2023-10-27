@@ -7,6 +7,7 @@ using GRF.FileFormats;
 using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using Utilities.Extension;
 using Action = GRF.FileFormats.ActFormat.Action;
 
@@ -50,7 +51,7 @@ namespace ActEditor.Core.Scripts {
 			if (act == null) return;
 
 			try {
-				string path = PathRequest.OpenFileEditor("filter", FileFormat.MergeFilters(Format.Act));
+				string path = TkPathRequest.OpenFile<ActEditorConfiguration>("AppLastPath", "filter", FileFormat.MergeFilters(Format.Act));
 
 				if (path == null) return;
 
@@ -315,7 +316,7 @@ namespace ActEditor.Core.Scripts {
 			if (act == null) return;
 
 			try {
-				string path = PathRequest.OpenFileEditor("filter", FileFormat.MergeFilters(Format.Act));
+				string path = TkPathRequest.OpenFile<ActEditorConfiguration>("AppLastPath", "filter", FileFormat.MergeFilters(Format.Act));
 
 				if (path == null) return;
 

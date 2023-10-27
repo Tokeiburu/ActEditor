@@ -41,39 +41,35 @@ namespace Scripts {
 				}
 			}
 			
-			var dialog = new InputDialog("Enter the expand magnitude.", "Expand script", Configuration.ConfigAsker["[ActEditor - Explode value]", "2"]);
-			dialog.Owner = WpfUtilities.TopWindow;
-
-			if (dialog.ShowDialog() != true) {
-				return;
-			}
-
-			float explode;
-
-			if (!float.TryParse(dialog.Input.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out explode)) {
-				ErrorHandler.HandleException("The expand value is not valid. Only float values are allowed.", ErrorLevel.Warning);
-				return;
-			}
+			if (act == null) return;
 			
-			Configuration.ConfigAsker["[ActEditor - Explode value]"] = dialog.Input;
+			var effect = new EffectConfiguration("AddFrames");
+			effect.AddProperty("Magnitude", 2f, 0f, 10f);
 			
-			try {
-				act.Commands.Begin();
+			effect.Apply(actInput => {
+				float magnitude = effect.GetProperty<float>("Magnitude");
 				
-				for (int layerIndex = 0; layerIndex < selectedLayerIndexes.Length; layerIndex++) {
-					Layer layer = act[selectedActionIndex, selectedFrameIndex, selectedLayerIndexes[layerIndex]];
-					act.Commands.SetOffsets(selectedActionIndex, selectedFrameIndex, selectedLayerIndexes[layerIndex],
-						(int) (layer.OffsetX * explode), 
-						(int) (layer.OffsetY * explode));
+				try {
+					actInput.Commands.Begin();
+					
+					for (int layerIndex = 0; layerIndex < selectedLayerIndexes.Length; layerIndex++) {
+						Layer layer = actInput[selectedActionIndex, selectedFrameIndex, selectedLayerIndexes[layerIndex]];
+						actInput.Commands.SetOffsets(selectedActionIndex, selectedFrameIndex, selectedLayerIndexes[layerIndex],
+							(int) (layer.OffsetX * magnitude), 
+							(int) (layer.OffsetY * magnitude));
+					}
 				}
-			}
-			catch (Exception err) {
-				act.Commands.CancelEdit();
-				ErrorHandler.HandleException(err, ErrorLevel.Warning);
-			}
-			finally {
-				act.Commands.End();
-			}
+				catch (Exception err) {
+					actInput.Commands.CancelEdit();
+					ErrorHandler.HandleException(err, ErrorLevel.Warning);
+				}
+				finally {
+					actInput.Commands.End();
+				}
+			});
+			effect.ActIndexSelectorReadonly = true;
+			effect.AutoPlay = false;
+			effect.Display(act, selectedActionIndex);
 		}
 		
 		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {

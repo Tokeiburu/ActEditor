@@ -7,6 +7,7 @@ using GRF.Image;
 using GRF.IO;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using Utilities.Services;
 
 namespace ActEditor.Core.Scripts {
@@ -39,7 +40,7 @@ namespace ActEditor.Core.Scripts {
 			if (act == null) return;
 
 			try {
-				string path = PathRequest.FolderExtract();
+				string path = TkPathRequest.Folder<ActEditorConfiguration>("ExtractingServiceLastPath");
 
 				if (path != null) {
 					string name = "image_{0:0000}";
@@ -51,7 +52,7 @@ namespace ActEditor.Core.Scripts {
 						int count = act.Sprite.NumberOfImagesLoaded;
 
 						for (; i < count; i++) {
-							var im = act.Sprite.Images[i];
+							var im = act.Sprite.Images[i].Copy();
 
 							if (im.GrfImageType == GrfImageType.Indexed8) {
 								im.Save(GrfPath.Combine(path, String.Format(name, i) + ".bmp"));

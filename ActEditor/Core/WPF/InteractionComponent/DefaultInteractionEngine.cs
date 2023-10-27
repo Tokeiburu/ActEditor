@@ -48,7 +48,7 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 			}
 			finally {
 				_editor.Act.Commands.End();
-				_editor.FrameSelector.OnFrameChanged(_editor.SelectedFrame);
+				_editor.IndexSelector.OnFrameChanged(_editor.SelectedFrame);
 				_editor.SelectionEngine.SetSelection(start, _editor.Act[_editor.SelectedAction, _editor.SelectedFrame].NumberOfLayers - start);
 			}
 		}

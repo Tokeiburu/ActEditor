@@ -384,7 +384,7 @@ namespace ActEditor.Core.Scripts {
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			try {
 				EditPalette.CanOpen = false;
-				string file = PathRequest.OpenFileExtract("filter", FileFormat.MergeFilters(Format.PaletteContainers, Format.Pal, Format.Spr));
+				string file = TkPathRequest.OpenFile<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.PaletteContainers, Format.Pal, Format.Spr));
 
 				if (file != null) {
 					if (file.IsExtension(".pal")) {

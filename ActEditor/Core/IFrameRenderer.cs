@@ -32,7 +32,7 @@ namespace ActEditor.Core {
 		int SelectedFrame { get; }
 		SelectionEngine SelectionEngine { get; }
 		List<ReferenceControl> References { get; }
-		IActIndexSelector FrameSelector { get; }
+		IActIndexSelector IndexSelector { get; }
 		event ActEditorWindow.ActEditorEventDelegate ReferencesChanged;
 		event ActEditorWindow.ActEditorEventDelegate ActLoaded;
 		Grid GridPrimary { get; }
@@ -51,5 +51,9 @@ namespace ActEditor.Core {
 		void OnAnimationPlaying(int actionindex);
 		void SetAction(int index);
 		void SetFrame(int index);
+		int SelectedAction { get; set; }
+		int SelectedFrame { get; set; }
+		void Play();
+		void Stop();
 	}
 }

@@ -22,6 +22,7 @@ using GrfToWpfBridge;
 using GrfToWpfBridge.Application;
 using GrfToWpfBridge.MultiGrf;
 using TokeiLibrary;
+using TokeiLibrary.Paths;
 using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
@@ -408,7 +409,7 @@ namespace ActEditor.Core {
 
 		private void _miOpen_Click(object sender, RoutedEventArgs e) {
 			try {
-				string file = PathRequest.OpenFileExtract("filter", FileFormat.MergeFilters(Format.Act));
+				string file = TkPathRequest.OpenFile<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.Act));
 
 				if (file != null) {
 					_open(file, false, true);
@@ -531,7 +532,7 @@ namespace ActEditor.Core {
 
 		private void _miOpenFromGrf_Click(object sender, RoutedEventArgs e) {
 			try {
-				string file = PathRequest.OpenGrfFile("filter", FileFormat.MergeFilters(Format.AllContainers, Format.Grf, Format.Gpf, Format.Thor));
+				string file = TkPathRequest.OpenFile<ActEditorConfiguration>("AppLastGrfPath", "filter", FileFormat.MergeFilters(Format.AllContainers, Format.Grf, Format.Gpf, Format.Thor));
 
 				if (file != null) {
 					GrfExplorer dialog = new GrfExplorer(file, SelectMode.Act);
