@@ -6,6 +6,7 @@
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:frameEditor="clr-namespace:ActEditor.Core.WPF.FrameEditor"
         xmlns:editorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
+        xmlns:sliders="clr-namespace:ColorPicker.Sliders;assembly=ColorPicker"
         Title="Save as garment" Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
     <Grid>
         <Grid.RowDefinitions>
@@ -49,23 +50,55 @@
                 <Grid Name="_gridBestMatches" Visibility="Collapsed" Grid.ColumnSpan="3" Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Grid MaxHeight="250" MinHeight="250">
+                    <Grid MaxHeight="260" MinHeight="260">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <Label Margin="3" Padding="0" Content="Best matches:" HorizontalAlignment="Left">
+                        <Label Margin="3" Padding="0" Content="Best matches:" HorizontalAlignment="Left" FontStyle="Italic">
                             <Label.ToolTip>
                                 The match ratio is based on how close the sprite image sizes are from one another.
                             </Label.ToolTip>
                         </Label>
                         <ListView Grid.Row="1" TextSearch.TextPath="DisplayRelativePath" Name="_listViewMatches" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Width="250" />
                     </Grid>
-                    <Grid Grid.Column="1" HorizontalAlignment="Left" Width="300">
-                        <frameEditor:ReadonlyFrameRenderer x:Name="_rfp" Margin="2" />
-                        <editorControls:CompactActIndexSelector x:Name="_rps" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2" />
+                    <Grid Grid.Column="1" HorizontalAlignment="Left" Width="270">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Label Margin="3" Padding="0" Content="Preview" HorizontalAlignment="Left" FontStyle="Italic" />
+                        <frameEditor:ReadonlyFrameRenderer Grid.Row="1" x:Name="_rfp" Margin="2" />
+                        <editorControls:CompactActIndexSelector Grid.Row="1" x:Name="_rps" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2" />
+                    </Grid>
+                    <Grid Grid.Column="2" HorizontalAlignment="Left" Width="300">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Label Margin="3" Padding="0" Content="Adjustments" HorizontalAlignment="Left" FontStyle="Italic" />
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Label Content="X offset" Grid.Row="0" Grid.Column="0" Margin="3" Padding="0" />
+                            <Label Content="Y offset" Grid.Row="1" Grid.Column="0" Margin="3" Padding="0" />
+                            <sliders:SliderColor Grid.Row="0" Grid.Column="1" x:Name="_sliderXOffset" Width="60" Height="19.5" Margin="2" VerticalAlignment="Center" />
+                            <sliders:SliderColor Grid.Row="1" Grid.Column="1" x:Name="_sliderYOffset" Width="60" Height="19.5" Margin="2" VerticalAlignment="Center" />
+                            <TextBox Name="_tbXOffset" Grid.Row="0" Grid.Column="2" Text="" Margin="3" TextAlignment="Left" VerticalAlignment="Center" />
+                            <TextBox Name="_tbYOffset" Grid.Row="1" Grid.Column="2" Text="0" Margin="3" TextAlignment="Left" VerticalAlignment="Center" />
+                        </Grid>
                     </Grid>
                 </Grid>
                 <Label Content="kRO GRF path" Margin="23 3 3 3" Padding="0" VerticalContentAlignment="Center" VerticalAlignment="Center">
@@ -93,7 +126,7 @@
                 </Label>
                 <TextBox Name="_tbSpriteName" Grid.Row="2" Grid.Column="1" Margin="3" MinWidth="200" HorizontalAlignment="Left" />
             </Grid>
-            <Label Content="Garment copied paths:" Margin="3" Padding="0" HorizontalAlignment="Left">
+            <Label Content="Garment copied paths:" Margin="3" Padding="0" HorizontalAlignment="Left" FontStyle="Italic">
                 <Label.ToolTip>
                     Each job specified below will be copied in the garment output folder. The # symbol is used to set male#female paths.
                 </Label.ToolTip>

@@ -15,6 +15,7 @@ using ActEditor.Core.Scripts;
 using ActEditor.Core.WPF.Dialogs;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using GRF.Graphics;
 using GRF.Image;
 using GRF.Threading;
 using GrfToWpfBridge;
@@ -213,7 +214,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					dropIndex = _getIndexDrop(e.GetPosition(this), true);
 
 				if (dropIndex > -1) {
-					List<Tuple<Layer, bool>> selection = GetSelection();
+					List<Utilities.Extension.Tuple<Layer, bool>> selection = GetSelection();
 
 					if (_actEditor.Act == null) return;
 
@@ -251,7 +252,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				int dropIndex = _getIndexDrop(e.GetPosition(this));
 
 				if (dropIndex > -1) {
-					List<Tuple<Layer, bool>> selection = GetSelection();
+					List<Utilities.Extension.Tuple<Layer, bool>> selection = GetSelection();
 
 					if (_actEditor.Act == null) return;
 
@@ -338,7 +339,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _move(Point current, bool overrideMouse = false) {
-			if (!overrideMouse && (current == _oldPosition || GRF.Graphics.Point.CalculateDistance(current.ToGrfPoint(), _oldPosition.ToGrfPoint()) <= 5)) return;
+			if (!overrideMouse && (current == _oldPosition || TkVector2.CalculateDistance(current.ToTkVector2(), _oldPosition.ToTkVector2()) <= 5)) return;
 
 			if (Mouse.LeftButton == MouseButtonState.Pressed || overrideMouse) {
 				_hasMoved = true;
@@ -498,7 +499,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			return -1;
 		}
 
-		public HashSet<int> GenerateSelection(List<Tuple<Layer, bool>> selection) {
+		public HashSet<int> GenerateSelection(List<Utilities.Extension.Tuple<Layer, bool>> selection) {
 			HashSet<int> newSelection = new HashSet<int>();
 
 			if (_actEditor.Act == null) return newSelection;
@@ -518,14 +519,14 @@ namespace ActEditor.Core.WPF.EditorControls {
 			return newSelection;
 		}
 
-		public List<Tuple<Layer, bool>> GetSelection() {
-			List<Tuple<Layer, bool>> selection = new List<Tuple<Layer, bool>>();
+		public List<Utilities.Extension.Tuple<Layer, bool>> GetSelection() {
+			List<Utilities.Extension.Tuple<Layer, bool>> selection = new List<Utilities.Extension.Tuple<Layer, bool>>();
 
 			if (_actEditor.Act == null) return selection;
 
 			for (int i = 0; i < _sp.Children.Count; i++) {
 				var layer = _actEditor.Act[_actEditor._frameSelector.SelectedAction, _actEditor._frameSelector.SelectedFrame, i];
-				selection.Add(new Tuple<Layer, bool>(layer, ((LayerControl) _sp.Children[i]).IsSelected));
+				selection.Add(new Utilities.Extension.Tuple<Layer, bool>(layer, ((LayerControl)_sp.Children[i]).IsSelected));
 			}
 
 			return selection;

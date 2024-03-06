@@ -463,7 +463,7 @@ namespace ActEditor.Core.DrawingComponents {
 		/// <param name="diffVector">The diff vector.</param>
 		/// <param name="deltaX">The delta X.</param>
 		/// <param name="deltaY">The delta Y.</param>
-		public void PreviewScale(Vertex diffVector, double deltaX, double deltaY) {
+		public void PreviewScale(TkVector2 diffVector, double deltaX, double deltaY) {
 			if (_layerCopy == null) return;
 
 			var revRad = 2 * Math.PI - _layer.RotationRadian;
@@ -479,8 +479,8 @@ namespace ActEditor.Core.DrawingComponents {
 					deltaY = delY;
 				}
 				else {
-					Vertex click = diffVector;
-					Vertex dest = new Vertex((float) (click.X + deltaX), (float) (click.Y + deltaY));
+					TkVector2 click = diffVector;
+					TkVector2 dest = new TkVector2((float) (click.X + deltaX), (float) (click.Y + deltaY));
 
 					click.RotateZ(_layer.Rotation);
 					dest.RotateZ(_layer.Rotation);
@@ -573,12 +573,12 @@ namespace ActEditor.Core.DrawingComponents {
 			}
 
 			Point centerOfImage = new Point(_renderer.CenterX + _layer.OffsetX * _renderer.ZoomEngine.Scale, _renderer.CenterY + _layer.OffsetY * _renderer.ZoomEngine.Scale);
-			GRF.Graphics.Point pointReference = new GRF.Graphics.Point(1, 0);
+			TkVector2 pointReference = new TkVector2(1, 0);
 			Point point1 = new Point(initialPoint.X - centerOfImage.X, initialPoint.Y - centerOfImage.Y);
 			Point point2 = new Point(point1.X + deltaX, point1.Y + deltaY);
 
-			double angle1 = GRF.Graphics.Point.CalculateAngle(new GRF.Graphics.Point(point1.X, point1.Y), pointReference);
-			double angle2 = GRF.Graphics.Point.CalculateAngle(new GRF.Graphics.Point(point2.X, point2.Y), pointReference);
+			double angle1 = TkVector2.CalculateAngle(new TkVector2(point1.X, point1.Y), pointReference);
+			double angle2 = TkVector2.CalculateAngle(new TkVector2(point2.X, point2.Y), pointReference);
 
 			if (point1.Y < 0) {
 				angle1 = 2d * Math.PI - angle1;

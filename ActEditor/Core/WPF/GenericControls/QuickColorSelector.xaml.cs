@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using ColorPicker;
 using ColorPicker.Sliders;
+using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
@@ -229,9 +230,9 @@ namespace ActEditor.Core.WPF.GenericControls {
 
 		private void _quickColorSelector_MouseMove(object sender, MouseEventArgs e) {
 			if (e.LeftButton == MouseButtonState.Pressed) {
-				GRF.Graphics.Point dist = e.GetPosition(this).ToGrfPoint() - _oldPosition.ToGrfPoint();
+				TkVector2 dist = e.GetPosition(this).ToTkVector2() - _oldPosition.ToTkVector2();
 
-				if (dist.Lenght > 4) {
+				if (dist.Length > 4) {
 					DataObject data = new DataObject();
 					data.SetData("GrfColor", Color.ToGrfColor());
 					data.SetText(Color.ToGrfColor().ToHexString());

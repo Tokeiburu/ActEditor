@@ -39,16 +39,17 @@ namespace Scripts {
 					int anchors = effect.GetProperty<int>("Anchors");
 
 					foreach (Layer layer in actInput.GetAllLayers()) {
-						layer.OffsetX = (int)(layer.OffsetX * scaleX);
-						layer.OffsetY = (int)(layer.OffsetY * scaleY);
+						layer.OffsetX = (int)Math.Round(layer.OffsetX * scaleX, MidpointRounding.AwayFromZero);
+						layer.OffsetY = (int)Math.Round(layer.OffsetY * scaleY, MidpointRounding.AwayFromZero);
 						layer.ScaleX *= scaleX;
 						layer.ScaleY *= scaleY;
+						
 					}
 					
 					if (anchors == 1) {
 						actInput.AllAnchors(anchor => {
-							anchor.OffsetX = (int)(anchor.OffsetX * scaleX);
-							anchor.OffsetY = (int)(anchor.OffsetY * scaleY);
+							anchor.OffsetX = (int)Math.Round(anchor.OffsetX * scaleX, MidpointRounding.AwayFromZero);
+							anchor.OffsetY = (int)Math.Round(anchor.OffsetY * scaleY, MidpointRounding.AwayFromZero);
 						});
 					}
 				}, "Magnify");

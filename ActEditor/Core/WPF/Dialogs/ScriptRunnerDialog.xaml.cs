@@ -126,7 +126,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		static ScriptRunnerDialog() {
 			TmpFilePattern = Process.GetCurrentProcess().Id + "_" + TmpFilePattern;
-			TemporaryFilesManager.UniquePattern(TmpFilePattern);
 		}
 
 		protected override void GRFEditorWindowKeyDown(object sender, KeyEventArgs e) {

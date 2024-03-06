@@ -397,7 +397,7 @@ namespace ActEditor.Tools.GrfShellExplorer {
 
 						this.Dispatch(p => p._grfEntrySorter.SetOrder(WpfUtils.GetLastGetSearchAccessor(_items), WpfUtils.GetLastSortDirection(_items)));
 
-						List<Tuple<string, string, FileEntry>> entries = _grfHolder.FileTable.FastTupleAccessEntries;
+						List<Utilities.Extension.Tuple<string, string, FileEntry>> entries = _grfHolder.FileTable.FastTupleAccessEntries;
 						List<string> search = currentSearch.Split(' ').ToList();
 						_itemEntries = new ObservableCollection<FileEntry>(entries.Where(p => p.Item1 == _searchSelectedPath && search.All(q => p.Item2.IndexOf(q, StringComparison.InvariantCultureIgnoreCase) != -1)).Select(p => p.Item3).OrderBy(p => p, _grfEntrySorter));
 						_itemEntries.Where(p => p.DataImage == null).ToList().ForEach(p => p.DataImage = IconProvider.GetSmallIcon(p.RelativePath));

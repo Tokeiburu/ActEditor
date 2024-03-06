@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -9,6 +10,7 @@ using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.Avalon;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.FrameEditor;
+using ColorPicker.Sliders;
 using ErrorManager;
 using GRF;
 using GRF.Core;
@@ -22,6 +24,7 @@ using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
+using Utilities;
 using Utilities.Extension;
 using Utilities.Services;
 
@@ -82,7 +85,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Binder.Bind(_tbSpriteName, () => ActEditorConfiguration.ActEditorGarmentSpriteName, v => ActEditorConfiguration.ActEditorGarmentSpriteName = v);
 
 			_procId = Process.GetCurrentProcess().Id;
-			TemporaryFilesManager.UniquePattern(_procId + "_garm_{0:0000}");
 
 			_pathBrowserDataGrf.SetToLatestRecentFile();
 			_pathBrowserOutput.SetToLatestRecentFile();
@@ -134,7 +136,44 @@ namespace ActEditor.Core.WPF.Dialogs {
 				if (Directory.Exists(_pathBrowserOutput.Text))
 					_pathBrowserOutput.RecentFiles.AddRecentFile(_pathBrowserOutput.Text);
 			};
+
 			_loadkROGrf();
+			_resetAdjustments();
+			_sliderXOffset.ValueChanged += (s, e) => _sliderOffset_ValueChanged(_tbXOffset, e);
+			_sliderYOffset.ValueChanged += (s, e) => _sliderOffset_ValueChanged(_tbYOffset, e);
+			_tbXOffset.TextChanged += (s, e) => _tbOffset_TextChanged(_sliderXOffset, _tbXOffset);
+			_tbYOffset.TextChanged += (s, e) => _tbOffset_TextChanged(_sliderYOffset, _tbYOffset);
+		}
+
+		private void _tbOffset_TextChanged(SliderColor slider, TextBox tb) {
+			if (!_enableAdjustmentEvents)
+				return;
+
+			_listViewMatches_SelectionChanged(null, null);
+			slider.SetPosition((FormatConverters.IntConverter(tb.Text) + 30) / 60d, true);
+		}
+
+		private void _sliderOffset_ValueChanged(TextBox sender, double value) {
+			if (!_enableAdjustmentEvents)
+				return;
+
+			int offset = (int)Math.Round(value * 60 - 30, MidpointRounding.AwayFromZero);
+			sender.Text = offset + "";
+		}
+
+		private bool _enableAdjustmentEvents = true;
+
+		private void _resetAdjustments() {
+			try {
+				_enableAdjustmentEvents = false;
+				_sliderXOffset.SetPosition(0.5d, true);
+				_sliderYOffset.SetPosition(0.5d, true);
+				_tbXOffset.Text = "0";
+				_tbYOffset.Text = "0";
+			}
+			finally {
+				_enableAdjustmentEvents = true;
+			}
 		}
 
 		private void _loadkROGrf() {
@@ -197,9 +236,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		private List<Tuple<string, string>> _parseGarmentPaths() {
+		private List<Utilities.Extension.Tuple<string, string>> _parseGarmentPaths() {
 			List<string> lines = ActEditorConfiguration.ActEditorGarmentPaths.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
-			List<Tuple<string, string>> paths = new List<Tuple<string, string>>();
+			var paths = new List<Utilities.Extension.Tuple<string, string>>();
 			int offset = 0;
 
 			for (int i = 0; i < lines.Count; i++) {
@@ -221,7 +260,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 						female = line.Split('#')[1];
 					}
 
-					paths.Add(new Tuple<string, string>(male, female));
+					paths.Add(new Utilities.Extension.Tuple<string, string>(male, female));
 					offset += lines[i].Length + 2;
 				}
 				catch (Exception err) {
@@ -272,7 +311,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		private static void _fixSprites(Act act, Spr original, Spr spr) {
+		private void _fixSprites(Act act, Spr original, Spr spr) {
 			act.AllLayers(p => {
 				if (p.SpriteIndex < 0)
 					return;
@@ -284,6 +323,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 					p.Height = image.Height;
 				}	
 			});
+
+			act = _adjustAct(act, false);
 
 			if (original == null)
 				return;
@@ -392,7 +433,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 						_saveSpr(actSource.Sprite, folder, baseSprite, garmentPaths);
 
 						string tempPath = TemporaryFilesManager.GetTemporaryFilePath(_procId + "_garm_{0:0000}");
-						actSource.Save(tempPath);
+						var actResult = _adjustAct(actSource);
+						actResult.Save(tempPath);
 
 						// Copy Act files
 						foreach (var garmentPath in garmentPaths) {
@@ -418,7 +460,35 @@ namespace ActEditor.Core.WPF.Dialogs {
 			});
 		}
 
-		private void _saveSpr(Spr spr, string folder, string baseSprite, IEnumerable<Tuple<string, string>> garmentPaths) {
+		private Act _adjustAct(Act actSource, bool newAct = true) {
+			int offsetX = FormatConverters.IntConverter(_tbXOffset.Dispatch(p => _tbXOffset.Text));
+			int offsetY = FormatConverters.IntConverter(_tbYOffset.Dispatch(p => _tbXOffset.Text));
+
+			if (offsetX == 0 && offsetY == 0)
+				return actSource;
+
+			var actResult = newAct ? new Act(actSource) : actSource;
+
+			actResult.AllLayersAdv((actIndex, l) => {
+				switch(actIndex.ActionIndex % 8) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+						l.OffsetX += offsetX;
+						break;
+					default:
+						l.OffsetX -= offsetX;
+						break;
+				}
+
+				l.OffsetY += offsetY;
+			});
+
+			return actResult;
+		}
+
+		private void _saveSpr(Spr spr, string folder, string baseSprite, IEnumerable<Utilities.Extension.Tuple<string, string>> garmentPaths) {
 			if (ActEditorConfiguration.ActEditorGarmentCopySpr) {
 				string tempPath = TemporaryFilesManager.GetTemporaryFilePath(_procId + "_garm_{0:0000}");
 				spr.Save(tempPath);

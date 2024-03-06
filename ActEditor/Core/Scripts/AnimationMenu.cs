@@ -355,7 +355,6 @@ namespace ActEditor.Core.Scripts {
 
 	public class FrameCopyGarment : IActScript {
 		private readonly ActEditorWindow _editor;
-		private bool _canUse = true;
 
 		#region IActScript Members
 
@@ -377,7 +376,6 @@ namespace ActEditor.Core.Scripts {
 
 		public FrameCopyGarment(ActEditorWindow editor) {
 			_editor = editor;
-			_canUse = true;
 		}
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
@@ -386,11 +384,9 @@ namespace ActEditor.Core.Scripts {
 			HeadEditorDialog diag2 = new HeadEditorDialog(2);
 			diag2.Init(ActEditorWindow.Instance.GetCurrentTab2(), act);
 			diag2.Owner = _editor;
-			_canUse = false;
 			diag2.Show();
 			diag2.Closed += delegate {
 				_editor.Focus();
-				_canUse = true;
 			};
 		}
 

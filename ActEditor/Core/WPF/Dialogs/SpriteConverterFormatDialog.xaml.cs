@@ -347,7 +347,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 					}
 				}
 				else {
-					List<Tuple<int, byte>> colors = newImageUsedIndexes.Select(t => new Tuple<int, byte>((im.Palette[4 * t + 0]) << 16 | (im.Palette[4 * t + 1]) << 8 | (im.Palette[4 * t + 2]), t)).ToList();
+					List<Utilities.Extension.Tuple<int, byte>> colors = newImageUsedIndexes.Select(t => new Utilities.Extension.Tuple<int, byte>((im.Palette[4 * t + 0]) << 16 | (im.Palette[4 * t + 1]) << 8 | (im.Palette[4 * t + 2]), t)).ToList();
 					colors = colors.OrderBy(p => p.Item1).ToList();
 
 					List<byte> newImageTempUsedIndexes = new List<byte>();

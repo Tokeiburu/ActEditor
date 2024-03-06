@@ -218,7 +218,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 							List<LayerDraw> layers = _editor.SelectionEngine.SelectedLayerDraws;
 							List<Layer> layersAct = _editor.SelectionEngine.SelectedLayers.ToList();
 
-							var centerSelected = new GRF.Graphics.Point(0, 0);
+							var centerSelected = new TkVector2(0, 0);
 
 							foreach (Layer layer in layersAct) {
 								centerSelected.X += layer.OffsetX;
@@ -228,7 +228,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 							centerSelected.X = (float)(centerSelected.X / layersAct.Count * _renderer.ZoomEngine.Scale) + _renderer.CenterX;
 							centerSelected.Y = (float)(centerSelected.Y / layersAct.Count * _renderer.ZoomEngine.Scale) + _renderer.CenterY;
 
-							Vertex diffVector = new Vertex(_frti.BeforeTransformMousePosition.ToGrfPoint() - centerSelected);
+							TkVector2 diffVector = _frti.BeforeTransformMousePosition.ToTkVector2() - centerSelected;
 
 							foreach (LayerDraw layer in layers.OrderBy(p => p.LayerIndex)) {
 								if (_frti.Scaled) {
@@ -243,7 +243,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 										layer.PreviewScale(diffVector, deltaX, deltaY);
 									}
 									else if ((Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt) {
-										double scale = (current.ToGrfPoint() - centerSelected).Lenght / (_frti.BeforeTransformMousePosition.ToGrfPoint() - centerSelected).Lenght;
+										double scale = (current.ToTkVector2() - centerSelected).Length / (_frti.BeforeTransformMousePosition.ToTkVector2() - centerSelected).Length;
 										layer.PreviewScale(Math.Pow(scale, 1.2d));
 									}
 									else {

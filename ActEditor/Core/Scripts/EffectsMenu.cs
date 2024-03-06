@@ -91,19 +91,19 @@ namespace ActEditor.Core.Scripts {
 					if (action.NumberOfFrames == 1) {
 						Frame frame0 = new Frame(action.Frames[0]);
 
-						Point point = new Point(0, 0);
+						TkVector2 point = new TkVector2(0, 0);
 
 						if (baseAction <= 1) {
-							point = new Point(4, -9);
+							point = new TkVector2(4, -9);
 						}
 						else if (baseAction <= 3) {
-							point = new Point(4, -4);
+							point = new TkVector2(4, -4);
 						}
 						else if (baseAction <= 5) {
-							point = new Point(-4, -4);
+							point = new TkVector2(-4, -4);
 						}
 						else if (baseAction <= 7) {
-							point = new Point(-4, -9);
+							point = new TkVector2(-4, -9);
 						}
 
 						frame0.Translate((int)point.X, (int)point.Y);

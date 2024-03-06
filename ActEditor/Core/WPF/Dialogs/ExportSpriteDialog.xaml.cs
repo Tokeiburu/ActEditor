@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -10,6 +11,7 @@ using System.Windows.Input;
 using ActEditor.ApplicationConfiguration;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using GRF.IO;
 using GrfToWpfBridge;
@@ -107,6 +109,58 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
+		public class ActProvider : IEnumerable<Act> {
+			private readonly List<string> _actPaths;
+			private Act _directAct;
+
+			public ActProvider(Act act) {
+				_directAct = act;
+			}
+
+			public ActProvider(List<string> actPaths) {
+				_actPaths = actPaths;
+			}
+
+			public int GetTotalImagesCount() {
+				if (_directAct != null)
+					return _directAct.Sprite.NumberOfImagesLoaded;
+
+				int total = 0;
+
+				foreach (var path in _actPaths) {
+					var sprPath = path.ReplaceExtension(".spr");
+
+					if (!File.Exists(sprPath))
+						continue;
+
+					var data = File.ReadAllBytes(sprPath);
+					total += BitConverter.ToUInt16(data, 4) + BitConverter.ToUInt16(data, 6);
+				}
+
+				return total;
+			}
+
+			public IEnumerator<Act> GetEnumerator() {
+				if (_directAct != null) {
+					yield return _directAct;
+				}
+				else {
+					foreach (var path in _actPaths) {
+						var sprPath = path.ReplaceExtension(".spr");
+
+						if (!File.Exists(sprPath))
+							continue;
+
+						yield return new Act(path, sprPath);
+					}
+				}
+			}
+
+			IEnumerator IEnumerable.GetEnumerator() {
+				return GetEnumerator();
+			}
+		}
+
 		private void _buttonOK_Click(object sender, RoutedEventArgs e) {
 			try {
 				_pathBrowserSource.RecentFiles.AddRecentFile(_pathBrowserSource.Text);
@@ -118,6 +172,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				string formatCurrentFolder = "{3}";
 				string output = _pathBrowserOutput.Text.Replace("{NAME}", formatName).Replace("{ID}", formatSprite).Replace("{EXT}", formatExt).Replace("{CURRENT_FOLDER}", formatCurrentFolder);
 				List<Act> acts = new List<Act>();
+				ActProvider provider = null;
 
 				if (ActEditorConfiguration.ActEditorExportCurrentSprite) {
 					var tab = _editor.TabEngine.GetCurrentTab();
@@ -126,9 +181,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 						throw new Exception("No Act file is currently in use, open an Act first if you are using the 'Current sprite' option.");
 					}
 
-					acts.Add(tab.Act);
+					provider = new ActProvider(tab.Act);
 
-					_export(acts, output, false);
+					_export(provider, output, false);
 				}
 				else if (ActEditorConfiguration.ActEditorExportCurrentFolder) {
 					var tab = _editor.TabEngine.GetCurrentTab();
@@ -137,30 +192,12 @@ namespace ActEditor.Core.WPF.Dialogs {
 						throw new Exception("No Act file is currently in use, open an Act first if you are using the 'Current sprite' option.");
 					}
 
-					foreach (var actFile in Directory.GetFiles(GrfPath.GetDirectoryName(tab.Act.LoadedPath), "*.act")) {
-						try {
-							var act = new Act(actFile, actFile.ReplaceExtension(".spr"));
-
-							acts.Add(act);
-						}
-						catch {
-						}
-					}
-
-					_export(acts, output);
+					provider = new ActProvider(Directory.GetFiles(GrfPath.GetDirectoryName(tab.Act.LoadedPath), "*.act").ToList());
+					_export(provider, output);
 				}
 				else {
-					foreach (var actFile in Directory.GetFiles(_pathBrowserSource.Text, "*.act")) {
-						try {
-							var act = new Act(actFile, actFile.ReplaceExtension(".spr"));
-
-							acts.Add(act);
-						}
-						catch {
-						}
-					}
-
-					_export(acts, output);
+					provider = new ActProvider(Directory.GetFiles(_pathBrowserSource.Text, "*.act").ToList());
+					_export(provider, output);
 				}
 			}
 			catch (Exception err) {
@@ -168,15 +205,16 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		private void _export(List<Act> acts, string outputPath, bool async = true) {
+		private void _export(ActProvider provider, string outputPath, bool async = true) {
 			int i = 0;
-			int numberOfImages = acts.Sum(p => p.Sprite.NumberOfImagesLoaded);
+			int numberOfImages = provider.GetTotalImagesCount();
 
 			if (async) {
 				TaskManager.DisplayTaskC("Export", "Exporting sprites...", () => i, numberOfImages, isCancelling => {
 					try {
-						for (int j = 0; j < acts.Count; j++) {
-							var act = acts[j];
+						foreach (var act in provider) {
+							if (isCancelling())
+								return;
 
 							if (outputPath.IsExtension(".gif")) {
 								_exportSub(null, 0, outputPath, act);
@@ -199,9 +237,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				});
 			}
 			else {
-				for (int j = 0; j < acts.Count; j++) {
-					var act = acts[j];
-
+				foreach (var act in provider) {
 					if (outputPath.IsExtension(".gif")) {
 						_exportSub(null, 0, outputPath, act);
 						i += act.Sprite.NumberOfImagesLoaded;

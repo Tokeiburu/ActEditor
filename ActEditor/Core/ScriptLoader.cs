@@ -52,8 +52,6 @@ namespace ActEditor.Core {
 			_fsw = new FileSystemWatcher();
 			_procId = Process.GetCurrentProcess().Id;
 
-			TemporaryFilesManager.UniquePattern(_procId + "_script_{0:0000}");
-
 			string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, OutputPath);
 
 			if (!Directory.Exists(path))
@@ -288,12 +286,13 @@ namespace ActEditor.Core {
 			}
 
 			Dictionary<string, string> providerOptions = new Dictionary<string, string> {
-				{"CompilerVersion", "v3.5"}
+				{"CompilerVersion", "v3.5"},
+				//{"CompilerVersion", "v4.0"}
 			};
 			CSharpCodeProvider provider = new CSharpCodeProvider(providerOptions);
 
 			string newPath = scriptPath.ReplaceExtension(".dll");
-
+			
 			CompilerParameters compilerParams = new CompilerParameters {
 				GenerateExecutable = false,
 				OutputAssembly = newPath,

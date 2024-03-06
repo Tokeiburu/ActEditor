@@ -243,8 +243,8 @@ namespace Scripts {
 			return plane;
 		}
 		
-		private Vertex _getCenter(Plane plane) {
-			Vertex center = new Vertex();
+		private TkVector2 _getCenter(Plane plane) {
+			TkVector2 center = new TkVector2();
 			
 			foreach(var point in plane.Points) {
 				center += point;

@@ -192,49 +192,6 @@
     <SolidColorBrush x:Key="UITreeViewUnableBorderBrush" Color="{StaticResource UIThemeTreeViewDragUnableBorderColor}"/>
     <SolidColorBrush x:Key="UITreeViewUnableBackgroundBrush" Color="{StaticResource UIThemeTreeViewDragUnableBackgroundColor}"/>
 
-    <!-- Dark theme styles -->
-    <Style TargetType="WPF:TkTreeViewItem">
-        <Setter Property="DefaultTextForeground" Value="{StaticResource UITreeViewDefaultForegroundBrush}" />
-        <Setter Property="SelectBackgroundBrush" Value="{StaticResource UITreeViewSelectedBackgroundBrush}" />
-        <Setter Property="SelectBorderBrush" Value="{StaticResource UITreeViewSelectedBorderBrush}" />
-        <Setter Property="MouseOverBackgroundBrush" Value="{StaticResource UITreeViewMouseOverBackgroundBrush}" />
-        <Setter Property="MouseOverBorderBrush" Value="{StaticResource UITreeViewMouseOverBorderBrush}" />
-        <Setter Property="MouseOverTextForeground" Value="{StaticResource UITreeViewMouseOverForegroundBrush}" />
-        <Setter Property="SelectedTextForeground" Value="{StaticResource UITreeViewSelectedForegroundBrush}" />
-        <Setter Property="DragEnterBackgroundBrush" Value="{StaticResource UITreeViewDragEnterBackgroundBrush}" />
-        <Setter Property="DragEnterBorderBrush" Value="{StaticResource UITreeViewDragEnterBorderBrush}" />
-        <Setter Property="UnableBackgroundBrush" Value="{StaticResource UITreeViewUnableBackgroundBrush}" />
-        <Setter Property="UnableBorderBrush" Value="{StaticResource UITreeViewUnableBorderBrush}" />
-    </Style>
-
-    <Style TargetType="TreeViewManager:ProjectTreeViewItem">
-        <Setter Property="DefaultTextForeground" Value="{StaticResource UITreeViewDefaultForegroundBrush}" />
-        <Setter Property="SelectBackgroundBrush" Value="{StaticResource UITreeViewSelectedBackgroundBrush}" />
-        <Setter Property="SelectBorderBrush" Value="{StaticResource UITreeViewSelectedBorderBrush}" />
-        <Setter Property="MouseOverBackgroundBrush" Value="{StaticResource UITreeViewMouseOverBackgroundBrush}" />
-        <Setter Property="MouseOverBorderBrush" Value="{StaticResource UITreeViewMouseOverBorderBrush}" />
-        <Setter Property="MouseOverTextForeground" Value="{StaticResource UITreeViewMouseOverForegroundBrush}" />
-        <Setter Property="SelectedTextForeground" Value="{StaticResource UITreeViewSelectedForegroundBrush}" />
-        <Setter Property="DragEnterBackgroundBrush" Value="{StaticResource UITreeViewDragEnterBackgroundBrush}" />
-        <Setter Property="DragEnterBorderBrush" Value="{StaticResource UITreeViewDragEnterBorderBrush}" />
-        <Setter Property="UnableBackgroundBrush" Value="{StaticResource UITreeViewUnableBackgroundBrush}" />
-        <Setter Property="UnableBorderBrush" Value="{StaticResource UITreeViewUnableBorderBrush}" />
-    </Style>
-
-    <Style TargetType="TreeViewManager:TypeTreeViewItem">
-        <Setter Property="DefaultTextForeground" Value="{StaticResource UITreeViewDefaultForegroundBrush}" />
-        <Setter Property="SelectBackgroundBrush" Value="{StaticResource UITreeViewSelectedBackgroundBrush}" />
-        <Setter Property="SelectBorderBrush" Value="{StaticResource UITreeViewSelectedBorderBrush}" />
-        <Setter Property="MouseOverBackgroundBrush" Value="{StaticResource UITreeViewMouseOverBackgroundBrush}" />
-        <Setter Property="MouseOverBorderBrush" Value="{StaticResource UITreeViewMouseOverBorderBrush}" />
-        <Setter Property="MouseOverTextForeground" Value="{StaticResource UITreeViewMouseOverForegroundBrush}" />
-        <Setter Property="SelectedTextForeground" Value="{StaticResource UITreeViewSelectedForegroundBrush}" />
-        <Setter Property="DragEnterBackgroundBrush" Value="{StaticResource UITreeViewDragEnterBackgroundBrush}" />
-        <Setter Property="DragEnterBorderBrush" Value="{StaticResource UITreeViewDragEnterBorderBrush}" />
-        <Setter Property="UnableBackgroundBrush" Value="{StaticResource UITreeViewUnableBackgroundBrush}" />
-        <Setter Property="UnableBorderBrush" Value="{StaticResource UITreeViewUnableBorderBrush}" />
-    </Style>
-
     <!-- Avalon styles -->
     <TextBlock x:Key="AvalonPythonComment" Foreground="#A0A0A0" FontWeight="Bold"/>
     <TextBlock x:Key="AvalonPythonString" Foreground="#E5DB6D" FontWeight="Bold"/>
@@ -879,29 +836,22 @@
     </Style>
 
     <Style TargetType="{x:Type TextBox}">
-        <Setter Property="Foreground" Value="{StaticResource TextForeground}"/>
-        <Setter Property="Background" Value="{StaticResource UIThemeTextBoxBorderBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource UIThemeTextBoxBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextForeground}"/>
+        <Setter Property="Background" Value="{DynamicResource UIThemeTextBoxBorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource UIThemeTextBoxBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="1"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBoxBase}">
                     <Border Name="Border"
-                CornerRadius="2"
-                Padding="{TemplateBinding Padding}"
-                BorderThickness="{TemplateBinding BorderThickness}"
-				Background="{TemplateBinding Background}"
-				BorderBrush="{TemplateBinding BorderBrush}">
+                        CornerRadius="2"
+                        Padding="{Binding Path=Padding, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"
+                        BorderThickness="{Binding Path=BorderThickness, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"
+				        Background="{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}"
+				        BorderBrush="{Binding Path=BorderBrush, RelativeSource={RelativeSource AncestorType={x:Type TextBox}}}">
                         <ScrollViewer Margin="0" x:Name="PART_ContentHost" />
                     </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeComboBoxDisabledBrush}" />
-                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeComboBoxDisabledBrush}" />
-                            <Setter Property="Foreground" Value="{StaticResource TextBoxOverlayBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -913,11 +863,6 @@
     </Style>
 
     <Style TargetType="{x:Type RadioButton}">
-        <Setter Property="Foreground"
-            Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"/>
-    </Style>
-
-    <Style TargetType="{x:Type CheckBox}">
         <Setter Property="Foreground"
             Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"/>
     </Style>
@@ -944,6 +889,67 @@
 
     <Style TargetType="{x:Type wpfBugFix:RangeListView}">
         <Setter Property="Background" Value="{StaticResource TabItemBackground}" />
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground"
+            Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type FrameworkElement}}, Path=(TextElement.Foreground)}"/>
+        <Setter Property="SnapsToDevicePixels" Value="true"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="FocusVisualStyle"	Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <BulletDecorator Background="Transparent">
+                        <BulletDecorator.Bullet>
+                            <Border x:Name="Border"  
+                Width="14" 
+                Height="13"
+                CornerRadius="1" 
+                Background="White"
+                BorderThickness="1"
+                Margin="1 0 0 0"
+                BorderBrush="White">
+                                <Path
+                  x:Name="CheckMark"
+                  SnapsToDevicePixels="true" 
+                  Stroke="Black"
+                  StrokeThickness="1.8"
+                  Data="M 1.5,5 5.5,8.2 10,2" />
+                            </Border>
+                        </BulletDecorator.Bullet>
+                        <ContentPresenter Margin="6,-1,0,0"
+              HorizontalAlignment="Left"
+              RecognizesAccessKey="True"/>
+                    </BulletDecorator>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="false">
+                            <Setter TargetName="CheckMark" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="CheckMark" Property="Visibility" Value="Collapsed"/>
+                            <Setter TargetName="Border" Property="BorderThickness" Value="3" />
+                            <Setter TargetName="Border" Property="Background" Value="White" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#626FFD" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter TargetName="CheckMark" Property="Stroke" Value="White" />
+                            <Setter TargetName="Border" Property="Background" Value="#626FFD" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#626FFD" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#8892FD" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#8892FD" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource UIThemeContextMenuDisabledTextBrush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource UIThemeContextMenuDisabledTextBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource UIThemeContextMenuDisabledTextBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <SolidColorBrush x:Key="TVIMouseDragOverBackground" Color="{StaticResource UIThemeTreeViewDragEnterBackgroundColor}"/>

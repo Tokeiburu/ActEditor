@@ -162,8 +162,6 @@ namespace ActEditor.Core {
 				}
 			}, "ActEditor - MetaGrf loader");
 
-			TemporaryFilesManager.UniquePattern("new_{0:0000}");
-
 			EncodingService.SetDisplayEncoding(ActEditorConfiguration.EncodingCodepage);
 
 			_tabControl.SelectionChanged += delegate {
