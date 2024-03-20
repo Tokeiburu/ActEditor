@@ -65,8 +65,8 @@
     <StartupObject>ActEditor.GRFEditorMain</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ActImaging">
-      <HintPath>..\Libraries\ActImaging.dll</HintPath>
+    <Reference Include="ActImaging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\ActImaging.dll</HintPath>
     </Reference>
     <Reference Include="ColorPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\Libraries\ColorPicker.dll</HintPath>

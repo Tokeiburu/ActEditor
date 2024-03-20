@@ -78,6 +78,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 							image.Palette[3] = 0;
 						}
 					}
+
 					var source = Imaging.GenerateImage(_act, _actionIndex, SelectedFrame);
 					_imagePreview.Margin = new Thickness(
 						(int) (_scrollViewer.ActualWidth / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Width)) / 2),

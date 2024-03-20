@@ -2,13 +2,13 @@
 
 [Setup]
 AppName=Act Editor
-AppVersion=1.2.7
+AppVersion={#VERSION_NAME}
 DefaultDirName={pf}\Act Editor
 DefaultGroupName=Act Editor
 UninstallDisplayIcon={app}\Act Editor.exe
 Compression=lzma2
 SolidCompression=yes
-OutputDir=C:\Users\Tokei\Desktop\Releases\Act Editor
+OutputDir={#OUTPUT_DIR}
 OutputBaseFilename=Act Editor Installer
 WizardImageFile=setupBackground.bmp
 DisableProgramGroupPage=yes
