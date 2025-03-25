@@ -52,16 +52,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ColorPicker">
-      <HintPath>..\..\Librairies\ColorPicker.dll</HintPath>
+      <HintPath>..\Libraries\ColorPicker.dll</HintPath>
     </Reference>
     <Reference Include="ErrorManager">
-      <HintPath>..\..\GRFEditor\GRFEditor\Files\ErrorManager.dll</HintPath>
+      <HintPath>..\Libraries\ErrorManager.dll</HintPath>
     </Reference>
     <Reference Include="GRF">
-      <HintPath>..\..\GRFEditor\GRFEditor\Files\GRF.dll</HintPath>
+      <HintPath>..\Libraries\GRF.dll</HintPath>
     </Reference>
     <Reference Include="GrfToWpfBridge">
-      <HintPath>..\..\GRFEditor\GRFEditor\Files\GrfToWpfBridge.dll</HintPath>
+      <HintPath>..\Libraries\GrfToWpfBridge.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -69,10 +69,10 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="TokeiLibrary">
-      <HintPath>..\..\GRFEditor\GRFEditor\Files\TokeiLibrary.dll</HintPath>
+      <HintPath>..\Libraries\TokeiLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Utilities">
-      <HintPath>..\..\GRFEditor\GRFEditor\Files\Utilities.dll</HintPath>
+      <HintPath>..\Libraries\Utilities.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>

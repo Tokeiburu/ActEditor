@@ -65,11 +65,11 @@
     <StartupObject>ActEditor.GRFEditorMain</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ActImaging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\ActImaging.dll</HintPath>
+    <Reference Include="ActImaging">
+      <HintPath>..\Libraries\ActImaging.dll</HintPath>
     </Reference>
-    <Reference Include="ColorPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\ColorPicker.dll</HintPath>
+    <Reference Include="ColorPicker">
+      <HintPath>..\Libraries\ColorPicker.dll</HintPath>
     </Reference>
     <Reference Include="Encryption">
       <HintPath>..\Libraries\Encryption.dll</HintPath>
@@ -80,12 +80,11 @@
     <Reference Include="Gif.Components">
       <HintPath>..\Libraries\Gif.Components.dll</HintPath>
     </Reference>
-    <Reference Include="GRF, Version=1.2.8542.22323, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\GRF.dll</HintPath>
+    <Reference Include="GRF">
+      <HintPath>..\Libraries\GRF.dll</HintPath>
     </Reference>
-    <Reference Include="GrfToWpfBridge, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\GrfToWpfBridge.dll</HintPath>
+    <Reference Include="GrfToWpfBridge">
+      <HintPath>..\Libraries\GrfToWpfBridge.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.AvalonEdit">
       <HintPath>..\Libraries\ICSharpCode.AvalonEdit.dll</HintPath>
@@ -97,12 +96,11 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="TokeiLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\TokeiLibrary.dll</HintPath>
+    <Reference Include="TokeiLibrary">
+      <HintPath>..\Libraries\TokeiLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Utilities, Version=1.2.8542.22321, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\Utilities.dll</HintPath>
+    <Reference Include="Utilities">
+      <HintPath>..\Libraries\Utilities.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -763,7 +761,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
