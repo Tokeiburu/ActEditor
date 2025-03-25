@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ActEditor.ApplicationConfiguration;
 using ActImaging;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
@@ -377,7 +378,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 				return;
 			}
 
-			if ((int) Act[actionIndex].AnimationSpeed * 25 == 0 ||
+			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+
+			if ((int)Act[actionIndex].AnimationSpeed * frameInterval == 0 ||
 			    float.IsNaN(Act[actionIndex].AnimationSpeed)) {
 				if (Act[actionIndex].Frames[0].Layers[0].SpriteIndex < 0) {
 					_imagePreview.Source = null;
@@ -387,7 +390,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_imagePreview.Source = Act.Sprite.Images[Act[actionIndex].Frames[0].Layers[0].SpriteIndex].Cast<BitmapSource>();
 			}
 			else {
-				_actThreadSleepDelay = (int) (Act[actionIndex].AnimationSpeed * 25);
+				_actThreadSleepDelay = (int)(Act[actionIndex].AnimationSpeed * frameInterval);
 			}
 
 			_changedAnimationIndex = true;

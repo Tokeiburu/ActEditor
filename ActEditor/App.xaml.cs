@@ -27,7 +27,7 @@ namespace ActEditor {
 			Settings.TempPath = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "tmp");
 			TemporaryFilesManager.ClearTemporaryFiles();
 			SelfPatcher.SelfPatch();
-			SprConverterV2M1.AutomaticDowngradeOnRleException = true;
+			Spr.AutomaticDowngradeOnRleException = true;
 			Configuration.ProgramDataPath = GrfPath.Combine(Configuration.ApplicationDataPath, ActEditorConfiguration.ProgramName);
 			EffectConfiguration.ConfigAsker = ActEditorConfiguration.ConfigAsker;
 			EffectConfiguration.DisplayAction = (effectConfig, act, actionIndex) => {

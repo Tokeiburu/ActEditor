@@ -20,6 +20,7 @@ using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
+using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
 using Utilities.Extension;
 using Utilities.Services;
@@ -78,6 +79,10 @@ namespace ActEditor.Core {
 			}
 
 			return null;
+		}
+
+		public List<TabAct> GetTabs() {
+			return _tabControl.Items.OfType<TabAct>().ToList();
 		}
 
 		public void AnchorUpdate(MenuItem sender) {
@@ -206,7 +211,7 @@ namespace ActEditor.Core {
 							File.WriteAllBytes(file, tab.Act.Sprite.Palette.BytePalette);
 						}
 						else if ((sfd.FilterIndex == 5 && file.IsExtension(".spr")) || file.IsExtension(".spr")) {
-							tab.Act.Sprite.Converter.Save(tab.Act.Sprite, file.ReplaceExtension(".spr"));
+							tab.Act.Sprite.Save(file.ReplaceExtension(".spr"));
 						}
 						else if ((sfd.FilterIndex == 6 && file.IsExtension(".gif")) || file.IsExtension(".gif")) {
 							try {
@@ -645,6 +650,18 @@ namespace ActEditor.Core {
 						tab.Act.Commands.SaveCommandIndex();
 					}
 
+					if (tab.Act.Sprite.RleSaveError) {
+						if (ActEditorConfiguration.ShowErrorRleDowngrade) {
+							try {
+								WindowProvider.WindowOpened += _errorWindowOpened;
+								ErrorHandler.HandleException("Some of your sprite image sizes are too large and will not load properly. The SPR file format has been downgraded to 0x200 to avoid losing data, however these sprites will not load properly ingame.\r\n\r\nTo fix this issue, reduce your sprite image sizes. You can also convert your images as Bgra32 instead as this format has no size restriction.");
+							}
+							finally {
+								WindowProvider.WindowOpened -= _errorWindowOpened;
+							}
+						}
+					}
+
 					tab.IsNew = false;
 					SetTitle(tab);
 					return true;
@@ -658,6 +675,26 @@ namespace ActEditor.Core {
 			}
 
 			return false;
+		}
+
+		private void _errorWindowOpened(TkWindow window) {
+			ErrorDialog dialog = window as ErrorDialog;
+
+			if (dialog == null)
+				return;
+
+			dialog.Loaded += delegate {
+				var grid = (Grid)dialog.Content;
+				var footer = (Grid)((Grid)grid.Children[grid.Children.Count - 1]).Children[0];
+				var cb = new CheckBox { Content = "Do not show again", Margin = new Thickness(3) };
+				WpfUtils.AddMouseInOutEffectsBox(cb);
+				cb.SetValue(Grid.ColumnProperty, 1);
+				cb.HorizontalAlignment = HorizontalAlignment.Left;
+				cb.VerticalAlignment = VerticalAlignment.Center;
+				footer.Children.Add(cb);
+
+				Binder.Bind(cb, () => !ActEditorConfiguration.ShowErrorRleDowngrade, v => ActEditorConfiguration.ShowErrorRleDowngrade = !v, null, true);
+			};
 		}
 
 		public void Select(TabAct tab = null) {

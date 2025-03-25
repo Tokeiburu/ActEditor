@@ -74,8 +74,14 @@
                                         Turns anti-aliasing on or off for the selection border of the layers.
                                     </TextBlock.ToolTip>
                                 </TextBlock>
+                                
+                                <TextBlock Grid.Row="11" Text="Use real frame interval instead of being rounded" Width="180" Padding="5" TextWrapping="Wrap" HorizontalAlignment="Left">
+                                    <TextBlock.ToolTip>
+                                        Using an animation speed of 1, the delay between frames is 24ms officially. Act Editor rounds up this number to 25ms for simplicity. Checking this option uses 24ms instead.
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
 
-                                <Label Grid.Row="11" Content="Disply encoding" ToolTipService.ShowDuration="1000000">
+                                <Label Grid.Row="12" Content="Disply encoding" ToolTipService.ShowDuration="1000000">
                                     <Label.ToolTip>
                                         <TextBlock>
                                             Changes how the file names are shown when loading a GRF.
@@ -83,7 +89,7 @@
                                     </Label.ToolTip>
                                 </Label>
                                 
-                                <Label Grid.Row="12" Content="Theme" Visibility="Visible" >
+                                <Label Grid.Row="13" Content="Theme" Visibility="Visible" >
                                     <Label.ToolTip>
                                         <TextBlock>
                                         Determines Act Editor's UI style.
@@ -96,10 +102,11 @@
                                 <CheckBox Name="_gridVVisible" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 <CheckBox Name="_cbRefresh" Grid.Row="9" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 <CheckBox Name="_cbAliasing" Grid.Row="10" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <CheckBox Name="_cbAccurateFrameInterval" Grid.Row="11" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-                                <ComboBox Grid.Row="11" Grid.Column="1" Margin="3" Name="_comboBoxEncoding" IsReadOnly="True" />
+                                <ComboBox Grid.Row="12" Grid.Column="1" Margin="3" Name="_comboBoxEncoding" IsReadOnly="True" />
                                 
-                                <ComboBox Grid.Row="12" Grid.Column="1" Name="_comboBoxStyles" VerticalAlignment="Center" Margin="3" Visibility="Visible" >
+                                <ComboBox Grid.Row="13" Grid.Column="1" Name="_comboBoxStyles" VerticalAlignment="Center" Margin="3" Visibility="Visible" >
                                 </ComboBox>
                             </Grid>
                         </StackPanel>
@@ -433,7 +440,9 @@
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Row="0" Grid.Column="0" Content="Log any exceptions (debug.log)" />
+                                <Label Grid.Row="1" Grid.Column="0" Content="Show version downgrade error" />
                                 <CheckBox HorizontalAlignment="Center" Name="_debuggerLogAnyExceptions" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3" />
+                                <CheckBox HorizontalAlignment="Center" Name="_cbShowVersionDowngrade" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="3" />
                             </Grid>
                         </StackPanel>
                     </TabItem>

@@ -338,8 +338,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			Stopwatch watch = new Stopwatch();
 			SelectedFrame--;
+			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
 
-			int interval = (int) (act[SelectedAction].AnimationSpeed * 25f);
+			int interval = (int)(act[SelectedAction].AnimationSpeed * frameInterval);
 
 			int intervalsToShow = 1;
 			int intervalsToHide = 0;
@@ -349,7 +350,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				intervalsToHide = 1;
 			}
 
-			if (interval <= 25) {
+			if (interval <= frameInterval) {
 				intervalsToShow = 1;
 				intervalsToHide = 2;
 			}
@@ -369,7 +370,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					watch.Reset();
 					watch.Start();
 
-					interval = (int) (act[SelectedAction].AnimationSpeed * 25f);
+					interval = (int)(act[SelectedAction].AnimationSpeed * frameInterval);
 
 					if (act[SelectedAction].AnimationSpeed < 0.8f) {
 						_play_Click(null, null);
@@ -686,8 +687,15 @@ namespace ActEditor.Core.WPF.EditorControls {
 			});
 		}
 
+		public void RefreshIntervalDisplay() {
+			_disableEvents();
+			_updateInterval();
+			_enableEvents();
+		}
+
 		private void _updateInterval() {
-			_interval.Text = (_actEditor.Act[SelectedAction].AnimationSpeed * 25f).ToString(CultureInfo.InvariantCulture);
+			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+			_interval.Text = (_actEditor.Act[SelectedAction].AnimationSpeed * frameInterval).ToString(CultureInfo.InvariantCulture);
 		}
 
 		private void _fancyButton_Click(object sender, RoutedEventArgs e) {
@@ -796,11 +804,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _disableEvents() {
 			_comboBoxAnimationIndex.SelectionChanged -= _comboBoxAnimationIndex_SelectionChanged;
+			_interval.TextChanged -= _interval_TextChanged;
 			_fancyButtons.ForEach(p => p.Click -= _fancyButton_Click);
 		}
 
 		private void _enableEvents() {
 			_comboBoxAnimationIndex.SelectionChanged += _comboBoxAnimationIndex_SelectionChanged;
+			_interval.TextChanged += _interval_TextChanged;
 			_fancyButtons.ForEach(p => p.Click += _fancyButton_Click);
 		}
 
@@ -812,7 +822,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			if (float.TryParse(_interval.Text, out fval)) {
 				if (fval > 0) {
-					_actEditor.Act.Commands.SetInterval(SelectedAction, fval / 25f);
+					int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+					_actEditor.Act.Commands.SetInterval(SelectedAction, fval / frameInterval);
 				}
 			}
 		}

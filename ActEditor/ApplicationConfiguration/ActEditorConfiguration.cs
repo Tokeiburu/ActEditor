@@ -191,6 +191,11 @@ namespace ActEditor.ApplicationConfiguration {
 			}
 		}
 
+		public static bool UseAccurateFrameInterval {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - UseAccurateFrameInterval]", false.ToString()]); }
+			set { ConfigAsker["[ActEditor - UseAccurateFrameInterval]"] = value.ToString(); }
+		}
+
 		public static bool ReverseAnchor {
 			get { return Boolean.Parse(ConfigAsker["[ActEditor - ReverseAnchor]", false.ToString()]); }
 			set { ConfigAsker["[ActEditor - ReverseAnchor]"] = value.ToString(); }
@@ -422,6 +427,11 @@ namespace ActEditor.ApplicationConfiguration {
 			set { ConfigAsker["[ActEditor - Preview sheet - Action index]"] = value.ToString(CultureInfo.InvariantCulture); }
 		}
 
+		public static bool ShowErrorRleDowngrade {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - ShowErrorRleDowngrade]", true.ToString()]); }
+			set { ConfigAsker["[ActEditor - ShowErrorRleDowngrade]"] = value.ToString(); }
+		}
+
 		#endregion
 
 		#region GrfShell
@@ -555,7 +565,7 @@ namespace ActEditor.ApplicationConfiguration {
 		#region Program's internal configuration and information
 
 		public static string PublicVersion {
-			get { return "1.2.8"; }
+			get { return "1.2.9"; }
 		}
 
 		public static string Author {

@@ -7,20 +7,29 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.Scripts;
 using ActEditor.Core.WPF.Dialogs;
 using ActEditor.Tools.GrfShellExplorer;
 using ErrorManager;
+using GRF.Core;
 using GRF.Core.GroupedGrf;
 using GRF.FileFormats;
 using GRF.FileFormats.ActFormat;
+using GRF.FileFormats.GatFormat;
+using GRF.FileFormats.GndFormat;
+using GRF.FileFormats.RsmFormat;
+using GRF.FileFormats.RswFormat;
 using GRF.FileFormats.SprFormat;
+using GRF.Image;
+using GRF.IO;
 using GRF.System;
 using GRF.Threading;
 using GrfToWpfBridge;
 using GrfToWpfBridge.Application;
 using GrfToWpfBridge.MultiGrf;
+using Microsoft.Win32;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.Shortcuts;
@@ -56,6 +65,17 @@ namespace ActEditor.Core {
 
 		public ActEditorWindow()
 			: base("Act Editor", "app.ico", SizeToContent.WidthAndHeight, ResizeMode.CanResize) {
+			try {
+				Rsm rsm = new Rsm(@"C:\Users\Tokei\Downloads\6speedrun.rsm");
+
+				Z.F(rsm);
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err);
+			}
+
+
+
 			Instance = this;
 			Spr.EnableImageSizeCheck = false;
 			_parseCommandLineArguments(false);
@@ -152,7 +172,7 @@ namespace ActEditor.Core {
 				_metaGrf.Update(_metaGrfViewer.Paths);
 			};
 
-			_metaGrfViewer.LoadResourceMethod = () => ActEditorConfiguration.Resources;
+			_metaGrfViewer.LoadResourceMethod = () => ActEditorConfiguration.Resources.Select(p => new MultiGrfPath(p) { FromConfiguration = true, IsCurrentlyLoadedGrf = false }).ToList();
 			_metaGrfViewer.LoadResourcesInfo();
 			GrfThread.Start(() => {
 				try {
@@ -458,7 +478,7 @@ namespace ActEditor.Core {
 				string fileName = TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}");
 
 				act.LoadedPath = fileName + ".act";
-				act.Sprite.Converter.Save(act.Sprite, fileName + ".spr");
+				act.Sprite.Save(fileName + ".spr");
 				act.Save(fileName + ".act");
 
 				_open(fileName + ".act", true, true);

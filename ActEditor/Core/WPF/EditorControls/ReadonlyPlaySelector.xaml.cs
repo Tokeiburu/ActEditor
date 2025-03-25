@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using ActEditor.ApplicationConfiguration;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.Threading;
@@ -159,7 +160,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			Stopwatch watch = new Stopwatch();
 
-			int interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * 25f);
+			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+			int interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * frameInterval);
 
 			int intervalsToShow = 1;
 			int intervalsToHide = 0;
@@ -169,7 +171,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				intervalsToHide = 1;
 			}
 
-			if (interval <= 25) {
+			if (interval <= frameInterval) {
 				intervalsToShow = 1;
 				intervalsToHide = 2;
 			}
@@ -187,7 +189,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					watch.Reset();
 					watch.Start();
 
-					interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * 25f);
+					interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * frameInterval);
 
 					if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
 						_play_Click(null, null);

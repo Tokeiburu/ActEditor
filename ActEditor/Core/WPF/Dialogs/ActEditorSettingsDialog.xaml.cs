@@ -69,11 +69,19 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Binder.Bind(_cbAliasing, () => ActEditorConfiguration.UseAliasing, v => ActEditorConfiguration.UseAliasing = v, () => ActEditorWindow.Instance.GetCurrentTab2()._rendererPrimary.UpdateAndSelect());
 
 			Binder.Bind(_debuggerLogAnyExceptions, () => Configuration.LogAnyExceptions, v => Configuration.LogAnyExceptions = v);
+			Binder.Bind(_cbShowVersionDowngrade, () => ActEditorConfiguration.ShowErrorRleDowngrade, v => ActEditorConfiguration.ShowErrorRleDowngrade = v);
 
 			Binder.Bind(_cbUniform, () => ActEditorConfiguration.ActEditorGifUniform, v => ActEditorConfiguration.ActEditorGifUniform = v);
 			Binder.Bind(_colorBackground, () => ActEditorConfiguration.ActEditorGifBackgroundColor, v => ActEditorConfiguration.ActEditorGifBackgroundColor = v);
 			Binder.Bind(_colorGuildelines, () => ActEditorConfiguration.ActEditorGifGuidelinesColor, v => ActEditorConfiguration.ActEditorGifGuidelinesColor = v);
 			Binder.Bind(_cbHideGifDialog, () => ActEditorConfiguration.ActEditorGifHideDialog, v => ActEditorConfiguration.ActEditorGifHideDialog = v);
+			Binder.Bind(_cbAccurateFrameInterval, () => ActEditorConfiguration.UseAccurateFrameInterval, v => ActEditorConfiguration.UseAccurateFrameInterval = v, delegate {
+				var tabs = ActEditorWindow.Instance.TabEngine.GetTabs();
+
+				foreach (var tab in tabs) {
+					tab._frameSelector.RefreshIntervalDisplay();
+				}
+			});
 
 			Binder.Bind(_tbDelayFactor, () => ActEditorConfiguration.ActEditorGifDelayFactor, v => ActEditorConfiguration.ActEditorGifDelayFactor = v);
 			Binder.Bind(_tbMargin, () => ActEditorConfiguration.ActEditorGifMargin, v => ActEditorConfiguration.ActEditorGifMargin = v);

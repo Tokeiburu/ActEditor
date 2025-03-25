@@ -896,7 +896,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 							_spr.Palette.MakeFirstColorUnique();
 							_spr.Palette[3] = 255;
 
-							_spr.Converter.Save(_spr, file.ReplaceExtension(".spr"));
+							_spr.Save(file.ReplaceExtension(".spr"));
 							_spr.Palette[3] = 0;
 						}
 						finally {

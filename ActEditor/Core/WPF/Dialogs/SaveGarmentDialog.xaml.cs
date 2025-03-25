@@ -462,7 +462,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private Act _adjustAct(Act actSource, bool newAct = true) {
 			int offsetX = FormatConverters.IntConverter(_tbXOffset.Dispatch(p => _tbXOffset.Text));
-			int offsetY = FormatConverters.IntConverter(_tbYOffset.Dispatch(p => _tbXOffset.Text));
+			int offsetY = FormatConverters.IntConverter(_tbYOffset.Dispatch(p => _tbYOffset.Text));
 
 			if (offsetX == 0 && offsetY == 0)
 				return actSource;

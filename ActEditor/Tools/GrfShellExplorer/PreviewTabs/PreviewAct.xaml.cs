@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ActEditor.ApplicationConfiguration;
 using ActImaging;
 using ErrorManager;
 using GRF.Core;
@@ -209,7 +210,9 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 			if (actionIndex < 0)
 				return;
 
-			if ((int) _act[actionIndex].AnimationSpeed * 25 == 0 ||
+			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+
+			if ((int)_act[actionIndex].AnimationSpeed * frameInterval == 0 ||
 			    float.IsNaN(_act[actionIndex].AnimationSpeed)) {
 				if (_act[actionIndex].Frames[0].Layers[0].SpriteIndex < 0) {
 					_imagePreview.Dispatch(p => p.Source = null);
@@ -219,7 +222,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 				_imagePreview.Dispatch(p => p.Source = _act.Sprite.Images[_act[actionIndex].Frames[0].Layers[0].SpriteIndex].Cast<BitmapSource>());
 			}
 			else {
-				_actThreadSleepDelay = (int) (_act[actionIndex].AnimationSpeed * 25);
+				_actThreadSleepDelay = (int)(_act[actionIndex].AnimationSpeed * frameInterval);
 			}
 
 			_enableActThread = true;
@@ -307,7 +310,9 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 					if (actionIndex < 0)
 						return;
 
-					if ((int) _act[actionIndex].AnimationSpeed * 25 == 0 ||
+					int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+
+					if ((int)_act[actionIndex].AnimationSpeed * frameInterval == 0 ||
 					    float.IsNaN(_act[actionIndex].AnimationSpeed)) {
 						if (_act[actionIndex].Frames[0].Layers[0].SpriteIndex < 0) {
 							_imagePreview.Source = null;
@@ -317,7 +322,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 						_imagePreview.Source = _act.Sprite.Images[_act[actionIndex].Frames[0].Layers[0].SpriteIndex].Cast<BitmapSource>();
 					}
 					else {
-						_actThreadSleepDelay = (int) (_act[actionIndex].AnimationSpeed * 25);
+						_actThreadSleepDelay = (int)(_act[actionIndex].AnimationSpeed * frameInterval);
 					}
 
 					_actionIndex = actionIndex;

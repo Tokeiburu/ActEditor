@@ -40,7 +40,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Binder.Bind(_colorGuildelines, () => ActEditorConfiguration.ActEditorGifGuidelinesColor, v => ActEditorConfiguration.ActEditorGifGuidelinesColor = v);
 			Binder.Bind(_cbDoNotShow, () => ActEditorConfiguration.ActEditorGifHideDialog, v => ActEditorConfiguration.ActEditorGifHideDialog = v);
 
-			_tbDelay.Text = ((int) Math.Ceiling((act[selectedIndex].AnimationSpeed * 25))).ToString(CultureInfo.InvariantCulture);
+			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+			_tbDelay.Text = ((int)Math.Ceiling((act[selectedIndex].AnimationSpeed * frameInterval))).ToString(CultureInfo.InvariantCulture);
 
 			Binder.Bind(_tbDelayFactor, () => ActEditorConfiguration.ActEditorGifDelayFactor, v => ActEditorConfiguration.ActEditorGifDelayFactor = v);
 			Binder.Bind(_tbMargin, () => ActEditorConfiguration.ActEditorGifMargin, v => ActEditorConfiguration.ActEditorGifMargin = v);

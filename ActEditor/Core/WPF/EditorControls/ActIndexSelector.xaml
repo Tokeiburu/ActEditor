@@ -150,6 +150,11 @@
                             This is the interval in miliseconds between two frames for the current
                             <LineBreak />
                             action. An interval of 200 ms means there will 5 frames per second.
+                            <LineBreak />
+                            <LineBreak />
+                            * This value is approximated unless the "Use real frame interval" option
+                            <LineBreak />
+                            from the settings page is checked (Tools > Settings > General).
                             </TextBlock>
                         </Label.ToolTip>
                     </Label>
