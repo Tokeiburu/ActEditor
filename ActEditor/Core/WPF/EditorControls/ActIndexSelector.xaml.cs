@@ -820,7 +820,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			float fval;
 
-			if (float.TryParse(_interval.Text, out fval)) {
+			if (float.TryParse(_interval.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out fval)) {
 				if (fval > 0) {
 					int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
 					_actEditor.Act.Commands.SetInterval(SelectedAction, fval / frameInterval);
