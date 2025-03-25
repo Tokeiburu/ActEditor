@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="PaletteEditor.AdjustColorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+             xmlns:PaletteEditor="clr-namespace:PaletteEditor" SnapsToDevicePixels="True"
+             xmlns:Sliders="clr-namespace:ColorPicker.Sliders;assembly=ColorPicker" mc:Ignorable="d" 
+             d:DesignHeight="400">
+    <Grid Margin="3" Focusable="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <PaletteEditor:PaletteSelector Grid.Row="1" HorizontalAlignment="Left" Margin="2 5 2 2" VerticalAlignment="Top" x:Name="_paletteSelector" />
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="361" />
+                <ColumnDefinition Width="30" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Text="Fuzziness" Margin="3" />
+            <TextBlock Grid.Row="2" Text="Hue" Margin="3" />
+            <TextBlock Grid.Row="4" Text="Saturation" Margin="3" />
+            <TextBlock Grid.Row="6" Text="Lightness" Margin="3" />
+            <Sliders:SliderColor Margin="0 2 0 2" Height="18" ValueChanged="_sliderFuzziness_ValueChanged" x:Name="_sliderFuzziness" Grid.Row="1" Grid.Column="0">
+                <Sliders:SliderColor.GradientBackground>
+                    <LinearGradientBrush>
+                        <GradientStop Color="White" Offset="0" />
+                        <GradientStop Color="White" Offset="1" />
+                    </LinearGradientBrush>
+                </Sliders:SliderColor.GradientBackground>
+            </Sliders:SliderColor>
+            <Sliders:SliderColor Margin="0 2 0 2" Height="28" ValueChanged="_sliderHue_ValueChanged" x:Name="_sliderHue" Grid.Row="3" Grid.Column="0">
+                <Sliders:SliderColor.GradientBackground>
+                    <LinearGradientBrush StartPoint="-0.17,0" EndPoint="1.17,0">
+                        <GradientStop Color="Red" Offset="0" />
+                        <GradientStop Color="Blue" Offset="1" />
+                    </LinearGradientBrush>
+                </Sliders:SliderColor.GradientBackground>
+            </Sliders:SliderColor>
+            <Sliders:SliderColor Margin="0 2 0 2" Height="18" ValueChanged="_sliderSaturation_ValueChanged" x:Name="_sliderSaturation" Grid.Row="5" Grid.Column="0">
+                <Sliders:SliderColor.GradientBackground>
+                    <LinearGradientBrush>
+                        <GradientStop Color="White" Offset="0" />
+                        <GradientStop Color="White" Offset="1" />
+                    </LinearGradientBrush>
+                </Sliders:SliderColor.GradientBackground>
+            </Sliders:SliderColor>
+            <Sliders:SliderColor Margin="0 2 0 2" Height="18" ValueChanged="_sliderLightness_ValueChanged" x:Name="_sliderLightness" Grid.Row="7" Grid.Column="0">
+                <Sliders:SliderColor.GradientBackground>
+                    <LinearGradientBrush>
+                        <GradientStop Color="White" Offset="0" />
+                        <GradientStop Color="White" Offset="1" />
+                    </LinearGradientBrush>
+                </Sliders:SliderColor.GradientBackground>
+            </Sliders:SliderColor>
+
+            <TextBlock Name="_tbFuzziness" Grid.Row="1" Grid.Column="1" Text="200" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBlock Name="_tbHue" Grid.Row="3" Grid.Column="1" Text="200" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBlock Name="_tbSaturation" Grid.Row="5" Grid.Column="1" Text="200" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <TextBlock Name="_tbLightness" Grid.Row="7" Grid.Column="1" Text="200" HorizontalAlignment="Right" VerticalAlignment="Center" />
+            <Button Grid.Row="9" Name="_buttonFix" Click="_buttonFix_Click" Content="Fix palette" Margin="3" Height="24" HorizontalAlignment="Left" Width="100" />
+        </Grid>
+    </Grid>
+</UserControl>

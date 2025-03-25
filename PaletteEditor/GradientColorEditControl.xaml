@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="PaletteEditor.GradientColorEditControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ColorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+             xmlns:PaletteEditor="clr-namespace:PaletteEditor" SnapsToDevicePixels="True"
+             xmlns:Sliders="clr-namespace:ColorPicker.Sliders;assembly=ColorPicker" mc:Ignorable="d" >
+    <Grid Margin="3" Focusable="True" Name="_primaryGrid">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <PaletteEditor:PaletteSelector Grid.Row="1" HorizontalAlignment="Left" Margin="2 5 2 2" VerticalAlignment="Top" x:Name="_paletteSelector" />
+        <ColorPicker:PickerControl Grid.Row="1" VerticalAlignment="Top" Margin="0 -2 0 0" x:Name="_colorPicker" Grid.Column="1"/>
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2">
+            <WrapPanel Name="_wrapPanel">
+                <Border Margin="0 5 0 0" VerticalAlignment="Top" HorizontalAlignment="Left" Name="_borderPreview" Width="260" Height="28" CornerRadius="2" BorderThickness="1" Background="White" BorderBrush="Black" >
+                    <Grid Margin="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Border PreviewMouseLeftButtonDown="_colorFirst_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="_colorFirst_PreviewMouseRightButtonDown"  Grid.Column="0" Name="_colorFirst">
+                                <Label Foreground="Black" Content="First color" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Padding="0" />
+                            </Border>
+                            <Border PreviewMouseLeftButtonDown="_colorMiddle_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="_colorMiddle_PreviewMouseRightButtonDown"  Grid.Column="1" Name="_colorMiddle">
+                                <Label Foreground="Black" Content="Middle color" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Padding="0" />
+                            </Border>
+                            <Border PreviewMouseLeftButtonDown="_colorLast_PreviewMouseLeftButtonDown" PreviewMouseRightButtonDown="_colorLast_PreviewMouseRightButtonDown" Grid.Column="2" Name="_colorLast">
+                                <Label Foreground="Black" Content="Last color" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Padding="0" />
+                            </Border>
+                            <Border Visibility="Hidden" IsHitTestVisible="False" Grid.Column="0" Name="_colorOverlay" BorderBrush="Blue" BorderThickness="3" Margin="-3" />
+                            <Border Visibility="Hidden" IsHitTestVisible="False" Grid.Column="0" Name="_colorOverlayLock0" BorderBrush="Red" BorderThickness="3" Margin="-1" />
+                            <Border Visibility="Hidden" IsHitTestVisible="False" Grid.Column="1" Name="_colorOverlayLock1" BorderBrush="Red" BorderThickness="3" Margin="-1" />
+                            <Border Visibility="Hidden" IsHitTestVisible="False" Grid.Column="2" Name="_colorOverlayLock2" BorderBrush="Red" BorderThickness="3" Margin="-1" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </WrapPanel>
+            <Grid Name="_gridGradient" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Name="_gridCol0" Width="0" />
+                    <ColumnDefinition Name="_gridCol1" Width="60" />
+                    <ColumnDefinition Name="_gridCol2" Width="148" />
+                    <ColumnDefinition Name="_gridCol3" Width="5" />
+                    <ColumnDefinition Name="_gridCol4" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Gradient " TextAlignment="Right" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" />
+                <Sliders:SliderColor Height="30" ValueChanged="_gpGradient_ValueChanged" x:Name="_gpGradient" Grid.Row="5" Grid.Column="2">
+                </Sliders:SliderColor>
+                <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding ElementName=_gpGradient, Path=PositionString}" VerticalAlignment="Center" />
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

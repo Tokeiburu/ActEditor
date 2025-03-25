@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="PaletteEditor.PaletteSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:PaletteEditor="clr-namespace:PaletteEditor" mc:Ignorable="d" SnapsToDevicePixels="True">
+    <Grid Name="_gridFocus" Width="256" Height="256" Focusable="True" FocusVisualStyle="{x:Null}">
+        <Image Name="_imageBackPalette" Width="256" Height="256" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+        <Image Name="_imageUsedPalette" Width="256" Height="256" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+        <Image Name="_imageSelectionPalette" Width="256" Height="256" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+        <Border Name="_borderSelector" Background="#01000000" Width="256" Height="256" />
+        <PaletteEditor:PaletteOverlay Visibility="Hidden" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="_paletteOverlay" />
+        <PaletteEditor:LargePaletteOverlay Visibility="Hidden" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="_largePaletteOverlay" />
+    </Grid>
+</UserControl>
