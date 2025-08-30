@@ -65,16 +65,6 @@ namespace ActEditor.Core {
 
 		public ActEditorWindow()
 			: base("Act Editor", "app.ico", SizeToContent.WidthAndHeight, ResizeMode.CanResize) {
-			try {
-				Rsm rsm = new Rsm(@"C:\Users\Tokei\Downloads\6speedrun.rsm");
-
-				Z.F(rsm);
-			}
-			catch (Exception err) {
-				ErrorHandler.HandleException(err);
-			}
-
-
 
 			Instance = this;
 			Spr.EnableImageSizeCheck = false;
