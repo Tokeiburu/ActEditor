@@ -59,14 +59,7 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 								var idx = _editor.Act.Sprite.Exists(image);
 
 								if (!idx.Valid) {
-									int oldIndexed8Count = _editor.Act.Sprite.NumberOfIndexed8Images;
-
-									_editor.SpriteManager.AddImage(image);
-
-									if (oldIndexed8Count == _editor.Act.Sprite.NumberOfIndexed8Images)
-										idx = new SpriteIndex(_editor.Act.Sprite.NumberOfBgra32Images - 1, GRF.Image.GrfImageType.Bgra32);
-									else
-										idx = new SpriteIndex(_editor.Act.Sprite.NumberOfIndexed8Images - 1, GRF.Image.GrfImageType.Indexed8);
+									idx = _editor.SpriteManager.AddImage(image);
 								}
 
 								layer.SprSpriteIndex = idx;

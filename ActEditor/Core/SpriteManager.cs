@@ -208,8 +208,17 @@ namespace ActEditor.Core {
 			_actEditor.Act.Commands.SpriteFlip(index.GetAbsoluteIndex(_sprite), direction);
 		}
 
-		public void AddImage(GrfImage image) {
-			_actEditor.Act.Commands.SpriteAdd(_convertToAny(image));
+		public SpriteIndex AddImage(GrfImage image) {
+			var nImage = _convertToAny(image);
+
+			var idx = _sprite.Exists(nImage);
+
+			if (!idx.Valid) {
+				_actEditor.Act.Commands.SpriteAdd(nImage);
+				idx = _sprite.Exists(nImage);
+			}
+
+			return idx;
 		}
 
 		public void Export(SpriteIndex index) {
