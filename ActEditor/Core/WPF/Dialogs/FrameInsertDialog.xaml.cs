@@ -36,7 +36,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			InitializeComponent();
 
 			WpfUtilities.AddFocus(_tbIndexStart, _tbIndexEnd, _tbIndexRange);
-			WpfUtils.AddMouseInOutEffectsBox(_cbCopyContent);
+			WpfUtilities.AddMouseInOutUnderline(_cbCopyContent);
 
 			_asIndexStart.FrameChanged += new ActIndexSelector.FrameIndexChangedDelegate(_asIndexStart_ActionChanged);
 			_asIndexEnd.FrameChanged += new ActIndexSelector.FrameIndexChangedDelegate(_asIndexEnd_ActionChanged);

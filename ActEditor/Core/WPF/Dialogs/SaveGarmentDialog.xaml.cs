@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -18,7 +17,7 @@ using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using GRF.IO;
-using GRF.System;
+using GRF.GrfSystem;
 using GRF.Threading;
 using GrfToWpfBridge;
 using TokeiLibrary;
@@ -75,7 +74,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				ActEditorConfiguration.ActEditorGarmentPaths = _textEditor.Text;
 			};
 
-			WpfUtils.AddMouseInOutEffectsBox(_cbCopySpr, _cbGuessAnchors);
+			WpfUtilities.AddMouseInOutUnderline(_cbCopySpr, _cbGuessAnchors);
 
 			Binder.Bind(_cbCopySpr, () => ActEditorConfiguration.ActEditorGarmentCopySpr, v => ActEditorConfiguration.ActEditorGarmentCopySpr = v);
 			Binder.Bind(_cbGuessAnchors, () => ActEditorConfiguration.ActEditorGarmentGuessAnchor, v => ActEditorConfiguration.ActEditorGarmentGuessAnchor = v, delegate {
@@ -98,6 +97,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			editor.IndexSelector = _rps;
 			editor.SelectedActionFunc = () => _rps.SelectedAction;
 			editor.SelectedFrameFunc = () => _rps.SelectedFrame;
+			editor.FrameRenderer = _rfp;
 
 			//if (ActEditorConfiguration.ReverseAnchor && _name == "Body" && _actEditor.Act != null && Act != null) {
 			_actRefBody.Name = "Body";
@@ -124,7 +124,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				return new List<DrawingComponent>();
 			}, DrawingPriorityValues.Normal, false));
 
-			_rps.Load(editor);
+			_rps.Init(editor, -1, -1);
 			_rfp.Init(editor);
 
 			_pathBrowserDataGrf.TextChanged += delegate {

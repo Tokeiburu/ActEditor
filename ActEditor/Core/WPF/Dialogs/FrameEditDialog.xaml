@@ -1,0 +1,145 @@
+﻿<Styles:TkWindow x:Class="ActEditor.Core.WPF.Dialogs.FrameEditDialog"
+	    xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ActEditor.Core.WPF.Dialogs"
+		xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary" xmlns:frameEditor="clr-namespace:ActEditor.Core.WPF.FrameEditor" xmlns:EditorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
+				 mc:Ignorable="d"
+		Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}" MinWidth="600" SnapsToDevicePixels="True" UseLayoutRounding="True">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="400" />
+			<RowDefinition Height="auto" />
+		</Grid.RowDefinitions>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition />
+			</Grid.ColumnDefinitions>
+			<Grid Width="250">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+				<TextBlock Text="Drag frames or right-click for more options..." FontStyle="Italic" Margin="3" />
+				<Rectangle Fill="{DynamicResource UIGridBackgroundBrush}" VerticalAlignment="Bottom" Height="1" />
+				<ListBox Background="{DynamicResource TabItemBackground}" Grid.Row="1" Padding="0" x:Name="_lvActions" BorderThickness="0" ItemsSource="{Binding Actions}" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" SelectionMode="Extended" Focusable="False" FocusVisualStyle="{x:Null}" >
+					<ListBox.Resources>
+						<PopupAnimation x:Key="{x:Static SystemParameters.MenuPopupAnimationKey}">None</PopupAnimation>
+					</ListBox.Resources>
+					<ListBox.ContextMenu>
+						<ContextMenu>
+							<Styles:TkMenuItem x:Name="_miDelete" Click="_miDelete_Click" HeaderText="Delete" ShortcutCmd="ListData.Remove" IconPath="delete.png" />
+							<Styles:TkMenuItem x:Name="_miCopy" Click="_miCopy_Click" HeaderText="Copy" ShortcutCmd="ListData.Copy" IconPath="copy.png" />
+							<Styles:TkMenuItem x:Name="_miPaste" Click="_miPaste_Click" HeaderText="Paste" ShortcutCmd="ListData.Paste" IconPath="paste.png" />
+							<Styles:TkMenuItem x:Name="_miInsert" Click="_miInsert_Click" HeaderText="Insert copy at..." ShortcutCmd="ListData.InsertAt" IconPath="empty.png" />
+							<Separator />
+							<Styles:TkMenuItem x:Name="_miCut" Click="_miCut_Click" HeaderText="Cut" ShortcutCmd="ListData.Cut" IconPath="cut.png" />
+							<Styles:TkMenuItem x:Name="_miMove" Click="_miMove_Click" HeaderText="Move..." ShortcutCmd="ListData.MoveAt" IconPath="back.png" />
+							<Styles:TkMenuItem x:Name="_miNewAction" Click="_miNewAction_Click" HeaderText="New action" ShortcutCmd="ListData.NewAction" IconPath="add.png" />
+						</ContextMenu>
+					</ListBox.ContextMenu>
+					<ListBox.ItemContainerStyle>
+						<Style TargetType="ListBoxItem">
+							<Setter Property="Template">
+								<Setter.Value>
+									<ControlTemplate TargetType="ListBoxItem">
+										<Border Background="{TemplateBinding Background}" 
+												BorderBrush="{TemplateBinding BorderBrush}" 
+												BorderThickness="{TemplateBinding BorderThickness}" 
+												Padding="{TemplateBinding Padding}">
+											<Grid>
+												<Rectangle x:Name="Overlay" Width="100" HorizontalAlignment="Left" />
+												<ContentPresenter />
+											</Grid>
+										</Border>
+										<ControlTemplate.Triggers>
+											<Trigger Property="IsSelected" Value="True">
+												<Setter TargetName="Overlay" Property="Fill" Value="{StaticResource UIThemeListEditSelectedBrush}" />
+												<Setter Property="Foreground" Value="{StaticResource UITreeViewSelectedForegroundBrush}" />
+											</Trigger>
+
+											<Trigger Property="IsMouseOver" Value="True">
+												<Setter TargetName="Overlay" Property="Fill" Value="{StaticResource UIThemeListEditPreviewSelectedBrush}" />
+												<Setter Property="Foreground" Value="{StaticResource UITreeViewMouseOverForegroundBrush}" />
+											</Trigger>
+
+											<!-- Keep Red when selected even if hovered -->
+											<MultiTrigger>
+												<MultiTrigger.Conditions>
+													<Condition Property="IsSelected" Value="True" />
+													<Condition Property="IsMouseOver" Value="True" />
+												</MultiTrigger.Conditions>
+												<Setter TargetName="Overlay" Property="Fill" Value="{StaticResource UIThemeListEditSelectedBrush}" />
+												<Setter Property="Foreground" Value="{StaticResource UITreeViewSelectedForegroundBrush}" />
+											</MultiTrigger>
+										</ControlTemplate.Triggers>
+									</ControlTemplate>
+								</Setter.Value>
+							</Setter>
+							
+							<Setter Property="Padding" Value="0"/>
+							<Setter Property="Margin" Value="0"/>
+							<Setter Property="BorderThickness" Value="0"/>
+							<Setter Property="HorizontalAlignment" Value="Left"/>
+							<Setter Property="Width" Value="150"/>
+							<Setter Property="Background" Value="Transparent"/>
+							<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+							<Setter Property="Foreground" Value="{DynamicResource TextForeground}" />
+						</Style>
+					</ListBox.ItemContainerStyle>
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="{x:Type local:ActionIndexData}">
+							<Grid Height="18" HorizontalAlignment="Left">
+								<Grid.Resources>
+									<Style TargetType="Border">
+										<Setter Property="BorderBrush" Value="{DynamicResource UIGridBackgroundBrush}" />
+										<Setter Property="BorderThickness" Value="0,0,1,1" />
+									</Style>
+								</Grid.Resources>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="30"/>
+									<ColumnDefinition Width="70"/>
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								
+								<Border x:Name="BorderIndex" Grid.Column="0">
+									<TextBlock Text="{Binding Index}" TextAlignment="Right" Margin="0,0,2,0" VerticalAlignment="Center" />
+								</Border>
+								<Border Grid.Column="1">
+									<TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextAlignment="Center" />
+								</Border>
+								<TextBlock Grid.Column="2" Text="{Binding ChangeInfo}" Foreground="Gray" Margin="8,0,0,0"/>
+							</Grid>
+							<DataTemplate.Triggers>
+								<DataTrigger Binding="{Binding Path=IsChanged, RelativeSource={RelativeSource Self}}" Value="True">
+									
+								</DataTrigger>
+							</DataTemplate.Triggers>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+				<Rectangle x:Name="_rectSelection" Grid.Row="1" Fill="#50FF0000" Stroke="Red" Visibility="Hidden" VerticalAlignment="Top" HorizontalAlignment="Left" IsHitTestVisible="false" />
+				<Rectangle x:Name="_rectInsertion" Grid.Row="1" Fill="Red" Stroke="Red" StrokeThickness="3" Visibility="Hidden" VerticalAlignment="Top" HorizontalAlignment="Stretch" IsHitTestVisible="false" />
+				<ScrollViewer x:Name="_gridEvents" Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Background="Transparent" IsHitTestVisible="false" />
+			</Grid>
+			<Grid Grid.Column="1">
+				<frameEditor:ReadonlyFrameRenderer x:Name="_rfp" MinHeight="180" Margin="2" />
+				<EditorControls:CompactActIndexSelector x:Name="_actIndexSelector" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2" />
+			</Grid>
+		</Grid>
+
+		<Grid Name="_gridActionPresenter" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="1" Height="50"  Background="{DynamicResource UIDialogBackground}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
+				<Button Name="_buttonOk" Click="_buttonOk_Click" Content="Apply" Height="24" Margin="3" MinWidth="100" />
+				<Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Cancel" Height="24" Margin="3" MinWidth="100" />
+			</DockPanel>
+		</Grid>
+	</Grid>
+</Styles:TkWindow>

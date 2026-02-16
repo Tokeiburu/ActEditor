@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using ActEditor.ApplicationConfiguration;
 using GRF.Threading;
@@ -10,6 +11,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 	/// </summary>
 	public partial class SplashWindow : Window {
 		public SplashWindow() {
+			SetValue(WpfProperties.DisableChildrenWindowsProperty, true);
 			InitializeComponent();
 
 			_version.Content = ActEditorConfiguration.PublicVersion;
@@ -23,7 +25,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		public void Terminate(int time) {
-			GrfThread.Start(delegate {
+			Task.Run(() => {
 				Thread.Sleep(time);
 				this.Dispatch(p => p.Close());
 			});

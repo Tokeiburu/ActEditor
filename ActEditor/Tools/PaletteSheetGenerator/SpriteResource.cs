@@ -1,8 +1,6 @@
 ﻿using System;
 using GRF.Core;
 using GRF.FileFormats.ActFormat;
-using GRF.FileFormats.SprFormat;
-using Utilities;
 
 namespace ActEditor.Tools.PaletteSheetGenerator {
 	public class SpriteResource {
@@ -11,6 +9,8 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 		public string Gender { get; set; }
 		public string DisplayName { get; set; }
 		public string PalettePath { get; set; }
+		public string LoadPath { get; set; }
+		public bool IsCostume { get; set; }
 
 		public string ToolTip {
 			get {
@@ -21,12 +21,13 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 			}
 		}
 
-		public SpriteResource(Func<GrfHolder, Act> methodAct, string gender, string spriteName, string displayName, string palettePath, string toolTip = "") {
+		public SpriteResource(Func<GrfHolder, Act> methodAct, string gender, string spriteName, string displayName, string palettePath, bool isCostume, string toolTip = "") {
 			_methodAct = methodAct;
 			Gender = gender;
 			SpriteName = spriteName;
 			DisplayName = displayName;
 			PalettePath = palettePath;
+			IsCostume = isCostume;
 			_toolTip = toolTip;
 		}
 
@@ -37,7 +38,12 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 		}
 
 		public Act GetAct(GrfHolder grf) {
-			return _methodAct(grf);
+			try {
+				return _methodAct(grf);
+			}
+			catch {
+				return null;
+			}
 		}
 
 		public bool Default {

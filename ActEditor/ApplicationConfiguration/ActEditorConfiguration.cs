@@ -78,7 +78,7 @@ namespace ActEditor.ApplicationConfiguration {
 
 		public static bool KeepPreviewSelectionFromActionChange {
 			get { return Boolean.Parse(ConfigAsker["[ActEditor - Keep action selection]", true.ToString()]); }
-			set { ConfigAsker["[ActEditor -  Keep action selection]"] = value.ToString(); }
+			set { ConfigAsker["[ActEditor - Keep action selection]"] = value.ToString(); }
 		}
 
 		public static bool ActEditorGifUniform {
@@ -247,44 +247,54 @@ namespace ActEditor.ApplicationConfiguration {
 		}
 
 		public static Color ActEditorSpriteBackgroundColor {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Background sprite preview color]", GrfColor.ToHex(128, 255, 255, 255)])).ToColor(); }
+			get { return new GrfColor((ConfigAsker["[ActEditor - Background sprite preview color]", GrfColor.ToHex(150, 0, 0, 0)])).ToColor(); }
 			set { ConfigAsker["[ActEditor - Background sprite preview color]"] = GrfColor.ToHex(value.A, value.R, value.G, value.B); }
 		}
 
-		public static GrfColor ActEditorGridLineHorizontal {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Grid line horizontal color]", GrfColor.ToHex(255, 0, 0, 0)])); }
-			set { ConfigAsker["[ActEditor - Grid line horizontal color]"] = value.ToHexString(); }
+		public class QuickSetting<T> {
+			private string _propertyName;
+			private string _defaultValue;
+			public Func<string, T> ConverterTo;
+			public Func<T, string> ConverterFrom;
+			private T _cached;
+
+			public delegate void PropertyChangedEventHandler();
+
+			public event PropertyChangedEventHandler PropertyChanged;
+
+			public QuickSetting(string propertyName, string defaultValue, Func<string, T> getter, Func<T, string> setter) {
+				_propertyName = propertyName;
+				_defaultValue = defaultValue;
+				ConverterTo = getter;
+				ConverterFrom = setter;
+			}
+
+			public T Get() {
+				if (_cached == null) {
+					_cached = ConverterTo(ConfigAsker[_propertyName, _defaultValue]);
+				}
+
+				return _cached;
+			}
+
+			public void Set(T value) {
+				ConfigAsker[_propertyName] = ConverterFrom(value);
+				_cached = value;
+				PropertyChanged?.Invoke();
+			}
+
+			public string GetDefaultString() {
+				return _defaultValue;
+			}
 		}
 
-		public static GrfColor ActEditorGridLineVertical {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Grid line vertical color]", GrfColor.ToHex(255, 0, 0, 0)])); }
-			set { ConfigAsker["[ActEditor - Grid line vertical color]"] = value.ToHexString(); }
-		}
-
-		public static GrfColor ActEditorSpriteSelectionBorder {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Selected sprite border color]", GrfColor.ToHex(255, 255, 0, 0)])); }
-			set { ConfigAsker["[ActEditor - Selected sprite border color]"] = value.ToHexString(); }
-		}
-
-		public static GrfColor ActEditorSpriteSelectionBorderOverlay {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Selected sprite overlay color]", GrfColor.ToHex(0, 255, 255, 255)])); }
-			set { ConfigAsker["[ActEditor - Selected sprite overlay color]"] = value.ToHexString(); }
-		}
-
-		public static GrfColor ActEditorSelectionBorder {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Selection border color]", GrfColor.ToHex(255, 0, 0, 255)])); }
-			set { ConfigAsker["[ActEditor - Selection border color]"] = value.ToHexString(); }
-		}
-
-		public static GrfColor ActEditorSelectionBorderOverlay {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Selection overlay color]", GrfColor.ToHex(50, 128, 128, 255)])); }
-			set { ConfigAsker["[ActEditor - Selection overlay color]"] = value.ToHexString(); }
-		}
-
-		public static GrfColor ActEditorAnchorColor {
-			get { return new GrfColor((ConfigAsker["[ActEditor - Anchor color]", GrfColor.ToHex(200, 255, 255, 0)])); }
-			set { ConfigAsker["[ActEditor - Anchor color]"] = value.ToHexString(); }
-		}
+		public static QuickSetting<GrfColor> ActEditorSpriteSelectionBorder = new QuickSetting<GrfColor>("[ActEditor - Selected sprite border color]", GrfColor.ToHex(255, 255, 0, 0), v => new GrfColor(v), v => v.ToHexString());
+		public static QuickSetting<GrfColor> ActEditorSpriteSelectionBorderOverlay = new QuickSetting<GrfColor>("[ActEditor - Selected sprite overlay color]", GrfColor.ToHex(0, 255, 255, 255), v => new GrfColor(v), v => v.ToHexString());
+		public static QuickSetting<GrfColor> ActEditorSelectionBorder = new QuickSetting<GrfColor>("[ActEditor - Selection border color]", GrfColor.ToHex(255, 0, 0, 255), v => new GrfColor(v), v => v.ToHexString());
+		public static QuickSetting<GrfColor> ActEditorSelectionBorderOverlay = new QuickSetting<GrfColor>("[ActEditor - Selection overlay color]", GrfColor.ToHex(50, 128, 128, 255), v => new GrfColor(v), v => v.ToHexString());
+		public static QuickSetting<GrfColor> ActEditorAnchorColor = new QuickSetting<GrfColor>("[ActEditor - Anchor color]", GrfColor.ToHex(200, 255, 255, 0), v => new GrfColor(v), v => v.ToHexString());
+		public static QuickSetting<GrfColor> ActEditorGridLineHorizontal = new QuickSetting<GrfColor>("[ActEditor - Grid line horizontal color]", GrfColor.ToHex(255, 0, 0, 0), v => new GrfColor(v), v => v.ToHexString());
+		public static QuickSetting<GrfColor> ActEditorGridLineVertical = new QuickSetting<GrfColor>("[ActEditor - Grid line vertical color]", GrfColor.ToHex(255, 0, 0, 0), v => new GrfColor(v), v => v.ToHexString());
 
 		public static float ActEditorZoomInMultiplier {
 			get { return float.Parse(ConfigAsker["[ActEditor - Zoom in multiplier]", "1"]); }
@@ -305,6 +315,16 @@ namespace ActEditor.ApplicationConfiguration {
 				ConfigAsker["[ActEditor - Scale mode]"] = value.ToString();
 				_mode = value;
 			}
+		}
+
+		public static bool SaveEditorPosition {
+			get { return Boolean.Parse(ConfigAsker["[ActEditor - SaveEditorPosition]", true.ToString()]); }
+			set { ConfigAsker["[ActEditor - SaveEditorPosition]"] = value.ToString(); }
+		}
+
+		public static string EditorSavedPositions {
+			get { return ConfigAsker["[ActEditor - EditorSavedPositions]", ""]; }
+			set { ConfigAsker["[ActEditor - EditorSavedPositions]"] = value; }
 		}
 
 		public static string ActEditorGarmentPaths {
@@ -564,21 +584,10 @@ namespace ActEditor.ApplicationConfiguration {
 
 		#region Program's internal configuration and information
 
-		public static string PublicVersion {
-			get { return "1.2.9"; }
-		}
-
-		public static string Author {
-			get { return "Tokeiburu"; }
-		}
-
-		public static string ProgramName {
-			get { return "Act Editor"; }
-		}
-
-		public static string RealVersion {
-			get { return Assembly.GetEntryAssembly().GetName().Version.ToString(); }
-		}
+		public static string PublicVersion => "1.3.2";
+		public static string Author => "Tokeiburu";
+		public static string ProgramName => "Act Editor";
+		public static string RealVersion => Assembly.GetEntryAssembly().GetName().Version.ToString();
 
 		public static int PatchId {
 			get { return Int32.Parse(ConfigAsker["[ActEditor - Patch ID]", "0"]); }

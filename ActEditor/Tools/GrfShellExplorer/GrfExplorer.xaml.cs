@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -94,8 +95,8 @@ namespace ActEditor.Tools.GrfShellExplorer {
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Size", DisplayExpression = "DisplaySize", SearchGetAccessor = "NewSizeDecompressed", FixedWidth = 60, TextAlignment = TextAlignment.Right, ToolTipBinding = "NewSizeDecompressed"}
 			}, new DefaultListViewComparer<FileEntry>(), new string[] {"Added", "Blue", "Encrypted", "#FFE08000", "Removed", "Red"});
 
-			WpfUtils.AddDragDropEffects(_items);
-			WpfUtils.AddDragDropEffects(_treeView, f => f.Select(p => p.GetExtension()).All(p => p == ".grf" || p == ".rgz" || p == ".thor" || p == ".gpf"));
+			WpfUtilities.AddDragDropEffects(_items);
+			WpfUtilities.AddDragDropEffects(_treeView, f => f.Select(p => p.GetExtension()).All(p => p == ".grf" || p == ".rgz" || p == ".thor" || p == ".gpf"));
 
 			_grfEntrySorter.SetOrder("DisplayRelativePath", ListSortDirection.Ascending);
 			_grfSearchEntrySorter.SetOrder("RelativePath", ListSortDirection.Ascending);
@@ -361,7 +362,7 @@ namespace ActEditor.Tools.GrfShellExplorer {
 						//_listBoxResults.Dispatch(p => _itemSearchEntries.Clear());
 						_gridSearchResults.Dispatch(p => p.Visibility = Visibility.Visible);
 
-						this.Dispatch(p => p._grfSearchEntrySorter.SetOrder(WpfUtils.GetLastGetSearchAccessor(_listBoxResults), WpfUtils.GetLastSortDirection(_listBoxResults)));
+						this.Dispatch(p => p._grfSearchEntrySorter.SetOrder(ListViewExtensions.GetLastGetSearchAccessor(_listBoxResults), ListViewExtensions.GetLastSortDirection(_listBoxResults)));
 
 						List<KeyValuePair<string, FileEntry>> entries = _grfHolder.FileTable.FastAccessEntries;
 						List<string> search = currentSearch.Split(' ').ToList();
@@ -395,9 +396,9 @@ namespace ActEditor.Tools.GrfShellExplorer {
 
 						if (_items == null) return;
 
-						this.Dispatch(p => p._grfEntrySorter.SetOrder(WpfUtils.GetLastGetSearchAccessor(_items), WpfUtils.GetLastSortDirection(_items)));
+						this.Dispatch(p => p._grfEntrySorter.SetOrder(ListViewExtensions.GetLastGetSearchAccessor(_items), ListViewExtensions.GetLastSortDirection(_items)));
 
-						List<Utilities.Extension.Tuple<string, string, FileEntry>> entries = _grfHolder.FileTable.FastTupleAccessEntries;
+						List<(string, string, FileEntry)> entries = _grfHolder.FileTable.FastTupleAccessEntries;
 						List<string> search = currentSearch.Split(' ').ToList();
 						_itemEntries = new ObservableCollection<FileEntry>(entries.Where(p => p.Item1 == _searchSelectedPath && search.All(q => p.Item2.IndexOf(q, StringComparison.InvariantCultureIgnoreCase) != -1)).Select(p => p.Item3).OrderBy(p => p, _grfEntrySorter));
 						_itemEntries.Where(p => p.DataImage == null).ToList().ForEach(p => p.DataImage = IconProvider.GetSmallIcon(p.RelativePath));
@@ -478,12 +479,12 @@ namespace ActEditor.Tools.GrfShellExplorer {
 				_searchSelectedPath = _treeViewPathManager.GetCurrentRelativePath();
 			});
 
-			GrfThread.Start(delegate {
+			Task.Run(() => {
 				lock (_listLoadLock) {
 					_searchFilter = (string) _textBoxSearch.Dispatcher.Invoke(new Func<string>(() => _textBoxSearch.Text));
 					_filter(currentPath);
 				}
-			}, "GrfEditor - Search filter for ListView thread");
+			});
 		}
 
 		#endregion

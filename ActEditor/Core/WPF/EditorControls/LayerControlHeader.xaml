@@ -4,36 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:Core="clr-namespace:ActEditor.Core"
              mc:Ignorable="d" >
-    <Grid Background="{StaticResource UIGridBackgroundBrush}" Name="_grid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-            <ColumnDefinition MinWidth="53" />
-        </Grid.ColumnDefinitions>
-        <Rectangle Grid.Column="0" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="1" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="2" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="3" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="4" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="5" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="6" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="7" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-        <Rectangle Grid.Column="8" Margin="0 0 1 1" Fill="{StaticResource UIGridBackgroundLightBrush}" />
-
-        <Label Name="_lab0" Grid.Column="0" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Id" />
-        <Label Name="_lab1" Grid.Column="1" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Sprite" />
-        <Label Grid.Column="2" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="X" />
-        <Label Grid.Column="3" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Y" />
-        <Label Grid.Column="4" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Mirror" />
-        <Label Grid.Column="5" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Color" />
-        <Label Grid.Column="6" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Scale X" FontSize="12" />
-        <Label Grid.Column="7" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Scale Y" FontSize="12" />
-        <Label Grid.Column="8" Padding="0" Margin="-6 0 -5 1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Angle" />
-    </Grid>
+	<UniformGrid Background="{DynamicResource UIGridBackgroundLightBrush}" Name="_grid" Columns="9" >
+		<UniformGrid.Resources>
+			<Style TargetType="Border">
+				<Setter Property="BorderBrush" Value="{DynamicResource UIGridBackgroundBrush}" />
+				<Setter Property="BorderThickness" Value="0,0,1,1" />
+			</Style>
+			<Style TargetType="TextBlock">
+				<Setter Property="HorizontalAlignment" Value="Center" />
+				<Setter Property="VerticalAlignment" Value="Center" />
+				<Setter Property="Padding" Value="0" />
+			</Style>
+		</UniformGrid.Resources>
+		<Border x:Name="_tbLayerId">
+			<TextBlock Grid.Column="0" Text="Id" />
+		</Border>
+		<Border x:Name="_tbSpriteId">
+			<TextBlock Text="Sprite" />
+		</Border>
+		<Border>
+			<TextBlock Text="X" />
+		</Border>
+		<Border>
+			<TextBlock Text="Y" />
+		</Border>
+		<Border>
+			<TextBlock Text="Mirror" />
+		</Border>
+		<Border>
+			<TextBlock Text="Color" />
+		</Border>
+		<Border>
+			<TextBlock Text="Scale X" FontSize="12" />
+		</Border>
+		<Border>
+			<TextBlock Text="Scale Y" FontSize="12" />
+		</Border>
+		<Border>
+			<TextBlock Text="Angle" />
+		</Border>
+    </UniformGrid>
 </UserControl>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Windows.Threading;
 
@@ -14,9 +15,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private bool _threadIsEnabled = true;
 		private bool _isRunning = true;
 		public HashSet<int> _frames = new HashSet<int>();
+		private Stopwatch _watch = new Stopwatch();
+		private long _lastTick = 0;
 
 		public LayerControlLoadThread(LayerEditor le) {
 			_le = le;
+			_watch.Start();
 		}
 
 		public void Stop() {
@@ -43,16 +47,26 @@ namespace ActEditor.Core.WPF.EditorControls {
 			new Thread(_start) { Name = "Act Editor - Layer editor thread" }.Start();
 		}
 
+		private const long UpdateTick = 50;
+
 		private void _start() {
 			while (true) {
 				if (!_isRunning)
 					return;
 
 				bool hasEntry = true;
+				bool pendingUpdate = false;
 
 				while (hasEntry && _isRunning) {
-					Thread.Sleep(100);
-					
+					long elapsed = _watch.ElapsedMilliseconds;
+
+					// Don't make the thread sleep
+					if (elapsed - _lastTick < UpdateTick) {
+						Thread.Sleep((int)Math.Max(1, UpdateTick - (elapsed - _lastTick)));
+					}
+
+					_lastTick = _watch.ElapsedMilliseconds;
+
 					HashSet<int> updateEntries;
 
 					lock (_lock) {
@@ -60,16 +74,49 @@ namespace ActEditor.Core.WPF.EditorControls {
 						_frames.Clear();
 					}
 
-					_le.Dispatcher.BeginInvoke(new Action(() => {
-						foreach (var layerIndex in updateEntries) {
-							// Possible that the layer doesn't exist anymore
-							try {
-								_le.Get(layerIndex).InternalUpdate();
-							}
-							catch {
+					if (pendingUpdate) {
+						//Console.WriteLine("Pending update, abort...");
+						lock (_lock) {
+							foreach (var layerIndex2 in updateEntries) {
+								_frames.Add(layerIndex2);
 							}
 						}
-					}), DispatcherPriority.Background);
+					}
+					else {
+						pendingUpdate = true;
+
+						_le.Dispatcher.BeginInvoke(new Action(() => {
+							pendingUpdate = false;
+							Stopwatch timer = Stopwatch.StartNew();
+
+							foreach (var layerIndex in updateEntries) {
+								// Possible that the layer doesn't exist anymore
+								try {
+									var l = _le.GetVisual(layerIndex);
+
+									//if (layerIndex > 4)
+									//	continue;
+					
+									if (l != null)
+										l.InternalUpdate();
+
+									if (timer.ElapsedMilliseconds > 10) {
+										lock (_lock) {
+											foreach (var layerIndex2 in updateEntries) {
+												_frames.Add(layerIndex2);
+											}
+										}
+										//Console.WriteLine("TOO LONG!!! abort");
+										break;
+									}
+								}
+								catch {
+								}
+							}
+
+							//Console.WriteLine("Took: " + timer.ElapsedMilliseconds);
+						}), DispatcherPriority.Background);
+					}
 
 					if (!_isRunning)
 						return;
@@ -94,6 +141,19 @@ namespace ActEditor.Core.WPF.EditorControls {
 		public void Update(int layerIndex) {
 			lock (_lock) {
 				_frames.Add(layerIndex);
+			}
+
+			Enabled = true;
+		}
+
+		/// <summary>
+		/// Updates the specified frame indexes, async.
+		/// </summary>
+		/// <param name="layerIndexes">Indexes of the frame.</param>
+		public void Update(HashSet<int> layerIndexes) {
+			lock (_lock) {
+				foreach (var layerIndex in layerIndexes)
+					_frames.Add(layerIndex);
 			}
 
 			Enabled = true;

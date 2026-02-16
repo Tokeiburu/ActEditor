@@ -14,7 +14,6 @@ using ActImaging;
 using ErrorManager;
 using GRF.Core;
 using GRF.FileFormats.ActFormat;
-using GRF.Image;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
 using Action = System.Action;
@@ -46,8 +45,14 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 
 			try {
 				_fancyButtons = new FancyButton[] {_fancyButton0, _fancyButton1, _fancyButton2, _fancyButton3, _fancyButton4, _fancyButton5, _fancyButton6, _fancyButton7}.ToList();
+
 				BitmapSource image = ApplicationManager.PreloadResourceImage("arrow.png");
 				BitmapSource image2 = ApplicationManager.PreloadResourceImage("arrowoblique.png");
+
+				_fancyButtons.ForEach(p => {
+					p.ImageIcon.Stretch = Stretch.None;
+					p.ImageIcon.SetValue(RenderOptions.BitmapScalingModeProperty, BitmapScalingMode.HighQuality);
+				});
 
 				_fancyButton0.ImageIcon.Source = image;
 				_fancyButton0.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -148,7 +153,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 
 			string actRelativePath = entry.RelativePath;
 
-			_labelHeader.Dispatch(p => p.Content = "Animation : " + Path.GetFileName(actRelativePath));
+			_labelHeader.Dispatch(p => p.Content = "Animation: " + Path.GetFileName(actRelativePath));
 
 			try {
 				try {
@@ -166,7 +171,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 				}
 			}
 			catch {
-				ErrorHandler.HandleException("Couldn't find the corresponding spr file : \n" + actRelativePath.Replace(".act", ".spr"), ErrorLevel.Low);
+				ErrorHandler.HandleException("Couldn't find the corresponding spr file: \n" + actRelativePath.Replace(".act", ".spr"), ErrorLevel.Low);
 				return;
 			}
 
@@ -193,7 +198,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 			}
 
 			_comboBoxActionIndex.Dispatcher.Invoke((Action) (() => _comboBoxActionIndex.ItemsSource = actions));
-			_comboBoxAnimationIndex.Dispatcher.Invoke((Action) (() => _comboBoxAnimationIndex.ItemsSource = act.GetAnimationStrings()));
+			_comboBoxAnimationIndex.Dispatcher.Invoke((Action) (() => _comboBoxAnimationIndex.ItemsSource = act.GetAnimations()));
 			_setDisabledButtons();
 
 			if (_isCancelRequired()) return;

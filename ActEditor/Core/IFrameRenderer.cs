@@ -1,27 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.EditorControls;
+using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
-using Utilities.Tools;
 
 namespace ActEditor.Core {
-	/// <summary>
-	/// Interface for a frame renderer.
-	/// </summary>
-	public interface IFrameRenderer {
-		Canvas Canva { get; }
-		int CenterX { get; }
-		int CenterY { get; }
-		ZoomEngine ZoomEngine { get; }
-		Act Act { get; }
-		int SelectedAction { get; }
-		int SelectedFrame { get; }
-		List<DrawingComponent> Components { get; }
-		Point PointToScreen(Point point);
-	}
-
 	/// <summary>
 	/// Interface for a frame editor, includes all related components.
 	/// </summary>
@@ -37,7 +21,7 @@ namespace ActEditor.Core {
 		event ActEditorWindow.ActEditorEventDelegate ActLoaded;
 		Grid GridPrimary { get; }
 		LayerEditor LayerEditor { get; }
-		IFrameRenderer FrameRenderer { get; }
+		FrameRenderer FrameRenderer { get; }
 		SpriteSelector SpriteSelector { get; }
 		SpriteManager SpriteManager { get; }
 	}
@@ -49,11 +33,10 @@ namespace ActEditor.Core {
 		event ActIndexSelector.FrameIndexChangedDelegate SpecialFrameChanged;
 		void OnFrameChanged(int actionindex);
 		void OnAnimationPlaying(int actionindex);
-		void SetAction(int index);
-		void SetFrame(int index);
 		int SelectedAction { get; set; }
 		int SelectedFrame { get; set; }
 		void Play();
 		void Stop();
+		void Init(IFrameRendererEditor editor, int actionIndex, int selectedAction);
 	}
 }

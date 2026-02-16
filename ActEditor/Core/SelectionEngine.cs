@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
+using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.ActFormat.Commands;
 using GRF.FileFormats.SprFormat;
@@ -18,7 +19,24 @@ namespace ActEditor.Core {
 	public class SelectionEngine {
 		public const double SelectionRange = 0.80d; // The selection range determines the sensitivity of the selection (1 = 100%).
 		private IFrameRendererEditor _editor;
-		private IFrameRenderer _renderer;
+		private FrameRenderer _renderer;
+
+		public delegate void SelectionChangedEventHandler(SelectionEngine selector, SelectionChangedEventArgs e);
+
+		public event SelectionChangedEventHandler SelectionChanged;
+
+		public class SelectionChangedEventArgs {
+			public List<int> Added = new List<int>();
+			public List<int> Removed = new List<int>();
+		}
+
+		public void OnSelectionChanged(SelectionChangedEventArgs args) {
+			if (args.Added.Count == 0 && args.Removed.Count == 0)
+				return;
+
+			SelectionChangedEventHandler handler = SelectionChanged;
+			if (handler != null) handler(this, args);
+		}
 
 		public SelectionEngine() {
 			SelectedItems = new HashSet<int>();
@@ -57,7 +75,8 @@ namespace ActEditor.Core {
 				var main = Main;
 
 				if (main != null) {
-					return SelectedItems.Where(p => p < main.Components.Count).Select(p => (LayerDraw) main.Components[p]).ToList();
+					var layers = _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers;
+					return SelectedItems.Where(p => p < main.Components.Count && p < layers.Count).Select(p => (LayerDraw) main.Components[p]).ToList();
 				}
 
 				return new List<LayerDraw>();
@@ -69,22 +88,16 @@ namespace ActEditor.Core {
 		/// </summary>
 		public Layer[] SelectedLayers {
 			get {
-				var main = Main;
+				List<Layer> layers = new List<Layer>();
+				List<Layer> frameLayers = _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers;
 
-				if (main != null) {
-					List<Layer> layers = new List<Layer>();
-					List<Layer> frameLayers = _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers;
-
-					foreach (int selectedIndex in SelectedItems.OrderBy(p => p)) {
-						if (selectedIndex < frameLayers.Count) {
-							layers.Add(frameLayers[selectedIndex]);
-						}
+				foreach (int selectedIndex in SelectedItems.OrderBy(p => p)) {
+					if (selectedIndex < frameLayers.Count) {
+						layers.Add(frameLayers[selectedIndex]);
 					}
-
-					return layers.ToArray();
 				}
 
-				return new Layer[] {};
+				return layers.ToArray();
 			}
 		}
 
@@ -114,13 +127,7 @@ namespace ActEditor.Core {
 
 		private IEnumerable<Layer> _allLayers {
 			get {
-				var main = Main;
-
-				if (main != null) {
-					return _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers.ToArray();
-				}
-
-				return new Layer[] {};
+				return _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers.ToArray();
 			}
 		}
 
@@ -144,8 +151,6 @@ namespace ActEditor.Core {
 
 			Components = _renderer.Components;
 
-			_editor.IndexSelector.FrameChanged += (s, e) => _refreshSelection();
-			_editor.IndexSelector.SpecialFrameChanged += (s, e) => _refreshSelection();
 			_editor.IndexSelector.ActionChanged += (s, e) => _internalFullClearSelection();
 
 			_editor.ActLoaded += delegate {
@@ -156,13 +161,13 @@ namespace ActEditor.Core {
 			};
 		}
 
-		public static SelectionEngine DummyEngine(IFrameRenderer renderer) {
+		public static SelectionEngine DummyEngine(FrameRenderer renderer) {
 			var engine = new SelectionEngine();
 			engine._init(renderer);
 			return engine;
 		}
 
-		private void _init(IFrameRenderer renderer) {
+		private void _init(FrameRenderer renderer) {
 			_renderer = renderer;
 
 			Components = _renderer.Components;
@@ -179,22 +184,6 @@ namespace ActEditor.Core {
 			if (cmdAction != null) {
 				_internalFullClearSelection();
 			}
-			else {
-				_internalCleanSelection();
-			}
-		}
-
-		/// <summary>
-		/// Clears the selection.
-		/// </summary>
-		public void ClearSelection() {
-			SelectedItems.Clear();
-
-			var main = Main;
-
-			if (main != null) {
-				main.Deselect();
-			}
 		}
 
 		/// <summary>
@@ -204,38 +193,27 @@ namespace ActEditor.Core {
 		/// <param name="zoom">The zoom engine.</param>
 		/// <param name="absoluteCenter">The absolute center.</param>
 		public void Select(Rect rect, ZoomEngine zoom, Point absoluteCenter) {
-			var main = Main;
+			// The rectangle coordinates are absolute, we
+			// calculate the components by their absolute offsets
+			// as well!
+			rect = new Rect(rect.X - absoluteCenter.X, rect.Y - absoluteCenter.Y, rect.Width, rect.Height);
+			
+			var selectionAreas = _getSelectionAreas(zoom);
 
-			if (main != null) {
-				// The rectangle coordinates are absolute, we
-				// calculate the components by their absolute offsets
-				// as well!
-				rect = new Rect(rect.X - absoluteCenter.X, rect.Y - absoluteCenter.Y, rect.Width, rect.Height);
+			SelectionChangedEventArgs args = new SelectionChangedEventArgs();
 
-				var selectionAreas = _getSelectionAreas(zoom);
-
-				for (int i = 0; i < selectionAreas.Length; i++) {
-					if (rect.IntersectsWith(selectionAreas[i])) {
-						Select(i);
-					}
-					else {
-						RemoveSelection(i);
-					}
+			for (int i = 0; i < selectionAreas.Length; i++) {
+				if (rect.IntersectsWith(selectionAreas[i])) {
+					if (SelectedItems.Add(i))
+						args.Added.Add(i);
+				}
+				else {
+					if (SelectedItems.Remove(i))
+						args.Removed.Add(i);
 				}
 			}
-		}
 
-		/// <summary>
-		/// Selects the specified layer.
-		/// </summary>
-		/// <param name="index">The index.</param>
-		public void Select(int index) {
-			var main = Main;
-
-			if (main != null) {
-				main.Select(index);
-				SelectedItems.Add(index);
-			}
+			OnSelectionChanged(args);
 		}
 
 		/// <summary>
@@ -247,9 +225,20 @@ namespace ActEditor.Core {
 			var main = Main;
 
 			if (main != null) {
-				SelectedItems.Clear();
-				main.Select();
-				_internalSetSelection(0, main.Components.Count);
+				SelectionChangedEventArgs args = new SelectionChangedEventArgs();
+				List<Layer> frameLayers = _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers;
+
+				for (int i = 0; i < frameLayers.Count; i++) {
+					if (SelectedItems.Add(i))
+						args.Added.Add(i);
+				}
+
+				for (int i = frameLayers.Count; i < main.Components.Count; i++) {
+					if (SelectedItems.Remove(i))
+						args.Removed.Add(i);
+				}
+
+				OnSelectionChanged(args);
 			}
 		}
 
@@ -258,13 +247,17 @@ namespace ActEditor.Core {
 		/// </summary>
 		public void DeselectAll() {
 			if (_editor != null && _editor.LayerEditor != null && _editor.LayerEditor.DoNotRemove) return;
+			
+			SelectionChangedEventArgs args = new SelectionChangedEventArgs();
 
-			var main = Main;
+			var items = SelectedItems.ToList();
 
-			if (main != null) {
-				SelectedItems.Clear();
-				main.Deselect();
+			for (int i = 0; i < items.Count; i++) {
+				if (SelectedItems.Remove(items[i]))
+					args.Removed.Add(items[i]);
 			}
+
+			OnSelectionChanged(args);
 		}
 
 		/// <summary>
@@ -273,21 +266,26 @@ namespace ActEditor.Core {
 		/// <param name="start">The start index.</param>
 		/// <param name="length">The length.</param>
 		public void SetSelection(int start, int length) {
-			var main = Main;
+			SelectionChangedEventArgs args = new SelectionChangedEventArgs();
 
-			if (main != null) {
-				SelectedItems.Clear();
-
-				for (int i = 0; i < main.Components.Count; i++) {
-					if (start <= i && i < start + length) {
-						main.Components[i].IsSelected = true;
-						SelectedItems.Add(i);
-					}
-					else {
-						main.Components[i].IsSelected = false;
-					}
-				}
+			foreach (var i in SelectedItems) {
+				args.Removed.Add(i);
 			}
+
+			SelectedItems.Clear();
+
+			for (int i = start; i < start + length; i++) {
+				if (args.Removed.Contains(i)) {
+					args.Removed.Remove(i);
+				}
+				else {
+					args.Added.Add(i);
+				}
+
+				SelectedItems.Add(i);
+			}
+
+			OnSelectionChanged(args);
 		}
 
 		/// <summary>
@@ -295,21 +293,7 @@ namespace ActEditor.Core {
 		/// </summary>
 		/// <param name="index">The layer index.</param>
 		public void SetSelection(int index) {
-			var main = Main;
-
-			if (main != null) {
-				SelectedItems.Clear();
-
-				for (int i = 0; i < main.Components.Count; i++) {
-					if (i == index) {
-						main.Components[i].IsSelected = true;
-						SelectedItems.Add(i);
-					}
-					else {
-						main.Components[i].IsSelected = false;
-					}
-				}
-			}
+			SetSelection(new HashSet<int>() { index });
 		}
 
 		/// <summary>
@@ -318,15 +302,22 @@ namespace ActEditor.Core {
 		/// <param name="oldPosition">The old position.</param>
 		/// <param name="e">The <see cref="MouseEventArgs" /> instance containing the event data.</param>
 		public void SelectUnderMouse(Point oldPosition, MouseEventArgs e) {
-			var main = Main;
+			//var main = Components.OfType<ActDraw2>().FirstOrDefault(p => p.Primary);
+			//
+			//if (main != null) {
+			//	var layerIndex = main.GetLayerIndexUnderMouse(oldPosition);
+			//	InvertSelection(layerIndex);
+			//}
 
+			var main = Main;
+			
 			if (main != null) {
 				var components = new List<DrawingComponent>(main.Components);
 				components.Reverse();
-
+			
 				foreach (LayerDraw sd in components) {
 					if (sd.IsMouseUnder(_renderer.PointToScreen(oldPosition)) && sd.IsMouseUnder(e)) {
-						sd.IsSelected = !sd.IsSelected;
+						InvertSelection(sd.LayerIndex);
 						break;
 					}
 				}
@@ -339,20 +330,29 @@ namespace ActEditor.Core {
 		/// <param name="position">The position.</param>
 		/// <returns>True if the layer is under the mouse; false if the layer is not under the mouse; null if the state is undefined.</returns>
 		public bool? IsUnderMouse(Point position) {
-			var main = Main;
+			//var main = Components.OfType<ActDraw2>().FirstOrDefault(p => p.Primary);
+			//
+			//if (main != null) {
+			//	var layerIndex = main.GetLayerIndexUnderMouse(position);
+			//	return layerIndex > -1;
+			//}
+			//
+			//return null;
 
+			var main = Main;
+			
 			if (main != null) {
 				var components = new List<DrawingComponent>(main.Components);
-
+			
 				foreach (LayerDraw sd in components) {
 					if (sd.IsMouseUnder(_renderer.PointToScreen(position))) {
 						return true;
 					}
 				}
-
+			
 				return false;
 			}
-
+			
 			return null;
 		}
 
@@ -361,13 +361,12 @@ namespace ActEditor.Core {
 		/// </summary>
 		/// <param name="index">The layer index.</param>
 		public void AddSelection(int index) {
-			SelectedItems.Add(index);
+			SelectionChangedEventArgs args = new SelectionChangedEventArgs();
 
-			var main = Main;
-
-			if (main != null) {
+			if (SelectedItems.Add(index)) {
+				args.Added.Add(index);
 				LatestSelected = index;
-				main.Select(index);
+				OnSelectionChanged(args);
 			}
 		}
 
@@ -376,20 +375,26 @@ namespace ActEditor.Core {
 		/// </summary>
 		/// <param name="index">The layer index.</param>
 		public void RemoveSelection(int index) {
-			SelectedItems.Remove(index);
+			SelectionChangedEventArgs args = new SelectionChangedEventArgs();
 
-			var main = Main;
-
-			if (main != null) {
-				main.Deselect(index);
+			if (SelectedItems.Remove(index)) {
+				args.Removed.Add(index);
+				OnSelectionChanged(args);
 			}
 		}
 
 		/// <summary>
-		/// Refreshes the selection.
+		/// Inverts the selection state of a layer index.
 		/// </summary>
-		public void RefreshSelection() {
-			_refreshSelection();
+		/// <param name="index">The layer index.</param>
+		public void InvertSelection(int index) {
+			if (index < 0)
+				return;
+
+			if (IsSelected(index))
+				RemoveSelection(index);
+			else
+				AddSelection(index);
 		}
 
 		/// <summary>
@@ -397,28 +402,54 @@ namespace ActEditor.Core {
 		/// </summary>
 		/// <param name="selection">The selection list.</param>
 		public void SetSelection(HashSet<int> selection) {
+			SelectionChangedEventArgs args = new SelectionChangedEventArgs();
+
+			foreach (var i in SelectedItems) {
+				args.Removed.Add(i);
+			}
+
+			foreach (var i in selection) {
+				if (args.Removed.Contains(i)) {
+					args.Removed.Remove(i);
+				}
+				else {
+					args.Added.Add(i);
+				}
+			}
+
 			SelectedItems = selection;
-			_refreshSelection();
+			OnSelectionChanged(args);
 		}
 
 		/// <summary>
 		/// Selects the reverse of the selection provided by a list.
 		/// </summary>
 		public void SelectReverse() {
-			var selected = new HashSet<int>(CurrentlySelected);
-			SelectedItems.Clear();
 			var main = Main;
-
+			
 			if (main != null) {
-				for (int i = 0; i < main.Components.Count; i++) {
-					if (selected.Contains(i)) {
-						main.Components[i].IsSelected = false;
+				SelectionChangedEventArgs args = new SelectionChangedEventArgs();
+
+				// Remove unused selection
+				foreach (var i in SelectedItems.ToList()) {
+					if (i >= main.Components.Count)
+						SelectedItems.Remove(i);
+				}
+
+				List<Layer> frameLayers = _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers;
+
+				for (int i = 0; i < main.Components.Count && i < frameLayers.Count; i++) {
+					if (SelectedItems.Contains(i)) {
+						SelectedItems.Remove(i);
+						args.Removed.Add(i);
 					}
 					else {
-						main.Components[i].IsSelected = true;
 						SelectedItems.Add(i);
+						args.Added.Add(i);
 					}
 				}
+
+				OnSelectionChanged(args);
 			}
 		}
 
@@ -429,31 +460,32 @@ namespace ActEditor.Core {
 		public void SelectUpToFromShift(int layerIndex) {
 			var main = Main;
 			int lastSelected = LatestSelected;
-
+			
 			if (main != null) {
 				if (lastSelected == layerIndex) {
-					main.Components[layerIndex].IsSelected = !main.Components[layerIndex].IsSelected;
+					InvertSelection(layerIndex);
 				}
 				else {
 					int from = lastSelected < layerIndex ? lastSelected : layerIndex;
 					int to = lastSelected < layerIndex ? layerIndex : lastSelected;
 
-					for (int i = from; i <= to && i < main.Components.Count; i++) {
-						main.Components[i].IsSelected = true;
-					}
-				}
-			}
-		}
+					SelectionChangedEventArgs args = new SelectionChangedEventArgs();
+					List<Layer> frameLayers = _act[_renderer.SelectedAction, _renderer.SelectedFrame].Layers;
 
-		private void _internalSetSelection(int from, int count) {
-			for (int i = from; i < from + count; i++) {
-				SelectedItems.Add(i);
+					for (int i = from; i <= to && i < main.Components.Count && i < frameLayers.Count; i++) {
+						if (SelectedItems.Add(i))
+							args.Added.Add(i);
+					}
+
+					OnSelectionChanged(args);
+				}
 			}
 		}
 
 		private Rect[] _getSelectionAreas(ZoomEngine zoom) {
 			List<Rect> rectangles = new List<Rect>();
-			Spr sprite = _editor == null ? _renderer.Act.Sprite : _editor.Act.Sprite;
+			Spr sprite = _renderer.Act.Sprite;
+			Act act = _renderer.Act;
 
 			foreach (Layer layer in _allLayers) {
 				if (layer.SpriteIndex > -1) {
@@ -468,11 +500,16 @@ namespace ActEditor.Core {
 
 					width = width * zoom.Scale * layer.ScaleX;
 					height = height * zoom.Scale * layer.ScaleY;
-					double offsetX = layer.OffsetX * zoom.Scale;
-					double offsetY = layer.OffsetY * zoom.Scale;
+
+					var diffOffsets = _getAnchorOffsetsFromBase(act);
+
+					double offsetX = (layer.OffsetX + diffOffsets.X) * zoom.Scale;
+					double offsetY = (layer.OffsetY + diffOffsets.Y) * zoom.Scale;
 
 					double left = offsetX - width * SelectionRange * 0.5d;
 					double top = offsetY - height * SelectionRange * 0.5d;
+
+
 					rectangles.Add(new Rect(new Point(left, top), new Point(left + width * SelectionRange, top + height * SelectionRange)));
 				}
 				else {
@@ -481,6 +518,33 @@ namespace ActEditor.Core {
 			}
 
 			return rectangles.ToArray();
+		}
+
+		private (int X, int Y) _getAnchorOffsetsFromBase(Act act) {
+			int diffX = 0;
+			int diffY = 0;
+
+			var frame = act[_renderer.SelectedAction, _renderer.SelectedFrame];
+
+			if (act.AnchoredTo != null && frame.Anchors.Count > 0) {
+				Frame frameReference = act.AnchoredTo.TryGetFrame(_renderer.SelectedAction, _renderer.SelectedFrame);
+
+				if (frameReference != null && frameReference.Anchors.Count > 0) {
+					diffX = frameReference.Anchors[0].OffsetX - frame.Anchors[0].OffsetX;
+					diffY = frameReference.Anchors[0].OffsetY - frame.Anchors[0].OffsetY;
+
+					if (act.AnchoredTo.AnchoredTo != null) {
+						frameReference = act.AnchoredTo.AnchoredTo.TryGetFrame(_renderer.SelectedAction, _renderer.SelectedFrame);
+
+						if (frameReference != null && frameReference.Anchors.Count > 0) {
+							diffX = frameReference.Anchors[0].OffsetX - frame.Anchors[0].OffsetX;
+							diffY = frameReference.Anchors[0].OffsetY - frame.Anchors[0].OffsetY;
+						}
+					}
+				}
+			}
+
+			return (diffX, diffY);
 		}
 
 		private T _getCommand<T>(IActCommand command) where T : class, IActCommand {
@@ -497,45 +561,12 @@ namespace ActEditor.Core {
 			return null;
 		}
 
-		private void _internalCleanSelection() {
-			if (_editor != null &&  _editor.LayerEditor != null) {
-				foreach (int selected in SelectedItems) {
-					_editor.LayerEditor.Provider.Get(selected).IsSelected = false;
-				}
-			}
-
-			_refreshSelection();
-		}
-
 		private void _internalFullClearSelection() {
 			if (ActEditorConfiguration.KeepPreviewSelectionFromActionChange) {
-				_refreshSelection();
 				return;
 			}
 
-			if (_editor != null && _editor.LayerEditor != null) {
-				foreach (int selected in SelectedItems) {
-					_editor.LayerEditor.Provider.Get(selected).IsSelected = false;
-				}
-			}
-
-			SelectedItems.Clear();
-			_refreshSelection();
-		}
-
-		private void _refreshSelection() {
-			var main = Main;
-
-			if (main != null) {
-				for (int i = 0; i < main.Components.Count; i++) {
-					if (SelectedItems.Contains(i)) {
-						main.Components[i].IsSelected = true;
-					}
-					else {
-						main.Components[i].IsSelected = false;
-					}
-				}
-			}
+			DeselectAll();
 		}
 
 		public void PopSelectedLayerState() {
@@ -566,6 +597,10 @@ namespace ActEditor.Core {
 					selectionDraw.Visible = false;
 				}
 			}
+		}
+
+		public bool IsSelected(int index) {
+			return SelectedItems.Contains(index);
 		}
 	}
 }

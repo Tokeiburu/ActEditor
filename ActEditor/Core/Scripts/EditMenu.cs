@@ -15,13 +15,14 @@ using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.PalFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
-using GRF.System;
+using GRF.GrfSystem;
 using GRF.Threading;
 using PaletteEditor;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using Utilities;
 using Utilities.Extension;
+using System.Threading.Tasks;
 
 namespace ActEditor.Core.Scripts {
 	public class EditSelectAll : IActScript {
@@ -35,21 +36,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act[selectedActionIndex, selectedFrameIndex].NumberOfLayers > 0;
 		}
 
-		public object DisplayName {
-			get { return "Select all"; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.SelectAll|Ctrl-A}"; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Select all";
+		public string Group => "Edit";
+		public string InputGesture => "{FrameEditor.SelectAll|Ctrl-A}";
+		public string Image => null;
 
 		#endregion
 	}
@@ -65,21 +55,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act[selectedActionIndex, selectedFrameIndex].NumberOfLayers > 0;
 		}
 
-		public object DisplayName {
-			get { return "Deselect all"; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.DeselectAll|Ctrl-D}"; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Deselect all";
+		public string Group => "Edit";
+		public string InputGesture => "{FrameEditor.DeselectAll|Ctrl-D}";
+		public string Image => null;
 
 		#endregion
 	}
@@ -95,21 +74,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act[selectedActionIndex, selectedFrameIndex].NumberOfLayers > 0;
 		}
 
-		public object DisplayName {
-			get { return "Invert selection"; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{LayerEditor.InvertSelection|Ctrl-Shift-I}"; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Invert selection";
+		public string Group => "Edit";
+		public string InputGesture => "{LayerEditor.InvertSelection|Ctrl-Shift-I}";
+		public string Image => null;
 
 		#endregion
 	}
@@ -125,21 +93,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && selectedLayerIndexes.Length > 0;
 		}
 
-		public object DisplayName {
-			get { return "Bring to front"; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{LayerEditor.BringToFront|Ctrl-Shift-F}"; }
-		}
-
-		public string Image {
-			get { return "front.png"; }
-		}
+		public object DisplayName => "Bring to front";
+		public string Group => "Edit";
+		public string InputGesture => "{LayerEditor.BringToFront|Ctrl-Shift-F}";
+		public string Image => "front.png";
 
 		#endregion
 	}
@@ -155,21 +112,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && selectedLayerIndexes.Length > 0;
 		}
 
-		public object DisplayName {
-			get { return "Bring to back"; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{LayerEditor.BringToBack|Ctrl-Shift-B}"; }
-		}
-
-		public string Image {
-			get { return "back.png"; }
-		}
+		public object DisplayName => "Bring to back";
+		public string Group => "Edit";
+		public string InputGesture => "{LayerEditor.BringToBack|Ctrl-Shift-B}";
+		public string Image => "back.png";
 
 		#endregion
 	}
@@ -187,21 +133,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Edit sound list..."; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.EditSoundList}"; }
-		}
-
-		public string Image {
-			get { return "soundOn.png"; }
-		}
+		public object DisplayName => "Edit sound list...";
+		public string Group => "Edit";
+		public string InputGesture => "{FrameEditor.EditSoundList}";
+		public string Image => "soundOn.png";
 
 		#endregion
 	}
@@ -209,16 +144,10 @@ namespace ActEditor.Core.Scripts {
 	public class EditPalette : IActScript {
 		public static bool CanOpen = true;
 
-		private readonly object _palLock = new object();
-		private readonly object _quickLock = new object();
-		private int _count;
-		private int _currentEvent;
-
 		#region IActScript Members
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act.Sprite.Palette == null) return;
-			_count = 0;
 			CanOpen = false;
 
 			var dialog = new SingleColorEditDialog();
@@ -229,39 +158,25 @@ namespace ActEditor.Core.Scripts {
 			byte[] paletteBefore = Methods.Copy(act.Sprite.Palette.BytePalette);
 			Pal pal = new Pal(paletteBefore);
 			dialog.SingleColorEditControl.SetPalette(pal);
+
+			bool pendingUpdate = false;
+
 			pal.PaletteChanged += delegate {
-				int currentId;
+				if (pendingUpdate)
+					return;
 
-				lock (_quickLock) {
-					_currentEvent = _count;
-					currentId = _count;
-					_count++;
-				}
+				pendingUpdate = true;
 
-				GrfThread.Start(delegate {
-					lock (_palLock) {
-						try {
-							if (currentId != _currentEvent) return;
+				dialog.Dispatcher.BeginInvoke(new System.Action(() => {
+					var newPalette = pal.BytePalette;
+					newPalette[3] = 0;
 
-							act.Sprite.Palette.SetPalette(pal.BytePalette);
+					act.Sprite.Palette.SetPalette(pal.BytePalette);
+					act.InvalidateVisual();
+					act.InvalidatePaletteVisual();
 
-							if (currentId != _currentEvent) return;
-
-							dialog.Dispatch(p => act.InvalidateVisual());
-
-							if (currentId != _currentEvent) return;
-
-							dialog.Dispatch(p => act.InvalidatePaletteVisual());
-						}
-						finally {
-							lock (_quickLock) {
-								_count--;
-							}
-						}
-
-						Thread.Sleep(2000);
-					}
-				});
+					pendingUpdate = false;
+				}), System.Windows.Threading.DispatcherPriority.Background);
 			};
 
 			dialog.Owner = WpfUtilities.TopWindow;
@@ -285,21 +200,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && CanOpen && act.Sprite.NumberOfIndexed8Images > 0;
 		}
 
-		public object DisplayName {
-			get { return "Quick palette edit..."; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "pal.png"; }
-		}
+		public object DisplayName => "Quick palette edit...";
+		public string Group => "Edit";
+		public string InputGesture => "{SpriteEditor.QuickPaletteEdit|Ctrl-U}";
+		public string Image => "pal.png";
 
 		#endregion
 	}
@@ -321,7 +225,7 @@ namespace ActEditor.Core.Scripts {
 
 					if (act.Sprite.Palette != null && dialog.PaletteEditor.Sprite.Palette != null) {
 						dialog.PaletteEditor.Sprite.Palette.EnableRaiseEvents = false;
-						dialog.PaletteEditor.Sprite.Palette[0, 0] = act.Sprite.Palette[0, 0];
+						dialog.PaletteEditor.Sprite.Palette.BytePalette[3] = 0;
 						dialog.PaletteEditor.Sprite.Palette.EnableRaiseEvents = true;
 					}
 
@@ -334,7 +238,7 @@ namespace ActEditor.Core.Scripts {
 				bool sameFile = false;
 
 				if (act.Sprite.Palette != null && spr.Palette != null && act.Sprite.NumberOfImagesLoaded == spr.NumberOfImagesLoaded && act.Sprite.NumberOfIndexed8Images == spr.NumberOfIndexed8Images) {
-					if (Methods.ByteArrayCompare(spr.Palette.BytePalette, 4, 1020, act.Sprite.Palette.BytePalette, 4)) {
+					if (Methods.ByteArrayCompare(spr.Palette.BytePalette, 0, 1024, act.Sprite.Palette.BytePalette, 0)) {
 						sameFile = true;
 
 						for (int i = 0; i < spr.NumberOfIndexed8Images; i++) {
@@ -359,21 +263,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act.Sprite.NumberOfIndexed8Images > 0 && EditPalette.CanOpen;
 		}
 
-		public object DisplayName {
-			get { return "Palette editor..."; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "pal.png"; }
-		}
+		public object DisplayName => "Palette editor...";
+		public string Group => "Edit";
+		public string InputGesture => "{SpriteEditor.PaletteEditor|Ctrl-P}";
+		public string Image => "pal.png";
 
 		#endregion
 	}
@@ -425,21 +318,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && EditPalette.CanOpen && act.Sprite.NumberOfIndexed8Images > 0;
 		}
 
-		public object DisplayName {
-			get { return "Import palette..."; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Import palette...";
+		public string Group => "Edit";
+		public string InputGesture => null;
+		public string Image => null;
 
 		#endregion
 	}
@@ -456,7 +338,8 @@ namespace ActEditor.Core.Scripts {
 				grid.Children.Add(label);
 				label.SetValue(Grid.ColumnProperty, 0);
 
-				Image img = new Image { Source = ApplicationManager.GetResourceImage("reset.png"), Width = 16, Height = 16, Stretch = Stretch.None, ToolTip = "Resets the background to its original value." };
+				Image img = new Image { Source = ApplicationManager.PreloadResourceImage("reset.png"), Width = 16, Height = 16, Stretch = Stretch.None, ToolTip = "Resets the background to its original value." };
+				img.SetValue(RenderOptions.BitmapScalingModeProperty, BitmapScalingMode.HighQuality);
 				grid.Children.Add(img);
 				img.SetValue(Grid.ColumnProperty, 2);
 
@@ -469,17 +352,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.EditBackground}"; }
-		}
-
-		public string Image {
-			get { return "background.png"; }
-		}
+		public string Group => "Edit";
+		public string InputGesture => "{FrameEditor.EditBackground}";
+		public string Image => "background.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			string path = TkPathRequest.OpenFile(new Setting(null, typeof (ActEditorConfiguration).GetProperty("BackgroundPath")), "filter", FileFormat.MergeFilters(Format.Image));
@@ -505,21 +380,10 @@ namespace ActEditor.Core.Scripts {
 	}
 
 	public class EditClearPalette : IActScript {
-		public object DisplayName {
-			get { return "Clear palette"; }
-		}
-
-		public string Group {
-			get { return "Edit"; }
-		}
-
-		public string InputGesture {
-			get { return "{Sprite.ClearPalette|Ctrl-Shift-L}"; }
-		}
-
-		public string Image {
-			get { return "delete.png"; }
-		}
+		public object DisplayName => "Clear palette";
+		public string Group => "Edit";
+		public string InputGesture => "{Sprite.ClearPalette|Ctrl-Shift-L}";
+		public string Image => "delete.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			try {
@@ -535,7 +399,7 @@ namespace ActEditor.Core.Scripts {
 					palette[2] = 255;
 
 					act.Sprite.Palette.SetPalette(palette);
-				}, (string)DisplayName, true);
+				}, (string)DisplayName);
 			}
 			catch (Exception err) {
 				act.Commands.CancelEdit();

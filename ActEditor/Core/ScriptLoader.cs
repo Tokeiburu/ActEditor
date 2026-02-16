@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,9 +14,8 @@ using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.IO;
 using GRF.Image;
-using GRF.System;
+using GRF.GrfSystem;
 using GRF.Threading;
-using Microsoft.CSharp;
 using TokeiLibrary;
 using TokeiLibrary.Shortcuts;
 using Utilities;
@@ -25,6 +23,10 @@ using Utilities.Extension;
 using Utilities.Hash;
 using Action = System.Action;
 using Debug = Utilities.Debug;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Emit;
+using System.Text;
 
 namespace ActEditor.Core {
 	/// <summary>
@@ -33,13 +35,13 @@ namespace ActEditor.Core {
 	public class ScriptLoader : IDisposable {
 		public const string OutputPath = "Scripts";
 		public const string OverrideIndex = "__IndexOverride";
-		internal static string[] ScriptNames = { "script_sample", "script0_magnify", "script1_replace_color", "script1_replace_color_all", "script2_expand", "script4_generate_single_sprite", "script5_remove_unused_sprites", "script6_merge_layers", "script7_add_effect1", "script8_add_frames", "script9_chibi_grf", "script10_trim_images", "script11_palette_sheet" };
+		internal static string[] ScriptNames = { "script_sample", "script0_magnify", "script1_replace_color", "script1_replace_color_all", "script2_expand", "script4_generate_single_sprite", "script5_remove_unused_sprites", "script6_merge_layers", "script7_add_effect1", "script8_add_frames", "script9_chibi_grf", "script10_trim_images", "script11_palette_sheet", "script12_remove_unused_palette",  };
 		internal static string[] Libraries = {"GRF.dll", "Utilities.dll", "TokeiLibrary.dll", "ErrorManager.dll"};
 		private static ConfigAsker _librariesConfiguration;
-		private readonly FileSystemWatcher _fsw;
-		private readonly HashSet<MenuItem> _initialMenuItems = new HashSet<MenuItem>();
-		private readonly object _lock = new object();
-		private readonly int _procId;
+		private FileSystemWatcher _fsw;
+		private HashSet<MenuItem> _initialMenuItems = new HashSet<MenuItem>();
+		private object _lock = new object();
+		private int _procId;
 		private ActEditorWindow _actEditor;
 		private DockPanel _dockPanel;
 		private Menu _menu;
@@ -48,17 +50,27 @@ namespace ActEditor.Core {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ScriptLoader" /> class.
 		/// </summary>
-		public ScriptLoader() {
+		public ScriptLoader(Menu menu, FrameworkElement dockPanel) {
+			_initializeFileWatcher();
+
+			ApplicationManager.ThemeChanged += delegate {
+				_updateRedoUndoLeftMargin(menu, dockPanel);
+			};
+		}
+
+		/// <summary>
+		/// Initializes the file system watcher.
+		/// </summary>
+		private void _initializeFileWatcher() {
 			_fsw = new FileSystemWatcher();
-			_procId = Process.GetCurrentProcess().Id;
 
 			string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, OutputPath);
 
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
 
+			_procId = Process.GetCurrentProcess().Id;
 			_fsw.Path = path;
-
 			_fsw.Filter = "*.cs";
 			_fsw.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
 			_fsw.Changed += _fileChanged;
@@ -78,9 +90,15 @@ namespace ActEditor.Core {
 		/// <summary>
 		/// Gets a list of all the custom compiled scripts from the roaming folder.
 		/// </summary>
-		public static Dictionary<string, Dictionary<string, IActScript>> CompiledScripts {
-			get { return _compiledScripts; }
-		}
+		public static Dictionary<string, Dictionary<string, IActScript>> CompiledScripts => _compiledScripts;
+
+		/// <summary>
+		/// Gets a value indicating whether exceptions should be conbined or directly shown when they occur.
+		/// </summary>
+		public bool CombineErrors { get; set; }
+
+		public List<Exception> PendingErrors = new List<Exception>();
+		private bool _pendingReload = false;
 
 		/// <summary>
 		/// Reloads the scripts.
@@ -88,11 +106,25 @@ namespace ActEditor.Core {
 		public void ReloadScripts() {
 			if (_actEditor == null || _menu == null) return;
 			_compiledScripts.Clear();
+
+			if (_pendingReload)
+				return;
+
+			_pendingReload = true;
+
 			if (Thread.CurrentThread.GetApartmentState() != ApartmentState.STA) {
-				GrfThread.StartSTA(() => AddScriptsToMenu(_actEditor, _menu, _dockPanel));
+				GrfThread.StartSTA(delegate {
+					try {
+						AddScriptsToMenu(_actEditor, _menu, _dockPanel);
+					}
+					finally {
+						_pendingReload = false;
+					}
+				});
 			}
 			else {
 				AddScriptsToMenu(_actEditor, _menu, _dockPanel);
+				_pendingReload = false;
 			}
 		}
 
@@ -146,7 +178,7 @@ namespace ActEditor.Core {
 				ReloadLibraries();
 				DeleteDlls();
 
-				AlphanumComparator alphanumComparer = new AlphanumComparator(StringComparison.OrdinalIgnoreCase);
+				AlphanumComparer alphanumComparer = new AlphanumComparer(StringComparison.OrdinalIgnoreCase);
 				
 				foreach (string script in Directory.GetFiles(GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, OutputPath), "*.cs").OrderBy(p => p, alphanumComparer)) {
 					try {
@@ -185,9 +217,7 @@ namespace ActEditor.Core {
 								string localCopy = TemporaryFilesManager.GetTemporaryFilePath(_procId + "_script_{0:0000}");
 								GrfPath.Delete(localCopy + ".dll");
 								File.Copy(script, localCopy + ".cs");
-
 								_addFromScript(script, localCopy + ".cs", toAdd);
-
 								GrfPath.Delete(localCopy + ".cs");
 							}
 						}
@@ -195,14 +225,15 @@ namespace ActEditor.Core {
 							string localCopy = TemporaryFilesManager.GetTemporaryFilePath(_procId + "_script_{0:0000}");
 							GrfPath.Delete(script.ReplaceExtension(".dll"));
 							File.Copy(script, localCopy + ".cs");
-
 							_addFromScript(script, localCopy + ".cs", toAdd);
-
 							GrfPath.Delete(localCopy + ".cs");
 						}
 					}
 					catch (Exception err) {
-						ErrorHandler.HandleException("Failed to load scripts.", err);
+						if (CombineErrors)
+							PendingErrors.Add(err);
+						else
+							ErrorHandler.HandleException("Failed to load scripts.", err);
 					}
 				}
 
@@ -274,40 +305,108 @@ namespace ActEditor.Core {
 			return actScript;
 		}
 
+		public static List<PortableExecutableReference> GetReferences() {
+			LoadReferences();
+			return _references;
+		}
+
+		private static List<PortableExecutableReference> _references;
+		private static object _loadReferenceLock = new object();
+
+		internal static void DummyCompile() {
+			var scriptText = Encoding.Default.GetString(ApplicationManager.GetResource("dummy_script.cs"));
+			var syntaxTree = CSharpSyntaxTree.ParseText(scriptText);
+
+			LoadReferences();
+
+			var compilation = CSharpCompilation.Create(
+				"DynamicAssembly",
+				new[] { syntaxTree },
+				_references,
+				new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+			
+			EmitResult result = null;
+
+			using (var ms = new MemoryStream()) {
+				result = compilation.Emit(ms);
+			}
+		}
+
+		private static void LoadReferences() {
+			lock (_loadReferenceLock) {
+				if (_references == null) {
+					_references = new List<PortableExecutableReference>();
+
+					var refs = AppDomain.CurrentDomain
+						.GetAssemblies()
+						.Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location)).ToList();
+
+					foreach (var refName in Assembly.GetExecutingAssembly().GetReferencedAssemblies()) {
+						if (refs.Any(a => a.GetName().FullName == refName.FullName))
+							continue;
+
+						try {
+							var loaded = Assembly.Load(refName);
+							if (!loaded.IsDynamic && !string.IsNullOrEmpty(loaded.Location)) {
+								refs.Add(loaded);
+							}
+						}
+						catch {
+							// Some references might not resolve (satellite assemblies, etc.)
+						}
+					}
+
+					foreach (var refAssembly in refs) {
+						PortableExecutableReference metaReference;
+						
+						//if (File.Exists(refAssembly.Location.ReplaceExtension(".xml"))) {
+						//	metaReference = MetadataReference.CreateFromFile(refAssembly.Location, documentation: XmlDocumentationProvider.CreateFromFile(refAssembly.Location.ReplaceExtension(".xml")));
+						//}
+						//else {
+							metaReference = MetadataReference.CreateFromFile(refAssembly.Location);
+						//}
+
+						_references.Add(metaReference);
+					}
+				}
+			}
+		}
+
 		/// <summary>
 		/// Compiles the specified script file.
 		/// </summary>
 		/// <param name="scriptPath">The script.</param>
 		/// <param name="dll">The path of the new DLL.</param>
 		/// <returns>The result of the compilation</returns>
-		internal static CompilerResults Compile(string scriptPath, out string dll) {
+		internal static EmitResult Compile(string scriptPath, out string dll) {
 			if (File.Exists(scriptPath.ReplaceExtension(".dll"))) {
 				GrfPath.Delete(scriptPath.ReplaceExtension(".dll"));
 			}
 
-			Dictionary<string, string> providerOptions = new Dictionary<string, string> {
-				{"CompilerVersion", "v3.5"},
-				//{"CompilerVersion", "v4.0"}
-			};
-			CSharpCodeProvider provider = new CSharpCodeProvider(providerOptions);
+			var scriptText = File.ReadAllText(scriptPath);
+			scriptText = scriptText.ReplaceAll("using GRF.System", "using GRF.GrfSystem");
+			var syntaxTree = CSharpSyntaxTree.ParseText(scriptText);
 
-			string newPath = scriptPath.ReplaceExtension(".dll");
-			
-			CompilerParameters compilerParams = new CompilerParameters {
-				GenerateExecutable = false,
-				OutputAssembly = newPath,
-			};
+			LoadReferences();
 
-			foreach (AssemblyName name in Assembly.GetExecutingAssembly().GetReferencedAssemblies()) {
-				compilerParams.ReferencedAssemblies.Add(name.Name + ".dll");
+			var compilation = CSharpCompilation.Create(
+				"DynamicAssembly",
+				new[] { syntaxTree },
+				_references,
+				new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+			EmitResult result = null;
+
+			using (var ms = new MemoryStream()) {
+				result = compilation.Emit(ms);
+				if (result.Success) {
+					ms.Seek(0, SeekOrigin.Begin);
+					File.WriteAllBytes(scriptPath.ReplaceExtension(".dll"), ms.ToArray());
+				}
 			}
 
-			// Add current executable as an assembly
-			compilerParams.ReferencedAssemblies.Add(typeof(ActEditorWindow).Assembly.Location);
-			
-			var res = provider.CompileAssemblyFromFile(compilerParams, scriptPath);
-			dll = newPath;
-			return res;
+			dll = scriptPath.ReplaceExtension(".dll");
+			return result;
 		}
 
 		/// <summary>
@@ -416,7 +515,7 @@ namespace ActEditor.Core {
 							length += mi.DesiredSize.Width;
 						}
 
-						dockPanel.Margin = new Thickness(length, 0, 0, 0);
+						dockPanel.Margin = new Thickness(Math.Ceiling(length), 0, 0, 0);
 					};
 				}
 				else {
@@ -424,7 +523,7 @@ namespace ActEditor.Core {
 						length += mi.DesiredSize.Width;
 					}
 
-					dockPanel.Margin = new Thickness(length, 0, 0, 0);
+					dockPanel.Margin = new Thickness(Math.Ceiling(length), 0, 0, 0);
 				}
 			});
 		}
@@ -445,7 +544,7 @@ namespace ActEditor.Core {
 				int frameIndex = -1;
 				int[] selectedLayers = new int[] {};
 
-				var tab = actEditor.GetSelectedTab();
+				var tab = actEditor.TabEngine.GetCurrentTab();
 
 				if (tab == null) {
 					return;
@@ -615,7 +714,10 @@ namespace ActEditor.Core {
 					scriptMenu.InputGestureText = actScript.InputGesture.Split(new char[] { ':' }).FirstOrDefault();
 				}
 			}
-			if (actScript.Image != null) scriptMenu.Icon = new Image {Source = GetImage(actScript.Image)};
+			if (actScript.Image != null) {
+				scriptMenu.Icon = new Image { Source = GetImage(actScript.Image) };
+				((Image)scriptMenu.Icon).SetValue(RenderOptions.BitmapScalingModeProperty, BitmapScalingMode.HighQuality);
+			}
 
 			Action action = delegate {
 				try {
@@ -623,7 +725,7 @@ namespace ActEditor.Core {
 					int frameIndex = -1;
 					int[] selectedLayers = new int[] { };
 
-					var tab = actEditor.GetSelectedTab();
+					var tab = actEditor.TabEngine.GetCurrentTab();
 
 					if (tab == null) {
 						return;
@@ -722,8 +824,8 @@ namespace ActEditor.Core {
 				string dll;
 				var results = Compile(localCopy, out dll);
 
-				if (results.Errors.Count != 0)
-					throw new Exception(String.Join("\r\n", results.Errors.Cast<CompilerError>().ToList().Select(p => p.ToString()).ToArray()));
+				if (!results.Success)
+					throw new Exception(String.Join("\r\n", results.Diagnostics.ToList().Select(p => p.ToString()).ToArray()));
 
 				LibrariesConfiguration["[" + Path.GetFileName(script).GetHashCode() + "]"] = new Md5Hash().ComputeHash(File.ReadAllBytes(script)) + "," + new Md5Hash().ComputeHash(File.ReadAllBytes(dll));
 
@@ -734,7 +836,10 @@ namespace ActEditor.Core {
 				_addScriptFromAssembly(dll, toAdd);
 			}
 			catch (Exception err) {
-				ErrorHandler.HandleException(err);
+				if (CombineErrors)
+					PendingErrors.Add(new Exception("Failed to load: " + script, err));
+				else
+					ErrorHandler.HandleException("Failed to load: " + script, err);
 			}
 		}
 
@@ -761,10 +866,10 @@ namespace ActEditor.Core {
 		/// <param name="image">The image.</param>
 		/// <returns></returns>
 		public static ImageSource GetImage(string image) {
-			var im = ApplicationManager.GetResourceImage(image);
+			var im = ApplicationManager.PreloadResourceImage(image);
 
 			if (im != null) {
-				return WpfImaging.FixDPI(im);
+				return im;
 			}
 
 			var path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, OutputPath, image);

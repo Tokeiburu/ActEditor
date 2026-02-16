@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
+using ActEditor.Core.WPF.Dialogs;
 using ErrorManager;
 using GRF.FileFormats;
 using GRF.FileFormats.ActFormat.Commands;
@@ -19,6 +21,7 @@ using GRF.Threading;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
+using Utilities;
 using Utilities.Extension;
 
 namespace ActEditor.Core.WPF.EditorControls {
@@ -26,17 +29,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// Interaction logic for SpriteSelector.xaml
 	/// </summary>
 	public partial class SpriteSelector : UserControl {
-		private readonly List<ImageDraw> _imageDraws = new List<ImageDraw>();
-		private readonly Type[] _updateCommandTypes = {typeof (Flip), typeof (SpriteCommand), typeof (RemoveCommand), typeof (Insert), typeof (ChangePalette)};
+		private readonly Type[] _updateCommandTypes = { typeof(Flip), typeof(SpriteCommand), typeof(RemoveCommand), typeof(Insert), typeof(ChangePalette) };
 		private IFrameRendererEditor _editor;
 		private int _previousPosition;
+		private SpriteImageControl _lastSelectedSpriteControl;
+		private UsageDialog _usageDialog;
 
 		public SpriteSelector() {
 			InitializeComponent();
 
 			SizeChanged += delegate { _updateBackground(); };
 
-			_sv.MouseRightButtonUp += new MouseButtonEventHandler(_sv_MouseRightButtonUp);
+			_sv.PreviewMouseRightButtonUp += new MouseButtonEventHandler(_sv_MouseRightButtonUp);
 			DragEnter += new DragEventHandler(_spriteSelector_DragEnter);
 			DragOver += new DragEventHandler(_spriteSelector_DragOver);
 			DragLeave += new DragEventHandler(_spriteSelector_DragLeave);
@@ -44,7 +48,26 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			_dp.Background = new SolidColorBrush(ActEditorConfiguration.ActEditorSpriteBackgroundColor);
 
-			_sv.ScrollChanged += delegate { _sv.ScrollToHorizontalOffset((int) _sv.HorizontalOffset); };
+			if (_dp.Background.CanFreeze)
+				_dp.Background.Freeze();
+
+			_sv.ScrollChanged += delegate {
+				_sv.ScrollToHorizontalOffset((int)_sv.HorizontalOffset);
+				UpdateVisibleOnly();
+			};
+			_sv.PreviewMouseWheel += _sv_MouseWheel;
+
+			ActEditorConfiguration.ActEditorSpriteSelectionBorder.PropertyChanged += delegate {
+				SpriteImageControl.SpriteBorderBrush = new SolidColorBrush(ActEditorConfiguration.ActEditorSpriteSelectionBorder.Get().ToColor());
+
+				if (SpriteImageControl.SpriteBorderBrush.CanFreeze)
+					SpriteImageControl.SpriteBorderBrush.Freeze();
+			};
+		}
+
+		private void _sv_MouseWheel(object sender, MouseWheelEventArgs e) {
+			_sv.ScrollToHorizontalOffset((e.Delta < 0 ? 60 : -60) + _sv.HorizontalOffset);
+			e.Handled = true;
 		}
 
 		private void _spriteSelector_Drop(object sender, DragEventArgs e) {
@@ -57,81 +80,24 @@ namespace ActEditor.Core.WPF.EditorControls {
 					List<string> files = filesArray.ToList();
 					files.Reverse();
 
-					try {
-						SpriteManager.SpriteConverterOption = -1;
-
-						try {
-							foreach (string file in files.Where(p => p.IsExtension(".bmp", ".tga", ".jpg", ".png"))) {
-								byte[] data = File.ReadAllBytes(file);
-
-								GrfImage image = new GrfImage(ref data);
-
-								if (_previousPosition == _childrenCount()) {
-									if (_previousPosition == 0)
-										_editor.SpriteManager.Execute(0, image, SpriteEditMode.Add);
-									else
-										_editor.SpriteManager.Execute(_previousPosition - 1, image, SpriteEditMode.After);
-								}
-								else
-									_editor.SpriteManager.Execute(_previousPosition, image, SpriteEditMode.Before);
-							}
-						}
-						catch (OperationCanceledException) {
-						}
-						catch (Exception err) {
-							ErrorHandler.HandleException(err);
-						}
-
-						try {
-							_editor.Act.Commands.BeginNoDelay();
-
-							foreach (string file in files.Where(p => p.IsExtension(".spr"))) {
-								Spr spr = new Spr(file);
-
-								_editor.Act.Commands.Backup(act => { }, "Adding sprite from file");
-
-								try {
-									List<GrfImage> images = spr.Images;
-
-									if (_childrenCount() != 0)
-										images.Reverse();
-
-									foreach (GrfImage image in images) {
-										if (_previousPosition == _childrenCount()) {
-											if (_previousPosition == 0)
-												_editor.SpriteManager.Execute(0, image, SpriteEditMode.Add);
-											else
-												_editor.SpriteManager.Execute(_previousPosition - 1, image, SpriteEditMode.After);
-										}
-										else
-											_editor.SpriteManager.Execute(_previousPosition, image, SpriteEditMode.Before);
-									}
-								}
-								catch (OperationCanceledException) {
-								}
-								catch (Exception err) {
-									ErrorHandler.HandleException(err);
-								}
-							}
-						}
-						catch (Exception err) {
-							_editor.Act.Commands.CancelEdit();
-							ErrorHandler.HandleException(err);
-						}
-						finally {
-							_editor.Act.Commands.End();
-						}
-					}
-					catch (OperationCanceledException) {
-					}
-					finally {
-						SpriteManager.SpriteConverterOption = -1;
-						_lineMoveLayer.Visibility = Visibility.Hidden;
-					}
+					this.Dispatcher.BeginInvoke(new Action(() => {
+						_spriteSelector_Dropped(files);
+					}));
 				}
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
+			}
+			finally {
+				_lineMoveLayer.Visibility = Visibility.Hidden;
+			}
+		}
+
+		private void _spriteSelector_Dropped(List<string> files) {
+			try {
+				_editor.SpriteManager.InsertImages(_previousPosition, files);
+			}
+			catch (OperationCanceledException) {
 			}
 			finally {
 				_lineMoveLayer.Visibility = Visibility.Hidden;
@@ -157,47 +123,46 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _spriteSelector_DragOver(object sender, DragEventArgs e) {
 			if (!_isImageDragged(e)) return;
+			
+			double offsetX = 0;
 
-			if (_isImageDragged(e)) {
-				double offsetX = 0;
+			var spriteControl = _sv.GetObjectAtPoint<SpriteImageControl>(e.GetPosition(_sv));
 
-				var um = _dp.InputHitTest(e.GetPosition(_dp));
-
-				Border elementUnderMouse = (um is Border ? um : WpfUtilities.FindDirectParentControl<Border>(um as FrameworkElement)) as Border;
-
-				int position;
-
-				if (elementUnderMouse == null) {
-					if (_previousPosition < 0) {
-						_previousPosition = 0;
-					}
-
-					position = _previousPosition;
+			if (spriteControl == null)
+				return;
+			
+			int position;
+			
+			if (spriteControl == null) {
+				if (_previousPosition < 0) {
+					_previousPosition = 0;
 				}
-				else {
-					position = _dp.Children.IndexOf(elementUnderMouse);
-					_previousPosition = position;
-				}
-
-				if (position < 0) {
-					_lineMoveLayer.Visibility = Visibility.Hidden;
-					return;
-				}
-
-				for (int i = 0; i < position; i++) {
-					offsetX += ((FrameworkElement) _dp.Children[i]).ActualWidth;
-				}
-
-				offsetX -= _sv.HorizontalOffset;
-
-				_lineMoveLayer.Visibility = Visibility.Visible;
-				_lineMoveLayer.Stroke = new SolidColorBrush(ActEditorConfiguration.ActEditorSpriteSelectionBorder.ToColor());
-				_lineMoveLayer.Margin = new Thickness(offsetX - 2, 0, 0, SystemParameters.HorizontalScrollBarHeight);
+			
+				position = _previousPosition;
 			}
+			else {
+				position = spriteControl.SpriteIndex;
+				_previousPosition = position;
+			}
+			
+			if (position < 0) {
+				_lineMoveLayer.Visibility = Visibility.Hidden;
+				return;
+			}
+			
+			for (int i = 0; i < position; i++) {
+				offsetX += ((FrameworkElement) _dp.Children[i]).ActualWidth;
+			}
+			
+			offsetX -= _sv.HorizontalOffset;
+			
+			_lineMoveLayer.Visibility = Visibility.Visible;
+			_lineMoveLayer.Stroke = new SolidColorBrush(ActEditorConfiguration.ActEditorSpriteSelectionBorder.Get().ToColor());
+			_lineMoveLayer.Margin = new Thickness(offsetX - 2, 0, 0, SystemParameters.HorizontalScrollBarHeight);
 		}
 
 		private int _childrenCount() {
-			return _dp.Children.Count - 1;
+			return _dp.Children.OfType<SpriteImageControl>().Count(p => p.Visibility == Visibility.Visible);
 		}
 
 		private void _spriteSelector_DragEnter(object sender, DragEventArgs e) {
@@ -216,13 +181,40 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _sv_MouseRightButtonUp(object sender, MouseButtonEventArgs e) {
-			if (_childrenCount() != 0 || _editor.Act == null) {
+			if (_editor.Act == null) {
 				e.Handled = true;
+			}
+			else {
+				Point position = e.GetPosition(_sv);
+
+				if (position.X < 0 || position.Y < 0 || position.X >= _sv.ViewportWidth || position.Y >= _sv.ViewportHeight) {
+					e.Handled = true;
+				}
+
+				_lastSelectedSpriteControl = WpfUtilities.GetObjectAtPoint<SpriteImageControl>(_sv, position);
+				var menuItems = _contextMenuImages.Items.OfType<UIElement>().ToList();
+
+				if (_lastSelectedSpriteControl != null && _lastSelectedSpriteControl.Visibility == Visibility.Visible) {
+					_miAdd.Visibility = Visibility.Collapsed;
+
+					for (int i = 1; i < menuItems.Count; i++) {
+						menuItems[i].Visibility = Visibility.Visible;
+					}
+				}
+				else {
+					_miAdd.Visibility = Visibility.Visible;
+
+					for (int i = 1; i < menuItems.Count; i++) {
+						menuItems[i].Visibility = Visibility.Collapsed;
+					}
+
+					UpdateAllHoverExcept(null);
+				}
 			}
 		}
 
 		private void _updateBackground() {
-			((VisualBrush) _gridBackground.Background).Viewport = new Rect(0, 0, 16d / (_gridBackground.ActualWidth), 16d / (_gridBackground.ActualHeight));
+			((VisualBrush)_gridBackground.Background).Viewport = new Rect(0, 0, 16d / (_gridBackground.ActualWidth), 16d / (_gridBackground.ActualHeight));
 		}
 
 		public void Init(IFrameRendererEditor editor) {
@@ -259,135 +251,124 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public void PaletteUpdate() {
-			int loaded = _childrenCount();
+		public void UpdateVisibleOnly() {
+			double offset = 0;
+			var spr = _editor.Act.Sprite;
+			var sprites = _dp.Children.OfType<SpriteImageControl>().ToList();
 
-			if (_editor.Act == null) {
-				Reset();
-				return;
-			}
+			for (int i = 0; i < spr.NumberOfImagesLoaded && i < sprites.Count; i++) {
+				SpriteImageControl spc = sprites[i];
 
-			for (int i = 0; i < loaded; i++) {
-				_imageDraws[i].QuickRender(_editor.FrameRenderer);
+				if (offset + spc.ContentWidth >= _sv.HorizontalOffset && offset < _sv.HorizontalOffset + _sv.ViewportWidth) {
+					sprites[i].UpdateImage();
+				}
+
+				offset += spc.ContentWidth;
 			}
 		}
 
-		public void InternalUpdate() {
-			int loaded = _childrenCount();
-
+		public void PaletteUpdate() {
 			if (_editor.Act == null) {
 				Reset();
 				return;
 			}
 
-			while (loaded > _editor.Act.Sprite.NumberOfImagesLoaded) {
-				int last = _childrenCount() - 1;
+			UpdateVisibleOnly();
+		}
 
-				_dp.Children.RemoveAt(last);
-				_imageDraws.RemoveAt(last);
-				loaded--;
+		public void InternalUpdate() {
+			this.Dispatcher.BeginInvoke(new Action(() => {
+				_internalUpdate();
+			}), System.Windows.Threading.DispatcherPriority.Render);
+		}
+
+		private void _internalUpdate() {
+			if (_editor.Act == null) {
+				Reset();
+				return;
 			}
 
-			for (int i = 0; i < loaded; i++) {
-				_imageDraws[i].Render(_editor.FrameRenderer);
+			var act = _editor.Act;
+			var spr = act.Sprite;
+			var sprites = _dp.Children.OfType<SpriteImageControl>().ToList();
+
+			for (int i = spr.NumberOfImagesLoaded; i < sprites.Count; i++) {
+				sprites[i].Visibility = Visibility.Collapsed;
 			}
 
-			for (int i = loaded, count = _editor.Act.Sprite.NumberOfImagesLoaded; i < count; i++) {
-				var img = new ImageDraw(i, _editor) {IsSelectable = true};
-				_imageDraws.Add(img);
-				img.Render(_editor.FrameRenderer);
-				_dp.Children.Insert(_childrenCount(), img.Border); // Add(img.Border);
+			for (int i = sprites.Count; i < spr.NumberOfImagesLoaded; i++) {
+				SpriteImageControl spc = new SpriteImageControl(_editor, this, i);
+				_dp.Children.Insert(i, spc);
+				sprites.Insert(i, spc);
 			}
+
+			for (int i = 0; i < spr.NumberOfImagesLoaded; i++) {
+				SpriteImageControl spc = sprites[i];
+				if (spc.Visibility != Visibility.Visible)
+					spc.Visibility = Visibility.Visible;
+				sprites[i].UpdateSize();
+			}
+
+			UpdateVisibleOnly();
 		}
 
 		public void Update() {
 			InternalUpdate();
 		}
 
-		public void DeselectAllExcept(ImageDraw imageDraw) {
-			foreach (ImageDraw draw in _imageDraws) {
-				if (ReferenceEquals(draw, imageDraw))
+		public void UpdateAllHoverExcept(SpriteImageControl element) {
+			foreach (var imageControl in _dp.Children.OfType<SpriteImageControl>()) {
+				if (imageControl == element)
 					continue;
-				draw.IsSelected = false;
+
+				imageControl.ShowSelected(false);
 			}
 		}
 
-		public void DeselectAll() {
-			DeselectAllExcept(null);
+		public void UpdateAllHover() {
+			UpdateAllHoverExcept(null);
 		}
 
 		public void Reset() {
-			while (_dp.Children.Count > 1) {
-				_dp.Children.RemoveAt(0);
-				_imageDraws.RemoveAt(0);
+			foreach (var sprite in _dp.Children.OfType<SpriteImageControl>()) {
+				sprite.Visibility = Visibility.Collapsed;
 			}
 		}
 
 		private void _miAdd_Click(object sender, RoutedEventArgs e) {
 			try {
 				string[] files = TkPathRequest.OpenFiles<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.Image));
-
-				if (files != null && files.Length > 0) {
-					try {
-						try {
-							_editor.Act.Commands.BeginNoDelay();
-							SpriteManager.SpriteConverterOption = -1;
-
-							try {
-								List<GrfImage> images = files.Where(p => p.IsExtension(".bmp", ".jpg", ".png", ".tga")).Select(file1 => new GrfImage(file1)).ToList();
-								int index = -1;
-
-								foreach (GrfImage image1 in images) {
-									if (index < 0) {
-										_editor.SpriteManager.Execute(0, image1, SpriteEditMode.Add);
-									}
-									else {
-										_editor.SpriteManager.Execute(index, image1, SpriteEditMode.After);
-									}
-
-									index++;
-								}
-							}
-							catch (OperationCanceledException) {
-							}
-						}
-						catch (Exception err) {
-							_editor.Act.Commands.CancelEdit();
-							ErrorHandler.HandleException(err);
-						}
-						finally {
-							_editor.Act.Commands.End();
-							SpriteManager.SpriteConverterOption = -1;
-						}
-					}
-					catch (Exception err) {
-						ErrorHandler.HandleException(err);
-					}
-				}
+				_editor.SpriteManager.InsertImages(0, files.ToList());
+			}
+			catch (OperationCanceledException) {
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
 			}
 		}
 
-		public void Select(int absoluteIndex) {
-			DeselectAll();
+		private SpriteImageControl _getSpriteControl(int index) {
+			return this.Dispatch(() => _dp.Children[index] as SpriteImageControl);
+		}
 
-			if (absoluteIndex < _imageDraws.Count) {
-				GrfThread.Start(() => _highlight(_imageDraws[absoluteIndex]));
+		public void Select(int absoluteIndex) {
+			UpdateAllHover();
+
+			if (absoluteIndex < _childrenCount()) {
+				Task.Run(() => _highlight(_getSpriteControl(absoluteIndex)));
 
 				double offsetX = 0;
 
 				for (int i = 0; i < absoluteIndex; i++) {
-					offsetX += ((FrameworkElement) _dp.Children[i]).ActualWidth;
+					offsetX += ((FrameworkElement)_dp.Children[i]).ActualWidth;
 				}
 
-				offsetX = offsetX + ((FrameworkElement) _dp.Children[absoluteIndex]).ActualWidth / 2d - _sv.ViewportWidth / 2d;
+				offsetX = offsetX + ((FrameworkElement)_dp.Children[absoluteIndex]).ActualWidth / 2d - _sv.ViewportWidth / 2d;
 				_sv.ScrollToHorizontalOffset(offsetX);
 			}
 		}
 
-		private void _highlight(ImageDraw imageDraw) {
+		private void _highlight(SpriteImageControl imageDraw) {
 			if (imageDraw.IsPreviewing)
 				return;
 
@@ -396,17 +377,96 @@ namespace ActEditor.Core.WPF.EditorControls {
 				const int NumberOfIteration = 20;
 
 				for (int i = 0; i <= NumberOfIteration; i++) {
-					double colorFactor = (NumberOfIteration - (double) i) / NumberOfIteration;
+					double colorFactor = (NumberOfIteration - (double)i) / NumberOfIteration;
 
-					imageDraw.Dispatch(p => p.Overlay.Fill = new SolidColorBrush(Color.FromArgb((byte) (colorFactor * 255), 255, 0, 0)));
+					imageDraw.Dispatch(p => p._overlay.Fill = new SolidColorBrush(Color.FromArgb((byte)(colorFactor * 255), 255, 0, 0)));
 					Thread.Sleep(50);
 				}
 			}
 			catch {
 			}
 			finally {
-				imageDraw.Dispatch(p => p.Overlay.Fill = Brushes.Transparent);
+				imageDraw.Dispatch(p => p._overlay.Fill = Brushes.Transparent);
 				imageDraw.IsPreviewing = false;
+			}
+		}
+
+		private void _miAddAfter_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Add);
+		private void _miAddBefore_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Before);
+		private void _miRemove_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Remove);
+		private void _miReplace_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Replace);
+		private void _miFlipHorizontal_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.ReplaceFlipHorizontal);
+		private void _miFlipVertical_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.ReplaceFlipVertical);
+		private void _miConvert_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Convert);
+		private void _miExport_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Export);
+		private void _miFindUsage_Click(object sender, RoutedEventArgs e) => Execute(SpriteEditMode.Usage);
+
+		public void Execute(SpriteEditMode mode) {
+			if (_lastSelectedSpriteControl == null) return;
+
+			if (_editor.SpriteManager == null)
+				throw new Exception("SpriteManager not set in the FrameRenderer.");
+
+			if (_editor.SpriteManager.IsModeDisabled(mode)) {
+				ErrorHandler.HandleException("This feature is disabled.");
+				return;
+			}
+
+			int index = _lastSelectedSpriteControl.SpriteIndex;
+
+			switch (mode) {
+				case SpriteEditMode.Remove:
+				case SpriteEditMode.Export:
+				case SpriteEditMode.Convert:
+				case SpriteEditMode.ReplaceFlipHorizontal:
+				case SpriteEditMode.ReplaceFlipVertical:
+					_editor.SpriteManager.Execute(SpriteIndex.FromAbsoluteIndex(index, _editor.Act.Sprite), null, mode);
+					break;
+				case SpriteEditMode.Before:
+				case SpriteEditMode.After:
+				case SpriteEditMode.Replace:
+					string[] files = TkPathRequest.OpenFiles<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.Image));
+
+					if (files != null && files.Length > 0) {
+						try {
+							_editor.Act.Commands.ActEditBegin("Sprite: " + mode);
+							SpriteManager.SpriteConverterOption = -1;
+
+							List<GrfImage> images = files.Where(p => p.IsExtension(".bmp", ".jpg", ".png", ".tga")).Select(file1 => new GrfImage(file1)).ToList();
+							int index2 = index;
+
+							foreach (GrfImage image1 in images) {
+								_editor.SpriteManager.Execute(SpriteIndex.FromAbsoluteIndex(index2, _editor.Act.Sprite), image1, mode);
+								index2++;
+							}
+						}
+						catch (OperationCanceledException) {
+						}
+						catch (Exception err) {
+							_editor.Act.Commands.ActCancelEdit();
+							ErrorHandler.HandleException(err);
+						}
+						finally {
+							_editor.Act.Commands.ActEditEnd();
+							SpriteManager.SpriteConverterOption = -1;
+						}
+					}
+					break;
+				case SpriteEditMode.Usage:
+					var res = _editor.Act.FindUsageOf(index);
+
+					if (_usageDialog == null) {
+						_usageDialog = new UsageDialog(_editor, res);
+						_usageDialog.Show();
+						_usageDialog.Closed += delegate {
+							_usageDialog = null;
+						};
+					}
+					else {
+						_usageDialog.UpdateUsage(_editor, res);
+					}
+
+					break;
 			}
 		}
 	}

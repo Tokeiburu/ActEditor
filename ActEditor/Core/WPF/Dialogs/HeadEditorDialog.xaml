@@ -2,7 +2,6 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:editorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
-        xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
         xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
         xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
         xmlns:frameEditor="clr-namespace:ActEditor.Core.WPF.FrameEditor"
@@ -19,9 +18,9 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
+				<RowDefinition />
+				<RowDefinition Height="150" MinHeight="100" MaxHeight="350" />
+			</Grid.RowDefinitions>
             <ListView TextSearch.TextPath="DisplayRelativePath" Name="_listViewHeads" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
             <Grid Grid.Row="0" Grid.Column="1">
                 <Grid.ColumnDefinitions>
@@ -33,9 +32,10 @@
                 <frameEditor:PrimaryFrameRenderer Grid.Row="0" Grid.Column="1" x:Name="_rendererPrimary" SnapsToDevicePixels="True" />
                 <frameEditor:FrameRenderer x:Name="_rendererRight" SnapsToDevicePixels="True" Grid.Column="2" Visibility="Collapsed" IsHitTestVisible="False" />
             </Grid>
-            <editorControls:SpriteSelector Grid.Column="0" x:Name="_spriteSelector" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,2,0,0" Width="auto" />
+			<Rectangle Height="1" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Stretch" Fill="#232323" />
+            <editorControls:SpriteSelector Grid.Column="0" x:Name="_spriteSelector" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,1,0,0" Width="auto" />
         </Grid>
-        <Grid Name="_gridActionPresenter" listView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />

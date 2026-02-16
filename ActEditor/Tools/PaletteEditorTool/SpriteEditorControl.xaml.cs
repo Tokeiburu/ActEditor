@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -32,16 +33,14 @@ namespace ActEditor.Tools.PaletteEditorTool {
 	/// Interaction logic for SpriteEditorControl.xaml
 	/// </summary>
 	public partial class SpriteEditorControl : UserControl {
-		private readonly object _lock = new object();
-		private readonly object _lockPreview = new object();
-		private readonly int[] _previewCount = new int[1024];
 		private readonly WpfRecentFiles _recentFiles;
-		private int _numShowing;
 		private byte[] _palette = new byte[1024];
 		private Spr _spr;
 		private GrfImage _imageEditing;
 		private EditMode _editMode = EditMode.Select;
 		private bool _gradientSelection = false;
+		private CancellationTokenSource _animToken;
+		private readonly float[] _pixelGlow = new float[256];
 
 		private Cursor CursorBucket = null;
 		private Cursor CursorEraser = null;
@@ -126,24 +125,35 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				_gceControl.Panel.Visibility = Visibility.Visible;
 				_gceControl.GradientGrid.Visibility = Visibility.Visible;
 
-				_sce.PaletteSelector.GotFocus += delegate {
-					_gradientSelection = false;
-					_sce.PickerControl.Visibility = Visibility.Visible;
-					_gceControl.PickerControl.Visibility = Visibility.Hidden;
-					_gceControl.Panel.Visibility = Visibility.Hidden;
-					_gceControl.GradientGrid.Visibility = Visibility.Hidden;
-				};
-
-				_gceControl.PaletteSelector.GotFocus += delegate {
-					_gradientSelection = true;
-					_sce.PickerControl.Visibility = Visibility.Hidden;
-					_gceControl.PickerControl.Visibility = Visibility.Visible;
-					_gceControl.Panel.Visibility = Visibility.Visible;
-					_gceControl.GradientGrid.Visibility = Visibility.Visible;
-				};
+				_sce.PaletteSelector.GotFocus += (s, e) => SelectSingleColorEditControl();
+				_gceControl.PaletteSelector.GotFocus += (s, e) => SelectGradientColorEditControl();
+				SelectSingleColorEditControl();
 
 				_brushIncrease(0);
 			};
+
+			Unloaded += delegate {
+				try {
+					_animToken?.Cancel();
+				}
+				catch { }
+			};
+		}
+
+		public void SelectSingleColorEditControl() {
+			_gradientSelection = false;
+			_sce.PickerControl.Visibility = Visibility.Visible;
+			_gceControl.PickerControl.Visibility = Visibility.Hidden;
+			_gceControl.Panel.Visibility = Visibility.Hidden;
+			_gceControl.GradientGrid.Visibility = Visibility.Hidden;
+		}
+
+		public void SelectGradientColorEditControl() {
+			_gradientSelection = true;
+			_sce.PickerControl.Visibility = Visibility.Hidden;
+			_gceControl.PickerControl.Visibility = Visibility.Visible;
+			_gceControl.Panel.Visibility = Visibility.Visible;
+			_gceControl.GradientGrid.Visibility = Visibility.Visible;
 		}
 
 		private void _brushIncrease(int amount) {
@@ -674,103 +684,85 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		}
 
 		private void _paletteSelector_SelectionChanged(object sender, ObservabableListEventArgs args) {
-			if (_gradientSelection == false && args.Items.Count == 1) {
-				GrfThread.Start(() => _showSelectedPixel(args));
-				_sce.PaletteSelector.GridFocus.Focus();
-				Keyboard.Focus(_sce.PaletteSelector.GridFocus);
+			if (args.Items.Count == 0)
+				return;
+
+			bool valid = false;
+
+			if ((_gradientSelection && args.Items.Count > 1) ||
+				(!_gradientSelection && args.Items.Count == 1)) {
+				valid = true;
 			}
-			else if (_gradientSelection == true && args.Items.Count > 1) {
-				GrfThread.Start(() => _showSelectedPixel(args));
-				_gceControl.PaletteSelector.GridFocus.Focus();
-				Keyboard.Focus(_gceControl.PaletteSelector.GridFocus);
-			}
+
+			if (!valid)
+				return;
+
+			foreach (int index in args.Items)
+				if (_pixelGlow[index] <= 0.5f)
+					_pixelGlow[index] = 1f;
+
+			StartPixelAnimator();
+
+			if (_gradientSelection)
+				_gceControl.FocusGrid();
+			else
+				_sce.FocusGrid();
 		}
 
-		private void _showSelectedPixel(ObservabableListEventArgs args) {
-			List<int> toUpdate = new List<int>();
+		public void StartPixelAnimator() {
+			if (_animToken != null)
+				return;
 
-			lock (_lock) {
-				foreach (int palIndex in toUpdate) {
-					while (true) {
-						int count;
+			_animToken = new CancellationTokenSource();
+			_ = _animateAsync(_animToken.Token);
+		}
 
-						lock (_lockPreview) {
-							count = _previewCount[palIndex];
-						}
+		private async Task _animateAsync(CancellationToken token) {
+			const int delay = 50;
+			const float decay = 0.08f;
 
-						if (count <= 0)
-							break;
+			while (!token.IsCancellationRequested) {
+				bool anyAlive = false;
 
-						Thread.Sleep(50);
+				for (int i = 0; i < _pixelGlow.Length; i++) {
+					if (_pixelGlow[i] > 0f) {
+						_pixelGlow[i] -= decay;
+						if (_pixelGlow[i] < 0f)
+							_pixelGlow[i] = 0f;
+						anyAlive = true;
 					}
 				}
 
-				lock (_lockPreview) {
-					foreach (int palIndex in args.Items) {
-						_previewCount[palIndex]++;
-						toUpdate.Add(palIndex);
-					}
-				}
+				if (!anyAlive)
+					break;
 
-				if (toUpdate.Count == 0)
-					return;
+				RenderGlowFrame();
 
-				if (_numShowing == 0) {
-					Buffer.BlockCopy(_spr.Palette.BytePalette, 0, _palette, 0, 1024);
-				}
-
-				_numShowing++;
+				await Task.Delay(delay);
 			}
 
-			if (args.Action == ObservableListEventType.Added || args.Action == ObservableListEventType.Modified) {
-				const int numberOfIteration = 20;
+			_animToken = null;
+		}
 
-				for (int i = 0; i <= numberOfIteration; i++) {
-					double colorFactor = (numberOfIteration - (double)i) / numberOfIteration;
+		public void RenderGlowFrame() {
+			var image = _spr.Images[_cbSpriteId.Dispatch(p => p.SelectedIndex)].Copy();
 
-					GrfImage image = _spr.Images[_cbSpriteId.Dispatch(p => p.SelectedIndex)];
-					image = image.Copy();
+			Buffer.BlockCopy(_spr.Palette.BytePalette, 0, _palette, 0, 1024);
 
-					foreach (int palIndex in toUpdate) {
-						int offset1024 = 4 * palIndex;
+			for (int i = 0; i < _pixelGlow.Length; i++) {
+				float g = _pixelGlow[i];
+				if (g <= 0f)
+					continue;
 
-						// RGBA
-						_palette[offset1024] = (byte)(colorFactor * (255 - image.Palette[offset1024]) + image.Palette[offset1024]);
-						_palette[offset1024 + 1] = (byte)(colorFactor * (0 - image.Palette[offset1024 + 1]) + image.Palette[offset1024 + 1]);
-						_palette[offset1024 + 2] = (byte)(colorFactor * (0 - image.Palette[offset1024 + 2]) + image.Palette[offset1024 + 2]);
-					}
+				int idx = i * 4;
 
-
-					lock (_lockPreview) {
-						for (int index = 0; index < toUpdate.Count; index++) {
-							int palIndex = toUpdate[index];
-
-							if (_previewCount[palIndex] > 1) {
-								_previewCount[palIndex]--;
-								toUpdate.RemoveAt(index);
-								index--;
-							}
-						}
-					}
-
-					if (toUpdate.Count == 0) {
-						break;
-					}
-
-					image.SetPalette(ref _palette);
-					_spriteViewer.Dispatch(p => p.LoadImage(image));
-					Thread.Sleep(50);
-				}
+				_palette[idx] = (byte)(_palette[idx] + g * (255 - _palette[idx]));
+				_palette[idx + 1] = (byte)(_palette[idx + 1] * (1f - g));
+				_palette[idx + 2] = (byte)(_palette[idx + 2] * (1f - g));
 			}
 
-			lock (_lock) {
-				foreach (int palIndex in toUpdate) {
-					lock (_lockPreview) {
-						_previewCount[palIndex]--;
-					}
-				}
-				_numShowing--;
-			}
+			image.SetPalette(ref _palette);
+			_spriteViewer.Dispatch(p => p.LoadImage(image));
 		}
 
 		private bool _openFile(TkPath file) {
@@ -796,7 +788,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				}
 
 				if (data == null) {
-					ErrorHandler.HandleException("File not found : " + file);
+					ErrorHandler.HandleException("File not found: " + file);
 					return false;
 				}
 
@@ -823,7 +815,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 					return true;
 				}
 				else {
-					ErrorHandler.HandleException("File format not supported : " + file);
+					ErrorHandler.HandleException("File format not supported: " + file);
 					return false;
 				}
 			}
@@ -1197,7 +1189,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			switch (mode) {
 				case EditMode.EyeDrop:
 					if (CursorEyedrop == null)
-						CursorEyedrop = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.GetResourceImage("cs_eyedrop.png"), Width = 16, Height = 16 }, new Point() { X = 2, Y = 14 });
+						CursorEyedrop = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_eyedrop.png"), Width = 16, Height = 16 }, new Point() { X = 2, Y = 14 });
 
 					if (CursorEyedrop != null) {
 						Mouse.OverrideCursor = CursorEyedrop;
@@ -1206,7 +1198,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 					break;
 				case EditMode.Pen:
 					if (CursorPen == null)
-						CursorPen = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.GetResourceImage("cs_pen.png"), Width = 16, Height = 16 }, new Point() { X = 9, Y = 8 });
+						CursorPen = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_pen.png"), Width = 16, Height = 16 }, new Point() { X = 9, Y = 8 });
 
 					if (CursorPen != null) {
 						Mouse.OverrideCursor = CursorPen;
@@ -1215,7 +1207,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 					break;
 				case EditMode.Bucket:
 					if (CursorBucket == null)
-						CursorBucket = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.GetResourceImage("cs_bucket.png"), Width = 16, Height = 16 }, new Point() { X = 14, Y = 15 });
+						CursorBucket = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_bucket.png"), Width = 16, Height = 16 }, new Point() { X = 14, Y = 15 });
 
 					if (CursorBucket != null) {
 						Mouse.OverrideCursor = CursorBucket;
@@ -1225,7 +1217,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				case EditMode.StampSpecial:
 				case EditMode.Stamp:
 					if (CursorStamp == null)
-						CursorStamp = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.GetResourceImage("cs_brush.png"), Width = 16, Height = 16 }, new Point() { X = 9, Y = 8 });
+						CursorStamp = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_brush.png"), Width = 16, Height = 16 }, new Point() { X = 9, Y = 8 });
 
 					if (CursorStamp != null) {
 						Mouse.OverrideCursor = CursorStamp;
@@ -1234,7 +1226,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 					break;
 				case EditMode.Eraser:
 					if (CursorEraser == null)
-						CursorEraser = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.GetResourceImage("cs_eraser.png"), Width = 16, Height = 16 }, new Point() { X = 8, Y = 8 });
+						CursorEraser = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_eraser.png"), Width = 16, Height = 16 }, new Point() { X = 8, Y = 8 });
 
 					if (CursorEraser != null) {
 						Mouse.OverrideCursor = CursorEraser;

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using ActEditor.Core.WPF.FrameEditor;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using GRF.FileFormats.SprFormat;
+using Utilities.Extension;
 
 namespace ActEditor.Core.WPF.InteractionComponent {
 	public class DefaultInteraction : IEditorInteraction {
@@ -19,35 +22,72 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 			var layers = _renderer.Editor.SelectionEngine.SelectedLayers;
 
 			if (layers.Length > 0) {
-				Clipboard.SetDataObject(new DataObject("Layers", _renderer.Editor.SelectionEngine.SelectedLayers.ToList().Select(p => new Layer(p)).ToArray()));
+				Clipboard.SetDataObject(new DataObject("Layers", new LayerClipboardData(layers, _editor.Act)));
+				//Clipboard.SetDataObject(new DataObject("Layers", _renderer.Editor.SelectionEngine.SelectedLayers.ToList().Select(p => new Layer(p)).ToArray()));
 			}
 		}
 
 		public void Paste() {
 			if (_editor.Act == null) return;
 
-			var layersDataObj = Clipboard.GetDataObject();
+			var layersObj = Clipboard.GetDataObject()?.GetData("Layers");
+			LayerClipboardData layerClipboardData = layersObj as LayerClipboardData;
 
-			if (layersDataObj == null) return;
-
-			var layersObj = layersDataObj.GetData("Layers");
-
-			Layer[] layers = layersObj as Layer[];
-
-			if (layers == null || layers.Length == 0) return;
+			if (layerClipboardData == null || layerClipboardData.Layers.Length == 0) return;
 
 			int start = _editor.Act[_editor.SelectedAction, _editor.SelectedFrame].NumberOfLayers;
 
 			try {
-				_editor.Act.Commands.Begin();
-				_editor.Act.Commands.LayerAdd(_editor.SelectedAction, _editor.SelectedFrame, layers);
+				_editor.Act.Commands.ActEditBegin("Clipboard paste - Added layers (" + start + ")");
+
+				// Resolve images
+				if (_editor.Act.LoadedPath != layerClipboardData.SourceActPath) {
+					try {
+						_editor.SpriteManager.Begin();
+						SpriteManager.SpriteConverterOption = -1;
+
+						var spr = new Spr(File.ReadAllBytes(layerClipboardData.SourceSprPath));
+
+						foreach (var layer in layerClipboardData.Layers) {
+							var image = layer.GetImage(spr);
+
+							if (image != null) {
+								// Check if image exists already
+								var idx = _editor.Act.Sprite.Exists(image);
+
+								if (!idx.Valid) {
+									int oldIndexed8Count = _editor.Act.Sprite.NumberOfIndexed8Images;
+
+									_editor.SpriteManager.AddImage(image);
+
+									if (oldIndexed8Count == _editor.Act.Sprite.NumberOfIndexed8Images)
+										idx = new SpriteIndex(_editor.Act.Sprite.NumberOfBgra32Images - 1, GRF.Image.GrfImageType.Bgra32);
+									else
+										idx = new SpriteIndex(_editor.Act.Sprite.NumberOfIndexed8Images - 1, GRF.Image.GrfImageType.Indexed8);
+								}
+
+								layer.SprSpriteIndex = idx;
+							}
+						}
+					}
+					finally {
+						_editor.SpriteManager.End();
+					}
+				}
+
+				var frame = _editor.Act[_editor.SelectedAction, _editor.SelectedFrame];
+				frame.Layers.AddRange(layerClipboardData.Layers);
+				//_editor.Act.Commands.LayerAdd(_editor.SelectedAction, _editor.SelectedFrame, layers);
+			}
+			catch (OperationCanceledException) {
+				_editor.Act.Commands.ActCancelEdit();
 			}
 			catch (Exception err) {
-				_editor.Act.Commands.CancelEdit();
+				_editor.Act.Commands.ActCancelEdit();
 				ErrorHandler.HandleException(err);
 			}
 			finally {
-				_editor.Act.Commands.End();
+				_editor.Act.Commands.ActEditEnd();
 				_editor.IndexSelector.OnFrameChanged(_editor.SelectedFrame);
 				_editor.SelectionEngine.SetSelection(start, _editor.Act[_editor.SelectedAction, _editor.SelectedFrame].NumberOfLayers - start);
 			}
@@ -57,7 +97,7 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 			var layers = _editor.SelectionEngine.SelectedLayers;
 
 			if (layers.Length > 0) {
-				Clipboard.SetDataObject(new DataObject("Layers", layers.ToList().Select(p => new Layer(p)).ToArray()));
+				Copy();
 
 				try {
 					_editor.Act.Commands.Begin();
@@ -66,7 +106,7 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 						_editor.Act.Commands.LayerDelete(_editor.SelectedAction, _editor.SelectedFrame, index);
 					}
 
-					_editor.SelectionEngine.ClearSelection();
+					_editor.SelectionEngine.DeselectAll();
 				}
 				catch (Exception err) {
 					_editor.Act.Commands.CancelEdit();
@@ -87,7 +127,7 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 					_editor.Act.Commands.LayerDelete(_editor.SelectedAction, _editor.SelectedFrame, index);
 				}
 
-				_editor.SelectionEngine.ClearSelection();
+				_editor.SelectionEngine.DeselectAll();
 			}
 			catch (Exception err) {
 				_editor.Act.Commands.CancelEdit();

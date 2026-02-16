@@ -8,16 +8,16 @@
              xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls"
              xmlns:EditorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
              xmlns:wpf="clr-namespace:TokeiLibrary.WPF;assembly=TokeiLibrary"
-             mc:Ignorable="d" >
+             mc:Ignorable="d" SnapsToDevicePixels="True" UseLayoutRounding="True" >
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="85" />
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
             <ColumnDefinition />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition x:Name="_cdLayerControl" Width="400" />
         </Grid.ColumnDefinitions>
-        <CheckBox Name="_cbRef" Content="Nearby" VerticalAlignment="Center" Margin="3" />
+		<CheckBox Name="_cbRef" Content="Nearby" VerticalAlignment="Center" Margin="3" Foreground="{DynamicResource TextForeground}" />
         <Grid Name="_grid" Visibility="Collapsed" Grid.Column="2">
             <Grid Height="auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0 0 3 0">
                 <Grid.ColumnDefinitions>
@@ -30,14 +30,14 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <Styles:FancyButton x:Name="_fancyButton3" Tag="3" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="0" Grid.Column="0" />
-                <Styles:FancyButton x:Name="_fancyButton4" Tag="4" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="0" Grid.Column="1" />
-                <Styles:FancyButton x:Name="_fancyButton5" Tag="5" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="0" Grid.Column="2" />
-                <Styles:FancyButton x:Name="_fancyButton2" Tag="2" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="1" Grid.Column="0" />
-                <Styles:FancyButton x:Name="_fancyButton6" Tag="6" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="1" Grid.Column="2" />
-                <Styles:FancyButton x:Name="_fancyButton1" Tag="1" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="2" Grid.Column="0" />
-                <Styles:FancyButton x:Name="_fancyButton0" Tag="0" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="2" Grid.Column="1" />
-                <Styles:FancyButton x:Name="_fancyButton7" Tag="7" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="2" Grid.Column="2" />
+				<wpf:SimpleButton x:Name="_fancyButton3" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="0" Grid.Column="0" />
+                <wpf:SimpleButton x:Name="_fancyButton4" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="0" Grid.Column="1" />
+                <wpf:SimpleButton x:Name="_fancyButton5" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="0" Grid.Column="2" />
+                <wpf:SimpleButton x:Name="_fancyButton2" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="1" Grid.Column="0" />
+                <wpf:SimpleButton x:Name="_fancyButton6" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="1" Grid.Column="2" />
+                <wpf:SimpleButton x:Name="_fancyButton1" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="2" Grid.Column="0" />
+                <wpf:SimpleButton x:Name="_fancyButton0" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="2" Grid.Column="1" />
+                <wpf:SimpleButton x:Name="_fancyButton7" Click="_fancyButton_Click" Height="16" Width="16" Grid.Row="2" Grid.Column="2" />
             </Grid>
         </Grid>
         <StackPanel VerticalAlignment="Center" Grid.Column="3" Margin="0 0 2 0">
@@ -52,8 +52,8 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Grid.Column="1">
-                    <Styles:FancyButton Visibility="Hidden" IsEnabled="False" Margin="1" Name="_buttonAnchor" Click="_buttonAnchor_Click" Width="22" Height="22" HorizontalAlignment="Right" ImagePath="anchor.png" ToolTipService.ShowDuration="1000000">
-                        <Styles:FancyButton.ToolTip>
+					<wpf:SimpleButton Visibility="Hidden" IsEnabled="False" Margin="1" Name="_buttonAnchor" Click="_buttonAnchor_Click" Width="22" Height="22" HorizontalAlignment="Right" ImagePath="anchor.png" ToolTipService.ShowDuration="1000000">
+						<wpf:SimpleButton.ToolTip>
                             <TextBlock>
                                 Some sprites have anchors which help with the positioning of head, weapon and equipment
                                 <LineBreak />
@@ -65,8 +65,8 @@
                                 <LineBreak />
                                 process is meaningless.
                             </TextBlock>
-                        </Styles:FancyButton.ToolTip>
-                    </Styles:FancyButton>
+                        </wpf:SimpleButton.ToolTip>
+                    </wpf:SimpleButton>
                     <ComboBox Visibility="Hidden" SelectedIndex="3" IsEnabled="False" Name="_cbAnchor" Height="0" Width="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="1" >
                         <ComboBoxItem Content="Body reference" />
                         <ComboBoxItem Content="Other reference" />
@@ -82,19 +82,17 @@
                         <ColumnDefinition />
                         <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <wpf:HyperlinkTextBlock VerticalAlignment="Center" x:Name="_buttonSprite" Click="_buttonSprite_Click" Header="Select..." Margin="2 0 2 0" />
-                    <Styles:FancyButton Grid.Column="1" Name="_reset" Click="_reset_Click" Width="18" Height="18" HorizontalAlignment="Right" ImagePath="reset.png" />
+					<wpf:HyperlinkTextBlock VerticalAlignment="Center" x:Name="_buttonSprite" Click="_buttonSprite_Click" Header="Select..." Margin="2 0 2 0" NormalBrush="{DynamicResource UIThemeHyperlinkForegroundBrush}" MouseOverBrush="{DynamicResource UIThemeHyperlinkMouseOverBrush}" />
+					<wpf:SimpleButton Grid.Column="1" Name="_reset" Click="_reset_Click" Width="18" Height="18" HorizontalAlignment="Right" ImagePath="reset.png" />
                 </Grid>
-                <Styles:FancyButton Grid.Column="1" Grid.Row="1" Name="_gender" Click="_gender_Click" Width="22" Height="22" Visibility="Collapsed" HorizontalAlignment="Right" ImagePath="female.png" Margin="0 0 1 0" />
+				<wpf:SimpleButton Grid.Column="1" Grid.Row="1" Name="_gender" Click="_gender_Click" Width="22" Height="22" Visibility="Collapsed" HorizontalAlignment="Right" ImagePath="female.png" Margin="0 0 1 0" />
             </Grid>
         </StackPanel>
-        <StackPanel Grid.Column="4" VerticalAlignment="Center">
-            <Border BorderThickness="1 1 0 0" BorderBrush="{StaticResource UIGridBackgroundBrush}">
-                <StackPanel Name="_sp">
-                    <EditorControls:LayerControlHeader x:Name="_header" />
-                </StackPanel>
-            </Border>
-        </StackPanel>
-        <Rectangle Name="_rectangleVisibility" IsHitTestVisible="True" Grid.Column="1" Fill="{StaticResource UIThemeLayerControlOverlay}" Grid.ColumnSpan="4" />
+		<Border BorderThickness="1 1 0 0" BorderBrush="{DynamicResource UIGridBackgroundBrush}" SnapsToDevicePixels="True" UseLayoutRounding="True" Grid.Column="4" VerticalAlignment="Center" >
+			<StackPanel Name="_sp" SnapsToDevicePixels="True" UseLayoutRounding="True" >
+                <EditorControls:LayerControlHeader x:Name="_header" />
+            </StackPanel>
+        </Border>
+		<Rectangle Name="_rectangleVisibility" IsHitTestVisible="True" Grid.Column="1" Fill="{DynamicResource UIThemeLayerControlOverlay}" Grid.ColumnSpan="4" />
     </Grid>
 </UserControl>

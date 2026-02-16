@@ -18,7 +18,6 @@ using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
-using Action = GRF.FileFormats.ActFormat.Action;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 
 namespace ActEditor.Core.WPF.Dialogs {
@@ -167,7 +166,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Binder.Bind((TextBox)_tbRange, () => ActEditorConfiguration.InterpolateRange, v => ActEditorConfiguration.InterpolateRange = v, _updatePreview);
 
 			WpfUtilities.AddFocus(_tbIndexStart, _tbIndexEnd, _tbLayerIndexes, _tbRange, _tbEase, _tbTolerance);
-			WpfUtilities.PreviewLabel(_tbLayerIndexes, "Example : 1,2,5-9;12;");
+			WpfUtilities.PreviewLabel(_tbLayerIndexes, "Example: 1,2,5-9;12;");
 
 			_asIndexStart.FrameChanged += new ActIndexSelector.FrameIndexChangedDelegate(_asIndexStart_ActionChanged);
 			_asIndexEnd.FrameChanged += new ActIndexSelector.FrameIndexChangedDelegate(_asIndexEnd_ActionChanged);
@@ -235,32 +234,16 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_act = act;
 			_rendererAct = new Act(act);
 
-			DummyFrameEditor editor = new DummyFrameEditor();
-			editor.ActFunc = () => _rendererAct;
-			editor.Element = this;
-			editor.IndexSelector = _rps;
-			editor.SelectedActionFunc = () => _rps.SelectedAction;
-			editor.SelectedFrameFunc = () => _rps.SelectedFrame;
-			_editor = editor;
-			_rps.Init(editor, ActionIndex);
-
-			_rfp.DrawingModules.Add(new DefaultDrawModule(delegate {
-				if (editor.Act != null) {
-					return new List<DrawingComponent> { new ActDraw(editor.Act, editor) };
-				}
-
-				return new List<DrawingComponent>();
-			}, DrawingPriorityValues.Normal, false));
-
-			_rfp.Init(editor);
-
+			_editor = DummyFrameEditor.CreateEditor(() => _rendererAct, this, _rps, _rfp, ActionIndex);
 			_updatePreview();
 		}
+
+		private CoalescingExecutor _executor = new CoalescingExecutor();
 
 		private void _updatePreview() {
 			if (_act == null) return;
 
-			LazyAction.Execute(delegate {
+			_executor.Execute(delegate {
 				Act act = new Act(_act);
 
 				if (CanExecute(act)) {
@@ -273,8 +256,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 
 				_rendererAct = act;
-				_rps.Init(_editor, ActionIndex);
-			}, GetHashCode());
+				_rps.Init(_editor, ActionIndex, _rps.SelectedFrame);
+			});
 		}
 
 		private void _asIndexEnd_ActionChanged(object sender, int actionindex) {

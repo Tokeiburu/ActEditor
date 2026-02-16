@@ -11,10 +11,10 @@ using System.Windows.Input;
 using ActEditor.ApplicationConfiguration;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
-using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using GRF.IO;
 using GrfToWpfBridge;
+using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
 using Utilities.Extension;
@@ -76,7 +76,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 			}, true);
 
-			WpfUtils.AddMouseInOutEffectsBox(_cbCurrentSprite, _cbCurrentFolder);
+			WpfUtilities.AddMouseInOutUnderline(_cbCurrentSprite, _cbCurrentFolder);
 
 			_pathBrowserOutput.Loaded += delegate {
 				if (_pathBrowserOutput.RecentFiles.Files.Count > 0) {

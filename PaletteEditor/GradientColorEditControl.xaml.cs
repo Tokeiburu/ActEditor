@@ -197,15 +197,14 @@ namespace PaletteEditor {
 					middle.Value,
 					Colors.White,
 					middle.Value,
-					middle.Value, 136, 10);
+					middle.Value, 136, 10,
+					out byte[] pixelsTop);
 				BitmapSource imageBottom = PickerGradientHelper.CreateFourColorImage(
 					middle.Value,
 					middle.Value,
 					Colors.Black,
-					middle.Value, 136, 10);
-
-				byte[] pixelsTop = WpfImaging.GetData(imageTop);
-				byte[] pixelsBottom = WpfImaging.GetData(imageBottom);
+					middle.Value, 136, 10,
+					out byte[] pixelsBottom);
 
 				byte[] pixels = new byte[pixelsTop.Length + pixelsBottom.Length];
 
@@ -691,6 +690,11 @@ namespace PaletteEditor {
 
 		private void _colorLast_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e) {
 			_lock(2);
+		}
+
+		public void FocusGrid() {
+			PaletteSelector.GridFocus.Focus();
+			Keyboard.Focus(PaletteSelector.GridFocus);
 		}
 	}
 }

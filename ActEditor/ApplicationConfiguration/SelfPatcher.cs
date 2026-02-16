@@ -19,6 +19,9 @@ namespace ActEditor.ApplicationConfiguration {
 		public static readonly SelfPatch Patch0126 = new RefreshScripts3(126);
 		public static readonly SelfPatch Patch0127 = new RefreshScripts4(127);
 		public static readonly SelfPatch Patch0128 = new RefreshScripts5(128);
+		public static readonly SelfPatch Patch0131 = new RefreshScripts6(131);
+		public static readonly SelfPatch Patch0132 = new RefreshScripts7(132);
+		public static readonly SelfPatch Patch0133 = new RefreshScripts8(133);
 
 		static SelfPatcher() {
 			Patches = Patches.OrderBy(p => p.PatchId).ToList();
@@ -172,6 +175,87 @@ namespace ActEditor.ApplicationConfiguration {
 
 				GrfPath.Delete(Path.Combine(path, "script10_trim_images.cs"));
 				GrfPath.Delete(Path.Combine(path, "script10_trim_images.dll"));
+			}
+			catch {
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	public class RefreshScripts6 : SelfPatch {
+		public RefreshScripts6(int patchId)
+			: base(patchId) {
+		}
+
+		public override bool PatchAppliaction() {
+			try {
+				string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, ScriptLoader.OutputPath);
+
+				GrfPath.Delete(Path.Combine(path, "script9_chibi_grf.cs"));
+				GrfPath.Delete(Path.Combine(path, "script9_chibi_grf.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script10_trim_images.cs"));
+				GrfPath.Delete(Path.Combine(path, "script10_trim_images.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script11_palette_sheet.cs"));
+				GrfPath.Delete(Path.Combine(path, "script11_palette_sheet.dll"));
+			}
+			catch {
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	public class RefreshScripts7 : SelfPatch {
+		public RefreshScripts7(int patchId)
+			: base(patchId) {
+		}
+
+		public override bool PatchAppliaction() {
+			try {
+				string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, ScriptLoader.OutputPath);
+
+				GrfPath.Delete(Path.Combine(path, "script6_merge_layers.cs"));
+				GrfPath.Delete(Path.Combine(path, "script6_merge_layers.dll"));
+			}
+			catch {
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	public class RefreshScripts8 : SelfPatch {
+		public RefreshScripts8(int patchId)
+			: base(patchId) {
+		}
+
+		public override bool PatchAppliaction() {
+			try {
+				string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, ScriptLoader.OutputPath);
+
+				GrfPath.Delete(Path.Combine(path, "script0_magnify.cs"));
+				GrfPath.Delete(Path.Combine(path, "script0_magnify.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script2_expand.cs"));
+				GrfPath.Delete(Path.Combine(path, "script2_expand.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script7_add_effect1.cs"));
+				GrfPath.Delete(Path.Combine(path, "script7_add_effect1.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script8_add_frame.cs"));
+				GrfPath.Delete(Path.Combine(path, "script8_add_frame.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "script10_trim_images.cs"));
+				GrfPath.Delete(Path.Combine(path, "script10_trim_images.dll"));
+
+				GrfPath.Delete(Path.Combine(path, "sprites.conf"));
+				GrfPath.Delete(Path.Combine(path, "sprites_old.conf"));
 			}
 			catch {
 				return false;

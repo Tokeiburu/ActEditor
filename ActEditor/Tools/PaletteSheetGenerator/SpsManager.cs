@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using GRF.Core;
-using GRF.FileFormats.ActFormat;
-using GRF.FileFormats.SprFormat;
 using GRF.Threading;
 using TokeiLibrary;
 using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF.Styles.ListView;
-using Utilities;
 using Utilities.Extension;
-using Utilities.Services;
 
 namespace ActEditor.Tools.PaletteSheetGenerator {
 	public static class SpsManager {
@@ -32,7 +27,6 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 				lv.SelectionMode = SelectionMode.Single;
 				lv.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, true);
 				lv.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Disabled);
-				//ListView:WpfUtils.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
 
 				lv.KeyDown += delegate {
 					if (ApplicationShortcut.Is(ApplicationShortcut.Copy)) {
@@ -66,7 +60,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 					search = box.Text;
 					var current = search;
 
-					GrfThread.Start(delegate {
+					Task.Run(() => {
 						lock (oLock) {
 							if (search != current) return;
 
@@ -95,7 +89,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 								catch { }
 							});
 						}
-					}, "Preview Selector - Search thread");
+					});
 				};
 			}
 		}

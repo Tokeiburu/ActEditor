@@ -15,11 +15,11 @@ using ActEditor.Core.WPF.GenericControls;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.ActFormat.Commands;
-using GRF.Image;
 using GRF.Threading;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
+using Utilities;
 using Utilities.Commands;
 using Utilities.Extension;
 using Action = System.Action;
@@ -31,18 +31,19 @@ namespace ActEditor.Core.WPF.EditorControls {
 	public partial class ActIndexSelector : UserControl, IActIndexSelector {
 		#region Delegates
 
-		public delegate void FrameIndexChangedDelegate(object sender, int actionIndex);
+		public delegate void FrameIndexChangedDelegate(object sender, int frameIndex);
 
 		#endregion
 
+		//public static float MaxAnimationSpeed = 0.8f;
+		public static float MaxAnimationSpeed = 0.1f;
 		private readonly List<FancyButton> _fancyButtons;
-		private readonly object _lock = new object();
 		private readonly SoundEffect _se = new SoundEffect();
-		private TabAct _actEditor;
+		private IFrameRendererEditor _actEditor;
+		private int _eventsEnabledCounter = 0;
 		private bool _eventsEnabled = true;
 		private bool _frameChangedEventEnabled = true;
 		private bool _handlersEnabled = true;
-		private int _pending;
 
 		public ActIndexSelector() {
 			InitializeComponent();
@@ -50,53 +51,28 @@ namespace ActEditor.Core.WPF.EditorControls {
 			try {
 				_fancyButtons = new FancyButton[] { _fancyButton0, _fancyButton1, _fancyButton2, _fancyButton3, _fancyButton4, _fancyButton5, _fancyButton6, _fancyButton7 }.ToList();
 
-				BitmapSource image = ApplicationManager.PreloadResourceImage("arrow.png");
-				BitmapSource image2 = ApplicationManager.PreloadResourceImage("arrowoblique.png");
+				ActIndexSelectorHelper.BuildDirectionalActionSelectorUI(_fancyButtons, false);
 
-				_fancyButton0.ImageIcon.Source = image;
-				_fancyButton0.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton0.ImageIcon.RenderTransform = new RotateTransform { Angle = 90 };
+				_sbFrameIndex.PreviewMouseLeftButtonDown += delegate {
+					if (_actEditor.Act == null)
+						return;
 
-				_fancyButton1.ImageIcon.Source = image2;
-				_fancyButton1.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton1.ImageIcon.RenderTransform = new RotateTransform { Angle = 90 };
-
-				_fancyButton2.ImageIcon.Source = image;
-				_fancyButton2.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton2.ImageIcon.RenderTransform = new RotateTransform { Angle = 180 };
-
-				_fancyButton3.ImageIcon.Source = image2;
-				_fancyButton3.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton3.ImageIcon.RenderTransform = new RotateTransform { Angle = 180 };
-
-				_fancyButton4.ImageIcon.Source = image;
-				_fancyButton4.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton4.ImageIcon.RenderTransform = new RotateTransform { Angle = 270 };
-
-				_fancyButton5.ImageIcon.Source = image2;
-				_fancyButton5.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton5.ImageIcon.RenderTransform = new RotateTransform { Angle = 270 };
-
-				_fancyButton6.ImageIcon.Source = image;
-				_fancyButton6.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton6.ImageIcon.RenderTransform = new RotateTransform { Angle = 360 };
-
-				_fancyButton7.ImageIcon.Source = image2;
-				_fancyButton7.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton7.ImageIcon.RenderTransform = new RotateTransform { Angle = 360 };
-
-				_fancyButtons.ForEach(p => p.IsButtonEnabled = false);
-
-				_sbFrameIndex.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(_sbFrameIndex_MouseLeftButtonDown);
-				_sbFrameIndex.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(_sbFrameIndex_MouseLeftButtonUp);
+					OnAnimationPlaying(2);
+				};
+				_sbFrameIndex.PreviewMouseLeftButtonUp += delegate {
+					OnAnimationPlaying(0);
+				};
+				ScrollBarHelper.OverrideMouseIncrement(_sbFrameIndex, () => SelectedFrame++, () => SelectedFrame--);
 			}
 			catch {
 			}
 
 			try {
-				_updatePlay();
 				_cbSound.SelectionChanged += _cbSound_SelectionChanged;
 				_play.Click += new RoutedEventHandler(_play_Click);
+				FrameChanged += _frameChanged;
+				SpecialFrameChanged += _frameChanged;
+				ActionChanged += _actionChanged;
 
 				_cbSoundEnable.IsPressed = !ActEditorConfiguration.ActEditorPlaySound;
 
@@ -113,9 +89,11 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 				action();
 
-				((TextBlock) _buttonRenderMode.FindName("_tbIdentifier")).Margin = new Thickness(3, 0, 0, 3);
-				((Grid) ((Grid) ((Border) _buttonRenderMode.FindName("_border")).Child).Children[2]).HorizontalAlignment = HorizontalAlignment.Left;
-				((Grid) ((Grid) ((Border) _buttonRenderMode.FindName("_border")).Child).Children[2]).Margin = new Thickness(2, 0, 0, 0);
+				((TextBlock)_buttonRenderMode.FindName("_tbIdentifier")).Margin = new Thickness(3, 0, 0, 3);
+				((Grid)((Grid)((Border)_buttonRenderMode.FindName("_border")).Child).Children[2]).HorizontalAlignment = HorizontalAlignment.Left;
+				((Grid)((Grid)((Border)_buttonRenderMode.FindName("_border")).Child).Children[2]).Margin = new Thickness(2, 0, 0, 0);
+
+				ActIndexSelectorHelper.UpdatePlayButtonUI(_play);
 
 				Action action2 = new Action(delegate {
 					bool isEditor = ActEditorConfiguration.ActEditorScalingMode == BitmapScalingMode.NearestNeighbor;
@@ -131,7 +109,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_buttonRenderMode.Click += delegate {
 					ActEditorConfiguration.ActEditorScalingMode = ActEditorConfiguration.ActEditorScalingMode == BitmapScalingMode.NearestNeighbor ? BitmapScalingMode.Fant : BitmapScalingMode.NearestNeighbor;
 					action2();
-					_actEditor._rendererPrimary.UpdateAndSelect();
+					_actEditor.FrameRenderer.DrawSlotManager.ImagesDirty();
 				};
 
 				action2();
@@ -142,8 +120,61 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public int SelectedAction { get; set; }
-		public int SelectedFrame { get; set; }
+		private void _actionChanged(object sender, int actionIndex) {
+			if (actionIndex < _comboBoxActionIndex.Items.Count && actionIndex > -1) {
+				_comboBoxActionIndex.SelectedIndex = actionIndex;
+			}
+		}
+
+		private void _frameChanged(object sender, int frameIndex) {
+			try {
+				DisableEvents();
+
+				this.Dispatch(p => {
+					_sbFrameIndex.Value = frameIndex;
+					_tbFrameIndex.Text = frameIndex.ToString(CultureInfo.InvariantCulture);
+					_cbSound.SelectedIndex = _actEditor.Act[_actEditor.SelectedAction, frameIndex].SoundId + 1;
+				});
+			}
+			finally {
+				EnableEvents();
+			}
+		}
+
+		private int _selectedFrame;
+		private int _selectedAction;
+
+		public int SelectedAction {
+			get => _selectedAction;
+			set {
+				if (value == _selectedAction)
+					return;
+
+				int max = _actEditor.Act.NumberOfActions;
+				_selectedAction = (value % max + max) % max;
+
+				// This should always be done on the main UI thread
+				this.Dispatch(_ => {
+					OnActionChanged(_selectedAction);
+				});
+			}
+		}
+
+		public int SelectedFrame {
+			get => _selectedFrame;
+			set {
+				if (value == _selectedFrame)
+					return;
+
+				int max = _actEditor.Act[SelectedAction].NumberOfFrames;
+				_selectedFrame = (value % max + max) % max;
+
+				// This should always be done on the main UI thread
+				this.Dispatch(_ => {
+					OnFrameChanged(_selectedFrame);
+				});
+			}
+		}
 
 		public event FrameIndexChangedDelegate ActionChanged;
 		public event FrameIndexChangedDelegate FrameChanged;
@@ -159,19 +190,20 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		public event FrameIndexChangedDelegate AnimationPlaying;
 
-		public void OnAnimationPlaying(int actionindex) {
+		public void OnAnimationPlaying(int mode) {
 			FrameIndexChangedDelegate handler = AnimationPlaying;
-			if (handler != null) handler(this, actionindex);
+			if (handler != null) handler(this, mode);
 		}
 
-		public void OnFrameChanged(int actionindex) {
+		public void OnFrameChanged(int frameIndex) {
 			if (!_handlersEnabled) return;
 			if (!_frameChangedEventEnabled) {
-				OnSpecialFrameChanged(actionindex);
+				OnSpecialFrameChanged(frameIndex);
 				return;
 			}
+
 			FrameIndexChangedDelegate handler = FrameChanged;
-			if (handler != null) handler(this, actionindex);
+			if (handler != null) handler(this, frameIndex);
 		}
 
 		public void OnActionChanged(int actionindex) {
@@ -192,9 +224,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 					_actEditor.Act.Commands.InsertSoundId(dialog.Input, _actEditor.Act.SoundFiles.Count);
 
-					_eventsEnabled = false;
+					DisableEvents();
 					_reloadSound();
-					_eventsEnabled = true;
+					EnableEvents();
 					_cbSound.SelectedIndex = _actEditor.Act.SoundFiles.Count;
 				}
 				else {
@@ -206,115 +238,11 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		private void _sbFrameIndex_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-			lock (_lock) {
-				_pending++;
-			}
-
-			OnAnimationPlaying(0);
-
-			GrfThread.Start(delegate {
-				int max = 20;
-
-				while (max-- > 0) {
-					if (e.LeftButton == MouseButtonState.Pressed)
-						return;
-
-					Thread.Sleep(100);
-				}
-
-				// Resets the mouse operations to 0
-				lock (_lock) {
-					_pending = 0;
-				}
-			});
-		}
-
-		public void SetAction(int index) {
-			if (index < _comboBoxActionIndex.Items.Count && index > -1) {
-				_comboBoxActionIndex.SelectedIndex = index;
-			}
-		}
-
-		public void SetFrame(int index) {
-			_sbFrameIndex.Value = index;
-		}
-
-		private void _sbFrameIndex_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-			if (_actEditor.Act == null) {
-				lock (_lock) {
-					_pending--;
-				}
-				return;
-			}
-
-			Point position = e.GetPosition(_sbFrameIndex);
-
-			bool isLeft = position.X > 0 && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < SystemParameters.HorizontalScrollBarButtonWidth;
-			bool isRight = position.X > (_sbFrameIndex.ActualWidth - SystemParameters.HorizontalScrollBarButtonWidth) && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < _sbFrameIndex.ActualWidth;
-			bool isWithin = position.X > 0 && position.Y > 0 && position.X < _sbFrameIndex.ActualWidth && position.Y < _sbFrameIndex.ActualHeight;
-
-			if (isWithin) {
-				OnAnimationPlaying(2);
-			}
-
-			if (!isLeft && !isRight) {
-				lock (_lock) {
-					_pending--;
-				}
-				return;
-			}
-
-			GrfThread.Start(delegate {
-				int count = 0;
-				while (this.Dispatch(() => Mouse.LeftButton) == MouseButtonState.Pressed) {
-					_sbFrameIndex.Dispatch(delegate {
-						position = e.GetPosition(_sbFrameIndex);
-
-						isLeft = position.X > 0 && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < SystemParameters.HorizontalScrollBarButtonWidth;
-						isRight = position.X > (_sbFrameIndex.ActualWidth - SystemParameters.HorizontalScrollBarButtonWidth) && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < _sbFrameIndex.ActualWidth;
-					});
-
-					if (isLeft) {
-						SelectedFrame--;
-						if (SelectedFrame < 0)
-							SelectedFrame = _actEditor.Act[SelectedAction].NumberOfFrames - 1;
-					}
-
-					if (isRight) {
-						SelectedFrame++;
-						if (SelectedFrame >= _actEditor.Act[SelectedAction].NumberOfFrames)
-							SelectedFrame = 0;
-					}
-
-					_sbFrameIndex.Dispatch(p => p.Value = SelectedFrame);
-
-					Thread.Sleep(count == 0 ? 400 : 50);
-
-					lock (_lock) {
-						if (_pending > 0) {
-							_pending--;
-							return;
-						}
-					}
-
-					count++;
-				}
-			});
-
-			e.Handled = true;
-		}
-
 		private void _play_Click(object sender, RoutedEventArgs e) {
-			_play.Dispatch(delegate {
-				_play.IsPressed = !_play.IsPressed;
-				_sbFrameIndex.IsEnabled = !_play.IsPressed;
-				_updatePlay();
-			});
-
-			if (_play.Dispatch(() => _play.IsPressed)) {
-				GrfThread.Start(_playAnimation);
-			}
+			if (IsPlaying)
+				Stop();
+			else
+				Play();
 		}
 
 		private void _playAnimation() {
@@ -330,132 +258,85 @@ namespace ActEditor.Core.WPF.EditorControls {
 				return;
 			}
 
-			if (act[SelectedAction].AnimationSpeed < 0.8f) {
+			if (act[SelectedAction].AnimationSpeed < ActIndexSelector.MaxAnimationSpeed) {
 				_play_Click(null, null);
 				ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 				return;
 			}
 
 			Stopwatch watch = new Stopwatch();
-			SelectedFrame--;
+			int startFrame = SelectedFrame;
 			int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
-
-			int interval = (int)(act[SelectedAction].AnimationSpeed * frameInterval);
-
-			int intervalsToShow = 1;
-			int intervalsToHide = 0;
-
-			if (interval <= 50) {
-				intervalsToShow = 1;
-				intervalsToHide = 1;
-			}
-
-			if (interval <= frameInterval) {
-				intervalsToShow = 1;
-				intervalsToHide = 2;
-			}
-
-			if (intervalsToShow + intervalsToHide == act[SelectedAction].NumberOfFrames) {
-				intervalsToShow++;
-			}
-
-			int currentIntervalShown = -intervalsToHide;
+			int oldInterval = Int32.MinValue;
+			long idx = startFrame;
 
 			try {
-				this.Dispatch(p => p._actEditor._layerEditor.IsHitTestVisible = false);
 				OnAnimationPlaying(2);
-				IsPlaying = true;
 
-				while (_play.Dispatch(p => p.IsPressed)) {
-					watch.Reset();
-					watch.Start();
+				while (IsPlaying) {
+					var interval = (int)(act[SelectedAction].AnimationSpeed * frameInterval);
 
-					interval = (int)(act[SelectedAction].AnimationSpeed * frameInterval);
+					if (oldInterval != interval) {
+						oldInterval = interval;
+						watch.Restart();
+						idx = startFrame = SelectedFrame;
+					}
 
-					if (act[SelectedAction].AnimationSpeed < 0.8f) {
+					if (act[SelectedAction].AnimationSpeed < ActIndexSelector.MaxAnimationSpeed) {
 						_play_Click(null, null);
 						ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 						return;
 					}
 
 					SelectedFrame++;
+					PlaySound();
 
-					if (SelectedFrame >= act[SelectedAction].NumberOfFrames) {
-						SelectedFrame = 0;
-					}
-
-					if (!_cbSoundEnable.Dispatch(p => p.IsPressed)) {
-						int soundId = act[SelectedAction, SelectedFrame].SoundId;
-
-						if (soundId > -1 && soundId < act.SoundFiles.Count) {
-							string soundFile = act.SoundFiles[soundId];
-
-							if (soundFile.GetExtension() == null)
-								soundFile = soundFile + ".wav";
-
-							byte[] file = _actEditor.ActEditor.MetaGrf.GetData("data\\wav\\" + soundFile);
-
-							if (file != null) {
-								try {
-									_se.Play(file);
-								}
-								catch (Exception err) {
-									_cbSoundEnable.Dispatch(p => p.OnClick(null));
-									ErrorHandler.HandleException(err);
-								}
-							}
-						}
-					}
-
-					if (currentIntervalShown < 0) {
-						_frameChangedEventEnabled = false;
-						this.Dispatch(() => _sbFrameIndex.Value = SelectedFrame);
-						_frameChangedEventEnabled = true;
-					}
-					else {
-						this.Dispatch(() => _sbFrameIndex.Value = SelectedFrame);
-					}
-
-					currentIntervalShown++;
-
-					if (currentIntervalShown >= intervalsToShow) {
-						currentIntervalShown = -intervalsToHide;
-					}
-
-					if (!_play.Dispatch(p => p.IsPressed))
+					if (!IsPlaying)
 						return;
 
-					watch.Stop();
+					long expectedNextFrame = (idx + 1 - startFrame) * interval - watch.ElapsedMilliseconds;
+					idx++;
 
-					Thread.Sleep(interval);
+					Thread.Sleep((int)Math.Max(20, Math.Min(interval, expectedNextFrame)));
 				}
 			}
 			finally {
 				IsPlaying = false;
 				_frameChangedEventEnabled = true;
-				this.Dispatch(p => p._actEditor._layerEditor.IsHitTestVisible = true);
 				OnAnimationPlaying(0);
 
 				_sbFrameIndex.Dispatch(p => p.IsEnabled = true);
 			}
 		}
 
-		private void _updatePlay() {
-			((TextBlock) _play.FindName("_tbIdentifier")).Margin = new Thickness(3, 0, 0, 3);
-			((Grid) ((Grid) ((Border) _play.FindName("_border")).Child).Children[2]).HorizontalAlignment = HorizontalAlignment.Left;
-			((Grid) ((Grid) ((Border) _play.FindName("_border")).Child).Children[2]).Margin = new Thickness(2, 0, 0, 0);
+		public void PlaySound() {
+			if (ActEditorConfiguration.ActEditorPlaySound) {
+				var act = _actEditor.Act;
 
-			if (_play.IsPressed) {
-				_play.ImagePath = "stop2.png";
-				_play.TextHeader = "Stop";
-			}
-			else {
-				_play.ImagePath = "play.png";
-				_play.TextHeader = "Play";
+				int soundId = act[SelectedAction, SelectedFrame].SoundId;
+
+				if (soundId > -1 && soundId < act.SoundFiles.Count) {
+					string soundFile = act.SoundFiles[soundId];
+
+					if (soundFile.GetExtension() == null)
+						soundFile = soundFile + ".wav";
+
+					byte[] file = ActEditorWindow.Instance.MetaGrf.GetData("data\\wav\\" + soundFile);
+
+					if (file != null) {
+						try {
+							_se.Play(file);
+						}
+						catch (Exception err) {
+							_cbSoundEnable.Dispatch(p => p.OnClick(null));
+							ErrorHandler.HandleException(err);
+						}
+					}
+				}
 			}
 		}
 
-		public void Init(TabAct actEditor) {
+		public void Init(IFrameRendererEditor actEditor, int actionIndex, int selectedAction) {
 			_actEditor = actEditor;
 			_actEditor.ActLoaded += new ActEditorWindow.ActEditorEventDelegate(_actEditor_ActLoaded);
 			ActionChanged += _frameSelector_ActionChanged;
@@ -486,23 +367,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			int value = (int) Math.Round(_sbFrameIndex.Value);
 
-			_eventsEnabled = false;
-			_sbFrameIndex.Value = value;
-			_tbFrameIndex.Text = value.ToString(CultureInfo.InvariantCulture);
-			_cbSound.SelectedIndex = _actEditor.Act[_actEditor.SelectedAction, value].SoundId + 1;
-			_eventsEnabled = true;
 			SelectedFrame = value;
-			OnFrameChanged(value);
+			_sbFrameIndex.Value = value;
 		}
 
 		private void _updateAction() {
 			if (_actEditor.Act == null) return;
 			if (SelectedAction >= _actEditor.Act.NumberOfActions) return;
 
-			_eventsEnabled = false;
+			DisableEvents();
 
-			while (_actEditor.SelectedFrame >= _actEditor.Act[_actEditor.SelectedAction].NumberOfFrames && _actEditor.SelectedFrame > 0) {
-				_actEditor.SelectedFrame--;
+			if (_actEditor.SelectedFrame >= _actEditor.Act[_actEditor.SelectedAction].NumberOfFrames && _actEditor.SelectedFrame > 0) {
+				((TabAct)_actEditor).SelectedFrame = Math.Max(0, _actEditor.Act[_actEditor.SelectedAction].NumberOfFrames - 1);
 			}
 
 			int selectedSoundId = _actEditor.Act[_actEditor.SelectedAction, _actEditor.SelectedFrame].SoundId;
@@ -513,7 +389,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			_reloadSound();
 			_cbSound.SelectedIndex = selectedSoundId + 1;
-			_eventsEnabled = true;
+			EnableEvents();
 
 			int max = _actEditor.Act[SelectedAction].NumberOfFrames - 1;
 			max = max < 0 ? 0 : max;
@@ -529,6 +405,22 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_sbFrameIndex.Value = 0;
 		}
 
+		public void DisableEvents() {
+			if (_eventsEnabledCounter == 0) {
+				_eventsEnabled = false;
+			}
+
+			_eventsEnabledCounter--;
+		}
+
+		public void EnableEvents() {
+			_eventsEnabledCounter++;
+
+			if (_eventsEnabledCounter == 0) {
+				_eventsEnabled = true;
+			}
+		}
+
 		private void _actEditor_ActLoaded(object sender) {
 			_fancyButtons.ForEach(p => p.IsPressed = false);
 
@@ -538,13 +430,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_comboBoxAnimationIndex.ItemsSource = null;
 			_comboBoxAnimationIndex.Items.Clear();
 
-			_eventsEnabled = false;
+			DisableEvents();
 			_reloadSound();
-			_eventsEnabled = true;
+			EnableEvents();
 
 			int actions = _actEditor.Act.NumberOfActions;
 
-			_comboBoxAnimationIndex.ItemsSource = ActionSelector.GetAnimations(_actEditor.Act);
+			_comboBoxAnimationIndex.ItemsSource = ActHelper.GetAnimations(_actEditor.Act);
 			_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, actions);
 
 			if (actions != 0) {
@@ -552,10 +444,29 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 
 			_actEditor.Act.VisualInvalidated += s => Update();
+			_actEditor.Act.RenderInvalidated += s => _actEditor.FrameRenderer.Update();
 			_actEditor.Act.Commands.CommandIndexChanged += new AbstractCommand<IActCommand>.AbstractCommandsEventHandler(_commands_CommandUndo);
 		}
 
+		private List<string> _previousSoundFiles;
+
 		private void _reloadSound() {
+			if (_previousSoundFiles == null)
+				_previousSoundFiles = new List<string>();
+			else if (_previousSoundFiles.Count == _actEditor.Act.SoundFiles.Count) {
+				bool sameSounds = true;
+
+				for (int i = 0; i < _previousSoundFiles.Count; i++) {
+					if (_previousSoundFiles[i] != _actEditor.Act.SoundFiles[i]) {
+						sameSounds = false;
+						break;
+					}
+				}
+
+				if (sameSounds)
+					return;
+			}
+
 			List<DummyStringView> items = new List<DummyStringView>();
 			items.Add(new DummyStringView("None"));
 			_actEditor.Act.SoundFiles.ForEach(p => items.Add(new DummyStringView(p)));
@@ -606,8 +517,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 				}
 
 				var backupCmd = _getCommand<BackupCommand>(command);
+				var actBackupCmd = _getCommand<ActEditCommand>(command);
 
-				if (backupCmd != null) {
+				if (backupCmd != null || actBackupCmd != null) {
 					_updateActionSelection(true, false);
 				}
 
@@ -637,16 +549,42 @@ namespace ActEditor.Core.WPF.EditorControls {
 				int selectedAction = SelectedAction;
 				int frameIndex = SelectedFrame;
 
-				_comboBoxAnimationIndex.ItemsSource = null;
-				_comboBoxAnimationIndex.ItemsSource = ActionSelector.GetAnimations(_actEditor.Act);
-				_comboBoxActionIndex.ItemsSource = null;
-				_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, _actEditor.Act.NumberOfActions);
+				var animations = ActHelper.GetAnimations(_actEditor.Act);
+				var actions = Enumerable.Range(0, _actEditor.Act.NumberOfActions);
+
+				bool animationsChanged = false;
+
+				if (animations.Count != _comboBoxAnimationIndex.Items.Count) {
+					animationsChanged = true;
+				}
+				else {
+					for (int i = 0; i < animations.Count; i++) {
+						if (animations[i] != (string)_comboBoxAnimationIndex.Items[i]) {
+							animationsChanged = true;
+							break;
+						}
+					}
+				}
+
+				if (animationsChanged) {
+					_comboBoxAnimationIndex.ItemsSource = null;
+					_comboBoxAnimationIndex.ItemsSource = animations;
+				}
+
+				if (actions.Count() != _comboBoxActionIndex.Items.Count) {
+					_comboBoxActionIndex.ItemsSource = null;
+					_comboBoxActionIndex.ItemsSource = actions;
+				}
 
 				if (selectedAction >= _comboBoxActionIndex.Items.Count) {
 					_comboBoxActionIndex.SelectedIndex = _comboBoxActionIndex.Items.Count - 1;
 				}
 
-				_comboBoxActionIndex.SelectedIndex = selectedAction;
+				if (_comboBoxActionIndex.SelectedIndex != selectedAction)
+					_comboBoxActionIndex.SelectedIndex = selectedAction;
+
+				if (_comboBoxAnimationIndex.SelectedIndex != selectedAction / 8)
+					_comboBoxAnimationIndex.SelectedIndex = selectedAction / 8;
 
 				if (keepFrameIndex) {
 					_sbFrameIndex.Value = frameIndex;
@@ -661,8 +599,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _updateInfo() {
-			_play.IsPressed = false;
-			_updatePlay();
+			Stop();
 			_updateAction();
 			_updateInterval();
 		}
@@ -672,18 +609,22 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			_play.Dispatch(delegate {
 				_play.IsPressed = true;
-				_updatePlay();
+				_sbFrameIndex.IsEnabled = false;
+				IsPlaying = true;
+				ActIndexSelectorHelper.UpdatePlayButtonUI(_play);
 			});
 
-			if (_play.Dispatch(() => _play.IsPressed)) {
-				GrfThread.Start(_playAnimation);
-			}
+			GrfThread.Start(_playAnimation);
 		}
 
 		public void Stop() {
+			if (!IsPlaying) return;
+
 			_play.Dispatch(delegate {
 				_play.IsPressed = false;
-				_updatePlay();
+				_sbFrameIndex.IsEnabled = true;
+				IsPlaying = false;
+				ActIndexSelectorHelper.UpdatePlayButtonUI(_play);
 			});
 		}
 
@@ -701,28 +642,20 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private void _fancyButton_Click(object sender, RoutedEventArgs e) {
 			int animationIndex = _comboBoxActionIndex.SelectedIndex / 8;
 
-			_fancyButtons.ForEach(p => p.IsPressed = false);
-			((FancyButton) sender).IsPressed = true;
+			var fb = (FancyButton)sender;
 
-			_comboBoxActionIndex.SelectedIndex = animationIndex * 8 + Int32.Parse(((FancyButton) sender).Tag.ToString());
+			_fancyButtons.ForEach(p => p.IsPressed = false);
+			fb.IsPressed = true;
+
+			_comboBoxActionIndex.SelectedIndex = animationIndex * 8 + _fancyButtons.IndexOf(fb);
 		}
 
 		private void _setDisabledButtons() {
 			Dispatcher.Invoke(new Action(delegate {
-				int animationIndex = _comboBoxActionIndex.SelectedIndex / 8;
+				int baseAnimationIndex = _comboBoxActionIndex.SelectedIndex / 8 * 8;
 
-				if ((animationIndex + 1) * 8 > _actEditor.Act.NumberOfActions) {
-					_fancyButtons.ForEach(p => p.IsButtonEnabled = true);
-
-					int toDisable = (animationIndex + 1) * 8 - _actEditor.Act.NumberOfActions;
-
-					for (int i = 0; i < toDisable; i++) {
-						int disabledIndex = 7 - i;
-						_fancyButtons.First(p => Int32.Parse(p.Tag.ToString()) == disabledIndex).IsButtonEnabled = false;
-					}
-				}
-				else {
-					_fancyButtons.ForEach(p => p.IsButtonEnabled = true);
+				for (int i = 0; i < 8; i++) {
+					_fancyButtons[i].IsButtonEnabled = baseAnimationIndex + i < _actEditor.Act.NumberOfActions;
 				}
 			}));
 		}
@@ -748,7 +681,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			int animationIndex = actionIndex / 8;
 			_disableEvents();
 			_comboBoxAnimationIndex.SelectedIndex = animationIndex;
-			_fancyButton_Click(_fancyButtons.First(p => p.Tag.ToString() == (actionIndex % 8).ToString(CultureInfo.InvariantCulture)), null);
+			_fancyButton_Click(_fancyButtons[actionIndex % 8], null);
 			_setDisabledButtons();
 			SelectedAction = _comboBoxActionIndex.SelectedIndex;
 			SelectedFrame = 0;
@@ -818,41 +751,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (_actEditor.Act == null) return;
 			if (_actEditor.Act.Commands.IsLocked) return;
 
-			float fval;
+			float fval = FormatConverters.SingleConverterNoThrow(_interval.Text);
 
-			if (float.TryParse(_interval.Text.Replace(",", "."), NumberStyles.Any, CultureInfo.InvariantCulture, out fval)) {
-				if (fval > 0) {
-					int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
-					_actEditor.Act.Commands.SetInterval(SelectedAction, fval / frameInterval);
-				}
+			if (fval > 0) {
+				int frameInterval = ActEditorConfiguration.UseAccurateFrameInterval ? 24 : 25;
+				_actEditor.Act.Commands.SetInterval(SelectedAction, fval / frameInterval);
 			}
-		}
-
-		public void Reset() {
-			_eventsEnabled = false;
-
-			_fancyButtons.ForEach(p => p.IsPressed = false);
-			_fancyButtons.ForEach(p => p.IsButtonEnabled = false);
-
-			_comboBoxActionIndex.ItemsSource = null;
-			_comboBoxActionIndex.Items.Clear();
-
-			_comboBoxAnimationIndex.ItemsSource = null;
-			_comboBoxAnimationIndex.Items.Clear();
-
-			_cbSound.ItemsSource = null;
-			_cbSound.Items.Clear();
-
-			_sbFrameIndex.Value = 0;
-			_tbFrameIndex.Text = "0";
-			_interval.Text = "";
-			_labelFrameIndex.Text = "/ 0 frame";
-			_sbFrameIndex.Maximum = 0;
-
-			_play.IsPressed = false;
-			_updatePlay();
-
-			_eventsEnabled = true;
 		}
 	}
 }

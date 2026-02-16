@@ -1,8 +1,11 @@
-﻿using System.Windows;
+﻿using ActEditor.ApplicationConfiguration;
+using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using TokeiLibrary.Shortcuts;
+using Utilities;
 
 namespace ActEditor.Core.WPF.GenericControls {
 	/// <summary>
@@ -31,41 +34,122 @@ namespace ActEditor.Core.WPF.GenericControls {
 		public ClickSelectTextBox2() {
 			InitializeComponent();
 
-			_tbox.AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(_selectivelyIgnoreMouseButton), true);
-			_tbox.AddHandler(GotKeyboardFocusEvent, new RoutedEventHandler(_selectAllText), true);
-			_tbox.AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(_selectAllText), true);
+			_tbox.PreviewMouseLeftButtonDown += _selectivelyIgnoreMouseButton;
+			_tbox.GotKeyboardFocus += _selectAllText;
+			_tbox.MouseDoubleClick += _selectAllText;
 
 			_tbox.IsUndoEnabled = false;
-			_tbox.TextChanged += new TextChangedEventHandler(_tbox_TextChanged);
-			_tbox.PreviewKeyDown += new KeyEventHandler(_clickSelectTextBox_KeyDown);
+			_tbox.TextChanged += _tbox_TextChanged;
+			_tbox.PreviewKeyDown += _clickSelectTextBox_KeyDown;
 
-			_tbox.DragOver += new DragEventHandler(_tbox_DragOver);
-			_tbox.DragEnter += new DragEventHandler(_tbox_DragEnter);
+			_tbox.DragOver += _tbox_DragOver;
+			_tbox.DragEnter += _tbox_DragEnter;
 		}
 
+		private int? _cachedValueInt = null;
+		private float? _cachedValueFloat = null;
+		private bool _assignedTextBox = false;
+
 		public string Text {
-			get { return _tbox.Text; }
+			get {
+				return _assignedTextBox ? _tbox.Text : _tblock.Text;
+			}
 			set {
+				VisibilityCheck();
+
 				if (ClickSelectTextBox.EventsEnabled) {
-					_tblock.Visibility = Visibility.Collapsed;
-					_tbox.Text = value;
+					// Assign to main text box
+					if (!_assignedTextBox || _cachedValueInt != null || _cachedValueFloat != null) {
+						_tbox.Text = value;
+						_assignedTextBox = true;
+						_cachedValueInt = null;
+						_cachedValueFloat = null;
+					}
 				}
 				else {
-					if (IsLoaded) {
-						_setText(value);
+					// Assign to preview
+					if (_tblock.Width <= 0 || double.IsNaN(_tblock.Width)) {
+						_tblock.Width = ActualWidth;
+					}
+
+					// Not assigned to preview yet or cache value is different
+					if (_assignedTextBox || _cachedValueInt != null || _cachedValueFloat != null) {
+						_tblock.Text = value;
+						_assignedTextBox = false;
+						_cachedValueInt = null;
+						_cachedValueFloat = null;
 					}
 				}
 			}
 		}
 
-		private void _setText(string value) {
-			if (_tblock.Visibility != Visibility.Visible || _tblock.Width <= 0) {
-				_tblock.Visibility = Visibility.Visible;
-				_tblock.Width = ActualWidth;
-				_tblock.Background = ((Grid)(Parent)).Background;
-			}
+		public void SetValue(int value) {
+			VisibilityCheck();
 
-			_tblock.Text = value;
+			if (ClickSelectTextBox.EventsEnabled) {
+				// Assign to main text box
+				if (!_assignedTextBox || _cachedValueInt != value) {
+					_tbox.Text = value.ToString(CultureInfo.InvariantCulture);
+					_assignedTextBox = true;
+					_cachedValueInt = value;
+				}
+			}
+			else {
+				// Assign to preview
+				if (_tblock.Width <= 0 || double.IsNaN(_tblock.Width)) {
+					_tblock.Width = ActualWidth;
+				}
+
+				// Not assigned to preview yet or cache value is different
+				if (_assignedTextBox || _cachedValueInt != value) {
+					_tblock.Text = value.ToString(CultureInfo.InvariantCulture);
+					_assignedTextBox = false;
+					_cachedValueInt = value;
+				}
+			}
+		}
+
+		public void SetValue(float value) {
+			VisibilityCheck();
+
+			if (ClickSelectTextBox.EventsEnabled) {
+				// Assign to main text box
+				if (!_assignedTextBox || _cachedValueFloat != value) {
+					_tbox.Text = value.ToString("0.######", CultureInfo.InvariantCulture);
+					_assignedTextBox = true;
+					_cachedValueFloat = value;
+				}
+			}
+			else {
+				// Assign to preview
+				if (_tblock.Width <= 0 || double.IsNaN(_tblock.Width)) {
+					_tblock.Width = ActualWidth;
+				}
+
+				// Not assigned to preview yet or cache value is different
+				if (_assignedTextBox || _cachedValueFloat != value) {
+					_tblock.Text = value.ToString("0.######", CultureInfo.InvariantCulture);
+					_assignedTextBox = false;
+					_cachedValueFloat = value;
+				}
+			}
+		}
+
+		public void VisibilityCheck() {
+			if (ClickSelectTextBox.EventsEnabled) {
+				if (_tbox.Visibility != Visibility.Visible) {
+					_tbox.Visibility = Visibility.Visible;
+					_tblock.Visibility = Visibility.Collapsed;
+				}
+			}
+			else {
+				if (IsLoaded) {
+					if (_tbox.Visibility == Visibility.Visible) {
+						_tbox.Visibility = Visibility.Collapsed;
+						_tblock.Visibility = Visibility.Visible;
+					}
+				}
+			}
 		}
 
 		private void _clickSelectTextBox_KeyDown(object sender, KeyEventArgs e) {
@@ -130,13 +214,35 @@ namespace ActEditor.Core.WPF.GenericControls {
 
 		private static void _selectAllText(object sender, RoutedEventArgs e) {
 			var textBox = e.OriginalSource as TextBox;
-			if (textBox != null)
+			if (textBox != null) {
+				if (ActEditorConfiguration.ThemeIndex == 0) {
+					textBox.SelectionBrush = SystemColors.HighlightBrush;
+					textBox.SelectionTextBrush = SystemColors.HighlightTextBrush;
+					textBox.SelectionOpacity = 0.4f;
+				}
+				else {
+					textBox.SelectionBrush = new SolidColorBrush(Color.FromArgb(255, 74, 84, 192));
+					textBox.SelectionTextBrush = Brushes.White;
+					textBox.SelectionOpacity = 1;
+				}
+
 				textBox.SelectAll();
+			}
 		}
 
 		public void UpdateBackground() {
 			if (_tblock != null) {
 				_tblock.Background = ((Grid)(Parent)).Background;
+			}
+		}
+
+		public void EndPreview() {
+			if (_tblock.Visibility == Visibility.Visible) {
+				_tbox.Text = _tblock.Text;
+				_assignedTextBox = true;
+
+				_tblock.Visibility = Visibility.Collapsed;
+				_tbox.Visibility = Visibility.Visible;
 			}
 		}
 	}

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F33F561F-5936-4514-910C-F612DC15CD0B}</ProjectGuid>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ActEditor</RootNamespace>
     <AssemblyName>Act Editor</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -29,29 +29,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
@@ -63,49 +41,120 @@
   <PropertyGroup>
     <StartupObject>ActEditor.GRFEditorMain</StartupObject>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ActImaging">
-      <HintPath>..\Libraries\ActImaging.dll</HintPath>
+    <Reference Include="ActImaging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\ActImaging.dll</HintPath>
     </Reference>
-    <Reference Include="ColorPicker">
-      <HintPath>..\Libraries\ColorPicker.dll</HintPath>
+    <Reference Include="ColorPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\ColorPicker.dll</HintPath>
     </Reference>
-    <Reference Include="Encryption">
-      <HintPath>..\Libraries\Encryption.dll</HintPath>
+    <Reference Include="Encryption, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\Encryption.dll</HintPath>
     </Reference>
-    <Reference Include="ErrorManager">
-      <HintPath>..\Libraries\ErrorManager.dll</HintPath>
+    <Reference Include="ErrorManager, Version=1.2.5494.34248, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\ErrorManager.dll</HintPath>
     </Reference>
-    <Reference Include="Gif.Components">
-      <HintPath>..\Libraries\Gif.Components.dll</HintPath>
+    <Reference Include="Gif.Components, Version=0.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\Gif.Components.dll</HintPath>
     </Reference>
-    <Reference Include="GRF">
-      <HintPath>..\Libraries\GRF.dll</HintPath>
+    <Reference Include="GRF, Version=1.2.8542.22323, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\GRF.dll</HintPath>
     </Reference>
-    <Reference Include="GrfToWpfBridge">
-      <HintPath>..\Libraries\GrfToWpfBridge.dll</HintPath>
+    <Reference Include="GrfToWpfBridge, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\GrfToWpfBridge.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.AvalonEdit">
-      <HintPath>..\Libraries\ICSharpCode.AvalonEdit.dll</HintPath>
+    <Reference Include="Humanizer, Version=2.14.0.0, Culture=neutral, PublicKeyToken=979442b78dfc278e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Humanizer.Core.2.14.1\lib\netstandard2.0\Humanizer.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=4.3.1.9429, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.5.0.0\lib\netstandard2.0\Microsoft.CodeAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.5.0.0\lib\netstandard2.0\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.5.0.0\lib\netstandard2.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Workspaces, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.5.0.0\lib\netstandard2.0\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.9.0.0\lib\net462\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Metadata, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.9.0.0\lib\net462\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.CodePages, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encoding.CodePages.8.0.0\lib\net462\System.Text.Encoding.CodePages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Channels, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Channels.8.0.0\lib\net462\System.Threading.Channels.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.0\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
-    <Reference Include="TokeiLibrary">
-      <HintPath>..\Libraries\TokeiLibrary.dll</HintPath>
+    <Reference Include="TokeiLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Libraries\TokeiLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="Utilities">
-      <HintPath>..\Libraries\Utilities.dll</HintPath>
+    <Reference Include="Utilities, Version=1.2.8542.22321, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Libraries\Utilities.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
-    <Reference Include="zlib.net">
-      <HintPath>..\Libraries\zlib.net.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -114,19 +163,71 @@
     </ApplicationDefinition>
     <Compile Include="ApplicationConfiguration\ActEditorConfiguration.cs" />
     <Compile Include="ApplicationConfiguration\SelfPatcher.cs" />
+    <Compile Include="Components\ActLoadService.cs" />
     <Compile Include="Core\ActEditorWindow.xaml.cs">
       <DependentUpon>ActEditorWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\ActSaveService.cs" />
+    <Compile Include="Core\ActHelper.cs" />
+    <Compile Include="Core\ActionEditCommands\ActionEditGroupCommand.cs" />
+    <Compile Include="Core\ActionEditCommands\CommandsHolder.cs" />
+    <Compile Include="Core\ActionEditCommands\EditCommand.cs" />
+    <Compile Include="Core\ActionEditCommands\IActionEditCommand.cs" />
     <Compile Include="Core\Avalon\AvalonDefaultLoading.cs" />
     <Compile Include="Core\Avalon\AvalonLoader.cs" />
     <Compile Include="Core\Avalon\RegexSearchStrategy.cs" />
+    <Compile Include="Core\DrawingComponents\ActDraw2.cs" />
+    <Compile Include="Core\DrawingComponents\LineRenderer.cs" />
+    <Compile Include="Core\DrawingComponents\Renderer.cs" />
+    <Compile Include="Core\DrawingComponents\SpriteImageControl.xaml.cs">
+      <DependentUpon>SpriteImageControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\EditorPosition.cs" />
+    <Compile Include="Core\ScriptAutoCompletion.cs" />
+    <Compile Include="Core\Scripts\AnimationEditComponent.xaml.cs">
+      <DependentUpon>AnimationEditComponent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\Scripts\Effects\CrystalErosionEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\FadeParticleEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\StrokeSilouhetteEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\TrailAttackEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\SpriteOutlineEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\DelayedShadowEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\FloorAuraEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\FloatingEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\HitEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\RadialErosionEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\SmokeFadeEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\SpikeEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\SimpleAttackEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\SilouhetteDistortionEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\VerticalStripeErosionEffect.cs" />
+    <Compile Include="Core\WPF\Dialogs\ActEditListInteraction.cs" />
+    <Compile Include="Core\WPF\Dialogs\FrameEditDialog.xaml.cs">
+      <DependentUpon>FrameEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\Dialogs\ActionEditDialog.xaml.cs">
+      <DependentUpon>ActionEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\Dialogs\SelectableListBoxExtension.cs" />
+    <Compile Include="Core\WPF\EditorControls\ActIndexSelectorHelper.cs" />
+    <Compile Include="Core\WPF\EditorControls\VisualLayer.xaml.cs">
+      <DependentUpon>VisualLayer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\EditorControls\ScrollBarHelper.cs" />
+    <Compile Include="Core\WPF\FrameEditor\BitmapResourceManager.cs" />
     <Compile Include="Core\BufferedBrushes.cs" />
+    <Compile Include="Core\WPF\InteractionComponent\AdvancedTextBox.xaml.cs">
+      <DependentUpon>AdvancedTextBox.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\InteractionComponent\CanvasComponentProvider.cs" />
     <Compile Include="Core\DrawingComponents\AnchorDraw.cs" />
     <Compile Include="Core\DrawingComponents\DrawingModule.cs" />
     <Compile Include="Core\DrawingComponents\DrawingPriorityValues.cs" />
     <Compile Include="Core\DrawingComponents\SelectionDraw.cs" />
+    <Compile Include="Core\DrawSlotManager.cs" />
     <Compile Include="Core\IFrameRenderer.cs" />
-    <Compile Include="Core\LazyAction.cs" />
+    <Compile Include="Core\CoalescingExecutor.cs" />
     <Compile Include="Core\Scripts\AnchorMenu.cs" />
     <Compile Include="Core\ScriptLoader.cs" />
     <Compile Include="Core\Scripts\ActionMenu.cs" />
@@ -140,6 +241,7 @@
     <Compile Include="Core\SoundEffect.cs" />
     <Compile Include="Core\SpriteManager.cs" />
     <Compile Include="Core\TabEngine.cs" />
+    <Compile Include="Core\Test\ColorAdjacencyGraph.cs" />
     <Compile Include="Core\WPF\Dialogs\ActionInsertDialog.xaml.cs">
       <DependentUpon>ActionInsertDialog.xaml</DependentUpon>
     </Compile>
@@ -167,7 +269,9 @@
     <Compile Include="Core\WPF\EditorControls\CompactActIndexSelector.xaml.cs">
       <DependentUpon>CompactActIndexSelector.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\WPF\EditorControls\LayerVisualEditor.cs" />
     <Compile Include="Core\WPF\FrameEditor\AnchorDrawModule.cs" />
+    <Compile Include="Core\WPF\FrameEditor\ColorMultiplyEffect.cs" />
     <Compile Include="Core\WPF\FrameEditor\DefaultDrawModule.cs" />
     <Compile Include="Core\WPF\FrameEditor\PrimaryFrameRenderer.cs" />
     <Compile Include="Core\WPF\FrameEditor\FrameRenderer.xaml.cs">
@@ -176,6 +280,9 @@
     <Compile Include="Core\WPF\FrameEditor\FrameRendererEdit.cs" />
     <Compile Include="Core\WPF\GenericControls\ClickSelectTextBox2.xaml.cs">
       <DependentUpon>ClickSelectTextBox2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\GenericControls\LayerColorSelector.xaml.cs">
+      <DependentUpon>LayerColorSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\WPF\InteractionComponent\HeadInteraction.cs" />
     <Compile Include="Core\WPF\InteractionComponent\DefaultInteractionEngine.cs" />
@@ -216,7 +323,6 @@
       <DependentUpon>ActIndexSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\DrawingComponents\GridLine.cs" />
-    <Compile Include="Core\DrawingComponents\ImageDraw.cs" />
     <Compile Include="Core\WPF\EditorControls\ReferenceControl.xaml.cs">
       <DependentUpon>ReferenceControl.xaml</DependentUpon>
     </Compile>
@@ -245,15 +351,18 @@
       <DependentUpon>LayerControlHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\DrawingComponents\LayerDraw.cs" />
-    <Compile Include="Core\WPF\EditorControls\LayerControlProvider.cs" />
     <Compile Include="Core\WPF\EditorControls\LayerEditor.xaml.cs">
       <DependentUpon>LayerEditor.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Core\WPF\InteractionComponent\IntTextBoxEdit.cs" />
+    <Compile Include="Core\WPF\InteractionComponent\LayerClipboardData.cs" />
     <Compile Include="Core\ZMode.cs" />
     <Compile Include="Core\WPF\GenericControls\QuickColorSelector.xaml.cs">
       <DependentUpon>QuickColorSelector.xaml</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Resources\script11_palette_sheet.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script11_palette_sheet.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script12_remove_unused_palette.cs" />
+    <EmbeddedResource Include="Resources\Scripts\dummy_script.cs" />
     <Compile Include="Tools\PaletteEditorTool\PalettePreset.xaml.cs">
       <DependentUpon>PalettePreset.xaml</DependentUpon>
     </Compile>
@@ -262,18 +371,18 @@
     </Compile>
     <Compile Include="Tools\PaletteSheetGenerator\SpriteResource.cs" />
     <Compile Include="Tools\PaletteSheetGenerator\SpsManager.cs" />
-    <EmbeddedResource Include="Resources\script_sample.cs" />
-    <EmbeddedResource Include="Resources\script0_magnify.cs" />
-    <EmbeddedResource Include="Resources\script1_replace_color.cs" />
-    <EmbeddedResource Include="Resources\script1_replace_color_all.cs" />
-    <EmbeddedResource Include="Resources\script2_expand.cs" />
-    <EmbeddedResource Include="Resources\script4_generate_single_sprite.cs" />
-    <EmbeddedResource Include="Resources\script5_remove_unused_sprites.cs" />
-    <EmbeddedResource Include="Resources\script6_merge_layers.cs" />
-    <EmbeddedResource Include="Resources\script7_add_effect1.cs" />
-    <EmbeddedResource Include="Resources\script8_add_frames.cs" />
-    <EmbeddedResource Include="Resources\script9_chibi_grf.cs" />
-    <EmbeddedResource Include="Resources\script10_trim_images.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script_sample.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script0_magnify.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script1_replace_color.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script1_replace_color_all.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script2_expand.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script4_generate_single_sprite.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script5_remove_unused_sprites.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script6_merge_layers.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect1.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script8_add_frames.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script9_chibi_grf.cs" />
+    <EmbeddedResource Include="Resources\Scripts\script10_trim_images.cs" />
     <Compile Include="Tools\PaletteEditorTool\CursorHelper.cs" />
     <Compile Include="Tools\PaletteEditorTool\ImageModifiedCommand.cs" />
     <Compile Include="Tools\PaletteEditorTool\SpriteModifiedCommand.cs" />
@@ -297,6 +406,22 @@
       <DependentUpon>SpriteEditorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\PaletteEditorTool\SpriteViewer.cs" />
+    <Page Include="Core\DrawingComponents\SpriteImageControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Core\Scripts\AnimationEditComponent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Core\WPF\Dialogs\FrameEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Core\WPF\Dialogs\ActionEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Core\WPF\Dialogs\ActionInsertDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -330,6 +455,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Core\WPF\EditorControls\CompactActIndexSelector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Core\WPF\EditorControls\VisualLayer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -425,7 +554,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Core\WPF\GenericControls\LayerColorSelector.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Core\WPF\GenericControls\QuickColorSelector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Core\WPF\InteractionComponent\AdvancedTextBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -497,18 +634,20 @@
     <EmbeddedResource Include="Resources\ref_head_m.spr" />
     <EmbeddedResource Include="Resources\ref_body_m.act" />
     <EmbeddedResource Include="Resources\ref_body_m.spr" />
-    <EmbeddedResource Include="Resources\script7_add_effect1.act" />
-    <EmbeddedResource Include="Resources\script7_add_effect1.spr" />
-    <EmbeddedResource Include="Resources\script7_add_effect2.act" />
-    <EmbeddedResource Include="Resources\script7_add_effect2.spr" />
-    <EmbeddedResource Include="Resources\script7_add_effect3.act" />
-    <EmbeddedResource Include="Resources\script7_add_effect3.spr" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect1.act" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect1.spr" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect2.act" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect2.spr" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect3.act" />
+    <EmbeddedResource Include="Resources\Scripts\script7_add_effect3.spr" />
     <EmbeddedResource Include="Resources\sprites.conf" />
     <EmbeddedResource Include="Resources\preset_0.pal" />
     <EmbeddedResource Include="Resources\preset_1.pal" />
     <EmbeddedResource Include="Resources\preset_2.pal" />
     <EmbeddedResource Include="Resources\preset_3.pal" />
     <EmbeddedResource Include="Resources\sprites_old.conf" />
+    <None Include="packages.config" />
+    <Resource Include="Resources\Shaders\ColorMultiply.ps" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -666,7 +805,7 @@
     <Resource Include="Resources\advanced.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\script_sample.dll" />
+    <EmbeddedResource Include="Resources\Scripts\script_sample.dll" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\dos.png" />
@@ -757,12 +896,75 @@
   <ItemGroup>
     <Resource Include="Resources\folderOpened.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.3.11.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.3.11.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\background2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\diff.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\event.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\field.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\script_engine_template.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\smoke.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\treeClass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\cs_dad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\effect_floor_aura.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\effect_breathing.png" />
+    <Resource Include="Resources\effect_radial_erosion.png" />
+    <Resource Include="Resources\effect_smoke_fade.png" />
+    <Resource Include="Resources\effect_spike_erosion.png" />
+    <Resource Include="Resources\effect_stroke.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\effect_hit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\effect_vertical_stripe.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\gradient.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\effect_float.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\effect_shadow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\particle.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
+  <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">
+    <ItemGroup>
+      <!-- ExtraFiles Include="$(OutputPath)*.pdb" /> -->
+      <!-- <ExtraFiles Include="$(OutputPath)*.xml" /> -->
+    </ItemGroup>
+    <Delete Files="@(ExtraFiles)" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

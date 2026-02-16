@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ErrorManager;
-using GRF.FileFormats.ActFormat;
 using GRF.Threading;
 using TokeiLibrary;
 
@@ -152,7 +151,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				return;
 			}
 
-			if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
+			if (_renderer.Act[SelectedAction].AnimationSpeed < ActIndexSelector.MaxAnimationSpeed) {
 				_play_Click(null, null);
 				ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 				return;
@@ -191,7 +190,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 					interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * frameInterval);
 
-					if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
+					if (_renderer.Act[SelectedAction].AnimationSpeed < ActIndexSelector.MaxAnimationSpeed) {
 						_play_Click(null, null);
 						ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 						return;
@@ -233,8 +232,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public void Init(IFrameRendererEditor renderer, int selectedAction) {
-			SelectedAction = selectedAction;
+		public void Init(IFrameRendererEditor renderer, int selectedAction, int selectedFrame) {
+			SelectedAction = selectedAction < 0 ? renderer.SelectedAction : selectedAction;
+			SelectedFrame = selectedFrame < 0 ? renderer.SelectedFrame : selectedFrame;
 			_renderer = renderer;
 		}
 

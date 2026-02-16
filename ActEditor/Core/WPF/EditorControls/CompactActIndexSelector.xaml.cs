@@ -18,6 +18,7 @@ using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
 using Utilities.Commands;
+using static ActEditor.Core.WPF.EditorControls.ActIndexSelector;
 using Action = System.Action;
 
 namespace ActEditor.Core.WPF.EditorControls {
@@ -26,11 +27,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// </summary>
 	public partial class CompactActIndexSelector : UserControl, IActIndexSelector {
 		private readonly List<FancyButton> _fancyButtons;
-		private readonly object _lock = new object();
 		private bool _eventsEnabled = true;
 		private bool _frameChangedEventEnabled = true;
 		private bool _handlersEnabled = true;
-		private int _pending;
 		private IFrameRendererEditor _renderer;
 
 		public CompactActIndexSelector() {
@@ -38,57 +37,34 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			try {
 				_fancyButtons = new FancyButton[] {_fancyButton0, _fancyButton1, _fancyButton2, _fancyButton3, _fancyButton4, _fancyButton5, _fancyButton6, _fancyButton7}.ToList();
-				BitmapSource image = ApplicationManager.PreloadResourceImage("arrow.png");
-				BitmapSource image2 = ApplicationManager.PreloadResourceImage("arrowoblique.png");
 
-				_fancyButton0.ImageIcon.Source = image;
-				_fancyButton0.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton0.ImageIcon.RenderTransform = new RotateTransform {Angle = 90};
+				ActIndexSelectorHelper.BuildDirectionalActionSelectorUI(_fancyButtons, false);
 
-				_fancyButton1.ImageIcon.Source = image2;
-				_fancyButton1.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton1.ImageIcon.RenderTransform = new RotateTransform {Angle = 90};
+				_sbFrameIndex.PreviewMouseLeftButtonDown += delegate {
+					if (_renderer.Act == null)
+						return;
 
-				_fancyButton2.ImageIcon.Source = image;
-				_fancyButton2.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton2.ImageIcon.RenderTransform = new RotateTransform {Angle = 180};
-
-				_fancyButton3.ImageIcon.Source = image2;
-				_fancyButton3.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton3.ImageIcon.RenderTransform = new RotateTransform {Angle = 180};
-
-				_fancyButton4.ImageIcon.Source = image;
-				_fancyButton4.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton4.ImageIcon.RenderTransform = new RotateTransform {Angle = 270};
-
-				_fancyButton5.ImageIcon.Source = image2;
-				_fancyButton5.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton5.ImageIcon.RenderTransform = new RotateTransform {Angle = 270};
-
-				_fancyButton6.ImageIcon.Source = image;
-				_fancyButton6.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton6.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
-
-				_fancyButton7.ImageIcon.Source = image2;
-				_fancyButton7.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton7.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
-
-				_sbFrameIndex.PreviewMouseLeftButtonDown += new MouseButtonEventHandler(_sbFrameIndex_MouseLeftButtonDown);
-				_sbFrameIndex.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(_sbFrameIndex_MouseLeftButtonUp);
+					OnAnimationPlaying(2);
+				};
+				_sbFrameIndex.PreviewMouseLeftButtonUp += delegate {
+					OnAnimationPlaying(0);
+				};
+				ScrollBarHelper.OverrideMouseIncrement(_sbFrameIndex, () => SelectedFrame++, () => SelectedFrame--);
 			}
 			catch {
 			}
 
 			try {
 				_updatePlay();
+				FrameChanged += _frameChanged;
+				SpecialFrameChanged += _frameChanged;
+				ActionChanged += _actionChanged;
 				_play.Click += new RoutedEventHandler(_play_Click);
 
 				WpfUtilities.AddFocus(_tbFrameIndex);
 			}
 			catch {
 			}
-
-			MouseDown += new MouseButtonEventHandler(_actIndexSelector_MouseDown);
 
 			MouseEnter += delegate {
 				Opacity = 1f;
@@ -104,33 +80,83 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			_sbFrameIndex.SmallChange = 1;
 			_sbFrameIndex.LargeChange = 1;
+
+			Unloaded += delegate {
+				Stop();
+			};
 		}
 
-		private void _actIndexSelector_MouseDown(object sender, MouseButtonEventArgs e) {
-			//_mousePosition = e.GetPosition(_parent);
+		private void _actionChanged(object sender, int actionIndex) {
+			if (actionIndex < _comboBoxActionIndex.Items.Count && actionIndex > -1) {
+				_comboBoxActionIndex.SelectedIndex = actionIndex;
+			}
 		}
 
-		public int SelectedAction { get; set; }
-		public int SelectedFrame { get; set; }
+		private void _frameChanged(object sender, int frameIndex) {
+			try {
+				_eventsEnabled = false;
 
-		public bool IsPlaying {
-			get { return _play.Dispatch(() => _play.IsPressed); }
+				this.Dispatch(p => {
+					_sbFrameIndex.Value = frameIndex;
+					_tbFrameIndex.Text = frameIndex.ToString(CultureInfo.InvariantCulture);
+				});
+			}
+			finally {
+				_eventsEnabled = true;
+			}
 		}
 
-		public event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;
-		public event ActIndexSelector.FrameIndexChangedDelegate FrameChanged;
-		public event ActIndexSelector.FrameIndexChangedDelegate SpecialFrameChanged;
+		private int _selectedFrame;
+		private int _selectedAction;
+
+		public int SelectedAction {
+			get => _selectedAction;
+			set {
+				if (value == _selectedAction)
+					return;
+
+				int max = _renderer.Act.NumberOfActions;
+				_selectedAction = (value % max + max) % max;
+
+				// This should always be done on the main UI thread
+				this.Dispatch(_ => {
+					OnActionChanged(_selectedAction);
+				});
+			}
+		}
+
+		public int SelectedFrame {
+			get => _selectedFrame;
+			set {
+				if (value == _selectedFrame)
+					return;
+
+				int max = _renderer.Act[SelectedAction].NumberOfFrames;
+				_selectedFrame = (value % max + max) % max;
+
+				// This should always be done on the main UI thread
+				this.Dispatch(_ => {
+					OnFrameChanged(_selectedFrame);
+				});
+			}
+		}
+
+		public event FrameIndexChangedDelegate ActionChanged;
+		public event FrameIndexChangedDelegate FrameChanged;
+		public event FrameIndexChangedDelegate SpecialFrameChanged;
+
+		public bool IsPlaying { get; private set; }
 
 		public void OnSpecialFrameChanged(int actionindex) {
 			if (!_handlersEnabled) return;
-			ActIndexSelector.FrameIndexChangedDelegate handler = SpecialFrameChanged;
+			FrameIndexChangedDelegate handler = SpecialFrameChanged;
 			if (handler != null) handler(this, actionindex);
 		}
 
-		public event ActIndexSelector.FrameIndexChangedDelegate AnimationPlaying;
+		public event FrameIndexChangedDelegate AnimationPlaying;
 
 		public void OnAnimationPlaying(int actionindex) {
-			ActIndexSelector.FrameIndexChangedDelegate handler = AnimationPlaying;
+			FrameIndexChangedDelegate handler = AnimationPlaying;
 			if (handler != null) handler(this, actionindex);
 		}
 
@@ -140,126 +166,22 @@ namespace ActEditor.Core.WPF.EditorControls {
 				OnSpecialFrameChanged(actionindex);
 				return;
 			}
-			ActIndexSelector.FrameIndexChangedDelegate handler = FrameChanged;
+			FrameIndexChangedDelegate handler = FrameChanged;
 			if (handler != null) handler(this, actionindex);
 		}
 
 		public void OnActionChanged(int actionindex) {
 			_updateAction();
 			if (!_handlersEnabled) return;
-			ActIndexSelector.FrameIndexChangedDelegate handler = ActionChanged;
+			FrameIndexChangedDelegate handler = ActionChanged;
 			if (handler != null) handler(this, actionindex);
 		}
 
-		private void _sbFrameIndex_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-			lock (_lock) {
-				_pending++;
-			}
-
-			OnAnimationPlaying(0);
-
-			GrfThread.Start(delegate {
-				int max = 20;
-
-				while (max-- > 0) {
-					if (e.LeftButton == MouseButtonState.Pressed)
-						return;
-
-					Thread.Sleep(100);
-				}
-
-				// Resets the mouse operations to 0
-				lock (_lock) {
-					_pending = 0;
-				}
-			});
-		}
-
-		public void SetAction(int index) {
-			if (index < _comboBoxActionIndex.Items.Count && index > -1) {
-				this.Dispatch(p => _comboBoxActionIndex.SelectedIndex = index);
-			}
-		}
-
-		public void SetFrame(int index) {
-			this.Dispatch(p => _sbFrameIndex.Value = index);
-		}
-
-		private void _sbFrameIndex_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-			if (_renderer.Act == null) {
-				lock (_lock) {
-					_pending--;
-				}
-				return;
-			}
-
-			Point position = e.GetPosition(_sbFrameIndex);
-
-			bool isLeft = position.X > 0 && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < SystemParameters.HorizontalScrollBarButtonWidth;
-			bool isRight = position.X > (_sbFrameIndex.ActualWidth - SystemParameters.HorizontalScrollBarButtonWidth) && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < _sbFrameIndex.ActualWidth;
-			bool isWithin = position.X > 0 && position.Y > 0 && position.X < _sbFrameIndex.ActualWidth && position.Y < _sbFrameIndex.ActualHeight;
-
-			if (isWithin) {
-				OnAnimationPlaying(2);
-			}
-
-			if (!isLeft && !isRight) {
-				lock (_lock) {
-					_pending--;
-				}
-				return;
-			}
-
-			GrfThread.Start(delegate {
-				int count = 0;
-				while (this.Dispatch(() => Mouse.LeftButton) == MouseButtonState.Pressed) {
-					_sbFrameIndex.Dispatch(delegate {
-						position = e.GetPosition(_sbFrameIndex);
-
-						isLeft = position.X > 0 && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < SystemParameters.HorizontalScrollBarButtonWidth;
-						isRight = position.X > (_sbFrameIndex.ActualWidth - SystemParameters.HorizontalScrollBarButtonWidth) && position.Y > 0 && position.Y < _sbFrameIndex.ActualHeight && position.X < _sbFrameIndex.ActualWidth;
-					});
-
-					if (isLeft) {
-						SelectedFrame--;
-						if (SelectedFrame < 0)
-							SelectedFrame = _renderer.Act[SelectedAction].NumberOfFrames - 1;
-					}
-
-					if (isRight) {
-						SelectedFrame++;
-						if (SelectedFrame >= _renderer.Act[SelectedAction].NumberOfFrames)
-							SelectedFrame = 0;
-					}
-
-					_sbFrameIndex.Dispatch(p => p.Value = SelectedFrame);
-
-					Thread.Sleep(count == 0 ? 400 : 50);
-
-					lock (_lock) {
-						if (_pending > 0) {
-							_pending--;
-							return;
-						}
-					}
-
-					count++;
-				}
-			});
-
-			e.Handled = true;
-		}
-
 		private void _play_Click(object sender, RoutedEventArgs e) {
-			_play.Dispatch(delegate {
-				_play.IsPressed = !_play.IsPressed;
-				_sbFrameIndex.IsEnabled = !_play.IsPressed;
-				_updatePlay();
-			});
-
-			if (_play.Dispatch(() => _play.IsPressed)) {
-				GrfThread.Start(_playAnimation);
-			}
+			if (IsPlaying)
+				Stop();
+			else
+				Play();
 		}
 
 		private void _playAnimation() {
@@ -273,7 +195,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				return;
 			}
 
-			if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
+			if (_renderer.Act[SelectedAction].AnimationSpeed < ActIndexSelector.MaxAnimationSpeed) {
 				_play_Click(null, null);
 				ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 				return;
@@ -307,13 +229,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 			try {
 				OnAnimationPlaying(2);
 
-				while (_play.Dispatch(p => p.IsPressed)) {
+				while (IsPlaying) {
 					watch.Reset();
 					watch.Start();
 
 					interval = (int)(_renderer.Act[SelectedAction].AnimationSpeed * frameInterval);
 
-					if (_renderer.Act[SelectedAction].AnimationSpeed < 0.8f) {
+					if (_renderer.Act[SelectedAction].AnimationSpeed < ActIndexSelector.MaxAnimationSpeed) {
 						_play_Click(null, null);
 						ErrorHandler.HandleException("The animation speed is too fast and might cause issues. The animation will not be displayed.", ErrorLevel.NotSpecified);
 						return;
@@ -345,6 +267,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 					watch.Stop();
 
+					//Thread.Sleep((int)Math.Max(20, Math.Min(interval, expectedNextFrame)));
 					Thread.Sleep(interval);
 				}
 			}
@@ -362,17 +285,21 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			_play.Dispatch(delegate {
 				_play.IsPressed = true;
+				_sbFrameIndex.IsEnabled = false;
+				IsPlaying = true;
 				_updatePlay();
 			});
 
-			if (_play.Dispatch(() => _play.IsPressed)) {
-				GrfThread.Start(_playAnimation);
-			}
+			GrfThread.Start(_playAnimation);
 		}
 
 		public void Stop() {
+			if (!IsPlaying) return;
+
 			_play.Dispatch(delegate {
 				_play.IsPressed = false;
+				_sbFrameIndex.IsEnabled = true;
+				IsPlaying = false;
 				_updatePlay();
 			});
 		}
@@ -415,12 +342,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			int value = (int) Math.Round(_sbFrameIndex.Value);
 
-			_eventsEnabled = false;
-			_sbFrameIndex.Value = value;
-			_tbFrameIndex.Text = value.ToString(CultureInfo.InvariantCulture);
-			_eventsEnabled = true;
 			SelectedFrame = value;
-			OnFrameChanged(value);
+			_sbFrameIndex.Value = value;
 		}
 
 		private void _updateAction() {
@@ -429,8 +352,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			_eventsEnabled = false;
 
-			while (SelectedFrame >= _renderer.Act[SelectedAction].NumberOfFrames && SelectedFrame > 0) {
-				SelectedFrame--;
+			if (SelectedFrame >= _renderer.Act[_renderer.SelectedAction].NumberOfFrames && SelectedFrame > 0) {
+				SelectedFrame = Math.Max(0, _renderer.Act[SelectedAction].NumberOfFrames - 1);
 			}
 
 			_eventsEnabled = true;
@@ -449,7 +372,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_sbFrameIndex.Value = 0;
 		}
 
-		public void Load(IFrameRendererEditor renderer, int actionIndex = -1) {
+		public void Init(IFrameRendererEditor renderer, int selectedAction, int selectedFrame) {
 			_renderer = renderer;
 			_fancyButtons.ForEach(p => p.IsPressed = false);
 
@@ -465,7 +388,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			int actions = renderer.Act.NumberOfActions;
 
-			_comboBoxAnimationIndex.ItemsSource = GetAnimations(actions);
+			_comboBoxAnimationIndex.ItemsSource = ActHelper.GetAnimations(renderer.Act);
 			_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, actions);
 
 			if (actions != 0) {
@@ -473,10 +396,11 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 
 			renderer.Act.VisualInvalidated += s => Update();
+			renderer.Act.RenderInvalidated += s => _renderer.FrameRenderer.Update();
 			renderer.Act.Commands.CommandIndexChanged += new AbstractCommand<IActCommand>.AbstractCommandsEventHandler(_commands_CommandUndo);
 
-			if (actionIndex > -1 && actionIndex < renderer.Act.NumberOfActions) {
-				_comboBoxActionIndex.SelectedIndex = actionIndex;
+			if (selectedAction > -1 && selectedAction < renderer.Act.NumberOfActions) {
+				_comboBoxActionIndex.SelectedIndex = selectedAction;
 			}
 			else if (oldAction < renderer.Act.NumberOfActions && oldAction >= 0) {
 				_comboBoxActionIndex.SelectedIndex = oldAction;
@@ -551,7 +475,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				int selectedAction = SelectedAction;
 
 				_comboBoxAnimationIndex.ItemsSource = null;
-				_comboBoxAnimationIndex.ItemsSource = GetAnimations(_renderer.Act.NumberOfActions);
+				_comboBoxAnimationIndex.ItemsSource = ActHelper.GetAnimations(_renderer.Act);
 				_comboBoxActionIndex.ItemsSource = null;
 				_comboBoxActionIndex.ItemsSource = Enumerable.Range(0, _renderer.Act.NumberOfActions);
 
@@ -569,89 +493,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public static RangeObservableCollection<string> GetAnimations(int actionsCount) {
-			if (actionsCount == 5 * 8) {
-				return new RangeObservableCollection<string> {
-					"0 - Idle",
-					"1 - Walk",
-					"2 - Attack",
-					"3 - Receiving damage",
-					"4 - Die",
-				};
-			}
-
-			if (actionsCount == 13 * 8) {
-				return new RangeObservableCollection<string> {
-					"0 - Idle",
-					"1 - Walking",
-					"2 - Sitting",
-					"3 - Picking item",
-					"4 - After receiving damage",
-					"5 - Attacking1",
-					"6 - Receiving damage",
-					"7 - Freeze1",
-					"8 - Dead",
-					"9 - Freeze2",
-					"10 - Attacking2 (no weapon)",
-					"11 - Attacking3 (weapon)",
-					"12 - Casting spell"
-				};
-			}
-
-			if (actionsCount == 9 * 8) {
-				return new RangeObservableCollection<string> {
-					"0 - Idle",
-					"1 - Walking",
-					"2 - Attacking",
-					"3 - Receiving damage",
-					"4 - Dead",
-					"5 - Special",
-					"6 - Perf1",
-					"7 - Perf2",
-					"8 - Perf3",
-				};
-			}
-
-			if (actionsCount == 2 * 8) {
-				return new RangeObservableCollection<string> {
-					"0 - Idle",
-					"1 - Walking",
-				};
-			}
-
-			if (actionsCount == 8 * 8) {
-				return new RangeObservableCollection<string> {
-					"0 - Idle",
-					"1 - Walking",
-					"2 - Attacking1",
-					"3 - Receiving damage",
-					"4 - Dead",
-					"5 - Attacking2",
-					"6 - Attacking3",
-					"7 - Action",
-				};
-			}
-
-			if (actionsCount == 8) {
-				return new RangeObservableCollection<string> {
-					"0 - Idle",
-				};
-			}
-
-			int animations = (int)Math.Ceiling(actionsCount / 8f);
-
-			RangeObservableCollection<string> items = new RangeObservableCollection<string>();
-
-			for (int i = 0; i < animations; i++) {
-				items.Add(i.ToString(CultureInfo.InvariantCulture));
-			}
-
-			return items;
-		}
-
 		private void _updateInfo() {
-			_play.IsPressed = false;
-			_updatePlay();
+			Stop();
 			_updateAction();
 		}
 
@@ -778,6 +621,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_updatePlay();
 
 			_eventsEnabled = true;
+		}
+
+		public void DisableActionChange() {
+			_fancyButtons.ForEach(p => p.IsPressed = false);
+			_fancyButtons.ForEach(p => p.IsButtonEnabled = false);
+			_comboBoxActionIndex.IsEnabled = false;
+			_comboBoxAnimationIndex.IsEnabled = false;
 		}
 	}
 }

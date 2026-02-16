@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <TextBox Name="_tbox" Padding="0" Margin="0" BorderThickness="0" Background="Transparent" />
-        <TextBlock Name="_tblock" Padding="3 0 2 0" Margin="0" VerticalAlignment="Center" ClipToBounds="True" Visibility="Collapsed" IsHitTestVisible="false" />
+		<TextBox Name="_tbox" Padding="0" Margin="0" BorderThickness="0" Background="Transparent" />
+		<TextBlock Name="_tblock" Padding="2 0 2 0" Margin="0" TextAlignment="Right" Background="Transparent" VerticalAlignment="Center" Visibility="Collapsed" IsHitTestVisible="false" />
     </Grid>
 </UserControl>

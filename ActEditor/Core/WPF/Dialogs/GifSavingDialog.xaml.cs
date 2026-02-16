@@ -8,7 +8,6 @@ using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GrfToWpfBridge;
 using TokeiLibrary.WPF.Styles;
-using Utilities;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>

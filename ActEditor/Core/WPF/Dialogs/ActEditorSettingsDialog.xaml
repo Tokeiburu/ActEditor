@@ -1,10 +1,10 @@
 ﻿<Styles:TkWindow x:Class="ActEditor.Core.WPF.Dialogs.ActEditorSettings"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                 xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
-                 xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
-                 xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-                 xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" Foreground="{StaticResource TextForeground}" MaxWidth="470" MinWidth="470" MinHeight="475" MaxHeight="475">
+        xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+        xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
+        xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls"
+		Foreground="{DynamicResource TextForeground}" MaxWidth="490" MinWidth="490" MinHeight="475" MaxHeight="475">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -13,7 +13,7 @@
         <Border Background="{DynamicResource ResourceKey=TabControlBackground}">
             <Grid>
                 <TabControl Style="{DynamicResource ResourceKey=TabControlStyled}">
-                    <TabItem Header="General" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="General" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="General" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -111,7 +111,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Editor colors" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Editor colors" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Editor colors" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -201,19 +201,19 @@
                                     </Label.ToolTip>
                                 </Label>
 
-                                <GenericControls:QuickColorSelector x:Name="_colorPreviewPanelBakground" Grid.Row="0" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorGridLH" Grid.Row="1" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorGridLV" Grid.Row="2" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorSpriteBorder" Grid.Row="3" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorSpriteOverlay" Grid.Row="4" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorSelectionBorder" Grid.Row="5" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorSelectionOverlay" Grid.Row="6" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorAnchor" Grid.Row="9" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorSpritePanelBackground" Grid.Row="10" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorPreviewPanelBakground" Grid.Row="0" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorGridLH" Grid.Row="1" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorGridLV" Grid.Row="2" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorSpriteBorder" Grid.Row="3" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorSpriteOverlay" Grid.Row="4" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorSelectionBorder" Grid.Row="5" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorSelectionOverlay" Grid.Row="6" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorAnchor" Grid.Row="9" Grid.Column="1" Margin="3" />
+								<GenericControls:QuickColorSelector x:Name="_colorSpritePanelBackground" Grid.Row="10" Grid.Column="1" Margin="3" />
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Mouse" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Mouse" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Mouse" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -270,7 +270,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Sound" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Sound" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Sound" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -292,7 +292,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Gif format" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Gif format" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Gif format" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -370,15 +370,15 @@
                                     </Label.ToolTip>
                                 </Label>
                                 <CheckBox Name="_cbUniform" Grid.Row="2" Grid.Column="1" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                <GenericControls:QuickColorSelector x:Name="_colorBackground" Grid.Row="3" Grid.Column="1" />
-                                <GenericControls:QuickColorSelector x:Name="_colorGuildelines" Grid.Row="4" Grid.Column="1" />
+                                <GenericControls:QuickColorSelector x:Name="_colorBackground" Grid.Row="3" Grid.Column="1" Margin="3" />
+                                <GenericControls:QuickColorSelector x:Name="_colorGuildelines" Grid.Row="4" Grid.Column="1" Margin="3" />
                                 <TextBox Name="_tbDelayFactor" Grid.Row="7" Grid.Column="1" Margin="3" />
                                 <TextBox Name="_tbMargin" Grid.Row="8" Grid.Column="1" Margin="3" />
                                 <CheckBox Name="_cbHideGifDialog" Grid.Row="9" Grid.Column="1" Margin="3" VerticalAlignment="Center" HorizontalAlignment="Center" />
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Shell integration" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Shell integration" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Shell integration" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -417,7 +417,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Debugger" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Debugger" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <StackPanel>
                             <StackPanel>
                                 <Label Content="Debugger" FontWeight="Bold" FontSize="16" Margin="3 10 0 5" />
@@ -446,7 +446,7 @@
                             </Grid>
                         </StackPanel>
                     </TabItem>
-                    <TabItem Header="Shortcuts" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{StaticResource TextForeground}">
+                    <TabItem Header="Shortcuts" Style="{DynamicResource ResourceKey=TabItemStyled}" Foreground="{DynamicResource TextForeground}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto" />
@@ -482,7 +482,7 @@
                 </TabControl>
             </Grid>
         </Border>
-        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />

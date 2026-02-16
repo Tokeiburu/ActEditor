@@ -1,11 +1,11 @@
 ﻿<Styles:TkWindow x:Class="ActEditor.Core.WPF.Dialogs.ScriptRunnerDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                 xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
-                 xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-                 xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
-                 xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
-                 Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
+        xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+        xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
+        xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
     <Grid Name="_mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -22,14 +22,14 @@
             </Grid.RowDefinitions>
             <Menu>
                 <MenuItem Header="Script">
-                    <Styles:TkMenuItem Header="Run" ListView:WpfUtils.ImagePath="play.png" Click="_buttonRun_Click" ShortcutCmd="ScriptRunner.RunScript" Shortcut="Ctrl-R" />
+                    <Styles:TkMenuItem Header="Run" TokeiLibrary:WpfProperties.ImagePath="play.png" Click="_buttonRun_Click" ShortcutCmd="ScriptRunner.RunScript" Shortcut="Ctrl-R" />
                     <Separator />
-                    <Styles:TkMenuItem ListView:WpfUtils.ImagePath="add.png" Header="New" ShortcutCmd="ScriptRunner.NewScript" Shortcut="Ctrl-N" Click="_buttonClear_Click" />
-                    <Styles:TkMenuItem ListView:WpfUtils.ImagePath="python.png" Header="Open..." ShortcutCmd="ScriptRunner.OpenFile" Shortcut="Ctrl-O" Click="_buttonLoad_Click" />
+                    <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="add.png" Header="New" ShortcutCmd="ScriptRunner.NewScript" Shortcut="Ctrl-N" Click="_buttonClear_Click" />
+                    <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="python.png" Header="Open..." ShortcutCmd="ScriptRunner.OpenFile" Shortcut="Ctrl-O" Click="_buttonLoad_Click" />
                     <Styles:TkMenuItem x:Name="_miLoadRecent" Header="Open recent" IsEnabled="False" />
-                    <Styles:TkMenuItem ListView:WpfUtils.ImagePath="save.png" Header="Save..." ShortcutCmd="ScriptRunner.SaveFile" Shortcut="Ctrl-S" Click="_buttonSaveAs_Click" />
+                    <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="save.png" Header="Save..." ShortcutCmd="ScriptRunner.SaveFile" Shortcut="Ctrl-S" Click="_buttonSaveAs_Click" />
                     <Separator />
-                    <Styles:TkMenuItem ListView:WpfUtils.ImagePath="help.png" Header="Help" Click="_buttonHelp_Click" />
+                    <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="help.png" Header="Help" Click="_buttonHelp_Click" />
                     <Separator />
                     <MenuItem Click="_buttonCancel_Click" Header="Close" />
                 </MenuItem>
@@ -47,10 +47,10 @@
             </avalonedit:TextEditor>
             <StackPanel Name="_sp" Grid.Row="2" Grid.ColumnSpan="2" Background="White">
                 <Label Background="{StaticResource UIThemeScriptRunnerConsoleErrorBrush}" Content="Error console" />
-                <ListView MouseDoubleClick="_listView_MouseDoubleClick" MaxHeight="120" MinHeight="120" BorderThickness="0 1 0 1" ListView:WpfUtils.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Name="_listView" Grid.Row="2" />
+                <ListView MouseDoubleClick="_listView_MouseDoubleClick" MaxHeight="120" MinHeight="120" BorderThickness="0 1 0 1" ListView:ListViewExtensions.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Name="_listView" Grid.Row="2" />
             </StackPanel>
         </Grid>
-        <Grid Name="_gridActionPresenter" ListView:WpfUtils.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="1" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
@@ -58,7 +58,7 @@
             <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
                 <Button Click="_buttonRun_Click" Height="24" Margin="3" MinWidth="100">
                     <DockPanel>
-                        <Image ListView:WpfUtils.ImagePath="play.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" Width="16" />
+                        <Image TokeiLibrary:WpfProperties.ImagePath="play.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" Width="16" />
                         <Label Content="Run" Padding="0" Margin="3 0 0 0" VerticalAlignment="Center" Foreground="{StaticResource TextForeground}" />
                     </DockPanel>
                 </Button>

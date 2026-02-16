@@ -10,6 +10,7 @@ using GRF.FileFormats.ActFormat;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
+using Utilities;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -33,24 +34,20 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		public ActionInsertDialog() : base("Action edit", "advanced.png") {
 			InitializeComponent();
-
+			
 			WpfUtilities.AddFocus(_tbIndexStart, _tbIndexEnd, _tbIndexRange);
 
 			_asIndexStart.ActionChanged += new ActIndexSelector.FrameIndexChangedDelegate(_asIndexStart_ActionChanged);
 			_asIndexEnd.ActionChanged += new ActIndexSelector.FrameIndexChangedDelegate(_asIndexEnd_ActionChanged);
 
 			_tbIndexEnd.TextChanged += delegate {
-				int ival;
-
-				if (Int32.TryParse(_tbIndexEnd.Text, out ival)) {
+				if (Int32.TryParse(_tbIndexEnd.Text, out int ival)) {
 					_asIndexEnd.SelectedAction = ival;
 				}
 			};
 
 			_tbIndexStart.TextChanged += delegate {
-				int ival;
-
-				if (Int32.TryParse(_tbIndexStart.Text, out ival)) {
+				if (Int32.TryParse(_tbIndexStart.Text, out int ival)) {
 					_asIndexStart.SelectedAction = ival;
 				}
 			};
@@ -77,9 +74,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		public int StartIndex {
 			get {
-				int index;
-
-				if (Int32.TryParse(_tbIndexStart.Text, out index)) {
+				if (Int32.TryParse(_tbIndexStart.Text, out int index)) {
 					return index;
 				}
 
@@ -90,9 +85,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		public int EndIndex {
 			get {
-				int index;
-
-				if (Int32.TryParse(_tbIndexEnd.Text, out index)) {
+				if (Int32.TryParse(_tbIndexEnd.Text, out int index)) {
 					return index;
 				}
 
@@ -103,9 +96,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		public int Range {
 			get {
-				int index;
-
-				if (Int32.TryParse(_tbIndexRange.Text, out index)) {
+				if (Int32.TryParse(_tbIndexRange.Text, out int index)) {
 					return index;
 				}
 
@@ -234,43 +225,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 		public void Execute(Act act, bool executeCommands = true) {
 			switch (Mode) {
 				case EditMode.Delete:
-					if (StartIndex < 0) {
-						StartIndex = 0;
-					}
-
-					if (StartIndex >= act.NumberOfActions) {
-						StartIndex = act.NumberOfActions - 1;
-					}
-
-					if (StartIndex + Range > act.NumberOfActions) {
-						Range = act.NumberOfActions - StartIndex;
-					}
-
-					if (Range < 1) {
-						Range = 1;
-					}
-
-					if (act.NumberOfActions - Range <= 0) {
-						throw new ArgumentException("There must be at least one action left in the act.");
-					}
-
-					if (executeCommands) {
-						try {
-							act.Commands.BeginNoDelay();
-
-							for (int i = 0; i < Range; i++) {
-								act.Commands.ActionDelete(StartIndex);
-							}
-						}
-						catch (Exception err) {
-							ErrorHandler.HandleException(err, ErrorLevel.Warning);
-						}
-						finally {
-							act.Commands.End();
-						}
-					}
+					ExecuteDelete(act, executeCommands);
 					break;
 				case EditMode.Insert:
+					//ExecuteInsert(act, executeCommands);
 					if (ActEditorConfiguration.ActEditorCopyFromCurrentFrame) {
 						if (StartIndex < 0) {
 							throw new ArgumentException("Start index must be greater or equal than 0.");
@@ -464,6 +422,34 @@ namespace ActEditor.Core.WPF.Dialogs {
 					break;
 				case EditMode.None:
 					throw new Exception("No command selected.");
+			}
+		}
+
+		private void ExecuteDelete(Act act, bool executeCommands) {
+			StartIndex = Methods.Clamp(StartIndex, 0, act.NumberOfActions - 1);
+
+			if (StartIndex + Range > act.NumberOfActions)
+				Range = act.NumberOfActions - StartIndex;
+
+			Range = Math.Max(Range, 1);
+
+			if (act.NumberOfActions - Range <= 0)
+				throw new ArgumentException("There must be at least one action left in the act.");
+
+			if (executeCommands) {
+				try {
+					act.Commands.BeginNoDelay();
+
+					for (int i = 0; i < Range; i++) {
+						act.Commands.ActionDelete(StartIndex);
+					}
+				}
+				catch (Exception err) {
+					ErrorHandler.HandleException(err, ErrorLevel.Warning);
+				}
+				finally {
+					act.Commands.End();
+				}
 			}
 		}
 

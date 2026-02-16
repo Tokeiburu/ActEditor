@@ -5,44 +5,44 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.InteractionComponent;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using TokeiLibrary;
+using Utilities;
 using Utilities.Tools;
 
 namespace ActEditor.Core.WPF.FrameEditor {
 	/// <summary>
 	/// Interaction logic for FrameRenderer.xaml
 	/// </summary>
-	public partial class FrameRenderer : UserControl, IFrameRenderer {
+	public partial class FrameRenderer : UserControl {
 		// Private fields
 		protected List<DrawingComponent> _components = new List<DrawingComponent>();
 		protected Point _relativeCenter = new Point(0.5, 0.8);
 		protected ZoomEngine _zoomEngine = new ZoomEngine();
 		protected List<IDrawingModule> _drawingModules = new List<IDrawingModule>();
+		private UIElementProvider<Border> _borderProvider = new UIElementProvider<Border>();
+		private UIElementProvider<Image> _imageProvider = new UIElementProvider<Image>();
+		private DrawSlotManager _drawSlotManager;
+		private BitmapResourceManager _bitmapResourceManager = new BitmapResourceManager();
+		private int _drawIndex;
+
+		public delegate void RenderUpdateEventHandler(object sender);
+
+		public event RenderUpdateEventHandler RenderUpdate;
 
 		// Properties
 		/// <summary>
 		/// Gets the background grid for events.
 		/// </summary>
-		public Grid GridBackground {
-			get { return _gridBackground; }
-		}
+		public Grid GridBackground => _gridBackground;
 
 		public IFrameRendererEditor Editor { get; set; }
-
-		/// <summary>
-		/// Gets or sets the relative center of the frame renderer. (0.5, 0.5) would show the layers at the center of the frame.
-		/// </summary>
-		/// <value>
-		/// The relative center.
-		/// </value>
-		public Point RelativeCenter {
-			get { return _relativeCenter; }
-			set { _relativeCenter = value; }
-		}
 
 		/// <summary>
 		/// Gets the drawing modules. The drawing modules are used to retrieve a list of all the DrawingComponents and draw them in order.
@@ -50,9 +50,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		/// <value>
 		/// The drawing modules.
 		/// </value>
-		public List<IDrawingModule> DrawingModules {
-			get { return _drawingModules; }
-		}
+		public List<IDrawingModule> DrawingModules => _drawingModules;
 
 		/// <summary>
 		/// Gets the main ActDraw drawing component, useful to ignore the ActDraw references.
@@ -60,9 +58,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		/// <value>
 		/// The main drawing component.
 		/// </value>
-		public ActDraw MainDrawingComponent {
-			get { return _components.OfType<ActDraw>().FirstOrDefault(p => p.Primary); }
-		}
+		public ActDraw MainDrawingComponent => _components.OfType<ActDraw>().FirstOrDefault(p => p.Primary);
 
 		public IEditorInteraction InteractionEngine { get; set; }
 
@@ -74,7 +70,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		/// </value>
 		public AnchorDrawModule AnchorModule { get; set; }
 		public FrameRendererEdit Edit { get; set; }
-		public bool DisableUpdate { get; set; }
 
 		// Events
 		public delegate void ZoomChangedDelegate(object sender, double scale);
@@ -103,8 +98,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		public FrameRenderer() {
 			InitializeComponent();
 
-			_components.Add(new GridLine(Orientation.Horizontal));
-			_components.Add(new GridLine(Orientation.Vertical));
+			_drawSlotManager = new DrawSlotManager(Canvas);
 
 			_primary.Background = new SolidColorBrush(ActEditorConfiguration.ActEditorBackgroundColor);
 
@@ -114,7 +108,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 		public virtual void Init(IFrameRendererEditor editor) {
 			Editor = editor;
-			Editor.ReferencesChanged += s => UpdateAndSelect();
+			Editor.ReferencesChanged += s => Update();
 
 			Editor.IndexSelector.FrameChanged += (s, e) => Update();
 			Editor.IndexSelector.SpecialFrameChanged += (s, e) => Update();
@@ -130,9 +124,17 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			InteractionEngine = new DefaultInteraction(this, editor);
 			AnchorModule = new AnchorDrawModule(this, Editor);
 			Edit = new FrameRendererEdit(this, Editor);
+
+			_components.Add(new LineDraw(this.Editor));
+		}
+
+		public void OnRenderUpdate() {
+			RenderUpdateEventHandler handler = RenderUpdate;
+			if (handler != null) handler(this);
 		}
 
 		public virtual void SizeUpdate() {
+			View = ComputeViewMatrix();
 			_updateBackground();
 
 			foreach (var dc in _components) {
@@ -140,56 +142,143 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			}
 		}
 
+		public virtual void Unload() {
+			if (_components == null)
+				return;
+
+			foreach (var dc in _components) {
+				dc.Unload(this);
+			}
+
+			DrawSlotManager.Unload();
+			_bitmapResourceManager.ClearCache();
+			_components = null;
+		}
+
 		public virtual void Update() {
-			//if (DisableUpdate) return;
+			_internalRequestUpdate();
+		}
+
+		private bool _updatePending = false;
+
+		private void _internalRequestUpdate() {
+			if (_updatePending)
+				return;
+
+			_updatePending = true;
+
+			Dispatcher.BeginInvoke(new System.Action(delegate {
+				_updatePending = false;
+				_update();
+				OnRenderUpdate();
+			}), DispatcherPriority.Render);
+		}
+
+		public Matrix ComputeViewMatrix() {
+			Matrix matrix = Matrix.Identity;
+			matrix.ScaleAt(ZoomEngine.Scale, ZoomEngine.Scale, CenterX, CenterY);
+			matrix.Translate(CenterX * ZoomEngine.Scale, CenterY * ZoomEngine.Scale);
+			return matrix;
+		}
+
+		private void _update() {
 			_updateBackground();
 
-			while (_components.Count > 2) {
-				_components[2].Remove(this);
-				_components.RemoveAt(2);
+			View = ComputeViewMatrix();
+
+			DrawSlotManager.Begin();
+			while (_components.Count > 1) {
+				_components[1].Remove(this);
+				_components.RemoveAt(1);
 			}
 
 			foreach (var components in _drawingModules.OrderBy(p => p.DrawingPriority)) {
 				_components.AddRange(components.GetComponents());
 			}
-
+			
+			DrawIndex = 0;
 			foreach (var dc in _components) {
 				dc.Render(this);
 			}
+			DrawIndex = -1;
+			DrawSlotManager.End();
 		}
 
 		public void Update(int layerIndex) {
 			var comp = _components.OfType<ActDraw>().FirstOrDefault(p => p.Primary);
 
-			if (comp != null) {
+			if (comp != null && layerIndex < comp.Components.Count) {
+				var layerDraw = (LayerDraw)comp.Components[layerIndex];
+				DrawSlotManager.Begin(layerDraw.LastDrawIndex);
+				comp.Remove(this, layerIndex);
 				comp.Render(this, layerIndex);
+				DrawSlotManager.End(layerDraw.LastDrawIndex);
 			}
 		}
 
-		public void UpdateAndSelect() {
-			Update();
-			Editor.SelectionEngine.RefreshSelection();
-		}
+		private Rect _oldFrameDimensions;
+		private double _oldZoom = -1;
 
 		protected virtual void _updateBackground() {
 			try {
-				if (ZoomEngine.Scale < 0.45) {
-					((VisualBrush)_gridBackground.Background).Viewport = new Rect(_relativeCenter.X, _relativeCenter.Y, 16d / (_gridBackground.ActualWidth), 16d / (_gridBackground.ActualHeight));
+				Rect frameDimensions = new Rect(_relativeCenter.X, _relativeCenter.Y, _gridBackground.ActualWidth, _gridBackground.ActualHeight);
+
+				if (frameDimensions == _oldFrameDimensions && _oldZoom == ZoomEngine.Scale)
+					return;
+
+				//const double imageSize = 512d;
+				//double xUnits = imageSize / _gridBackground.ActualWidth;
+				//double yUnits = imageSize / _gridBackground.ActualHeight;
+				//
+				//if (ZoomEngine.Scale >= 0.45) {
+				//	xUnits *= ZoomEngine.Scale;
+				//	yUnits *= ZoomEngine.Scale;
+				//}
+				//
+				//double x = _relativeCenter.X + xUnits / 2f;
+				//double y = _relativeCenter.Y + yUnits / 2f;
+				//
+				//_imBrush.ViewportUnits = BrushMappingMode.RelativeToBoundingBox;
+				//_imBrush.Viewport = new Rect(x, y, xUnits, yUnits);
+
+				const double imageSize = 16d;
+				double xUnits = imageSize;
+				double yUnits = imageSize;
+
+				if (ZoomEngine.Scale >= 0.45) {
+					xUnits *= ZoomEngine.Scale;
+					yUnits *= ZoomEngine.Scale;
 				}
-				else {
-					((VisualBrush)_gridBackground.Background).Viewport = new Rect(_relativeCenter.X, _relativeCenter.Y, 16d / (_gridBackground.ActualWidth / ZoomEngine.Scale), 16d / (_gridBackground.ActualHeight / ZoomEngine.Scale));
-				}
+
+				double x = SnapToDevicePixels(_relativeCenter.X * _gridBackground.ActualWidth);
+				double y = SnapToDevicePixels(_relativeCenter.Y * _gridBackground.ActualHeight);
+				
+				_imBrush.Viewport = new Rect(x, y, xUnits, yUnits);
+				_oldFrameDimensions = frameDimensions;
+				_oldZoom = ZoomEngine.Scale;
 			}
 			catch {
 			}
+		}
+
+		private double SnapToDevicePixels(double value) {
+			double dpiScale = VisualTreeHelper.GetDpi(this).DpiScaleX;
+			return Math.Round(value * dpiScale) / dpiScale;
 		}
 
 		private void _renderer_SizeChanged(object sender, SizeChangedEventArgs e) {
 			SizeUpdate();
 		}
 
+		private bool _dummy = false;
+
 		private void _renderer_MouseWheel(object sender, MouseWheelEventArgs e) {
 			if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed) return;
+
+			if (!_dummy) {
+				ZoomEngine.ZoomFunction = ZoomEngine.DefaultLimitZoom;
+				_dummy = true;
+			}
 
 			ZoomEngine.Zoom(e.Delta);
 
@@ -249,36 +338,25 @@ namespace ActEditor.Core.WPF.FrameEditor {
 				_cbZoom.Opacity = 0.7;
 		}
 
-		public Act Act {
-			get { return Editor.Act; }
+		public void SetAnchorIndex(int anchorIndex) {
+			AnchorModule.AnchorIndex = anchorIndex;
+			Update();
 		}
 
-		public int SelectedAction {
-			get { return Editor.SelectedAction; }
-		}
-
-		public int SelectedFrame {
-			get { return Editor.SelectedFrame; }
-		}
-
-		public int CenterX {
-			get { return (int)(_primary.ActualWidth * _relativeCenter.X); }
-		}
-
-		public int CenterY {
-			get { return (int)(_primary.ActualHeight * _relativeCenter.Y); }
-		}
-
-		public ZoomEngine ZoomEngine {
-			get { return _zoomEngine; }
-		}
-
-		public Canvas Canva {
-			get { return _primary; }
-		}
-
-		public virtual List<DrawingComponent> Components {
-			get { return _components; }
-		}
+		public Act Act => Editor.Act;
+		public int SelectedAction => Editor.SelectedAction;
+		public int SelectedFrame => Editor.SelectedFrame;
+		public int CenterX => (int)(_primary.ActualWidth * _relativeCenter.X);
+		public int CenterY => (int)(_primary.ActualHeight * _relativeCenter.Y);
+		public ZoomEngine ZoomEngine => _zoomEngine;
+		public Canvas Canvas => _primary;
+		public virtual List<DrawingComponent> Components => _components;
+		public virtual UIElementProvider<Border> BorderProvider => _borderProvider;
+		public virtual UIElementProvider<Image> ImageProvider => _imageProvider;
+		public DrawSlotManager DrawSlotManager => _drawSlotManager;
+		public int DrawIndex { get => _drawIndex; set => _drawIndex = value; }
+		public BitmapResourceManager BitmapResourceManager => _bitmapResourceManager;
+		public Point RelativeCenter { get => _relativeCenter; set => _relativeCenter = value; }
+		public Matrix View;
 	}
 }

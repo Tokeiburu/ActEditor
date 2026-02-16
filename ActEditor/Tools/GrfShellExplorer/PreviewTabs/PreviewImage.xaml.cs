@@ -56,7 +56,7 @@ namespace ActEditor.Tools.GrfShellExplorer.PreviewTabs {
 				string fileName = entry.RelativePath;
 
 				_imagePreview.Dispatch(p => p.Tag = Path.GetFileNameWithoutExtension(fileName));
-				_labelHeader.Dispatch(p => p.Content = "Image preview : " + Path.GetFileName(fileName));
+				_labelHeader.Dispatch(p => p.Content = "Image preview: " + Path.GetFileName(fileName));
 
 				_wrapper.Image = ImageProvider.GetImage(_grfData.FileTable[fileName].GetDecompressedData(), Path.GetExtension(fileName).ToLower());
 

@@ -55,7 +55,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 			}, true);
 
-			WpfUtils.AddMouseInOutEffectsBox(_cbCurrentFolder);
+			WpfUtilities.AddMouseInOutUnderline(_cbCurrentFolder);
 
 			_pathBrowserSource.Loaded += delegate {
 				if (_pathBrowserSource.RecentFiles.Files.Count > 0) {

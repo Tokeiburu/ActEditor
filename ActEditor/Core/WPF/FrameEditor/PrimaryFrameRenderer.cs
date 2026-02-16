@@ -1,48 +1,60 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.Scripts;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
 using TokeiLibrary.WPF.Styles;
+using Utilities;
 
 namespace ActEditor.Core.WPF.FrameEditor {
 	public class PrimaryFrameRenderer : FrameRenderer {
-		public event DrawingComponent.DrawingComponentDelegate Selected;
-
-		public void OnSelected(int index, bool selected) {
-			DrawingComponent.DrawingComponentDelegate handler = Selected;
-			if (handler != null) handler(this, index, selected);
-		}
+		private Point _lastDragPoint = new Point(-1, -1);
+		private DispatcherTimer _autoRemovalTimer = new DispatcherTimer();
+		private GRF.FileFormats.ActFormat.Frame _autoRemoveFrame;
+		private Func<bool> _autoRemovalHoverCheck;
+		public bool IsUsingImageBackground { get; set; }
 
 		public PrimaryFrameRenderer() {
+			_autoRemovalTimer.Interval = TimeSpan.FromMilliseconds(100);
+			_autoRemovalTimer.Tick += delegate {
+				_removalCheck();
+			};
+
 			_createContextMenu();
 
 			_zoomEngine.ZoomInMultiplier = () => ActEditorConfiguration.ActEditorZoomInMultiplier;
 
 			Drop += new DragEventHandler(_renderer_Drop);
+			DragOver += new DragEventHandler(_renderer_DragOver);
+			DragLeave += delegate {
+				_removalCheck();
+			};
 		}
 
 		public override void Init(IFrameRendererEditor editor) {
 			base.Init(editor);
 
 			_drawingModules.Add(AnchorModule);
-			_drawingModules.Add(new DefaultDrawModule(() => Editor.References.Where(p => p.ShowReference && p.Mode == ZMode.Back).Select(p => (DrawingComponent)new ActDraw(p.Act, Editor)).ToList(), DrawingPriorityValues.Back, false));
-			_drawingModules.Add(new DefaultDrawModule(() => Editor.References.Where(p => p.ShowReference && p.Mode == ZMode.Front).Select(p => (DrawingComponent)new ActDraw(p.Act, Editor)).ToList(), DrawingPriorityValues.Front, false));
-			_drawingModules.Add(new DefaultDrawModule(delegate {
+			_drawingModules.Add(new ReferenceDrawModule(Editor, DrawingPriorityValues.Back, false));
+			_drawingModules.Add(new ReferenceDrawModule(Editor, DrawingPriorityValues.Front, false));
+			_drawingModules.Add(new BufferedDrawModule(delegate {
 				if (Editor.Act != null) {
+					Editor.Act.IsSelectable = true;
 					var primary = new ActDraw(Editor.Act, Editor);
-					primary.Selected += new DrawingComponent.DrawingComponentDelegate(_primary_Selected);
-					return new List<DrawingComponent> { primary };
+					//var primary = new ActDraw2(Editor.Act, Editor);
+					return (true, new List<DrawingComponent> { primary });
 				}
-
-				return new List<DrawingComponent>();
+			
+				return (false, new List<DrawingComponent>());
 			}, DrawingPriorityValues.Normal, false));
 		}
 
@@ -140,12 +152,100 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			InteractionEngine.Cut();
 		}
 
+		private void _removalCheck() {
+			if (_autoRemoveFrame == null)
+				return;
+
+			var screenPos = System.Windows.Forms.Control.MousePosition; // screen coords
+			Point controlPos = this.PointFromScreen(new Point(screenPos.X, screenPos.Y));
+			bool clear = true;
+
+			if (controlPos.X >= 0 &&
+				controlPos.X < ActualWidth &&
+				controlPos.Y >= 0 &&
+				controlPos.Y < ActualHeight) {
+				clear = false;
+			}
+			else if (Editor.LayerEditor != null) {
+				Point controlPos2 = Editor.LayerEditor.PointFromScreen(new Point(screenPos.X, screenPos.Y));
+
+				if (controlPos2.X >= 0 &&
+					controlPos2.X < Editor.LayerEditor.ActualWidth &&
+					controlPos2.Y >= 0 &&
+					controlPos2.Y < Editor.LayerEditor.ActualHeight) {
+					clear = false;
+				}
+			}
+
+			if (clear) {
+				_clearPreviewLayers(_autoRemoveFrame);
+			}
+
+			if (!_autoRemovalHoverCheck()) {
+				_clearPreviewLayers(_autoRemoveFrame);
+				_autoRemovalTimer.Stop();
+			}
+		}
+
+		public void AutoRemovePreviewLayer(Func<bool> isDragged) {
+			_autoRemoveFrame = Editor.Act[Editor.SelectedAction, Editor.SelectedFrame];
+			_autoRemovalHoverCheck = isDragged;
+			_autoRemovalTimer.Start();
+		}
+
+		private void _renderer_DragOver(object sender, DragEventArgs e) {
+			var dragPoint = e.GetPosition(this);
+
+			if (dragPoint.X == _lastDragPoint.X && dragPoint.Y == _lastDragPoint.Y) {
+				return;
+			}
+
+			object imageIndexObj = e.Data.GetData("ImageIndex");
+
+			if (imageIndexObj == null) return;
+
+			int imageIndex = (int)imageIndexObj;
+
+			var frame = Editor.Act[Editor.SelectedAction, Editor.SelectedFrame];
+			var layer = frame.Layers.Where(p => p.Preview).FirstOrDefault();
+
+			int layerIndex = -1;
+
+			if (layer != null) {
+				layerIndex = frame.Layers.IndexOf(layer);
+
+				if (layerIndex != frame.Layers.Count - 1) {
+					_clearPreviewLayers(frame, false);
+					layer = null;
+				}
+			}
+
+			if (layer == null) {
+				// Check if last index
+				GrfImage grfImage = Editor.Act.Sprite.Images[imageIndex];
+				layer = new Layer((grfImage.GrfImageType == GrfImageType.Indexed8) ? imageIndex : (imageIndex - Editor.Act.Sprite.NumberOfIndexed8Images), grfImage);
+				_posFrameToAct(e.GetPosition(this), out layer.OffsetX, out layer.OffsetY);
+				layer.Preview = true;
+				layerIndex = frame.Layers.Count;
+				frame.Layers.Insert(layerIndex, layer);
+				Update();
+			}
+			else {
+				_posFrameToAct(e.GetPosition(this), out layer.OffsetX, out layer.OffsetY);
+				Update(layerIndex);
+			}
+
+			_lastDragPoint = dragPoint;
+		}
+
 		private void _renderer_Drop(object sender, DragEventArgs e) {
 			object imageIndexObj = e.Data.GetData("ImageIndex");
 
 			if (imageIndexObj == null) return;
 
 			int imageIndex = (int)imageIndexObj;
+
+			_clearPreviewLayers(null, false);
 
 			Editor.Act.Commands.LayerAdd(Editor.SelectedAction, Editor.SelectedFrame, imageIndex);
 
@@ -158,37 +258,47 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			Keyboard.Focus(Editor.GridPrimary);
 		}
 
+		private void _clearPreviewLayers(GRF.FileFormats.ActFormat.Frame frame, bool update = true) {
+			try {
+				if (frame == null)
+					frame = Editor.Act[Editor.SelectedAction, Editor.SelectedFrame];
+
+				bool removed = false;
+
+				for (int i = 0; i < frame.Layers.Count; i++) {
+					if (frame[i].Preview) {
+						frame.Layers.RemoveAt(i);
+						removed = true;
+						i--;
+					}
+				}
+
+				if (removed && update) {
+					Update();
+				}
+
+				_lastDragPoint = new Point(-1, -1);
+			}
+			catch {
+			}
+		}
+
 		private void _posFrameToAct(Point pos, out int posX, out int posY) {
 			posX = (int)((pos.X - _relativeCenter.X * ActualWidth) / ZoomEngine.Scale);
 			posY = (int)((pos.Y - _relativeCenter.Y * ActualHeight) / ZoomEngine.Scale);
 		}
 
-		private void _primary_Selected(object sender, int index, bool selected) {
-			if (selected) {
-				Editor.SelectionEngine.AddSelection(index);
-			}
-			else {
-				Editor.SelectionEngine.RemoveSelection(index);
-			}
-
-			OnSelected(index, selected);
-		}
-
 		protected override void _updateBackground() {
 			try {
-				if (_gridBackground.Background is VisualBrush) {
-					base._updateBackground();
+				if (IsUsingImageBackground && _gridBackground.Background is ImageBrush brush) {
+					brush.ViewportUnits = BrushMappingMode.RelativeToBoundingBox;
+					double width = ((BitmapSource)brush.ImageSource).PixelWidth;
+					double height = ((BitmapSource)brush.ImageSource).PixelHeight;
+
+					brush.Viewport = new Rect(RelativeCenter.X + width / (_gridBackground.ActualWidth / ZoomEngine.Scale) / 2f, RelativeCenter.Y + height / (_gridBackground.ActualHeight / ZoomEngine.Scale) / 2f, width / (_gridBackground.ActualWidth / ZoomEngine.Scale), height / (_gridBackground.ActualHeight / ZoomEngine.Scale));
 				}
 				else {
-					ImageBrush brush = _gridBackground.Background as ImageBrush;
-
-					if (brush != null) {
-						brush.ViewportUnits = BrushMappingMode.RelativeToBoundingBox;
-						double width = ((BitmapSource)brush.ImageSource).PixelWidth;
-						double height = ((BitmapSource)brush.ImageSource).PixelHeight;
-
-						brush.Viewport = new Rect(RelativeCenter.X + width / (_gridBackground.ActualWidth / ZoomEngine.Scale) / 2f, RelativeCenter.Y + height / (_gridBackground.ActualHeight / ZoomEngine.Scale) / 2f, width / (_gridBackground.ActualWidth / ZoomEngine.Scale), height / (_gridBackground.ActualHeight / ZoomEngine.Scale));
-					}
+					base._updateBackground();
 				}
 			}
 			catch {

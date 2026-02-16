@@ -40,42 +40,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 			try {
 				_fancyButtons = new FancyButton[] {_fancyButton0, _fancyButton1, _fancyButton2, _fancyButton3, _fancyButton4, _fancyButton5, _fancyButton6, _fancyButton7}.ToList();
-				BitmapSource image = ApplicationManager.PreloadResourceImage("arrow.png");
-				BitmapSource image2 = ApplicationManager.PreloadResourceImage("arrowoblique.png");
 
-				_fancyButton0.ImageIcon.Source = image;
-				_fancyButton0.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton0.ImageIcon.RenderTransform = new RotateTransform {Angle = 90};
-
-				_fancyButton1.ImageIcon.Source = image2;
-				_fancyButton1.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton1.ImageIcon.RenderTransform = new RotateTransform {Angle = 90};
-
-				_fancyButton2.ImageIcon.Source = image;
-				_fancyButton2.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton2.ImageIcon.RenderTransform = new RotateTransform {Angle = 180};
-
-				_fancyButton3.ImageIcon.Source = image2;
-				_fancyButton3.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton3.ImageIcon.RenderTransform = new RotateTransform {Angle = 180};
-
-				_fancyButton4.ImageIcon.Source = image;
-				_fancyButton4.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton4.ImageIcon.RenderTransform = new RotateTransform {Angle = 270};
-
-				_fancyButton5.ImageIcon.Source = image2;
-				_fancyButton5.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton5.ImageIcon.RenderTransform = new RotateTransform {Angle = 270};
-
-				_fancyButton6.ImageIcon.Source = image;
-				_fancyButton6.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton6.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
-
-				_fancyButton7.ImageIcon.Source = image2;
-				_fancyButton7.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-				_fancyButton7.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
-
-				_fancyButtons.ForEach(p => p.IsEnabled = false);
+				ActIndexSelectorHelper.BuildDirectionalActionSelectorUI(_fancyButtons, false);
 
 				new Thread(_actAnimationThread) { Name = "GrfEditor - Sprite animation update thread" }.Start();
 
@@ -290,10 +256,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		public static RangeObservableCollection<string> GetAnimations(Act act) {
-			return new RangeObservableCollection<string>(act.GetAnimationStrings());
-		}
-
 		public void SetAct(Act act) {
 			Act = act;
 
@@ -308,7 +270,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			int animations = (int) Math.Ceiling(Act.NumberOfActions / 8f);
 			int actions = Act.NumberOfActions;
 
-			_comboBoxAnimationIndex.ItemsSource = GetAnimations(Act);
+			_comboBoxAnimationIndex.ItemsSource = ActHelper.GetAnimations(Act);
 
 			if (ShowInsertBar) {
 				actions++;
@@ -316,7 +278,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				int newAnimationCount = (int) Math.Ceiling(actions / 8f);
 
 				if (newAnimationCount > animations) {
-					((RangeObservableCollection<string>) _comboBoxAnimationIndex.ItemsSource).Add("Append");
+					((TokeiLibrary.WPF.RangeObservableCollection<string>) _comboBoxAnimationIndex.ItemsSource).Add("Append");
 				}
 			}
 

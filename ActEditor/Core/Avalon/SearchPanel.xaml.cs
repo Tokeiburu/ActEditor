@@ -140,7 +140,12 @@ namespace ActEditor.Core.Avalon {
 			_editor = editor;
 			_textArea = textArea;
 			_currentDocument = textArea.Document;
-			_renderer = new SearchResultBackgroundRenderer { MarkerBrush = new SolidColorBrush(Colors.Yellow) };
+			_renderer = new SearchResultBackgroundRenderer { MarkerBrush = Application.Current.Resources["AvalonEditorSearchForegroundBrush"] as Brush };
+
+			ApplicationManager.ThemeChanged += delegate {
+				_renderer.MarkerBrush = Application.Current.Resources["AvalonEditorSearchForegroundBrush"] as Brush;
+			};
+
 			_searchTextBox.TextChanged += new TextChangedEventHandler(_searchTextBox_TextChanged);
 
 			_adorner = new SearchPanelAdorner(textArea, this);
@@ -362,7 +367,7 @@ namespace ActEditor.Core.Avalon {
 					if (_searchTextBox != null) {
 						var error = Validation.GetErrors(_searchTextBox).FirstOrDefault();
 						if (error != null) {
-							_messageView.Content = "Found errors : " + " " + error.ErrorContent;
+							_messageView.Content = "Found errors: " + " " + error.ErrorContent;
 							_messageView.PlacementTarget = _searchTextBox;
 							_messageView.IsOpen = true;
 						}

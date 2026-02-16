@@ -89,13 +89,13 @@ namespace ActEditor.Core.WPF.Dialogs {
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "HeadEditor.Undo"), () => {
 				if (Act != null) {
 					Act.Commands.Undo();
-					_selectionEngine.Select(0);
+					_selectionEngine.AddSelection(0);
 				}
 			}, this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "HeadEditor.Redo"), () => {
 				if (Act != null) {
 					Act.Commands.Redo();
-					_selectionEngine.Select(0);
+					_selectionEngine.AddSelection(0);
 				}
 			}, this);
 
@@ -330,6 +330,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		public void Init(TabAct editor, Act actOriginal) {
 			_actOriginal = actOriginal;
 			_actSource = new Act(actOriginal);
+			_actSource.IsSelectable = true;
 			_editor = editor;
 
 			var refHead = _editor.References.First(p => p.ReferenceName == "Head");
@@ -412,6 +413,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_rendererPrimary.DrawingModules.Clear();
 			_rendererPrimary.DrawingModules.Add(new DefaultDrawModule(delegate {
 				List<DrawingComponent> components = new List<DrawingComponent>();
+				_actSource.IsSelectable = true;
+
 				if (_flag == 2) {
 					switch(_rendererPrimary.SelectedAction) {
 						case 0:
@@ -434,7 +437,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 					components.Add(new ActDraw(_actSource, this));
 				}
 
-				components.Last().Selected += new DrawingComponent.DrawingComponentDelegate(_headEditorDialog_Selected);
 				return components;
 			}, DrawingPriorityValues.Normal, false));
 
@@ -443,20 +445,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 			OnActLoaded();
 		}
 
-		private void _headEditorDialog_Selected(object sender, int index, bool selected) {
-			if (selected) {
-				SelectionEngine.AddSelection(index);
-			}
-			else {
-				SelectionEngine.RemoveSelection(index);
-			}
-		}
-
 		private void _listViewHeads_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 			_actIndexSelector.OnActionChanged(SelectedAction);
 			_actIndexSelector.OnFrameChanged(SelectedFrame);
-			_selectionEngine.Select(0);
-			//_rendererPrimary.Update();
+			_selectionEngine.AddSelection(0);
 		}
 
 		private void _buttonOk_Click(object sender, RoutedEventArgs e) {
@@ -588,7 +580,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 								}
 							}
 						}
-					}, (_flag == 2 ? "Garment sprite generation" : "Head sprite generation"), true);
+					}, (_flag == 2 ? "Garment sprite generation" : "Head sprite generation"));
 				}
 				catch (Exception err) {
 					_actOriginal.Commands.CancelEdit();
@@ -609,6 +601,12 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Frame frameSource = _actOriginal[aid, fid];
 			Frame frameReference = _actReferenceOriginal[aid, referenceFrameIndex];
 			Layer layerReference = frameReference.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
+
+			if (aid == 29) {
+				if (fid == 0) {
+					fid = 0;
+				}
+			}
 
 			if (layerReference == null)
 				return;
@@ -651,6 +649,20 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			if (layerSource.Mirror) {
 				vectorX *= -1;
+
+				if (_flag != 2) {
+					var widthSource = _actOriginal.Sprite.GetImage(layerSource).Width % 2;
+					var widthReference = _actHeadReference.Sprite.GetImage(layerReference).Width % 2;
+
+					if (widthSource != widthReference) {
+						if (widthSource % 2 == 0) {
+							vectorX--;
+						}
+						if (widthReference % 2 == 0) {
+							vectorX++;
+						}
+					}
+				}
 
 				if (layerSource.Rotation > 0) {
 					int rotation = 360 - layerSource.Rotation;
@@ -740,25 +752,17 @@ namespace ActEditor.Core.WPF.Dialogs {
 			};
 
 			renderer.Init(editor);
-			renderer.ZoomEngine.ZoomInMultiplier = () => _rendererPrimary.ZoomEngine.Scale;
+			renderer.ZoomEngine.ZoomInMultiplier = () => _rendererPrimary.ZoomEngine.ZoomInMultiplier();
 
 			renderer.DrawingModules.Add(new AnchorDrawModule(renderer, editor));
 			renderer.DrawingModules.Add(new DefaultDrawModule(() => new List<DrawingComponent> { new ActDraw(_actBodyReference, editor), new ActDraw(_actHeadReference, editor) }, DrawingPriorityValues.Back, false));
-			renderer.DrawingModules.Add(new DefaultDrawModule(delegate {
+			renderer.DrawingModules.Add(new BufferedDrawModule(delegate {
 				if (Act != null) {
 					var primary = new ActDraw(Act, editor);
-					primary.Selected += (sender, index, selected) => {
-						if (selected) {
-							editor.SelectionEngine.AddSelection(index);
-						}
-						else {
-							editor.SelectionEngine.RemoveSelection(index);
-						}
-					};
-					return new List<DrawingComponent> { primary };
+					return (true, new List<DrawingComponent> { primary });
 				}
 
-				return new List<DrawingComponent>();
+				return (false, new List<DrawingComponent>());
 			}, DrawingPriorityValues.Normal, false));
 
 			renderer._cbZoom.Visibility = Visibility.Collapsed;
@@ -908,6 +912,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 			public void Stop() {
 				// Nothing to do
 			}
+
+			public void Init(IFrameRendererEditor editor, int actionIndex, int selectedAction) {
+				// Nothing to do
+			}
 		}
 
 		public IActIndexSelector IndexSelector {
@@ -942,7 +950,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			get { return _spriteSelector; }
 		}
 
-		public IFrameRenderer FrameRenderer {
+		public FrameRenderer FrameRenderer {
 			get { return _rendererPrimary; }
 		}
 

@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.WPF.GenericControls;
@@ -17,15 +13,8 @@ using ErrorManager;
 using GRF.Image;
 using GRF.IO;
 using GrfToWpfBridge;
-using GrfToWpfBridge.MultiGrf;
-using TokeiLibrary;
-using TokeiLibrary.Shortcuts;
-using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
-using Utilities.Extension;
-using Utilities.Services;
-using Binder = GrfToWpfBridge.Binder;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>

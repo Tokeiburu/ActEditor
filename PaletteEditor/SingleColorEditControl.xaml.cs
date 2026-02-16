@@ -154,5 +154,10 @@ namespace PaletteEditor {
 				e.Handled = true;
 			}
 		}
+
+		public void FocusGrid() {
+			PaletteSelector.GridFocus.Focus();
+			Keyboard.Focus(PaletteSelector.GridFocus);
+		}
 	}
 }

@@ -31,17 +31,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "bbr.png"; }
-		}
+		public string Group => "Animation";
+		public string InputGesture => null;
+		public string Image => "bbr.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -93,17 +85,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "brb.png"; }
-		}
+		public string Group => "Animation";
+		public string InputGesture => null;
+		public string Image => "brb.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -154,17 +138,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "blb.png"; }
-		}
+		public string Group => "Animation";
+		public string InputGesture => null;
+		public string Image => "blb.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -214,17 +190,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "bbl.png"; }
-		}
-
-		public string Group {
-			get { return "Animation"; }
-		}
+		public string InputGesture => null;
+		public string Image => "bbl.png";
+		public string Group => "Animation";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -263,21 +231,10 @@ namespace ActEditor.Core.Scripts {
 
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Setup Headgear..."; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "empty.png"; }
-		}
-
-		public string Group {
-			get { return "Animation"; }
-		}
+		public object DisplayName => "Setup Headgear...";
+		public string InputGesture => null;
+		public string Image => "empty.png";
+		public string Group => "Animation";
 
 		public FrameCopyHead(ActEditorWindow editor) {
 			_editor = editor;
@@ -311,21 +268,10 @@ namespace ActEditor.Core.Scripts {
 
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Setup Head..."; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "empty.png"; }
-		}
-
-		public string Group {
-			get { return "Animation"; }
-		}
+		public object DisplayName => "Setup Head...";
+		public string InputGesture => null;
+		public string Image => "empty.png";
+		public string Group => "Animation";
 
 		public FrameCopyHead2(ActEditorWindow editor) {
 			_editor = editor;
@@ -358,21 +304,10 @@ namespace ActEditor.Core.Scripts {
 
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Setup Garment..."; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "empty.png"; }
-		}
-
-		public string Group {
-			get { return "Animation"; }
-		}
+		public object DisplayName => "Setup Garment...";
+		public string InputGesture => null;
+		public string Image => "empty.png";
+		public string Group => "Animation";
 
 		public FrameCopyGarment(ActEditorWindow editor) {
 			_editor = editor;
@@ -408,7 +343,7 @@ namespace ActEditor.Core.Scripts {
 
 			try {
 				act.Commands.Begin();
-				act.Commands.StoreAndExecute(new BackupCommand(_ => act[selectedActionIndex].Frames.Reverse(), "Reverse animation") {CopyMode = CopyStructureMode.Actions});
+				act.Commands.StoreAndExecute(new BackupCommand(_ => act[selectedActionIndex].Frames.Reverse(), "Reverse animation") { CopyMode = CopyStructureMode.Actions });
 			}
 			catch (Exception err) {
 				act.Commands.CancelEdit();
@@ -424,21 +359,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act[selectedActionIndex].NumberOfFrames > 1;
 		}
 
-		public object DisplayName {
-			get { return "Reverse animation"; }
-		}
-
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return "reverse.png"; }
-		}
+		public object DisplayName => "Reverse animation";
+		public string Group => "Animation";
+		public string InputGesture => null;
+		public string Image => "reverse.png";
 
 		#endregion
 	}
@@ -564,17 +488,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.InterpolateAdvanced|Ctrl-I}"; }
-		}
-
-		public string Image {
-			get { return "interpolate.png"; }
-		}
+		public string Group => "Animation";
+		public string InputGesture => "{Dialog.InterpolateAdvanced|Ctrl-I}";
+		public string Image => "interpolate.png";
 
 		#endregion
 
@@ -646,8 +562,16 @@ namespace ActEditor.Core.Scripts {
 			var p = Math.Abs(ease / 25f);
 
 			if (ease < 0)
-				return v => (float) Math.Pow(v, 1f + p);
-			return v => 1 - (float) Math.Pow(1 - v, 1f + p);
+				return v => {
+					if (v > 1 || v < 0)
+						return v;
+					return (float)Math.Pow(v, 1f + p);
+				};
+			return v => {
+				if (v > 1 || v < 0)
+					return v;
+				return 1 - (float)Math.Pow(1 - v, 1f + p);
+			};
 		}
 
 		public static void Interpolate(Act act, int selectedActionIndex, int selected, Layer subStart, Layer subEnd, int from, int to, Func<float, float> easeFunc) {
@@ -771,17 +695,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.InterpolateLayers|Ctrl-Alt-I}"; }
-		}
-
-		public string Image {
-			get { return "interpolate.png"; }
-		}
+		public string Group => "Animation";
+		public string InputGesture => "{Dialog.InterpolateLayers|Ctrl-Alt-I}";
+		public string Image => "interpolate.png";
 
 		#endregion
 	}
@@ -810,21 +726,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act[selectedActionIndex].NumberOfFrames > 1;
 		}
 
-		public object DisplayName {
-			get { return "Advanced interpolation"; }
-		}
-
-		public string Group {
-			get { return "Animation"; }
-		}
-
-		public string InputGesture {
-			get { return "Alt-I"; }
-		}
-
-		public string Image {
-			get { return "advanced.png"; }
-		}
+		public object DisplayName => "Advanced interpolation";
+		public string Group => "Animation";
+		public string InputGesture => "Alt-I";
+		public string Image => "advanced.png";
 
 		#endregion
 	}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Media;
 using GRF.Image;
 using GrfToWpfBridge;
+using static ActEditor.ApplicationConfiguration.ActEditorConfiguration;
 
 namespace ActEditor.Core {
 	/// <summary>
@@ -45,6 +46,17 @@ namespace ActEditor.Core {
 			GrfColor activeColor = getter();
 			_getters[brushName] = getter;
 			_current[brushName] = getter();
+			var brush = new SolidColorBrush(activeColor.ToColor());
+			brush.Freeze();
+			_brushes[brushName] = brush;
+		}
+
+		public static void Register(string brushName, QuickSetting<GrfColor> setting) {
+			if (_current.ContainsKey(brushName)) return;
+
+			GrfColor activeColor = setting.Get();
+			_getters[brushName] = setting.Get;
+			_current[brushName] = activeColor;
 			var brush = new SolidColorBrush(activeColor.ToColor());
 			brush.Freeze();
 			_brushes[brushName] = brush;

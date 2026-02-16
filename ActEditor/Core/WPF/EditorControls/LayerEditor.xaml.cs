@@ -13,6 +13,7 @@ using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.Scripts;
 using ActEditor.Core.WPF.Dialogs;
+using ActEditor.Core.WPF.GenericControls;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.Graphics;
@@ -21,7 +22,6 @@ using GRF.Threading;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using Utilities;
-using Utilities.Extension;
 using Control = System.Windows.Forms.Control;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 
@@ -30,8 +30,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 	/// Interaction logic for LayerEditor.xaml
 	/// </summary>
 	public partial class LayerEditor : UserControl {
-		private readonly DispatcherTimer _timer;
-		private readonly UpdateThread _updateThread = new UpdateThread();
+		private readonly DispatcherTimer _autoScrollTimer;
 
 		private readonly Stopwatch _watch = new Stopwatch();
 		private TabAct _actEditor;
@@ -39,19 +38,16 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private int _layerMouseDown = -1;
 		private Point _oldPosition;
 		private int _previousMouseDown = -1;
-		private LayerControlProvider _provider;
-		private bool _isLoaded;
 		private readonly LayerControlLoadThread _layerControlThread;
 
 		public LayerEditor() {
 			InitializeComponent();
 
 			_displayGrid.ColumnDefinitions[1] = new ColumnDefinition {Width = new GridLength(SystemParameters.VerticalScrollBarWidth)};
-			_timer = new DispatcherTimer();
-			_timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
-			_timer.Tick += new EventHandler(_timer_Tick);
+			_autoScrollTimer = new DispatcherTimer(DispatcherPriority.Render);
+			_autoScrollTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);
+			_autoScrollTimer.Tick += new EventHandler(_autoScrollTimer_Tick);
 
-			_updateThread.Start(this);
 			_layerControlThread = new LayerControlLoadThread(this);
 			_layerControlThread.Start();
 
@@ -60,30 +56,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			};
 
 			PreviewKeyDown += new KeyEventHandler(_layerEditor_PreviewKeyDown);
-
-			double previousOffsetY = 0;
-
-			_sv.ScrollChanged += delegate {
-				if (previousOffsetY == _sv.VerticalOffset)
-					return;
-
-				previousOffsetY = _sv.VerticalOffset;
-
-				foreach (var layerControl in _sp.Children.OfType<LayerControl>()) {
-					if (layerControl.Dirty) {
-						layerControl.Update();
-					}
-				}
-			};
-		}
-
-		public LayerControlProvider Provider {
-			get { return _provider; }
 		}
 
 		public bool DoNotRemove { get; set; }
-		public bool IgnoreUpdate { get; set; }
-		private string _hasBeenDrawn { get; set; }
 
 		public int SelectedAction {
 			get { return _actEditor._frameSelector.SelectedAction; }
@@ -93,31 +68,44 @@ namespace ActEditor.Core.WPF.EditorControls {
 			get { return _actEditor._frameSelector.SelectedFrame; }
 		}
 
-		public Func<bool> ImageExists {
-			get { return _imageExists; }
+		public void SetReadonlyMode(bool value, bool fromAnimationPlaying = false) {
+			if (Readonly == value)
+				return;
+
+			ClickSelectTextBox.EventsEnabled = !value;
+
+			Readonly = value;
+
+			if (fromAnimationPlaying && !ActEditorConfiguration.ActEditorRefreshLayerEditor) {
+				this.Dispatch(p => p.IsEnabled = !Readonly);
+			}
 		}
+
+		public bool Readonly { get; private set; }
 
 		private void _layerEditor_PreviewKeyDown(object sender, KeyEventArgs e) {
 			if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) {
 			}
 		}
 
-		private void _timer_Tick(object sender, EventArgs e) {
-			if (_isUnderViewport()) {
-				_sv.ScrollToVerticalOffset(_sv.VerticalOffset + _sfch.ActualHeight);
+		private void _autoScrollTimer_Tick(object sender, EventArgs e) {
+			if (Mouse.LeftButton != MouseButtonState.Pressed) {
+				StopAutoScroll();
+				return;
 			}
-			else if (_isAboveViewport()) {
+
+			if (_scrollDirection < 0 && _isAboveViewport())
 				_sv.ScrollToVerticalOffset(_sv.VerticalOffset - _sfch.ActualHeight);
-			}
-			else {
-				_timer.Stop();
-			}
+			else if (_scrollDirection > 0 && _isUnderViewport())
+				_sv.ScrollToVerticalOffset(_sv.VerticalOffset + _sfch.ActualHeight);
+			else
+				StopAutoScroll();
 		}
 
 		private bool _isUnderViewport() {
 			var position2 = Control.MousePosition;
 			var position = PointFromScreen(new Point(position2.X, position2.Y));
-			return position.Y > ActualHeight && position.Y < ActualHeight + 50;
+			return position.Y > ActualHeight - 10;
 		}
 
 		private bool _isAboveViewport() {
@@ -126,21 +114,20 @@ namespace ActEditor.Core.WPF.EditorControls {
 			return this.GetObjectAtPoint<LayerControlHeader>(position) != null;
 		}
 
-		public void Init(TabAct actEditor) {
-			_actEditor = actEditor;
+		private LayerVisualEditor _visualEditor = new LayerVisualEditor();
+		private int _lastInsertLineIndex;
+		private int _scrollDirection;
 
-			_actEditor._frameSelector.FrameChanged += (s, e) => Update();
-			_actEditor._frameSelector.ActionChanged += (s, e) => Update();
+		public void Init(TabAct actEditor) {
+			_visualEditor.Init(actEditor);
+			_actEditor = actEditor;
 
 			_actEditor.ActLoaded += delegate {
 				if (actEditor.Act == null) return;
-
-				_hasBeenDrawn = null;
-				actEditor.Act.Commands.CommandRedo += (s, e) => _fieldsUpdate();
-				actEditor.Act.Commands.CommandUndo += (s, e) => _fieldsUpdate();
+				actEditor.Act.Commands.CommandRedo += (s, e) => _visualEditor.InvalidateVisual();
+				actEditor.Act.Commands.CommandUndo += (s, e) => _visualEditor.InvalidateVisual();
 			};
 
-			_actEditor._rendererPrimary.Selected += new DrawingComponent.DrawingComponentDelegate(_rendererPrimary_Selected);
 			_actEditor._frameSelector.AnimationPlaying += new ActIndexSelector.FrameIndexChangedDelegate(_frameSelector_AnimationPlaying);
 
 			PreviewMouseDown += new MouseButtonEventHandler(_layerEditor_MouseDown);
@@ -151,6 +138,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 			DragEnter += new DragEventHandler(_layerEditor_DragEnter);
 			DragLeave += new DragEventHandler(_layerEditor_DragLeave);
 			Drop += new DragEventHandler(_layerEditor_Drop);
+
+			_actEditor.SelectionEngine.SelectionChanged += _selectionEngine_SelectionChanged;
+		}
+
+		private void _selectionEngine_SelectionChanged(SelectionEngine selector, SelectionEngine.SelectionChangedEventArgs e) {
+			foreach (var index in e.Added) {
+				_visualEditor.DrawSelection(index);
+			}
+
+			foreach (var index in e.Removed) {
+				_visualEditor.DrawSelection(index);
+			}
 		}
 
 		public void AsyncUpdateLayerControl(int layerIndex) {
@@ -161,30 +160,39 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_layerControlThread.Update(layerIndexes);
 		}
 
-		private void _frameSelector_AnimationPlaying(object sender, int actionindex) {
-			if (actionindex == 0) {
+		private void _frameSelector_AnimationPlaying(object sender, int mode) {
+			if (mode == 0) {
 				_watch.Stop();
+
+				SetReadonlyMode(false, fromAnimationPlaying: true);
 				DoNotRemove = false;
-				IgnoreUpdate = false;
 
 				int action = _actEditor._frameSelector.SelectedAction;
 				int frame = _actEditor._frameSelector.SelectedFrame;
-
-				if (_hasBeenDrawn == null || _hasBeenDrawn != action + "," + frame)
-					this.Dispatch(p => p.Update());
-
-				this.Dispatch(p => p.IsEnabled = true);
+				this.Dispatch(p => p.Update());
 			}
 			else {
-				if (!ActEditorConfiguration.ActEditorRefreshLayerEditor)
-					this.Dispatch(p => p.IsEnabled = false);
-
+				SetReadonlyMode(true, fromAnimationPlaying: true);
 				DoNotRemove = true;
 			}
+
+			this.Dispatch(delegate {
+				IsHitTestVisible = mode == 0;
+			});
 		}
 
 		private void _layerEditor_DragLeave(object sender, DragEventArgs e) {
-			_mouseLeave(true);
+
+			if (NativeMethods.GetCursorPos(out NativeMethods.POINT lpPoint)) {
+				Point screenPos = new Point(lpPoint.X, lpPoint.Y);
+				Point relativePos = this.PointFromScreen(screenPos);
+
+				bool isStillOver = new Rect(0, 0, ActualWidth, ActualHeight).Contains(relativePos);
+
+				if (!isStillOver) {
+					_mouseLeave(true);
+				}
+			}
 		}
 
 		private void _layerEditor_DragEnter(object sender, DragEventArgs e) {
@@ -196,7 +204,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 
 		private void _layerEditor_DragOver(object sender, DragEventArgs e) {
 			if (e.Data.GetData("ImageIndex") != null)
-				_move(e.GetPosition(this), true);
+				_move(e.GetPosition(this), true, e.Data);
 			else
 				e.Effects = DragDropEffects.None;
 		}
@@ -204,17 +212,15 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private void _layerEditor_Drop(object sender, DragEventArgs e) {
 			try {
 				object imageIndexObj = e.Data.GetData("ImageIndex");
-
 				if (imageIndexObj == null) return;
 
 				int imageIndex = (int) imageIndexObj;
 				int dropIndex = _getIndexDrop(e.GetPosition(this), true);
 
-				if (dropIndex <= -1)
-					dropIndex = _getIndexDrop(e.GetPosition(this), true);
-
 				if (dropIndex > -1) {
-					List<Utilities.Extension.Tuple<Layer, bool>> selection = GetSelection();
+					_clearPreviewDrag(_actEditor.Act[_actEditor.SelectedAction, _actEditor.SelectedFrame]);
+
+					var selection = GetSelection();
 
 					if (_actEditor.Act == null) return;
 
@@ -223,14 +229,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 					Update();
 					_actEditor._rendererPrimary.Update();
 					_actEditor.SelectionEngine.SetSelection(GenerateSelection(selection));
-					UpdateSelection();
 					e.Handled = true;
 				}
 			}
 			finally {
-				_lineMoveLayer.Visibility = Visibility.Hidden;
+				DisableInsertLine();
 				_hasMoved = false;
-
 				ReleaseMouseCapture();
 			}
 		}
@@ -252,27 +256,26 @@ namespace ActEditor.Core.WPF.EditorControls {
 				int dropIndex = _getIndexDrop(e.GetPosition(this));
 
 				if (dropIndex > -1) {
-					List<Utilities.Extension.Tuple<Layer, bool>> selection = GetSelection();
+					var selection = GetSelection();
 
 					if (_actEditor.Act == null) return;
 
 					int start = _layerMouseDown;
 					int range = 1;
+					var frame = _actEditor.Act[SelectedAction, SelectedFrame];
 
-					var startFrame = _provider.Get(start);
+					if (start >= frame.NumberOfLayers) return;
 
-					if (start >= _sp.Children.Count) return;
-
-					if (startFrame.IsSelected) {
+					if (_actEditor.SelectionEngine.IsSelected(start)) {
 						for (int i = start - 1; i >= 0; i--) {
-							if (_provider.Get(i).IsSelected)
+							if (_actEditor.SelectionEngine.IsSelected(i))
 								start--;
 							else
 								break;
 						}
 
-						for (int i = start + 1; i < _sp.Children.Count; i++) {
-							if (_provider.Get(i).IsSelected)
+						for (int i = start + 1; i < frame.NumberOfLayers; i++) {
+							if (_actEditor.SelectionEngine.IsSelected(i))
 								range++;
 							else
 								break;
@@ -283,23 +286,18 @@ namespace ActEditor.Core.WPF.EditorControls {
 						Update();
 						_actEditor._rendererPrimary.Update();
 						_actEditor.SelectionEngine.SetSelection(GenerateSelection(selection));
-						UpdateSelection();
 						e.Handled = true;
 					}
 				}
 
 				if (e.ChangedButton == MouseButton.Right) {
-					var layerControl = this.GetObjectAtPoint<LayerControl>(e.GetPosition(this));
+					var layerControl = this.GetObjectAtPoint<VisualLayer>(e.GetPosition(this));
 					bool layersSelected = false;
 
-					if (layerControl != null) {
-						int index = _sp.Children.IndexOf(layerControl);
-
-						if (index > -1) {
-							_actEditor.SelectionEngine.Select(index);
-							layersSelected = true;
-							_actEditor.SelectionEngine.LatestSelected = index;
-						}
+					if (layerControl != null && layerControl.Visibility == Visibility.Visible) {
+						_actEditor.SelectionEngine.AddSelection(layerControl.LayerIndex);
+						layersSelected = true;
+						_actEditor.SelectionEngine.LatestSelected = layerControl.LayerIndex;
 					}
 
 					_miDelete.Visibility = layersSelected ? Visibility.Visible : Visibility.Collapsed;
@@ -314,22 +312,21 @@ namespace ActEditor.Core.WPF.EditorControls {
 				}
 			}
 			finally {
-				_lineMoveLayer.Visibility = Visibility.Hidden;
+				DisableInsertLine();
 				_hasMoved = false;
-
 				ReleaseMouseCapture();
 			}
 		}
 
 		private void _enter(Point position) {
 			_layerMouseDown = -1;
-			var layerControl = this.GetObjectAtPoint<LayerControl>(position);
+			var layerControl = this.GetObjectAtPoint<VisualLayer>(position);
 
 			if (layerControl != null) {
-				var textBox = this.GetObjectAtPoint<TextBox>(position);
+				var textBox = this.GetObjectAtPoint<TextBlock>(position);
 
-				if (textBox == null)
-					_layerMouseDown = _sp.Children.IndexOf(layerControl);
+				if (layerControl.GetBlockFromCol(0) == textBox)
+					_layerMouseDown = layerControl.LayerIndex;
 				else
 					_layerMouseDown = -1;
 			}
@@ -338,373 +335,237 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_previousMouseDown = -1;
 		}
 
-		private void _move(Point current, bool overrideMouse = false) {
+		private void _move(Point current, bool overrideMouse = false, IDataObject dragData = null) {
 			if (!overrideMouse && (current == _oldPosition || TkVector2.CalculateDistance(current.ToTkVector2(), _oldPosition.ToTkVector2()) <= 5)) return;
 
 			if (Mouse.LeftButton == MouseButtonState.Pressed || overrideMouse) {
 				_hasMoved = true;
 
 				if (_layerMouseDown > -1 || overrideMouse) {
-					if (!overrideMouse && _provider.Get(_layerMouseDown) != null) _provider.Get(_layerMouseDown).IsPreviewSelected = true;
-
 					int dropIndex = _getIndexDrop(current, overrideMouse);
 
 					if (dropIndex > -1) {
 						if (!IsMouseCaptured)
 							CaptureMouse();
 
-						_lineMoveLayer.Stroke = new SolidColorBrush(ActEditorConfiguration.ActEditorSpriteSelectionBorder.ToColor());
-						_lineMoveLayer.Visibility = Visibility.Visible;
+						SetInsertLine(dropIndex);
 
-						double offsetY = _sfch.ActualHeight;
+						// Update preview
+						if (dragData != null) {
+							object imageIndexObj = dragData.GetData("ImageIndex");
 
-						for (int i = 0; i < dropIndex; i++) {
-							offsetY += LayerControl.ActualHeightBuffered;
-						}
+							if (imageIndexObj != null) {
+								int imageIndex = (int)imageIndexObj;
 
-						offsetY -= _sv.VerticalOffset;
+								var frame = _actEditor.Act[_actEditor.SelectedAction, _actEditor.SelectedFrame];
+								var layer = frame.Layers.Where(p => p.Preview).FirstOrDefault();
 
-						if (offsetY >= ActualHeight - 1) {
-							offsetY = ActualHeight - 1;
-						}
+								if (layer != null) {
+									int index = frame.Layers.IndexOf(layer);
 
-						if (_isAboveViewport()) {
-							if (_sv.VerticalOffset > 0)
-								_lineMoveLayer.Visibility = Visibility.Hidden;
-							else
-								offsetY = _sfch.ActualHeight;
-						}
+									if (index != dropIndex) {
+										_clearPreviewDrag(frame);
+										layer = null;
+									}
+								}
 
-						if (_isUnderViewport()) {
-							if (_sv.VerticalOffset < _sv.ScrollableHeight)
-								_lineMoveLayer.Visibility = Visibility.Hidden;
-							else {
-								if (_sv.ScrollableHeight > 0)
-									offsetY = ActualHeight - 1;
+								if (layer == null) {
+									// Check if last index
+									GrfImage grfImage = _actEditor.Act.Sprite.Images[imageIndex];
+									layer = new Layer((grfImage.GrfImageType == GrfImageType.Indexed8) ? imageIndex : (imageIndex - _actEditor.Act.Sprite.NumberOfIndexed8Images), grfImage);
+									layer.Preview = true;
+									frame.Layers.Insert(dropIndex, layer);
+									_actEditor._rendererPrimary.Update();
+								}
 							}
 						}
-
-						if (offsetY < _sfch.ActualHeight) {
-							_lineMoveLayer.Visibility = Visibility.Hidden;
-						}
-
-						_lineMoveLayer.Margin = new Thickness(0, offsetY - 2, SystemParameters.VerticalScrollBarWidth, 0);
 					}
 				}
 			}
 			else {
 				var layer = _getControlUnderMouse();
+				_visualEditor.PreviewSelect(layer);
+			}
+		}
 
-				for (int i = 0; i < _sp.Children.Count; i++) {
-					var tmp = _provider.Get(i);
-
-					if (tmp != layer) {
-						tmp.IsPreviewSelected = false;
-					}
+		private void _clearPreviewDrag(Frame frame) {
+			for (int i = 0; i < frame.Layers.Count; i++) {
+				if (frame[i].Preview) {
+					frame.Layers.RemoveAt(i);
+					i--;
 				}
-
-				if (layer != null)
-					layer.IsPreviewSelected = true;
 			}
 		}
 
 		private void _mouseLeave(bool hideBar = false) {
-			for (int i = 0; i < _sp.Children.Count; i++) {
-				var layer = _provider.Get(i);
-				layer.IsPreviewSelected = false;
+			foreach (var visualLayer in _visualEditor.VisualLayers) {
+				visualLayer.IsPreviewSelected = false;
 			}
 
 			if (hideBar) {
-				_lineMoveLayer.Visibility = Visibility.Hidden;
+				DisableInsertLine();
 				_hasMoved = false;
 			}
 		}
 
-		private LayerControl _getControlUnderMouse() {
-			Point point = Mouse.GetPosition(this);
-			return this.GetObjectAtPoint<LayerControl>(point);
+		public void DisableInsertLine() {
+			_lineMoveLayer.Visibility = Visibility.Hidden;
+		}
+
+		public void SetInsertLine(int layerIndex) {
+			if (_lineMoveLayer.Visibility == Visibility.Visible && layerIndex == _lastInsertLineIndex)
+				return;
+
+			var visualLayer = _visualEditor.GetVisualLayer(layerIndex);
+			Point position;
+
+			if (visualLayer != null && visualLayer.Visibility == Visibility.Visible) {
+				// Current VisualLayer under the mouse
+				position = new Point(visualLayer.Margin.Left, visualLayer.Margin.Top);
+			}
+			else {
+				// Past the list of VisualLayer
+				visualLayer = _visualEditor.GetVisualLayer(_actEditor.Act[SelectedAction, SelectedFrame].Layers.Count(p => !p.Preview) - 1);
+
+				// There are no Layers in this Frame
+				if (visualLayer == null) {
+					position = new Point(0, 0);
+				}
+				else {
+					position = new Point(visualLayer.Margin.Left, visualLayer.Margin.Top + visualLayer.ActualHeight);
+				}
+			}
+
+			position.Y -= _sv.VerticalOffset;
+
+			// Check if the position is within the LayerEditor's viewport
+			if (position.Y > this.ActualHeight ||
+				position.Y < 0) {
+				DisableInsertLine();
+				return;
+			}
+
+			// Adjust position with the header
+			position.Y += _sfch.ActualHeight;
+
+			// Adjust the line to center it
+			position.Y -= 2;
+
+			_lineMoveLayer.Stroke = new SolidColorBrush(ActEditorConfiguration.ActEditorSpriteSelectionBorder.Get().ToColor());
+			_lineMoveLayer.Width = _gridBackground.ActualWidth;
+			_lineMoveLayer.Margin = new Thickness(0, position.Y, 0, 0);
+
+			if (_lineMoveLayer.Visibility != Visibility.Visible)
+				_lineMoveLayer.Visibility = Visibility.Visible;
+
+			_lastInsertLineIndex = layerIndex;
+		}
+
+		private VisualLayer _getControlUnderMouse() {
+			Point point = Mouse.GetPosition(_gridBackground);
+			
+			if (point.X >= _gridBackground.ActualWidth)
+				return null;
+
+			return _visualEditor.GetVisualLayer((int)(point.Y / _visualEditor.PreviewElementHeight));
+		}
+
+		public void AutoScrollUp() {
+			_scrollDirection = -1;
+			if (!_autoScrollTimer.IsEnabled) _autoScrollTimer.Start();
+		}
+
+		public void AutoScrollDown() {
+			_scrollDirection = 1;
+			if (!_autoScrollTimer.IsEnabled) _autoScrollTimer.Start();
+		}
+
+		public void StopAutoScroll() {
+			_scrollDirection = 0;
+			_autoScrollTimer.Stop();
 		}
 
 		private int _getIndexDrop(Point point, bool overrideMouse = false) {
-			var layerControl = this.GetObjectAtPoint<LayerControl>(point);
+			if (_actEditor.Act == null)
+				return -1;
+
+			var screenPosition = Control.MousePosition;
+			var position = _sv.PointFromScreen(new Point(screenPosition.X, screenPosition.Y));
+
+			var layerControl = _sv.GetObjectAtPoint<VisualLayer>(position);
 			var layerHeader = this.GetObjectAtPoint<LayerControlHeader>(point);
 			var line = this.GetObjectAtPoint<Line>(point);
 
-			if (_isAboveViewport() || layerHeader != null) {
-				if (_sv.VerticalOffset != 0) {
-					if (!_timer.IsEnabled) {
-						_timer_Tick(null, null);
-						_timer.Start();
-						return _previousMouseDown;
-					}
+			int layerCount = _actEditor.Act[_actEditor.SelectedAction, _actEditor.SelectedFrame].Layers.Count(p => !p.Preview);
+
+			if (_hasMoved) {
+				if (layerHeader != null) {
+					AutoScrollUp();
 				}
+				else if (_isUnderViewport()) {
+					AutoScrollDown();
+				}
+				else {
+					StopAutoScroll();
+				}
+			}
+
+			// Handle actual viewport
+			if (layerControl != null) {
+				_previousMouseDown = layerControl.LayerIndex;
+
+				if (_previousMouseDown > layerCount)
+					_previousMouseDown = layerCount;
+
+				return _previousMouseDown;
+			}
+
+			// Handle above viewport case
+			if (layerHeader != null) {
+				// Return first visual child
+				_previousMouseDown = _visualEditor.VisualLayers.OrderBy(p => p.LayerIndex).First().LayerIndex;
+				return _previousMouseDown;
 			}
 
 			if (_isUnderViewport()) {
-				if (_sv.VerticalOffset != _sv.ScrollableHeight) {
-					if (!_timer.IsEnabled) {
-						_timer_Tick(null, null);
-						_timer.Start();
-						return _previousMouseDown;
-					}
-				}
-			}
-
-			if (_hasMoved && (_layerMouseDown > -1 || overrideMouse)) {
-				Point relativeToViewport = new Point(point.X, point.Y - _sfch.ActualHeight);
-
-				bool isOutside = relativeToViewport.X < 0 || relativeToViewport.Y < 0 || relativeToViewport.X > _sv.ViewportWidth || relativeToViewport.Y > _sv.ViewportHeight;
-
-				int currentIndex = -1;
-
-				if (_isAboveViewport() && _sv.VerticalOffset == 0) {
-					currentIndex = 0;
-					_previousMouseDown = currentIndex;
-					return currentIndex;
-				}
-
-				if (layerHeader != null) {
-					return _previousMouseDown;
-				}
-
-				if (layerControl != null) {
-					currentIndex = _sp.Children.IndexOf(layerControl);
-				}
-
-				if (_isUnderViewport() && _sv.VerticalOffset == _sv.ScrollableHeight) {
-					currentIndex = _sp.Children.Count;
-					_previousMouseDown = currentIndex;
-					return currentIndex;
-				}
-
-				if (isOutside || (currentIndex < 0 && line != null)) {
-					if (_previousMouseDown < 0) {
-						if (line != null) {
-							// Invalid!
-							// Moves the mouse 6 pixels down and retrieve the frame
-							_previousMouseDown = _getIndexDrop(new Point(point.X, point.Y + 6), overrideMouse);
-						}
-					}
-
-					return _previousMouseDown;
-				}
-
-				if (currentIndex < 0)
-					currentIndex = _sp.Children.Count;
-
-				_previousMouseDown = currentIndex;
-				return currentIndex;
+				// Cannot happen?
+				return -1;
 			}
 
 			return -1;
 		}
 
-		public HashSet<int> GenerateSelection(List<Utilities.Extension.Tuple<Layer, bool>> selection) {
+		public HashSet<int> GenerateSelection(Layer[] selection) {
 			HashSet<int> newSelection = new HashSet<int>();
 
 			if (_actEditor.Act == null) return newSelection;
 
 			Frame frame = _actEditor.Act[_actEditor._frameSelector.SelectedAction, _actEditor._frameSelector.SelectedFrame];
 
-			for (int i = 0; i < selection.Count; i++) {
-				if (selection[i].Item2) {
-					int index = frame.Layers.IndexOf(selection[i].Item1);
+			for (int i = 0; i < selection.Length; i++) {
+				int index = frame.Layers.IndexOf(selection[i]);
 
-					if (index > -1) {
-						newSelection.Add(index);
-					}
+				if (index > -1) {
+					newSelection.Add(index);
 				}
 			}
 
 			return newSelection;
 		}
 
-		public List<Utilities.Extension.Tuple<Layer, bool>> GetSelection() {
-			List<Utilities.Extension.Tuple<Layer, bool>> selection = new List<Utilities.Extension.Tuple<Layer, bool>>();
-
-			if (_actEditor.Act == null) return selection;
-
-			for (int i = 0; i < _sp.Children.Count; i++) {
-				var layer = _actEditor.Act[_actEditor._frameSelector.SelectedAction, _actEditor._frameSelector.SelectedFrame, i];
-				selection.Add(new Utilities.Extension.Tuple<Layer, bool>(layer, ((LayerControl)_sp.Children[i]).IsSelected));
-			}
-
-			return selection;
+		public Layer[] GetSelection() {
+			return _actEditor.SelectionEngine.SelectedLayers;
 		}
 
-		public LayerControl Get(int layerIndex) {
-			return _sp.Children[layerIndex] as LayerControl;
+		public VisualLayer GetVisual(int layerIndex) {
+			return _visualEditor.GetVisualLayer(layerIndex);
 		}
 
 		public void Update() {
-			if (DoNotRemove) {
-				if (!ActEditorConfiguration.ActEditorRefreshLayerEditor) {
-					return;
-				}
-
-				int[] layerIndexes = new int[_actEditor.Act[SelectedAction, SelectedFrame].Layers.Count];
-
-				for (int i = 0; i < layerIndexes.Length; i++)
-					layerIndexes[i] = i;
-				
-				//AsyncUpdateLayerControl(layerIndexes);
-				_updateThread.Add(new UpdateInfo(SelectedAction, SelectedFrame));
-			}
-			else {
-				if (_provider == null) {
-					_actEditor.LayerEditor._sv.Loaded += delegate {
-						if (_isLoaded)
-							return;
-
-						_provider = new LayerControlProvider(_actEditor);
-						_isLoaded = true;
-						ThreadUpdate(SelectedFrame);
-					};
-				}
-				else {
-					ThreadUpdate(SelectedFrame);
-				}
-			}
-		}
-
-		internal void ThreadUpdate(int selectedFrame) {
-			Act act = _actEditor.Act;
-
-			if (act == null) return;
-
-			if (DoNotRemove) {
-				_hasBeenDrawn = null;
-				_specialUpdate(selectedFrame);
+			if (DoNotRemove && !ActEditorConfiguration.ActEditorRefreshLayerEditor)
 				return;
-			}
 
-			int numberOfFrames = _actEditor.Frame.NumberOfLayers;
-			int action = _actEditor._frameSelector.SelectedAction;
-			int frame = _actEditor._frameSelector.SelectedFrame;
-
-			_hasBeenDrawn = action + "," + frame;
-
-			if (numberOfFrames < _sp.Children.Count) {
-				_sp.Children.RemoveRange(numberOfFrames, _sp.Children.Count - numberOfFrames);
-
-				if (selectedFrame != SelectedFrame) return;
-			}
-
-			for (int i = 0; i < _sp.Children.Count; i++) {
-				_provider.Get(i).Set(act, action, frame, i, false);
-
-				if (selectedFrame != SelectedFrame) return;
-			}
-
-			for (int i = _sp.Children.Count; i < numberOfFrames; i++) {
-				var layer = _provider.Get(i);
-				layer.Set(act, action, frame, i, false);
-				layer.IsSelected = false;
-				_sp.Children.Add(layer);
-
-				if (selectedFrame != SelectedFrame) return;
-			}
-		}
-
-		private void _specialUpdate(int selectedFrame) {
-			if (!DoNotRemove) return;
-
-			Act act = _actEditor.Act;
-
-			if (act == null) return;
-			if (selectedFrame != this.Dispatch(() => SelectedFrame)) return;
-
-			int numberOfFrames = _actEditor.Frame.NumberOfLayers;
-			int action = _actEditor._frameSelector.SelectedAction;
-			int frame = _actEditor._frameSelector.SelectedFrame;
-			int max = numberOfFrames;
-
-			double currentHeight = 0;
-			double offsetYBegin = _sv.VerticalOffset;
-			double offsetYEnd = offsetYBegin + _sv.ViewportHeight;
-
-			for (int i = 0, count = max; i < count; i++) {
-				//if (currentHeight > offsetYEnd) {
-				//	return;
-				//}
-
-				LayerControl ctr = _provider.Get(i);
-
-				_sp.Dispatch(delegate {
-					if (i >= _sp.Children.Count) {
-						ctr.IsSelected = false;
-						_sp.Children.Add(ctr);
-					}
-				});
-
-				//if (currentHeight < offsetYBegin) {
-				//	currentHeight += LayerControl.ActualHeightBuffered;
-				//
-				//	if (currentHeight < offsetYBegin)
-				//		continue;
-				//}
-				//else {
-				//	currentHeight += LayerControl.ActualHeightBuffered;
-				//}
-
-				if (!DoNotRemove) return;
-
-				ctr.Dispatch(() => ctr.Set(act, action, frame, i, true));
-
-				if (selectedFrame != this.Dispatch(() => SelectedFrame)) return;
-			}
-
-			int childrenCount = this.Dispatch(() => _sp.Children.Count);
-
-			if (childrenCount > 0) {
-				currentHeight = _provider.Get(0).ActualHeight * max;
-
-				for (int i = max; i < childrenCount; i++) {
-					if (currentHeight > offsetYEnd)
-						return;
-
-					LayerControl ctr = _provider.Get(i);
-
-					ctr.Dispatch(ctr.SetNull);
-					currentHeight += LayerControl.ActualHeightBuffered;
-
-					if (selectedFrame != this.Dispatch(() => SelectedFrame)) return;
-					if (!DoNotRemove) return;
-				}
-			}
-		}
-
-		public void UpdateSelection() {
-			for (int i = 0; i < _sp.Children.Count; i++) {
-				_provider.Get(i).IsSelected = _actEditor.SelectionEngine.SelectedItems.Contains(i);
-			}
-		}
-
-		private void _rendererPrimary_Selected(object sender, int index, bool selected) {
-			if (index < 0 || index >= _sp.Children.Count) return;
-
-			((LayerControl) _sp.Children[index]).IsSelected = selected;
-		}
-
-		private void _fieldsUpdate() {
-			Act act = _actEditor.Act;
-
-			if (act == null) return;
-
-			int action = _actEditor._frameSelector.SelectedAction;
-			int frame = _actEditor._frameSelector.SelectedFrame;
-
-			if (action >= act.NumberOfActions || frame >= act[action].NumberOfFrames) return;
-
-			if (act[action, frame].NumberOfLayers != _sp.Children.Count) {
-				Update();
-			}
-
-			for (int i = 0; i < _sp.Children.Count; i++) {
-				((LayerControl) _sp.Children[i]).Set(act, action, frame, i, false);
-			}
-
-			//UpdateSelection();
+			_visualEditor.InvalidateVisual();
 		}
 
 		public void Delete() {
@@ -713,10 +574,10 @@ namespace ActEditor.Core.WPF.EditorControls {
 			try {
 				_actEditor.Act.Commands.Begin();
 
-				for (int i = _sp.Children.Count - 1; i >= 0; i--) {
-					if (_provider.Get(i).IsSelected) {
-						_actEditor.Act.Commands.LayerDelete(_actEditor.SelectedAction, _actEditor.SelectedFrame, i);
-					}
+				var items = _actEditor.SelectionEngine.SelectedItems.OrderByDescending(p => p).ToList();
+
+				for (int i = 0; i < items.Count; i++) {
+					_actEditor.Act.Commands.LayerDelete(_actEditor.SelectedAction, _actEditor.SelectedFrame, items[i]);
 				}
 			}
 			catch (Exception err) {
@@ -739,15 +600,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (_actEditor.Act == null) return;
 
 			try {
-				bool selected = false;
+				bool selected = _actEditor.SelectionEngine.SelectedItems.Count > 0;
 
 				_actEditor.Act.Commands.Begin();
 				
-				for (int i = _sp.Children.Count - 1; i >= 0; i--) {
-					if (_provider.Get(i).IsSelected) {
-						selected = true;
-						_actEditor.Act.Commands.MirrorFromOffset(_actEditor.SelectedAction, _actEditor.SelectedFrame, i, 0, direction);
-					}
+				foreach (var i in _actEditor.SelectionEngine.CurrentlySelected) {
+					_actEditor.Act.Commands.MirrorFromOffset(_actEditor.SelectedAction, _actEditor.SelectedFrame, i, 0, direction);
 				}
 
 				if (!selected)
@@ -762,10 +620,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 
 			_actEditor.Act.InvalidateVisual();
-		}
-
-		public void Reset() {
-			_sp.Children.Clear();
 		}
 
 		private void _miFront_Click(object sender, RoutedEventArgs e) {
@@ -834,13 +688,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		private void _miBack_Click(object sender, RoutedEventArgs e) {
-			Act act = _actEditor.Act;
-			if (act == null) return;
-
-			_bringTo(0);
-		}
-
 		public void BringToBack() {
 			Act act = _actEditor.Act;
 			if (act == null) return;
@@ -848,12 +695,16 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_bringTo(0);
 		}
 
+		private void _miBack_Click(object sender, RoutedEventArgs e) {
+			BringToBack();
+		}
+
 		private void _miCut_Click(object sender, RoutedEventArgs e) {
-			_actEditor._rendererPrimary.Cut();
+			_actEditor.Cut();
 		}
 
 		private void _miCopy_Click(object sender, RoutedEventArgs e) {
-			_actEditor._rendererPrimary.Copy();
+			_actEditor.Copy();
 		}
 
 		private void _miInvert_Click(object sender, RoutedEventArgs e) {
@@ -875,102 +726,5 @@ namespace ActEditor.Core.WPF.EditorControls {
 				}
 			}
 		}
-
-		private bool _imageExists() {
-			var main = _actEditor.SelectionEngine.Main;
-
-			if (main != null) {
-				int latestSelected = _actEditor.SelectionEngine.LatestSelected;
-
-				if (latestSelected > -1 && latestSelected < main.Components.Count) {
-					Layer layer = ((LayerDraw) main.Components[latestSelected]).Layer;
-
-					return _actEditor.Act.Sprite.GetImage(layer) != null;
-				}
-			}
-
-			return false;
-		}
-
-		#region Nested type: UpdateInfo
-
-		public class UpdateInfo {
-			public int ActionIndex;
-			public int FrameIndex;
-
-			public UpdateInfo(int actionIndex, int frameIndex) {
-				ActionIndex = actionIndex;
-				FrameIndex = frameIndex;
-			}
-		}
-
-		#endregion
-
-		#region Nested type: UpdateThread
-
-		public class UpdateThread : PausableThread {
-			private readonly object _updateLock = new object();
-			private readonly Queue<UpdateInfo> _updateQueue = new Queue<UpdateInfo>();
-			private LayerEditor _layerEditor;
-
-			public void Start(LayerEditor layerEditor) {
-				_layerEditor = layerEditor;
-				IsPaused = true;
-				GrfThread.StartSTA(_start);
-			}
-
-			private void _start() {
-				while (true) {
-					if (IsPaused) {
-						Pause();
-					}
-
-					bool anyLeft = true;
-
-					lock (_updateLock) {
-						if (_updateQueue.Count == 0)
-							anyLeft = false;
-					}
-
-					if (!anyLeft) {
-						IsPaused = true;
-						continue;
-					}
-
-					UpdateInfo updateInfo = null;
-
-					lock (_updateLock) {
-						if (_updateQueue.Count == 1) {
-							updateInfo = _updateQueue.Dequeue();
-						}
-						else if (_updateQueue.Count > 1) {
-							_updateQueue.Dequeue();
-						}
-					}
-
-					if (updateInfo == null)
-						continue;
-
-					if (_layerEditor.DoNotRemove) {
-						//_layerEditor.BeginDispatch(() => _layerEditor.ThreadUpdate());
-						_layerEditor.ThreadUpdate(updateInfo.FrameIndex);
-						//_layerEditor.Dispatch(() => );
-					}
-
-					Thread.Sleep(20);
-				}
-			}
-
-			public void Add(UpdateInfo updateInfo) {
-				lock (_updateLock) {
-					_updateQueue.Enqueue(updateInfo);
-				}
-
-				if (IsPaused)
-					IsPaused = false;
-			}
-		}
-
-		#endregion
 	}
 }

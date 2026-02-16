@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,10 +9,11 @@ using ActEditor.ApplicationConfiguration;
 using ErrorManager;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
-using GRF.Image.Decoders;
+using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
-using Utilities.Extension;
+using TokeiLibrary.WPF.Styles.ListView;
+using Utilities.Tools;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -33,14 +33,18 @@ namespace ActEditor.Core.WPF.Dialogs {
 		#endregion
 
 		private readonly GrfImage _image;
+		private readonly Spr _spr;
 		private readonly List<GrfImage> _images = new List<GrfImage>();
-		private readonly List<RadioButton> _rbs = new List<RadioButton>();
+		private readonly List<CheckBox> _rbs = new List<CheckBox>();
+		private readonly List<Border> _borders = new List<Border>();
 		private readonly List<ScrollViewer> _svs = new List<ScrollViewer>();
 		private readonly HashSet<byte> _unusedIndexes = new HashSet<byte>();
 		private byte[] _originalPalette;
 		private GrfImage _result;
 
 		private bool _svEventsEnabled;
+		private ZoomEngine _zoom;
+		private bool _isLoading;
 
 		public SpriteConverterFormatDialog(byte[] originalPalette, GrfImage image, Spr spr, int option = -1) : base("Format conflict", "app.ico", SizeToContent.Manual, ResizeMode.CanResize) {
 			if (originalPalette == null) throw new ArgumentNullException("originalPalette");
@@ -49,6 +53,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
+			_images.Add(null);
+			_images.Add(null);
 			_images.Add(null);
 			_images.Add(null);
 			_images.Add(null);
@@ -69,17 +75,43 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			_image = image;
 
+			_spr = spr;
 			_unusedIndexes = spr.GetUnusedPaletteIndexes();
 			_unusedIndexes.Remove(0);
 
 			_description.Text = "The image is invalid for this operation. Select one of options below.";
 
-			_load();
 			_cbTransparency.SelectionChanged += _cbTransparency_SelectionChanged;
 			_cbDithering.Checked += _cbDithering_Checked;
 			_cbDithering.Unchecked += _cbDithering_Unchecked;
 
 			_setScrollViewers();
+
+			WpfUtilities.AddMouseInOutUnderline(_cbDithering);
+			WpfUtilities.AddMouseInOutUnderline(_cbRepeat);
+			WpfUtilities.AddMouseInOutUnderline(_rbBgra32, _rbMatch, _rbOriginalPalette, _rbMerge, _rbMergeOctLab, _rbMergeOctRgb);
+
+			Loaded += delegate {
+				if (RepeatOption <= -1) {
+					this.MinWidth = this.Width;
+					this.MinHeight = this.Height;
+					SizeToContent = SizeToContent.Manual;
+				}
+
+				_load();
+
+				if (RepeatOption <= -1 && Owner != null) {
+					this.Left = Owner.Left + (Owner.Width - this.ActualWidth) / 2;
+					this.Top = Owner.Top + (Owner.Height - this.ActualHeight) / 2;
+				}
+			};
+
+			_sv1.MouseLeftButtonUp += (s, e) => _rb_Checked(_rbOriginalPalette, null);
+			_sv2.MouseLeftButtonUp += (s, e) => _rb_Checked(_rbBgra32, null);
+			_sv3.MouseLeftButtonUp += (s, e) => _rb_Checked(_rbMatch, null);
+			_sv4.MouseLeftButtonUp += (s, e) => _rb_Checked(_rbMerge, null);
+			_sv5.MouseLeftButtonUp += (s, e) => _rb_Checked(_rbMergeOctRgb, null);
+			_sv6.MouseLeftButtonUp += (s, e) => _rb_Checked(_rbMergeOctLab, null);
 		}
 
 		private bool _repeatBehavior { get; set; }
@@ -101,8 +133,56 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_svs.Add(_sv2);
 			_svs.Add(_sv3);
 			_svs.Add(_sv4);
+			_svs.Add(_sv5);
+			_svs.Add(_sv6);
 
 			_svs.ForEach(p => p.ScrollChanged += (e, a) => { if (_svEventsEnabled) _setAllScrollViewers(p); });
+
+			_zoom = new ZoomEngine();
+			_zoom.MaxScale = 10;
+			_zoom.MinScale = 1;
+			Vector topLeft = new Vector(0, 0);
+			Vector bottomRight = new Vector(0, 0);
+
+			foreach (var sv in _svs) {
+				var img = (Image)sv.Content;
+
+				sv.PreviewMouseWheel += (sender, e) => {
+					e.Handled = true;
+
+					var mousePosition = e.GetPosition(sv);
+
+					// Top left position
+					topLeft.X = sv.HorizontalOffset / sv.ExtentWidth;
+					topLeft.Y = sv.VerticalOffset / sv.ExtentHeight;
+
+					// Bottom right position
+					bottomRight.X = (sv.HorizontalOffset + sv.ActualWidth) / sv.ExtentWidth;
+					bottomRight.Y = (sv.VerticalOffset + sv.ActualHeight) / sv.ExtentHeight;
+
+					_zoom.Zoom(e.Delta);
+
+					Vector imagePosition = new Vector(
+						topLeft.X + (mousePosition.X / sv.ActualWidth) * (bottomRight.X - topLeft.X),
+						topLeft.Y + (mousePosition.Y / sv.ActualHeight) * (bottomRight.Y - topLeft.Y));
+
+					Vector diff = imagePosition - topLeft;
+					Vector start = imagePosition - diff / _zoom.Scale * _zoom.OldScale;
+
+					foreach (var sv2 in _svs) {
+						var img2 = (Image)sv2.Content;
+						img2.Width = _image.Width * _zoom.Scale;
+						img2.Height = _image.Height * _zoom.Scale;
+
+						img2.UpdateLayout();
+						sv2.UpdateLayout();
+					}
+
+					sv.ScrollToHorizontalOffset(start.X * sv.ExtentWidth);
+					sv.ScrollToVerticalOffset(start.Y * sv.ExtentHeight);
+				};
+			}
+
 			_svEventsEnabled = true;
 		}
 
@@ -119,17 +199,24 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _load() {
 			try {
+				_isLoading = true;
 				_rbs.Add(_rbOriginalPalette);
 				_rbs.Add(_rbMatch);
 				_rbs.Add(_rbMerge);
 				_rbs.Add(_rbBgra32);
+				_rbs.Add(_rbMergeOctRgb);
+				_rbs.Add(_rbMergeOctLab);
+
+				for (int i = 0; i < _rbs.Count; i++) {
+					var parent = WpfUtilities.FindDirectParentControl<Border>(_rbs[i]);
+					_borders.Add(parent);
+				}
 
 				_imageReal.Source = _image.Cast<BitmapSource>();
 				_setImageDimensions(_imageReal);
 
 				if (_image.GrfImageType == GrfImageType.Indexed8) {
-					_images[0] = _loadFromOriginalPalette();
-					_images[0].MakeFirstPixelTransparent();
+					_images[0] = GrfImage.SprConvert(_spr, _image, false, GrfImage.SprTransparencyMode.Normal, GrfImage.SprConvertMode.Original);
 					_imageOriginal.Source = _images[0].Cast<BitmapSource>();
 				}
 				else {
@@ -140,9 +227,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 				_setImageDimensions(_imageClosestMatch);
 				_setImageDimensions(_imageMergePalette);
 				_setImageDimensions(_imageToBgra32);
-
-				_tbTransparent.Text = "The transparent color is #AARRGGBB - #" + BitConverter.ToString(new byte[] {_originalPalette[3], _originalPalette[2], _originalPalette[1], _originalPalette[0]}).Replace("-", string.Empty) + " ";
-				_imageTransparent.Fill = new SolidColorBrush(Color.FromArgb(_originalPalette[3], _originalPalette[0], _originalPalette[1], _originalPalette[2]));
+				_setImageDimensions(_imageMergePaletteOctRgb);
+				_setImageDimensions(_imageMergePaletteOctLab);
 
 				if (RepeatOption > -1) {
 					_repeatBehavior = true;
@@ -161,11 +247,18 @@ namespace ActEditor.Core.WPF.Dialogs {
 					case 3:
 						_rbBgra32.IsChecked = true;
 						break;
+					case 4:
+						_rbMergeOctRgb.IsChecked = true;
+						break;
+					case 5:
+						_rbMergeOctLab.IsChecked = true;
+						break;
 				}
 
 				_cbTransparency.SelectedIndex = ActEditorConfiguration.TransparencyMode;
 				_cbDithering.IsChecked = ActEditorConfiguration.UseDithering;
 				_imagePalette.Source = ImageProvider.GetImage(_originalPalette, ".pal").Cast<BitmapSource>();
+				_isLoading = false;
 				_update();
 				_updateSelection();
 
@@ -173,6 +266,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
+			}
+			finally {
+				_isLoading = false;
 			}
 		}
 
@@ -186,251 +282,51 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		private GrfImage _loadFromOriginalPalette() {
-			GrfImage image = _image.Copy();
-			image.SetPalette(ref _originalPalette);
-			return image;
-		}
-
-		private GrfImage _loadFromBestMatch(bool usePixelDithering, Color? setToTransparent) {
-			GrfImage newImage = _image.Copy();
-			Indexed8FormatConverter conv = new Indexed8FormatConverter();
-
-			if (setToTransparent.HasValue) {
-				newImage.MakeColorTransparent(new GrfColor(setToTransparent.Value.A, setToTransparent.Value.R, setToTransparent.Value.G, setToTransparent.Value.B));
-			}
-
-			if (usePixelDithering) {
-				conv.Options |= Indexed8FormatConverter.PaletteOptions.UseDithering | Indexed8FormatConverter.PaletteOptions.UseExistingPalette;
-			}
-
-			conv.ExistingPalette = _originalPalette;
-			conv.BackgroundColor = GrfColor.White;
-
-			newImage.Convert(conv);
-			return newImage;
-		}
-
-		private GrfImage _showUsingBgra32Index0() {
-			byte a;
-			byte r;
-			byte g;
-			byte b;
-
-			if (_image.GrfImageType == GrfImageType.Indexed8) {
-				r = _image.Palette[0];
-				g = _image.Palette[1];
-				b = _image.Palette[2];
-				a = _image.Palette[3];
-			}
-			else {
-				r = _originalPalette[0];
-				g = _originalPalette[1];
-				b = _originalPalette[2];
-				a = _originalPalette[3];
-			}
-
-			GrfImage newImage = _image.Copy();
-			newImage.Convert(new Bgra32FormatConverter());
-
-			for (int i = 0, size = newImage.Pixels.Length / 4; i < size; i++) {
-				if (b == newImage.Pixels[4 * i + 0] &&
-				    g == newImage.Pixels[4 * i + 1] &&
-				    r == newImage.Pixels[4 * i + 2] &&
-				    a == newImage.Pixels[4 * i + 3]) {
-					newImage.Pixels[4 * i + 3] = 0;
-				}
-			}
-
-			return newImage;
-		}
-
 		protected override void GRFEditorWindowKeyDown(object sender, KeyEventArgs e) {
-		}
-
-		private GrfImage _getImageUsingPixelZero(GrfImage image) {
-			if (image != null && image.GrfImageType == GrfImageType.Indexed8) {
-				GrfImage im = image.Copy();
-
-				byte[] palette = im.Palette;
-				Buffer.BlockCopy(_originalPalette, 0, palette, 0, 4);
-
-				if (_image.GrfImageType == GrfImageType.Indexed8) {
-					if (_image.Pixels.Any(p => p == 0)) {
-						for (int i = 0; i < im.Pixels.Length; i++) {
-							if (_image.Pixels[i] == 0) {
-								im.Pixels[i] = 0;
-							}
-						}
-					}
-				}
-
-				return im;
-			}
-
-			return null;
-		}
-
-		private GrfImage _getImageUsingPixel(GrfImage image, Color color) {
-			if (image != null && image.GrfImageType == GrfImageType.Indexed8) {
-				GrfImage im = image.Copy();
-
-				List<byte> toChange = new List<byte>();
-
-				for (int i = 0; i < 256; i++) {
-					if (image.Palette[4 * i + 0] == color.R &&
-					    image.Palette[4 * i + 1] == color.G &&
-					    image.Palette[4 * i + 2] == color.B) {
-						toChange.Add((byte) i);
-					}
-				}
-
-				byte[] palette = im.Palette;
-				Buffer.BlockCopy(_originalPalette, 0, palette, 0, 4);
-
-				for (int i = 0; i < im.Pixels.Length; i++) {
-					if (toChange.Contains(im.Pixels[i])) {
-						im.Pixels[i] = 0;
-					}
-				}
-
-				return im;
-			}
-
-			return null;
 		}
 
 		private void _setImageDimensions(FrameworkElement image) {
 			image.Width = _image.Width;
 			image.Height = _image.Height;
-		}
 
-		private GrfImage _loadFromMerge(Color transparentColor, Color? setToTransparent, bool useDithering) {
-			GrfImage im = _image.Copy();
+			Point lastPosition = new Point();
+			ScrollViewer sv = WpfUtilities.FindDirectParentControl<ScrollViewer>(image);
+			sv.PreviewMouseLeftButtonDown += (sender, args) => {
+				lastPosition = args.GetPosition(sv);
+				if (lastPosition.X < sv.ViewportWidth &&
+					lastPosition.Y < sv.ViewportHeight)
+					sv.CaptureMouse();
+			};
 
-			List<byte> unusedIndexes = new List<byte>(_unusedIndexes);
-			byte[] newPalette = new byte[1024];
-			Buffer.BlockCopy(_originalPalette, 0, newPalette, 0, 1024);
+			sv.PreviewMouseRightButtonDown += (sender, args) => {
+				lastPosition = args.GetPosition(sv);
+				if (lastPosition.X < sv.ViewportWidth &&
+					lastPosition.Y < sv.ViewportHeight)
+					sv.CaptureMouse();
+			};
 
-			int numberOfAvailableColors = unusedIndexes.Count;
+			sv.MouseLeftButtonUp += delegate {
+				sv.ReleaseMouseCapture();
+			};
 
-			if (setToTransparent.HasValue) {
-				im.MakeColorTransparent(new GrfColor(setToTransparent.Value.A, setToTransparent.Value.R, setToTransparent.Value.G, setToTransparent.Value.B));
-			}
+			sv.MouseRightButtonUp += delegate {
+				sv.ReleaseMouseCapture();
+			};
 
-			if (_image.GrfImageType == GrfImageType.Indexed8) {
-				List<byte> newImageUsedIndexes = new List<byte>();
-				for (int i = 0; i < 256; i++) {
-					if (Array.IndexOf(im.Pixels, (byte) i) > -1) {
-						newImageUsedIndexes.Add((byte) i);
-					}
+			sv.MouseMove += (sender, args) => {
+				if (!sv.IsMouseCaptured) return;
+				var newPosition = args.GetPosition(sv);
+				var delta = newPosition - lastPosition;
+				lastPosition = newPosition;
+				try {
+					_svEventsEnabled = false;
+					_sv0.ScrollToVerticalOffset(_sv0.VerticalOffset - delta.Y);
+					_sv0.ScrollToHorizontalOffset(_sv0.HorizontalOffset - delta.X);
 				}
-
-				if (newImageUsedIndexes.Count < numberOfAvailableColors) {
-					for (int usedIndex = 0; usedIndex < newImageUsedIndexes.Count; usedIndex++) {
-						byte index = newImageUsedIndexes[usedIndex];
-
-						for (int i = 0; i < 256; i++) {
-							if (
-								im.Palette[4 * index + 0] == _originalPalette[4 * i + 0] &&
-								im.Palette[4 * index + 1] == _originalPalette[4 * i + 1] &&
-								im.Palette[4 * index + 2] == _originalPalette[4 * i + 2]) {
-								newImageUsedIndexes.Remove(index);
-								usedIndex--;
-
-								if (unusedIndexes.Contains(index))
-									unusedIndexes.Remove(index);
-
-								break;
-							}
-						}
-					}
+				finally {
+					_svEventsEnabled = true;
 				}
-				else {
-					List<Utilities.Extension.Tuple<int, byte>> colors = newImageUsedIndexes.Select(t => new Utilities.Extension.Tuple<int, byte>((im.Palette[4 * t + 0]) << 16 | (im.Palette[4 * t + 1]) << 8 | (im.Palette[4 * t + 2]), t)).ToList();
-					colors = colors.OrderBy(p => p.Item1).ToList();
-
-					List<byte> newImageTempUsedIndexes = new List<byte>();
-					newImageTempUsedIndexes.Add(colors[0].Item2);
-					newImageTempUsedIndexes.Add(colors[colors.Count - 1].Item2);
-
-					int numberToAdd = unusedIndexes.Count - 2;
-					int numberOfItems = newImageUsedIndexes.Count - 2;
-
-					for (int i = 0; i < numberToAdd; i++) {
-						newImageTempUsedIndexes.Add(colors[(int) (((float) i / numberToAdd) * numberOfItems)].Item2);
-					}
-
-					newImageUsedIndexes = new List<byte>(newImageTempUsedIndexes);
-				}
-
-				for (int i = 0; i < newImageUsedIndexes.Count; i++) {
-					if (unusedIndexes.Count <= 0) break;
-
-					byte unused = unusedIndexes[0];
-					newPalette[4 * unused + 0] = im.Palette[4 * newImageUsedIndexes[i] + 0];
-					newPalette[4 * unused + 1] = im.Palette[4 * newImageUsedIndexes[i] + 1];
-					newPalette[4 * unused + 2] = im.Palette[4 * newImageUsedIndexes[i] + 2];
-					newPalette[4 * unused + 3] = im.Palette[4 * newImageUsedIndexes[i] + 3];
-					unusedIndexes.RemoveAt(0);
-				}
-			}
-			else {
-				GrfImage imTemp = im.Copy();
-				Bgr32FormatConverter tconv = new Bgr32FormatConverter();
-				tconv.BackgroundColor = GrfColor.White;
-				imTemp.Convert(tconv);
-
-				List<int> colors = new List<int>(imTemp.Pixels.Length / 4);
-				
-				int index;
-				for (int i = 0; i < imTemp.Pixels.Length / 4; i++) {
-					index = 4 * i;
-					if (imTemp.Pixels[index + 3] != 0)
-						colors.Add(imTemp.Pixels[index + 2] << 16 | imTemp.Pixels[index + 1] << 8 | imTemp.Pixels[index + 0]);
-				}
-
-				colors = colors.Distinct().OrderBy(p => p).ToList();
-
-				int color;
-				for (int i = 0; i < 256; i++) {
-					color = _originalPalette[4 * i + 0] << 16 | _originalPalette[4 * i + 1] << 8 | _originalPalette[4 * i + 2];
-					if (!unusedIndexes.Contains((byte)i) && colors.Contains(color))
-						colors.Remove(color);
-				}
-
-				int numberOfColorsToAdd = numberOfAvailableColors - 1;
-				numberOfColorsToAdd = colors.Count < numberOfColorsToAdd ? colors.Count : numberOfColorsToAdd;
-
-				for (int i = 0; i < numberOfColorsToAdd - 1; i++) {
-					byte unused = unusedIndexes[0];
-					newPalette[4 * unused + 0] = (byte) ((colors[(int) (i / (float) numberOfColorsToAdd * colors.Count)] & 0xFF0000) >> 16);
-					newPalette[4 * unused + 1] = (byte) ((colors[(int) (i / (float) numberOfColorsToAdd * colors.Count)] & 0x00FF00) >> 8);
-					newPalette[4 * unused + 2] = (byte) ((colors[(int) (i / (float) numberOfColorsToAdd * colors.Count)] & 0x0000FF));
-					newPalette[4 * unused + 3] = 255;
-					unusedIndexes.RemoveAt(0);
-				}
-
-				if (numberOfColorsToAdd > 0) {
-					byte unused = unusedIndexes[0];
-					newPalette[4 * unused + 0] = (byte) ((colors[colors.Count - 1] & 0xFF0000) >> 16);
-					newPalette[4 * unused + 1] = (byte) ((colors[colors.Count - 1] & 0x00FF00) >> 8);
-					newPalette[4 * unused + 2] = (byte) ((colors[colors.Count - 1] & 0x0000FF));
-					newPalette[4 * unused + 3] = 255;
-					unusedIndexes.RemoveAt(0);
-				}
-			}
-
-			Indexed8FormatConverter conv = new Indexed8FormatConverter();
-			conv.BackgroundColor = new GrfColor(transparentColor.A, transparentColor.R, transparentColor.G, transparentColor.B);
-
-			if (useDithering) {
-				conv.Options |= Indexed8FormatConverter.PaletteOptions.UseDithering | Indexed8FormatConverter.PaletteOptions.AutomaticallyGeneratePalette;
-			}
-
-			conv.ExistingPalette = newPalette;
-			im.Convert(conv);
-			return im;
+			};
 		}
 
 		private void _buttonOk_Click(object sender, RoutedEventArgs e) {
@@ -473,153 +369,49 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _update() {
 			try {
-				GrfImage match = null;
-				GrfImage merge = null;
-				GrfImage bgra32 = null;
-				Func<GrfImage, GrfImage> postProcessing = image => image;
-				Color? color = null;
-
-				if (_cbTransparency.SelectedIndex == 0) {
-					bgra32 = _loadFromBgra32(Bgra32Mode.Normal);
-				}
-				else if (_cbTransparency.SelectedIndex == 1) {
-					bgra32 = _loadFromBgra32(Bgra32Mode.PixelIndexZero);
-					postProcessing = _getImageUsingPixelZero;
-				}
-				else if (_cbTransparency.SelectedIndex == 2) {
-					bgra32 = _loadFromBgra32(Bgra32Mode.PixelIndexPink);
-					color = Color.FromArgb(255, 255, 0, 255);
-					postProcessing = v => _getImageUsingPixel(v, color.Value);
-				}
-				else if (_cbTransparency.SelectedIndex == 3) {
-					bgra32 = _loadFromBgra32(Bgra32Mode.FirstPixel);
-					color = _getColor(0);
-					postProcessing = v => _getImageUsingPixel(v, color.Value);
-				}
-				else if (_cbTransparency.SelectedIndex == 4) {
-					bgra32 = _loadFromBgra32(Bgra32Mode.LastPixel);
-					color = _getColor(-1);
-					postProcessing = v => _getImageUsingPixel(v, color.Value);
-				}
+				if (_isLoading)
+					return;
 
 				bool dithering = _cbDithering.IsChecked == true;
 
-				match = postProcessing(_loadFromBestMatch(dithering, color));
-				merge = postProcessing(_loadFromMerge(Color.FromArgb(255, _originalPalette[0], _originalPalette[1], _originalPalette[2]), color, dithering));
+				_images[1] = GrfImage.SprConvert(_spr, _image, dithering, (GrfImage.SprTransparencyMode)_cbTransparency.SelectedIndex, GrfImage.SprConvertMode.BestMatch);
+				_images[2] = GrfImage.SprConvert(_spr, _image, dithering, (GrfImage.SprTransparencyMode)_cbTransparency.SelectedIndex, GrfImage.SprConvertMode.MergeOld);
+				_images[3] = GrfImage.SprConvert(_spr, _image, dithering, (GrfImage.SprTransparencyMode)_cbTransparency.SelectedIndex, GrfImage.SprConvertMode.Bgra32);
+				_images[4] = GrfImage.SprConvert(_spr, _image, dithering, (GrfImage.SprTransparencyMode)_cbTransparency.SelectedIndex, GrfImage.SprConvertMode.MergeRgb);
+				_images[5] = GrfImage.SprConvert(_spr, _image, dithering, (GrfImage.SprTransparencyMode)_cbTransparency.SelectedIndex, GrfImage.SprConvertMode.MergeLab);
 
-				match.MakeFirstPixelTransparent();
-				merge.MakeFirstPixelTransparent();
-				_imageClosestMatch.Source = match.Cast<BitmapSource>();
-				_imageMergePalette.Source = merge.Cast<BitmapSource>();
-				_imageToBgra32.Source = bgra32.Cast<BitmapSource>();
-				_images[1] = match;
-				_images[2] = merge;
-				_images[3] = bgra32;
+				_imageClosestMatch.Source = _images[1].Cast<BitmapSource>();
+				_imageMergePalette.Source = _images[2].Cast<BitmapSource>();
+				_imageToBgra32.Source = _images[3].Cast<BitmapSource>();
+				_imageMergePaletteOctRgb.Source = _images[4].Cast<BitmapSource>();
+				_imageMergePaletteOctLab.Source = _images[5].Cast<BitmapSource>();
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
 			}
 		}
 
-		private Color _getColor(int pixel) {
-			byte a;
-			byte r;
-			byte g;
-			byte b;
-
-			if (_image.GrfImageType == GrfImageType.Indexed8) {
-				pixel = pixel < 0 ? _image.Pixels.Length - 1 : pixel;
-
-				int index = _image.Pixels[pixel];
-				r = _image.Palette[4 * index + 0];
-				g = _image.Palette[4 * index + 1];
-				b = _image.Palette[4 * index + 2];
-				a = _image.Palette[4 * index + 3];
-			}
-			else {
-				pixel = pixel < 0 ? (_image.Pixels.Length / 4) - 1 : pixel;
-
-				r = _image.Pixels[4 * pixel + 2];
-				g = _image.Pixels[4 * pixel + 1];
-				b = _image.Pixels[4 * pixel + 0];
-				a = _image.Pixels[4 * pixel + 3];
-			}
-
-			return Color.FromArgb(a, r, g, b);
-		}
-
-		private GrfImage _loadFromBgra32(Bgra32Mode mode) {
-			switch (mode) {
-				case Bgra32Mode.Normal:
-					GrfImage im = _image.Copy();
-					im.Convert(new Bgra32FormatConverter());
-					return im;
-				case Bgra32Mode.PixelIndexZero:
-					return _showUsingBgra32Index0();
-				case Bgra32Mode.PixelIndexPink:
-					return _showUsingBgra32TransparentColor(255, 255, 0, 255);
-				case Bgra32Mode.FirstPixel:
-					return _showUsingBgra32Pixel(0);
-				case Bgra32Mode.LastPixel:
-					return _showUsingBgra32Pixel(-1);
-			}
-			return null;
-		}
-
-		private GrfImage _showUsingBgra32Pixel(int pixel) {
-			byte a;
-			byte r;
-			byte g;
-			byte b;
-
-			if (_image.GrfImageType == GrfImageType.Indexed8) {
-				pixel = pixel < 0 ? _image.Pixels.Length - 1 : pixel;
-
-				int index = _image.Pixels[pixel];
-				r = _image.Palette[4 * index + 0];
-				g = _image.Palette[4 * index + 1];
-				b = _image.Palette[4 * index + 2];
-				a = _image.Palette[4 * index + 3];
-			}
-			else {
-				pixel = pixel < 0 ? (_image.Pixels.Length / 4) - 1 : pixel;
-
-				r = _image.Pixels[4 * pixel + 2];
-				g = _image.Pixels[4 * pixel + 1];
-				b = _image.Pixels[4 * pixel + 0];
-				a = _image.Pixels[4 * pixel + 3];
-			}
-
-			return _showUsingBgra32TransparentColor(a, r, g, b);
-		}
-
-		private GrfImage _showUsingBgra32TransparentColor(byte a, byte r, byte g, byte b) {
-			GrfImage newImage = _image.Copy();
-			newImage.Convert(new Bgra32FormatConverter());
-
-			for (int i = 0, size = newImage.Pixels.Length / 4; i < size; i++) {
-				if (b == newImage.Pixels[4 * i + 0] &&
-				    g == newImage.Pixels[4 * i + 1] &&
-				    r == newImage.Pixels[4 * i + 2] &&
-				    a == newImage.Pixels[4 * i + 3]) {
-					newImage.Pixels[4 * i + 3] = 0;
-				}
-			}
-
-			return newImage;
-		}
-
 		#region Checkboxes
 
 		private void _uncheckAll(object sender = null) {
+			_rbs.ForEach(p => p.Unchecked -= _rb_Unchecked);
 			_rbs.ForEach(p => p.IsChecked = false);
+			_borders.ForEach(p => p.BorderBrush = Brushes.Transparent);
 
 			if (sender != null) {
-				_rbs.ForEach(p => p.Checked -= _rb_Checked);
-				((RadioButton) sender).IsChecked = true;
-				_updateSelection();
-				_rbs.ForEach(p => p.Checked += _rb_Checked);
+				var cb = (CheckBox)sender;
+
+				if (cb.IsEnabled) {
+					_rbs.ForEach(p => p.Checked -= _rb_Checked);
+					cb.IsChecked = true;
+					var border = WpfUtilities.FindDirectParentControl<Border>((CheckBox)sender);
+					border.BorderBrush = (SolidColorBrush)Application.Current.Resources["SpriteConverterSelectionBorderBrush"];
+					_updateSelection();
+					_rbs.ForEach(p => p.Checked += _rb_Checked);
+				}
 			}
+
+			_rbs.ForEach(p => p.Unchecked += _rb_Unchecked);
 		}
 
 		private void _updateSelection() {
@@ -637,6 +429,12 @@ namespace ActEditor.Core.WPF.Dialogs {
 			else if (_rbBgra32.IsChecked == true) {
 				ActEditorConfiguration.FormatConflictOption = 3;
 			}
+			else if (_rbMergeOctRgb.IsChecked == true) {
+				ActEditorConfiguration.FormatConflictOption = 4;
+			}
+			else if (_rbMergeOctLab.IsChecked == true) {
+				ActEditorConfiguration.FormatConflictOption = 5;
+			}
 			else {
 				ActEditorConfiguration.FormatConflictOption = -1;
 				somethingIsChecked = false;
@@ -651,6 +449,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _rb_Checked(object sender, RoutedEventArgs e) {
 			_uncheckAll(sender);
+		}
+
+		private void _rb_Unchecked(object sender, RoutedEventArgs e) {
+			((CheckBox)sender).IsChecked = true;
 		}
 
 		private void _cbRepeat_Checked(object sender, RoutedEventArgs e) {

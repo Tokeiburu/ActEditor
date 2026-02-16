@@ -60,8 +60,8 @@
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <ComboBox Grid.Row="0" FontSize="12" VerticalAlignment="Center" Name="_comboBoxAnimationIndex" Width="75" HorizontalAlignment="Left" Margin="1" SelectionChanged="_comboBoxAnimationIndex_SelectionChanged" />
-            <ComboBox Grid.Row="1" FontSize="12" VerticalAlignment="Center" Name="_comboBoxActionIndex" Width="75" HorizontalAlignment="Left" Margin="1" SelectionChanged="_comboBoxActionIndex_SelectionChanged" />
+            <ComboBox Grid.Row="0" FontSize="12" VerticalAlignment="Center" Name="_comboBoxAnimationIndex" Width="80" HorizontalAlignment="Left" Margin="1" SelectionChanged="_comboBoxAnimationIndex_SelectionChanged" />
+            <ComboBox Grid.Row="1" FontSize="12" VerticalAlignment="Center" Name="_comboBoxActionIndex" Width="80" HorizontalAlignment="Left" Margin="1" SelectionChanged="_comboBoxActionIndex_SelectionChanged" />
         </Grid>
 
         <ScrollBar Grid.ColumnSpan="2" Maximum="0" Grid.Row="1" Name="_sbFrameIndex" Orientation="Horizontal" Margin="0 1 0 1" />

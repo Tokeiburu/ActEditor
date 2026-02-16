@@ -23,21 +23,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null && act[selectedActionIndex, selectedFrameIndex].NumberOfLayers > 0;
 		}
 
-		public object DisplayName {
-			get { return "Edit frame anchor position"; }
-		}
-
-		public string Group {
-			get { return "Anchors"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.EditAnchorPosition|Ctrl-K}"; }
-		}
-
-		public string Image {
-			get { return "anchor.png"; }
-		}
+		public object DisplayName => "Edit frame anchor position";
+		public string Group => "Anchors";
+		public string InputGesture => "{FrameEditor.EditAnchorPosition|Ctrl-K}";
+		public string Image => "anchor.png";
 
 		#endregion
 	}
@@ -99,7 +88,7 @@ namespace ActEditor.Core.Scripts {
 							}
 						}
 					}
-				}, "Import anchors", true);
+				}, "Import anchors");
 			}
 			catch (Exception err) {
 				act.Commands.CancelEdit();
@@ -116,21 +105,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Set from file..."; }
-		}
-
-		public string Group {
-			get { return "Anchors/Set anchors"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.ImportAnchor|Ctrl-Alt-K}"; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Set from file...";
+		public string Group => "Anchors/Set anchors";
+		public string InputGesture => "{Dialog.ImportAnchor|Ctrl-Alt-K}";
+		public string Image => null;
 
 		#endregion
 	}
@@ -185,7 +163,7 @@ namespace ActEditor.Core.Scripts {
 							}
 						}
 					}
-				}, "Import default anchors (male)", true);
+				}, "Import default anchors (male)");
 			}
 			catch (Exception err) {
 				act.Commands.CancelEdit();
@@ -202,21 +180,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Set default (male)"; }
-		}
-
-		public string Group {
-			get { return "Anchors/Set anchors"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Set default (male)";
+		public string Group => "Anchors/Set anchors";
+		public string InputGesture => null;
+		public string Image => null;
 
 		#endregion
 	}
@@ -271,7 +238,7 @@ namespace ActEditor.Core.Scripts {
 							}
 						}
 					}
-				}, "Import default anchors (female)", true);
+				}, "Import default anchors (female)");
 			}
 			catch (Exception err) {
 				act.Commands.CancelEdit();
@@ -288,21 +255,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Set default (female)"; }
-		}
-
-		public string Group {
-			get { return "Anchors/Set anchors"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Set default (female)";
+		public string Group => "Anchors/Set anchors";
+		public string InputGesture => null;
+		public string Image => null;
 
 		#endregion
 	}
@@ -340,21 +296,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Adjust from file..."; }
-		}
-
-		public string Group {
-			get { return "Anchors/Adjust anchors"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.AdjustAnchor}"; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Adjust from file...";
+		public string Group => "Anchors/Adjust anchors";
+		public string InputGesture => "{Dialog.AdjustAnchor}";
+		public string Image => null;
 
 		#endregion
 
@@ -400,7 +345,7 @@ namespace ActEditor.Core.Scripts {
 						}
 					}
 				}
-			}, "Adjust anchors", true);
+			}, "Adjust anchors");
 		}
 
 		private static void _adjust(IEnumerable<Layer> frame, List<Anchor> anchors, List<Anchor> refAnchors) {
@@ -410,26 +355,17 @@ namespace ActEditor.Core.Scripts {
 			if (refAnchors.Count > 0 && anchors.Count == 0) {
 				anchors.Clear();
 				return;
-				//anchors.Add(new Anchor(refAnchors[0]));
-				//anchors[0].OffsetX = 0;
-				//anchors[0].OffsetY = 0;
 			}
 
 			if (refAnchors.Count == 0 && anchors.Count > 0) {
 				anchors.Clear();
 				return;
-				//refAnchors.Add(new Anchor(anchors[0]));
-				//refAnchors[0].OffsetX = 0;
-				//refAnchors[0].OffsetY = 0;
 			}
 
 
 			if (anchors.Count > 0 && refAnchors.Count > 0) {
-				int diffX = 0;
-				int diffY = 0;
-
-				diffX = refAnchors[0].OffsetX - anchors[0].OffsetX;
-				diffY = refAnchors[0].OffsetY - anchors[0].OffsetY;
+				int diffX = refAnchors[0].OffsetX - anchors[0].OffsetX;
+				int diffY = refAnchors[0].OffsetY - anchors[0].OffsetY;
 
 				anchors[0] = refAnchors[0];
 
@@ -467,21 +403,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Adjust anchors (male)"; }
-		}
-
-		public string Group {
-			get { return "Anchors/Adjust anchors"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Adjust anchors (male)";
+		public string Group => "Anchors/Adjust anchors";
+		public string InputGesture => null;
+		public string Image => null;
 
 		#endregion
 	}
@@ -512,21 +437,10 @@ namespace ActEditor.Core.Scripts {
 			return act != null;
 		}
 
-		public object DisplayName {
-			get { return "Adjust anchors (female)"; }
-		}
-
-		public string Group {
-			get { return "Anchors/Adjust anchors"; }
-		}
-
-		public string InputGesture {
-			get { return null; }
-		}
-
-		public string Image {
-			get { return null; }
-		}
+		public object DisplayName => "Adjust anchors (female)";
+		public string Group => "Anchors/Adjust anchors";
+		public string InputGesture => null;
+		public string Image => null;
 
 		#endregion
 	}

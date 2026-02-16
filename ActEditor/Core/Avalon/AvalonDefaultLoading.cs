@@ -36,25 +36,28 @@ namespace ActEditor.Core.Avalon {
 		}
 
 		private void _loadAvalon() {
+			ApplicationManager.ThemeChanged += delegate {
+				_setTheme();
+				_renderer.MarkerBrush = Application.Current.Resources["AvalonEditorMarkerBrush"] as Brush;
+
+				//try {
+				//	AvalonHelper.DirtySyntaxes[_textEditor.SyntaxHighlighting.Name] = true;
+				//	AvalonHelper.SetSyntax(_textEditor, _textEditor.SyntaxHighlighting.Name);
+				//}
+				//catch {
+				//}
+			};
+
 			DispatcherTimer foldingUpdateTimer = new DispatcherTimer();
 			foldingUpdateTimer.Interval = TimeSpan.FromSeconds(2);
 			foldingUpdateTimer.Start();
-
-			_textEditor.Foreground = Application.Current.Resources["TextForeground"] as Brush;
-			_textEditor.Background = Application.Current.Resources["AvalonEditorBackground"] as Brush;
-			_textEditor.Dispatch(p => p.TextArea.SelectionCornerRadius = 0);
-			_textEditor.Dispatch(p => p.TextArea.SelectionBorder = new Pen(_textEditor.TextArea.SelectionBrush, 0));
-			_textEditor.TextArea.SelectionBrush = Application.Current.Resources["AvalonEditorSelectionBrush"] as Brush;
-			_textEditor.TextArea.SelectionBorder = new Pen(_textEditor.TextArea.SelectionBrush, 1);
-			_textEditor.TextArea.SelectionForeground = new SolidColorBrush(Colors.Black);
-			_textEditor.KeyDown += new KeyEventHandler(_textEditor_KeyDown);
+			_setTheme();
+			_textEditor.Options.EnableEmailHyperlinks = false;
 			SearchPanel panel = new SearchPanel();
 			panel.Attach(_textEditor.TextArea, _textEditor);
-
 			FontFamily oldFamily = _textEditor.FontFamily;
 			double oldSize = _textEditor.FontSize;
 
-			_renderer = new SearchPanel.SearchResultBackgroundRenderer { MarkerBrush = Application.Current.Resources["AvalonScriptRenderer"] as Brush };
 			_textEditor.TextArea.Caret.PositionChanged += _caret_PositionChanged;
 
 			try {
@@ -71,18 +74,81 @@ namespace ActEditor.Core.Avalon {
 				_textEditor.FontSize = oldSize;
 			}
 
+			_renderer = new SearchPanel.SearchResultBackgroundRenderer {
+				MarkerBrush = Application.Current.Resources["AvalonEditorMarkerBrush"] as Brush
+			};
 			_textEditor.TextArea.TextView.BackgroundRenderers.Add(_renderer);
+			//_textEditor.PreviewKeyDown += new KeyEventHandler(_textEditor_KeyDown);
 			_textEditor.TextArea.KeyDown += new KeyEventHandler(_textArea_KeyDown);
+			_textEditor.TextArea.CommandBindings.Add(new CommandBinding(MoveLineUp, OnMoveLineUp));
+			_textEditor.TextArea.CommandBindings.Add(new CommandBinding(MoveLineDown, OnMoveLineDown));
 			_textArea = _textEditor.TextArea;
 		}
 
-		private void _move(bool up) {
-			int lineStart = _textArea.Selection.StartPosition.Line;
-			int lineEnd = _textArea.Selection.EndPosition.Line;
+		private void _setTheme() {
+			_textEditor.Foreground = Application.Current.Resources["TextForeground"] as Brush;
+			_textEditor.Background = Application.Current.Resources["AvalonEditorBackground"] as Brush;
+			_textEditor.TextArea.SelectionBrush = Application.Current.Resources["AvalonEditorSelectionBackgroundBrush"] as Brush;
+			_textEditor.TextArea.SelectionForeground = Application.Current.Resources["AvalonEditorSelectionForegroundBrush"] as Brush;
+			_textEditor.TextArea.TextView.LinkTextForegroundBrush = Application.Current.Resources["HyperlinkForegroundBrush"] as Brush;
+			_textEditor.Dispatch(p => p.TextArea.SelectionCornerRadius = 0);
+			_textEditor.Dispatch(p => p.TextArea.SelectionBorder = new Pen(_textEditor.TextArea.SelectionBrush, 0));
+			_textEditor.TextArea.SelectionBorder = new Pen(_textEditor.TextArea.SelectionBrush, 1);
+		}
+
+		public static readonly RoutedCommand MoveLineUp = new RoutedCommand(
+			"MoveLineUp", typeof(TextEditor),
+			new InputGestureCollection {
+				new KeyGesture(Key.Up, ModifierKeys.Alt)
+			});
+
+		public static readonly RoutedCommand MoveLineDown = new RoutedCommand(
+			"MoveLineDown", typeof(TextEditor),
+			new InputGestureCollection {
+				new KeyGesture(Key.Down, ModifierKeys.Alt)
+			});
+
+		static void OnMoveLineUp(object target, ExecutedRoutedEventArgs args) {
+			TextArea textArea = target as TextArea;
+			if (textArea != null && textArea.Document != null) {
+				_move(textArea, true);
+				args.Handled = true;
+			}
+		}
+
+		static void OnMoveLineDown(object target, ExecutedRoutedEventArgs args) {
+			TextArea textArea = target as TextArea;
+			if (textArea != null && textArea.Document != null) {
+				_move(textArea, false);
+				args.Handled = true;
+			}
+		}
+
+		private static void _move(TextArea _textArea, bool up) {
+			int lineStart;
+			int lineEnd;
+			TextLocation startL;
+			TextLocation endL;
+
 			bool reselect = true;
 
-			TextViewPosition posStart = new TextViewPosition(_textArea.Selection.StartPosition.Location);
-			TextViewPosition posEnd = new TextViewPosition(_textArea.Selection.EndPosition.Location);
+			if (_textArea.Selection.IsEmpty) {
+				lineEnd = lineStart = _textArea.Caret.Line;
+
+				startL = new TextLocation(lineStart, lineEnd);
+				endL = new TextLocation(lineStart, lineEnd);
+				reselect = false;
+			}
+			else {
+				lineStart = _textArea.Selection.StartPosition.Line;
+				lineEnd = _textArea.Selection.EndPosition.Line;
+
+				startL = _textArea.Selection.StartPosition.Location;
+				endL = _textArea.Selection.EndPosition.Location;
+			}
+
+			TextViewPosition posStart = new TextViewPosition(startL);
+			TextViewPosition posEnd = new TextViewPosition(endL);
 
 			if (_textArea.Document.GetOffset(posStart.Location) > _textArea.Document.GetOffset(posEnd.Location)) {
 				TextViewPosition t = posEnd;
@@ -100,12 +166,6 @@ namespace ActEditor.Core.Avalon {
 			else {
 				posStart.Line++;
 				posEnd.Line++;
-			}
-
-			if (_textArea.Selection.GetText() == "") {
-				lineStart = _textArea.Caret.Line;
-				lineEnd = _textArea.Caret.Line;
-				reselect = false;
 			}
 
 			List<DocumentLine> lines = new List<DocumentLine>();
@@ -167,17 +227,6 @@ namespace ActEditor.Core.Avalon {
 
 				_textArea.Caret.BringCaretToView();
 				//_textEditor.ScrollToLine(caretLine);
-			}
-		}
-
-		private void _textEditor_KeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Is(ApplicationShortcut.MoveLineUp)) {
-				_move(true);
-				e.Handled = true;
-			}
-			else if (ApplicationShortcut.Is(ApplicationShortcut.MoveLineDown)) {
-				_move(false);
-				e.Handled = true;
 			}
 		}
 

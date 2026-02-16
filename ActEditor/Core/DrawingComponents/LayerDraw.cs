@@ -4,11 +4,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using ActEditor.ApplicationConfiguration;
+using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
 using GRF.Graphics;
 using GRF.Image;
+using Utilities;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 using Point = System.Windows.Point;
 
@@ -20,28 +22,26 @@ namespace ActEditor.Core.DrawingComponents {
 		public const string SelectionBorderBrush = "SelectionBorderBrush";
 		public const string SelectionOverlayBrush = "SelectionOverlayBrush";
 
-		private static readonly Thickness _bufferedThickness = new Thickness(1);
 		private readonly IFrameRendererEditor _editor;
 
-		private readonly TransformGroup _borderTransformGroup = new TransformGroup();
 		private readonly RotateTransform _rotate = new RotateTransform();
 		private readonly ScaleTransform _scale = new ScaleTransform();
 		private readonly TransformGroup _transformGroup = new TransformGroup();
 		private readonly TranslateTransform _translateFrame = new TranslateTransform();
 		private readonly TranslateTransform _translateToCenter = new TranslateTransform();
 
-		private readonly IFrameRenderer _renderer;
+		private readonly FrameRenderer _renderer;
 		private Act _act;
+		private DrawSlot _drawSlot;
 		private Border _border;
 		private Image _image;
 		private Layer _layer;
 		private Layer _layerCopy;
-		private ScaleTransform _scalePreview = new ScaleTransform();
-		private TranslateTransform _translatePreview = new TranslateTransform();
+		public int LastDrawIndex => _lastDrawIndex;
 
 		static LayerDraw() {
-			BufferedBrushes.Register(SelectionBorderBrush, () => ActEditorConfiguration.ActEditorSpriteSelectionBorder);
-			BufferedBrushes.Register(SelectionOverlayBrush, () => ActEditorConfiguration.ActEditorSpriteSelectionBorderOverlay);
+			BufferedBrushes.Register(SelectionBorderBrush, ActEditorConfiguration.ActEditorSpriteSelectionBorder);
+			BufferedBrushes.Register(SelectionOverlayBrush, ActEditorConfiguration.ActEditorSpriteSelectionBorderOverlay);
 		}
 
 		public LayerDraw() {
@@ -49,26 +49,11 @@ namespace ActEditor.Core.DrawingComponents {
 			_transformGroup.Children.Add(_scale);
 			_transformGroup.Children.Add(_rotate);
 			_transformGroup.Children.Add(_translateFrame);
-			_transformGroup.Children.Add(_scalePreview);
-			_transformGroup.Children.Add(_translatePreview);
-
-			_borderTransformGroup.Children.Add(_translateToCenter);
-			_borderTransformGroup.Children.Add(_scale);
-			_borderTransformGroup.Children.Add(_rotate);
-			_borderTransformGroup.Children.Add(_translateFrame);
-			_borderTransformGroup.Children.Add(_scalePreview);
-			_borderTransformGroup.Children.Add(_translatePreview);
 		}
 
 		public LayerDraw(IFrameRendererEditor editor, Act act, int layerIndex) : this() {
 			_editor = editor;
 			_renderer = editor.FrameRenderer;
-			_act = act;
-			LayerIndex = layerIndex;
-		}
-
-		public LayerDraw(IFrameRenderer renderer, Act act, int layerIndex) : this() {
-			_renderer = renderer;
 			_act = act;
 			LayerIndex = layerIndex;
 		}
@@ -79,130 +64,62 @@ namespace ActEditor.Core.DrawingComponents {
 			get { return _act.TryGetLayer(_editor.SelectedAction, _editor.SelectedFrame, LayerIndex); }
 		}
 
-		public override bool IsSelected {
-			get { return base.IsSelected; }
-			set {
-				base.IsSelected = value;
-				_border.Visibility = IsSelected ? Visibility.Visible : Visibility.Hidden;
-			}
-		}
-
-		public override bool IsSelectable {
-			get { return base.IsSelectable; }
-			set {
-				if (base.IsSelectable && base.IsSelectable == value ||
-				    !base.IsSelectable && base.IsSelectable == value)
-					return;
-
-				base.IsSelectable = value;
-
-				_initBorder();
-			}
-		}
-
 		private bool _canInternalUpdate {
 			get { return _editor != null && _editor.LayerEditor != null; }
-		}
-
-		private Brush _getBorderBrush() {
-			return BufferedBrushes.GetBrush(SelectionBorderBrush);
-		}
-
-		private Brush _getBorderBackgroundBrush() {
-			return BufferedBrushes.GetBrush(SelectionOverlayBrush);
-		}
-
-		public void Init(Act act, int layerIndex) {
-			_act = act;
-			LayerIndex = layerIndex;
-		}
-
-		public override void OnSelected(int index, bool isSelected) {
-			base.OnSelected(LayerIndex, isSelected);
 		}
 
 		public void AsyncLayerControlUpdate() {
 			_editor.LayerEditor.AsyncUpdateLayerControl(LayerIndex);
 		}
 
-		public override void Select() {
-			_initBorder();
-
-			if (!IsSelectable) {
-				IsSelected = false;
+		private void _initDraw(FrameRenderer renderer) {
+			if (renderer == null)
 				return;
+
+			if (renderer.DrawIndex > -1) {
+				_lastDrawIndex = renderer.DrawIndex++;
+			}
+			
+			_drawSlot = renderer.DrawSlotManager.GetDrawSlot(_lastDrawIndex);
+
+			_border = _drawSlot.Border;
+			_image = _drawSlot.Image;
+
+			// Border
+			if (_act.IsSelectable && _editor.SelectionEngine != null) {
+			}
+			else {
+				if (_border.Visibility != Visibility.Hidden)
+					_border.Visibility = Visibility.Hidden;
 			}
 
-			IsSelected = true;
-		}
+			// Image
+			{
+				var isHitTestVisible = _act.IsSelectable && _editor.SelectionEngine != null;
 
-		private void _initBorder() {
-			if (_border == null) {
-				_border = new Border();
-				_border.BorderThickness = _bufferedThickness;
-				_border.BorderBrush = _getBorderBrush();
-				_border.Background = _getBorderBackgroundBrush();
-				_border.SnapsToDevicePixels = true;
-				_border.IsHitTestVisible = false;
-				_border.Visibility = Visibility.Hidden;
-			}
+				if (_image.IsHitTestVisible != isHitTestVisible)
+					_image.IsHitTestVisible = isHitTestVisible;
 
-			if (!IsSelectable) {
-				IsSelected = false;
-				IsHitTestVisible = false;
-				_border.IsHitTestVisible = false;
-
-				if (_image != null) {
-					_image.IsHitTestVisible = false;
-				}
-			}
-		}
-
-		private void _initImage() {
-			if (_image == null) {
-				_image = new Image();
-				_image.SnapsToDevicePixels = true;
-
-				if (!IsSelectable) {
-					_image.IsHitTestVisible = false;
-				}
-				else {
+				if (_act.IsSelectable && _editor.SelectionEngine != null) {
 					_image.PreviewMouseLeftButtonUp += _image_MouseLeftButtonUp;
 				}
 			}
-		}
 
-		private void _initDc(IFrameRenderer renderer) {
-			if (!renderer.Canva.Children.Contains(_image))
-				renderer.Canva.Children.Add(_image);
-
-			if (!renderer.Canva.Children.Contains(_border))
-				renderer.Canva.Children.Add(_border);
-		}
-
-		private bool _valideMouseOperation() {
-			if (!IsSelectable) {
-				IsSelected = false;
-				return false;
-			}
-
-			return true;
+			_drawSlot.IsConfigured = true;
 		}
 
 		private void _image_MouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
-			if (!_valideMouseOperation()) return;
-
-			IsSelected = !IsSelected;
+			_editor.SelectionEngine.InvertSelection(LayerIndex);
 
 			ReleaseMouseCapture();
 			e.Handled = true;
 		}
 
-		public override void Render(IFrameRenderer renderer) {
-			_initBorder();
-			_initImage();
-			_initDc(renderer);
-			bool isCopied = false;
+		private BitmapResourceManager.BitmapHandle _handle;
+		private int _lastDrawIndex;
+
+		public override void Render(FrameRenderer renderer) {
+			_initDraw(renderer);
 
 			Act act = _act ?? renderer.Act;
 
@@ -270,9 +187,13 @@ namespace ActEditor.Core.DrawingComponents {
 
 			if (_layer.SpriteIndex < 0) {
 				_image.Source = null;
+
+				// Fix: 2026-01-17
+				// Required for border rendering
+				QuickRender(renderer);
 				return;
 			}
-
+			
 			int index = _layer.IsBgra32() ? _layer.SpriteIndex + act.Sprite.NumberOfIndexed8Images : _layer.SpriteIndex;
 
 			if (index < 0 || index >= act.Sprite.Images.Count) {
@@ -281,12 +202,6 @@ namespace ActEditor.Core.DrawingComponents {
 			}
 
 			GrfImage img = act.Sprite.Images[index];
-
-			if (img.GrfImageType == GrfImageType.Indexed8) {
-				img = img.Copy();
-				img.Palette[3] = 0;
-				isCopied = true;
-			}
 
 			int diffX = 0;
 			int diffY = 0;
@@ -319,7 +234,7 @@ namespace ActEditor.Core.DrawingComponents {
 					}
 				}
 			}
-			
+
 			int extraX = _layer.Mirror ? -(img.Width + 1) % 2 : 0;
 
 			_translateToCenter.X = -((img.Width + 1) / 2) + extraX;
@@ -332,46 +247,24 @@ namespace ActEditor.Core.DrawingComponents {
 
 			_rotate.Angle = _layer.Rotation;
 
-			_image.RenderTransform = _transformGroup;
-			_image.SetValue(RenderOptions.BitmapScalingModeProperty, ActEditorConfiguration.ActEditorScalingMode);
+			_handle = renderer.BitmapResourceManager.GetBitmapHandle(_layer.SprSpriteIndex, act, img, _layer.Color);
+			_image.Source = _handle.Bitmap;
 
-			if (!isCopied) {
-				img = img.Copy();
+			if (_border != null) {
+				if (_border.Width != img.Width)
+					_border.Width = img.Width;
+				if (_border.Height != img.Height)
+					_border.Height = img.Height;
 			}
-
-			img.ApplyChannelColor(_layer.Color);
-			_image.Source = img.Cast<BitmapSource>();
-			_image.VerticalAlignment = VerticalAlignment.Top;
-			_image.HorizontalAlignment = HorizontalAlignment.Left;
-
-			_border.Width = img.Width;
-			_border.Height = img.Height;
-			_border.RenderTransform = _borderTransformGroup;
 
 			QuickRender(renderer);
 		}
 
-		public override void QuickRender(IFrameRenderer renderer) {
-			if (_scalePreview == null)
-				_scalePreview = new ScaleTransform();
-			
-			_scalePreview.CenterX = renderer.CenterX;
-			_scalePreview.CenterY = renderer.CenterY;
-
-			_scalePreview.ScaleX = renderer.ZoomEngine.Scale;
-			_scalePreview.ScaleY = renderer.ZoomEngine.Scale;
-
-			if (_translatePreview == null)
-				_translatePreview = new TranslateTransform();
-
-			_translatePreview.X = renderer.CenterX * renderer.ZoomEngine.Scale;
-			_translatePreview.Y = renderer.CenterY * renderer.ZoomEngine.Scale;
+		public override void QuickRender(FrameRenderer renderer) {
+			var m = _transformGroup.Value * renderer.View;
+			var transform = new MatrixTransform(m);
 
 			if (_border != null) {
-				_border.SetValue(RenderOptions.EdgeModeProperty, ActEditorConfiguration.UseAliasing ? EdgeMode.Aliased : EdgeMode.Unspecified);
-				_border.BorderBrush = _getBorderBrush();
-				_border.Background = _getBorderBackgroundBrush();
-
 				if (_image.Source == null) {
 					_border.BorderThickness = new Thickness(0);
 					_border.Width = 0;
@@ -380,36 +273,45 @@ namespace ActEditor.Core.DrawingComponents {
 				else {
 					double scaleX = Math.Abs(1d / (renderer.ZoomEngine.Scale * _scale.ScaleX));
 					double scaleY = Math.Abs(1d / (renderer.ZoomEngine.Scale * _scale.ScaleY));
-
-					if (double.IsInfinity(scaleX) || double.IsNaN(scaleX) ||
-					    double.IsInfinity(scaleY) || double.IsNaN(scaleY)) {
-						_border.Width = 0;
-						_border.Height = 0;
-					}
-					else {
+					
+					if (_border.BorderThickness.Left != scaleX ||
+						_border.BorderThickness.Top != scaleY)
 						_border.BorderThickness = new Thickness(scaleX, scaleY, scaleX, scaleY);
-					}
 				}
+
+				_border.RenderTransform = transform;
 			}
+
+			_image.RenderTransform = transform;
+			DrawSelection();
 		}
 
-		public override void Remove(IFrameRenderer renderer) {
-			if (_image != null)
-				renderer.Canva.Children.Remove(_image);
+		public void DrawSelection() {
+			if (_border == null || !_act.IsSelectable || _editor.SelectionEngine == null)
+				return;
 
-			if (_border != null)
-				renderer.Canva.Children.Remove(_border);
+			bool isSelected = _editor.SelectionEngine.IsSelected(LayerIndex);
+
+			if (isSelected && _border.Visibility != Visibility.Visible)
+				_border.Visibility = Visibility.Visible;
+			else if (!isSelected && _border.Visibility != Visibility.Hidden)
+				_border.Visibility = Visibility.Hidden;
+		}
+
+		public override void Remove(FrameRenderer renderer) {
+			_image.PreviewMouseLeftButtonUp -= _image_MouseLeftButtonUp;
 		}
 
 		public void SaveInitialData() {
 			_layerCopy = new Layer(_layer);
+			_oldTranslateTransformX = _translateFrame.X;
+			_oldTranslateTransformY = _translateFrame.Y;
 		}
 
 		public bool IsMouseUnder(MouseEventArgs e) {
-			_initImage();
-
 			try {
 				if (_scale.ScaleX == 0 || _scale.ScaleY == 0) return false;
+				if (_image == null || _image.Parent == null) return false;
 
 				return ReferenceEquals(_image.InputHitTest(e.GetPosition(_image)), _image);
 			}
@@ -419,10 +321,9 @@ namespace ActEditor.Core.DrawingComponents {
 		}
 
 		public bool IsMouseUnder(Point point) {
-			_initImage();
-
 			try {
 				if (_scale.ScaleX == 0 || _scale.ScaleY == 0) return false;
+				if (_image == null || _image.Parent == null) return false;
 
 				return ReferenceEquals(_image.InputHitTest(_image.PointFromScreen(point)), _image);
 			}
@@ -451,10 +352,13 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.ScaleX = (float) scaleX;
 			_layer.ScaleY = (float) scaleY;
 
+			_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
+			_scale.ScaleY = _layer.ScaleY;
+
+			QuickRender(_renderer);
+
 			if (_canInternalUpdate)
 				AsyncLayerControlUpdate();
-
-			Render(_renderer);
 		}
 
 		/// <summary>
@@ -488,10 +392,14 @@ namespace ActEditor.Core.DrawingComponents {
 					_layer.ScaleX = _layerCopy.ScaleX * (dest.X / click.X);
 					_layer.ScaleY = _layerCopy.ScaleY * (dest.Y / click.Y);
 
+					_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
+					_scale.ScaleY = _layer.ScaleY;
+
+					QuickRender(_renderer);
+
 					if (_canInternalUpdate)
 						AsyncLayerControlUpdate();
 
-					Render(_renderer);
 					return;
 				}
 			}
@@ -524,10 +432,13 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.ScaleX = (float) scaleX;
 			_layer.ScaleY = (float) scaleY;
 
+			_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
+			_scale.ScaleY = _layer.ScaleY;
+
+			QuickRender(_renderer);
+
 			if (_canInternalUpdate)
 				AsyncLayerControlUpdate();
-
-			Render(_renderer);
 		}
 
 		public void Scale() {
@@ -543,6 +454,7 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.ScaleY = _layerCopy.ScaleY;
 
 			_act.Commands.SetScale(_renderer.SelectedAction, _renderer.SelectedFrame, LayerIndex, scaleX, scaleY);
+			_renderer.Update();
 		}
 
 		#endregion
@@ -563,11 +475,11 @@ namespace ActEditor.Core.DrawingComponents {
 					int angle3 = layerDraw._layer.Rotation - layerDraw._layerCopy.Rotation;
 					_layer.Rotation = _layerCopy.Rotation;
 					_layer.Rotate(angle3);
+					_rotate.Angle = _layer.Rotation;
+					QuickRender(_renderer);
 
 					if (_canInternalUpdate)
 						AsyncLayerControlUpdate();
-					Render(_renderer);
-
 					return;
 				}
 			}
@@ -592,11 +504,11 @@ namespace ActEditor.Core.DrawingComponents {
 
 			_layer.Rotation = _layerCopy.Rotation;
 			_layer.Rotate(angle);
+			_rotate.Angle = _layer.Rotation;
+			QuickRender(_renderer);
 
 			if (_canInternalUpdate)
 				AsyncLayerControlUpdate();
-
-			Render(_renderer);
 		}
 
 		public void Rotate() {
@@ -608,11 +520,15 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.Rotation = _layerCopy.Rotation;
 
 			_act.Commands.SetRotation(_renderer.SelectedAction, _renderer.SelectedFrame, LayerIndex, rotation);
+			_renderer.Update();
 		}
 
 		#endregion
 
 		#region Translate
+
+		private double _oldTranslateTransformX = 0;
+		private double _oldTranslateTransformY = 0;
 
 		public void PreviewTranslate(double deltaX, double deltaY) {
 			if (_layerCopy == null) return;
@@ -620,25 +536,31 @@ namespace ActEditor.Core.DrawingComponents {
 			int diffX = (int) (deltaX / _renderer.ZoomEngine.Scale);
 			int diffY = (int) (deltaY / _renderer.ZoomEngine.Scale);
 
+			_translateFrame.X = _oldTranslateTransformX + diffX;
+			_translateFrame.Y = _oldTranslateTransformY + diffY;
+
 			_layer.OffsetX = _layerCopy.OffsetX + diffX;
 			_layer.OffsetY = _layerCopy.OffsetY + diffY;
 
+			QuickRender(_renderer);
+
 			if (_canInternalUpdate)
 				AsyncLayerControlUpdate();
-
-			Render(_renderer);
 		}
 
 		public void PreviewTranslateRaw(int x, int y) {
 			if (_layerCopy == null) return;
 
-			_layer.OffsetX = _layer.OffsetX + x;
-			_layer.OffsetY = _layer.OffsetY + y;
+			_translateFrame.X += x;
+			_translateFrame.Y += y;
+
+			_layer.OffsetX += x;
+			_layer.OffsetY += y;
+
+			QuickRender(_renderer);
 
 			if (_canInternalUpdate)
 				AsyncLayerControlUpdate();
-
-			Render(_renderer);
 		}
 
 		public Point GetTranslatePoint() {
@@ -672,6 +594,13 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.OffsetY = _layerCopy.OffsetY;
 
 			_act.Commands.Translate(_renderer.SelectedAction, _renderer.SelectedFrame, LayerIndex, diffX, diffY);
+			_renderer.Update();
+		}
+
+		public override void Unload(FrameRenderer renderer) {
+			base.Unload(renderer);
+
+			_image.PreviewMouseLeftButtonUp -= _image_MouseLeftButtonUp;
 		}
 
 		#endregion

@@ -1,35 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.Scripts;
+using ActEditor.Core.Scripts.Effects;
 using ActEditor.Core.WPF.Dialogs;
 using ActEditor.Tools.GrfShellExplorer;
 using ErrorManager;
-using GRF.Core;
 using GRF.Core.GroupedGrf;
 using GRF.FileFormats;
 using GRF.FileFormats.ActFormat;
-using GRF.FileFormats.GatFormat;
-using GRF.FileFormats.GndFormat;
-using GRF.FileFormats.RsmFormat;
-using GRF.FileFormats.RswFormat;
 using GRF.FileFormats.SprFormat;
+using GRF.GrfSystem;
 using GRF.Image;
-using GRF.IO;
-using GRF.System;
 using GRF.Threading;
 using GrfToWpfBridge;
 using GrfToWpfBridge.Application;
 using GrfToWpfBridge.MultiGrf;
-using Microsoft.Win32;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.Shortcuts;
@@ -58,6 +53,8 @@ namespace ActEditor.Core {
 		private readonly WpfRecentFiles _recentFiles;
 		private readonly ScriptLoader _scriptLoader;
 		private readonly TabEngine _tabEngine;
+		private EditorPosition _editorPosition = new EditorPosition();
+		private SplashWindow _splashWindow;
 
 		public RecentFilesManager RecentFiles {
 			get { return _recentFiles; }
@@ -65,98 +62,60 @@ namespace ActEditor.Core {
 
 		public ActEditorWindow()
 			: base("Act Editor", "app.ico", SizeToContent.WidthAndHeight, ResizeMode.CanResize) {
-
 			Instance = this;
-			Spr.EnableImageSizeCheck = false;
-			_parseCommandLineArguments(false);
-
-			DataContext = this;
-			var diag = new SplashWindow();
-			diag.Display = "Initializing components...";
-			diag.Show();
-
-			Title = "Act Editor";
-			SizeToContent = SizeToContent.WidthAndHeight;
-
+			_initializeSplashWindow();
+			
 			InitializeComponent();
+
 			_tabEngine = new TabEngine(_tabControl, this);
-			((TkMenuItem)_miAnchor.Items[0]).IsChecked = true;
-			diag.Display = "Loading scripting engine...";
-
-			_scriptLoader = new ScriptLoader();
-
-			// Set min size on loaded
-			Loaded += delegate {
-				SizeToContent = SizeToContent.Manual;
-				Top = (SystemParameters.FullPrimaryScreenHeight - ActualHeight) / 2;
-				Left = (SystemParameters.FullPrimaryScreenWidth - ActualWidth) / 2;
-				MinHeight = MinHeight + 50;
-			};
-
-			diag.Display = "Setting components...";
-
+			_scriptLoader = new ScriptLoader(_mainMenu, _dpUndoRedo);
 			_recentFiles = new WpfRecentFiles(ActEditorConfiguration.ConfigAsker, 6, _miOpenRecent, "Act");
 			_recentFiles.FileClicked += new RecentFilesManager.RFMFileClickedEventHandler(_recentFiles_FileClicked);
 
-			diag.Display = "Loading Act Editor's scripts...";
-
-			_loadMenu();
-
-			DragEnter += new DragEventHandler(_actEditorWindow_DragEnter);
-			Drop += new DragEventHandler(_actEditorWindow_Drop);
-
-			Loaded += delegate {
-				diag.Display = "Loading custom scripts...";
-
-				try {
-					ScriptLoader.VerifyExampleScriptsInstalled();
-					_scriptLoader.AddScriptsToMenu(this, _mainMenu, _dpUndoRedo);
-				}
-				catch (Exception err) {
-					ErrorHandler.HandleException(err);
-				}
-
-				try {
-					if (!_parseCommandLineArguments()) {
-						if (_recentFiles.Files.Count > 0 && ActEditorConfiguration.ReopenLatestFile && _recentFiles.Files[0].IsExtension(".act") && File.Exists(new TkPath(_recentFiles.Files[0]).FilePath))
-							_open(_recentFiles.Files[0], false, true);
-					}
-				}
-				catch (Exception err) {
-					ErrorHandler.HandleException(err);
-				}
-
-				diag.Terminate(500);
-			};
-
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "ActEditor.Undo"), Undo, this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "ActEditor.Redo"), Redo, this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Right", "FrameEditor.NextFrame"), () => _tabEngine.FrameMove(1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Left", "FrameEditor.PreviousFrame"), () => _tabEngine.FrameMove(-1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Alt-Right", "FrameEditor.NextAction"), () => _tabEngine.ActionMove(1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Alt-Left", "FrameEditor.PreviousAction"), () => _tabEngine.ActionMove(-1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Delete", "LayerEditor.DeleteSelected"), () => _tabEngine.Execute(v => v._rendererPrimary.InteractionEngine.Delete()), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Alt-P", "Dialog.StyleEditor"), () => WindowProvider.Show(new StyleEditor(), new Control()), this);
-
-			try {
-				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
-			}
-			catch (Exception err) {
-				try {
-					ActEditorConfiguration.Remapper.Clear();
-					ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
-				}
-				catch {
-				}
-
-				ErrorHandler.HandleException("Failed to load the custom key bindings. The bindings will be reset to their default values.", err);
-			}
-
+			_initializeMenu();
+			_initializeShortcuts();
 			_miReverseAnchors.Checked += (e, s) => _tabEngine.ReverseAnchorChecked();
 			_miReverseAnchors.Unchecked += (e, s) => _tabEngine.ReverseAnchorUnchecked();
 			_miReverseAnchors.IsChecked = ActEditorConfiguration.ReverseAnchor;
+			_initializeMetaGrf();
+		}
 
-			_metaGrfViewer.SaveResourceMethod = delegate(string resources) {
+		private void _actEditorWindow_Loaded(object sender, RoutedEventArgs e) {
+			// Allow modifying size on load
+			SizeToContent = SizeToContent.Manual;
+			_editorPosition.Load(this);
+
+			_initializeScripts();
+
+			try {
+				if (!_parseCommandLineArguments()) {
+					if (_recentFiles.Files.Count > 0 && ActEditorConfiguration.ReopenLatestFile && _recentFiles.Files[0].IsExtension(".act") && File.Exists(new TkPath(_recentFiles.Files[0]).FilePath))
+						_tabEngine.Open(_recentFiles.Files[0]);
+				}
+			}
+			catch (Exception err) {
+				ShowException(_splashWindow, err);
+			}
+
+			if (_tabControl.Items.Count == 0) {
+				_miNew_Click(null, null);
+			}
+
+			_splashWindow.Terminate(400);
+		}
+
+		private void _tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			if (_tabControl.SelectedIndex < 0)
+				return;
+
+			if (_tabControl.Items[_tabControl.SelectedIndex] is TabAct tabItem) {
+				_tmbUndo.SetUndo(tabItem.Act.Commands);
+				_tmbRedo.SetRedo(tabItem.Act.Commands);
+			}
+		}
+
+		private void _initializeMetaGrf() {
+			_metaGrfViewer.SaveResourceMethod = delegate (string resources) {
 				ActEditorConfiguration.Resources = Methods.StringToList(resources);
 				_metaGrfViewer.LoadResourcesInfo();
 				_metaGrf.Update(_metaGrfViewer.Paths);
@@ -171,47 +130,97 @@ namespace ActEditor.Core {
 				catch {
 				}
 			}, "ActEditor - MetaGrf loader");
+		}
 
-			EncodingService.SetDisplayEncoding(ActEditorConfiguration.EncodingCodepage);
+		private void _initializeShortcuts() {
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "ActEditor.Undo"), Undo, this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "ActEditor.Redo"), Redo, this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Right", "FrameEditor.NextFrame"), () => _tabEngine.FrameMove(1), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Left", "FrameEditor.PreviousFrame"), () => _tabEngine.FrameMove(-1), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-Right", "FrameEditor.NextAction"), () => _tabEngine.ActionMove(1), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-Left", "FrameEditor.PreviousAction"), () => _tabEngine.ActionMove(-1), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Delete", "LayerEditor.DeleteSelected"), () => _tabEngine.Execute(v => v._rendererPrimary.InteractionEngine.Delete()), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Alt-P", "Dialog.StyleEditor"), () => WindowProvider.Show(new StyleEditor(), new Control()), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Space", "ActEditor.PlayStopAnimation"), () => _tabEngine.Execute(v => {
+				if (v._frameSelector.IsPlaying)
+					v._frameSelector.Stop();
+				else
+					v._frameSelector.Play();
+			}), this);
+			//ApplicationShortcut.Link(ApplicationShortcut.FromString("R", "Debug.TestMethod"), delegate {
+			//	_tabEngine.Execute(v => {
+			//		//v.DummyScript();
+			//	});
+			//}, this);
 
-			_tabControl.SelectionChanged += delegate {
-				if (_tabControl.SelectedIndex < 0)
-					return;
-
-				var tabItem = _tabControl.Items[_tabControl.SelectedIndex] as TabAct;
-
-				if (tabItem != null) {
-					_tmbUndo.SetUndo(tabItem.Act.Commands);
-					_tmbRedo.SetRedo(tabItem.Act.Commands);
+			try {
+				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
+			}
+			catch (Exception err) {
+				try {
+					ActEditorConfiguration.Remapper.Clear();
+					ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
 				}
-			};
-
-			Loaded += delegate {
-				if (_tabControl.Items.Count == 0) {
-					_miNew_Click(null, null);
+				catch {
 				}
-			};
+
+				ErrorHandler.HandleException("Failed to load the custom key bindings. The bindings will be reset to their default values.", err);
+			}
 		}
 
-		private void Undo() {
-			_tabEngine.Undo();
+		private void _initializeScripts() {
+			_splashWindow.Display = "Loading custom scripts...";
+
+			try {
+				ScriptLoader.VerifyExampleScriptsInstalled();
+				_scriptLoader.PendingErrors.Clear();
+				_scriptLoader.CombineErrors = true;
+				_scriptLoader.AddScriptsToMenu(this, _mainMenu, _dpUndoRedo);
+			}
+			catch (Exception err) {
+				ShowException(_splashWindow, err);
+			}
+			finally {
+				_scriptLoader.CombineErrors = false;
+			}
+
+			foreach (var exception in _scriptLoader.PendingErrors) {
+				ShowException(_splashWindow, exception);
+			}
+
+			_scriptLoader.PendingErrors.Clear();
 		}
 
-		private void Redo() {
-			_tabEngine.Redo();
+		private void _initializeSplashWindow() {
+			_splashWindow = new SplashWindow();
+			_splashWindow.Display = "Initializing components...";
+			_splashWindow.Show();
 		}
 
-		public ScriptLoader ScriptLoader {
-			get { return _scriptLoader; }
+		public void ShowException(Window diag, Exception ex) {
+			try {
+				diag.Visibility = Visibility.Hidden;
+				WindowProvider.WindowOpened += _windowProvider_WindowOpened;
+				ErrorHandler.HandleException(ex);
+			}
+			finally {
+				diag.Visibility = Visibility.Visible;
+				WindowProvider.WindowOpened -= _windowProvider_WindowOpened;
+			}
 		}
 
-		public MultiGrfReader MetaGrf {
-			get { return _metaGrf; }
+		private void _windowProvider_WindowOpened(TkWindow window) {
+			window.ShowInTaskbar = true;
 		}
 
-		public TabEngine TabEngine { get { return _tabEngine; } }
+		private void Undo() => _tabEngine.Undo();
+		private void Redo() => _tabEngine.Redo();
+		public ScriptLoader ScriptLoader => _scriptLoader;
+		public MultiGrfReader MetaGrf => _metaGrf;
+		public TabEngine TabEngine => _tabEngine;
 
-		private void _loadMenu() {
+		private void _initializeMenu() {
+			_splashWindow.Display = "Loading Act Editor's scripts...";
 			_scriptLoader.AddScriptsToMenu(new SpriteExportNormal(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SpriteExport(), this, _mainMenu, null);
 
@@ -242,10 +251,11 @@ namespace ActEditor.Core {
 			_scriptLoader.AddScriptsToMenu(new ActionPaste(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new ActionDelete(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionInsertAt(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionSwitchSelected(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionCopyAt(), this, _mainMenu, null);
-			((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
+			_scriptLoader.AddScriptsToMenu(new ActionAdd(), this, _mainMenu, null);
+			//_scriptLoader.AddScriptsToMenu(new ActionInsertAt(), this, _mainMenu, null);
+			//_scriptLoader.AddScriptsToMenu(new ActionSwitchSelected(), this, _mainMenu, null);
+			//_scriptLoader.AddScriptsToMenu(new ActionCopyAt(), this, _mainMenu, null);
+			//((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new ActionAdvanced(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new ActionCopyMirror(), this, _mainMenu, null);
@@ -256,10 +266,11 @@ namespace ActEditor.Core {
 			_scriptLoader.AddScriptsToMenu(new ActionLayerMove(ActionLayerMove.MoveDirection.Up, null), this, _mainMenu, null);
 
 			_scriptLoader.AddScriptsToMenu(new FrameDelete(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameInsertAt(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameSwitchSelected(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyAt(), this, _mainMenu, null);
-			((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
+			_scriptLoader.AddScriptsToMenu(new FrameAdd(), this, _mainMenu, null);
+			//_scriptLoader.AddScriptsToMenu(new FrameInsertAt(), this, _mainMenu, null);
+			//_scriptLoader.AddScriptsToMenu(new FrameSwitchSelected(), this, _mainMenu, null);
+			//_scriptLoader.AddScriptsToMenu(new FrameCopyAt(), this, _mainMenu, null);
+			//((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new FrameAdvanced(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new FrameDuplicate(), this, _mainMenu, null);
@@ -283,9 +294,22 @@ namespace ActEditor.Core {
 			_scriptLoader.AddScriptsToMenu(new InterpolationAnimationAdv(), this, _mainMenu, null);
 
 			_scriptLoader.AddScriptsToMenu(new EffectFadeAnimation(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EffectReceivingHit(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EffectStrokeSilouhette(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new EffectBreathing(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FloatingEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new TrailAttackEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new HitEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new RadialErosionEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SpikeErosionEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new VerticalStripeErosion(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new CrystalErosionEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SmokeFadeEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new StrokeSilouhetteEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SilouhetteDistortionEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FloorAuraEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new DelayedShadowEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SpriteOutlineEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FadeParticleEffect(), this, _mainMenu, null);
+
 
 			_scriptLoader.AddScriptsToMenu(new ScriptRunnerMenu(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[7]).Items.Add(new Separator());
@@ -297,31 +321,20 @@ namespace ActEditor.Core {
 			Binder.Bind(_miViewSameAction, () => ActEditorConfiguration.KeepPreviewSelectionFromActionChange);
 		}
 
-		private bool _parseCommandLineArguments(bool init = true) {
+		private bool _parseCommandLineArguments() {
 			try {
 				List<GenericCLOption> options = CommandLineParser.GetOptions(Environment.CommandLine, false);
 
 				foreach (GenericCLOption option in options) {
-					if (init) {
-						if (option.CommandName == "-REM" || option.CommandName == "REM") {
-							return true;
-						}
-						else {
-							if (option.Args.Count <= 0)
-								continue;
-
-							if (option.Args.All(p => p.GetExtension() == ".act")) {
-								_open(option.Args[0], false, true);
-								return true;
-							}
-						}
+					if (option.CommandName == "-REM" || option.CommandName == "REM") {
+						return true;
 					}
 					else {
 						if (option.Args.Count <= 0)
 							continue;
 
-						if (option.Args.All(p => p.GetExtension() == ".spr")) {
-
+						if (option.Args.All(p => p.IsExtension(".act"))) {
+							_tabEngine.Open(option.Args[0]);
 							return true;
 						}
 					}
@@ -341,11 +354,7 @@ namespace ActEditor.Core {
 					_tabEngine.LastOpened = "";
 
 					if (files != null && files.Length > 0 && files.Any(p => p.IsExtension(".act"))) {
-						foreach (var file in files.Where(p => p.IsExtension(".act"))) {
-							_open(file, false, false);
-						}
-
-						_tabEngine.Focus(_tabEngine.LastOpened);
+						_tabEngine.OpenFiles(files.Where(p => p.IsExtension(".act")).Select(p => new TkPath(p)).ToArray());
 					}
 				}
 			}
@@ -388,31 +397,14 @@ namespace ActEditor.Core {
 				ErrorHandler.HandleException(err);
 			}
 
+			_editorPosition.Save(this);
 			base.OnClosing(e);
 			ApplicationManager.Shutdown();
 		}
 
-		private void _recentFiles_FileClicked(string file) {
-			_open(file, false, true);
-		}
+		private void _recentFiles_FileClicked(string file) => _tabEngine.Open(file);
 
 		protected override void GRFEditorWindowKeyDown(object sender, KeyEventArgs e) {
-		}
-
-		private void _open(string file, bool isNew, bool focus) {
-			_open(new TkPath(file), isNew, focus);
-		}
-
-		private void _open(TkPath file, bool isNew, bool focus) {
-			if (focus) {
-				_tabEngine.LastOpened = "";
-			}
-
-			_tabEngine.Open(file, isNew);
-
-			if (focus) {
-				_tabEngine.Focus(_tabEngine.LastOpened);
-			}
 		}
 
 		private void _miOpen_Click(object sender, RoutedEventArgs e) {
@@ -420,7 +412,7 @@ namespace ActEditor.Core {
 				string file = TkPathRequest.OpenFile<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", FileFormat.MergeFilters(Format.Act));
 
 				if (file != null) {
-					_open(file, false, true);
+					_tabEngine.Open(file);
 				}
 			}
 			catch (Exception err) {
@@ -464,15 +456,7 @@ namespace ActEditor.Core {
 			try {
 				var act = new Act(new Spr());
 				act.AddAction();
-
-				string fileName = TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}");
-
-				act.LoadedPath = fileName + ".act";
-				act.Sprite.Save(fileName + ".spr");
-				act.Save(fileName + ".act");
-
-				_open(fileName + ".act", true, true);
-				_recentFiles.RemoveRecentFile(fileName + ".act");
+				_specialLoad(act, TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}"));
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
@@ -482,26 +466,14 @@ namespace ActEditor.Core {
 			}
 		}
 
-		public bool Save() {
-			return _tabEngine.Save();
-		}
-
-		private void _miSave_Click(object sender, RoutedEventArgs e) {
-			Save();
-		}
-
-		public bool SaveAs() {
-			return _tabEngine.SaveAs();
-		}
-
-		private void _miSaveAs_Click(object sender, RoutedEventArgs e) {
-			SaveAs();
-		}
+		public bool Save() => _tabEngine.Save();
+		public bool SaveAs() => _tabEngine.SaveAs();
+		private void _miSave_Click(object sender, RoutedEventArgs e) => Save();
+		private void _miSaveAs_Click(object sender, RoutedEventArgs e) => SaveAs();
 
 		private void _miSaveAsGarment_Click(object sender, RoutedEventArgs e) {
 			try {
 				var dialog = new SaveGarmentDialog(this);
-
 				dialog.Owner = WpfUtilities.TopWindow;
 
 				dialog.Closing += delegate {
@@ -532,7 +504,7 @@ namespace ActEditor.Core {
 		private void _miAbout_Click(object sender, RoutedEventArgs e) {
 			var dialog = new AboutDialog(ActEditorConfiguration.PublicVersion, ActEditorConfiguration.RealVersion, ActEditorConfiguration.Author, ActEditorConfiguration.ProgramName);
 			dialog.Owner = WpfUtilities.TopWindow;
-			((TextBox)dialog.FindName("_textBlock")).Text += "\r\n\r\nCredits : Nebraskka (suggestions and feedback)";
+			((TextBox)dialog.FindName("_textBlock")).Text += "\r\n\r\nCredits: Nebraskka (suggestions and feedback)";
 			dialog.AboutTextBox.Background = this.FindResource("UIThemeAboutDialogBrush") as Brush;
 			dialog.ShowDialog();
 			_tabEngine.RestoreFocus();
@@ -555,7 +527,7 @@ namespace ActEditor.Core {
 							throw new Exception("Only ACT files can be selected.");
 						}
 
-						_open(new TkPath(file, relativePath), false, true);
+						_tabEngine.Open(new TkPath(file, relativePath));
 					}
 				}
 			}
@@ -567,17 +539,9 @@ namespace ActEditor.Core {
 			}
 		}
 
-		private void _miCopy_Click(object sender, RoutedEventArgs e) {
-			_tabEngine.Copy();
-		}
-
-		private void _miPaste_Click(object sender, RoutedEventArgs e) {
-			_tabEngine.Paste();
-		}
-
-		private void _miCut_Click(object sender, RoutedEventArgs e) {
-			_tabEngine.Cut();
-		}
+		private void _miCopy_Click(object sender, RoutedEventArgs e) => _tabEngine.Copy();
+		private void _miPaste_Click(object sender, RoutedEventArgs e) => _tabEngine.Paste();
+		private void _miCut_Click(object sender, RoutedEventArgs e) => _tabEngine.Cut();
 
 		private void _miAnchor_Click(object sender, RoutedEventArgs e) {
 			foreach (MenuItem item in _miAnchor.Items) {
@@ -590,12 +554,10 @@ namespace ActEditor.Core {
 				}
 			}
 
-			_tabEngine.AnchorUpdate((MenuItem)sender);
+			_tabEngine?.SetAnchorIndex(Int32.Parse(((FrameworkElement)sender).Tag.ToString()));
 		}
 
-		private void _miSelectAct_Click(object sender, RoutedEventArgs e) {
-			_tabEngine.Select();
-		}
+		private void _miSelectAct_Click(object sender, RoutedEventArgs e) => _tabEngine.Select();
 
 		private void _miShowAnchors_Loaded(object sender, RoutedEventArgs e) {
 			_miShowAnchors.IsChecked = ActEditorConfiguration.ShowAnchors;
@@ -615,15 +577,7 @@ namespace ActEditor.Core {
 			try {
 				var act = new Act(ApplicationManager.GetResource("ref_head_f.act"), new Spr());
 				act.AllFrames(p => p.Layers.Clear());
-
-				string fileName = TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}");
-
-				act.LoadedPath = fileName + ".act";
-				act.Sprite.Save(fileName + ".spr");
-				act.Save(fileName + ".act");
-
-				_open(fileName + ".act", true, true);
-				_recentFiles.RemoveRecentFile(fileName + ".act");
+				_specialLoad(act, TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}"));
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
@@ -631,20 +585,21 @@ namespace ActEditor.Core {
 			finally {
 				_tabEngine.RestoreFocus();
 			}
+		}
+
+		private void _specialLoad(Act act, string fileName) {
+			act.LoadedPath = fileName + ".act";
+			act.Sprite.Save(fileName + ".spr");
+			act.Save(fileName + ".act");
+
+			_tabEngine.Open(fileName + ".act", isNew: true);
+			_recentFiles.RemoveRecentFile(fileName + ".act");
 		}
 
 		private void _new(string name) {
 			try {
 				var act = new Act(ApplicationManager.GetResource(name), new Spr());
-
-				string fileName = TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}");
-
-				act.LoadedPath = fileName + ".act";
-				act.Sprite.Save(fileName + ".spr");
-				act.Save(fileName + ".act");
-
-				_open(fileName + ".act", true, true);
-				_recentFiles.RemoveRecentFile(fileName + ".act");
+				_specialLoad(act, TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}"));
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
@@ -654,35 +609,16 @@ namespace ActEditor.Core {
 			}
 		}
 
-		private void _miNewNpc_Click(object sender, RoutedEventArgs e) {
-			_new("NPC.act");
-		}
-
-		private void _miNewWeapon_Click(object sender, RoutedEventArgs e) {
-			_new("weapon.act");
-		}
-
-		private void _miNewMonster_Click(object sender, RoutedEventArgs e) {
-			_new("monster.act");
-		}
-
-		private void _miNewHomunculus_Click(object sender, RoutedEventArgs e) {
-			_new("homunculus.act");
-		}
+		private void _miNewNpc_Click(object sender, RoutedEventArgs e) => _new("NPC.act");
+		private void _miNewWeapon_Click(object sender, RoutedEventArgs e) => _new("weapon.act");
+		private void _miNewMonster_Click(object sender, RoutedEventArgs e) => _new("monster.act");
+		private void _miNewHomunculus_Click(object sender, RoutedEventArgs e) => _new("homunculus.act");
 
 		private void _miNewHeadgearMale_Click(object sender, RoutedEventArgs e) {
 			try {
 				var act = new Act(ApplicationManager.GetResource("ref_head_m.act"), new Spr());
 				act.AllFrames(p => p.Layers.Clear());
-
-				string fileName = TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}");
-
-				act.LoadedPath = fileName + ".act";
-				act.Sprite.Save(fileName + ".spr");
-				act.Save(fileName + ".act");
-
-				_open(fileName + ".act", true, true);
-				_recentFiles.RemoveRecentFile(fileName + ".act");
+				_specialLoad(act, TemporaryFilesManager.GetTemporaryFilePath("new_{0:0000}"));
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
@@ -692,16 +628,10 @@ namespace ActEditor.Core {
 			}
 		}
 
-		private void _miViewPrevAnim_Click(object sender, RoutedEventArgs e) {
-			_tabEngine.ShowPreviewFrames();
-		}
-
-		public TabAct GetSelectedTab() {
-			return _tabEngine.GetCurrentTab();
-		}
+		private void _miViewPrevAnim_Click(object sender, RoutedEventArgs e) => _tabEngine.ShowPreviewFrames();
 
 		public TabAct GetCurrentTab2() {
-			var tab = GetSelectedTab();
+			var tab = _tabEngine.GetCurrentTab();
 
 			if (tab == null)
 				throw new Exception("No file opened. Please open an ACT file before using this command.");

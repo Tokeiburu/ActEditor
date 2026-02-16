@@ -11,10 +11,11 @@ using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.IO;
 using GRF.Image;
-using GRF.System;
+using GRF.GrfSystem;
 using GrfToWpfBridge.Application;
 using TokeiLibrary;
 using Utilities;
+using Utilities.Services;
 
 namespace ActEditor {
 	/// <summary>
@@ -27,9 +28,11 @@ namespace ActEditor {
 			Settings.TempPath = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "tmp");
 			TemporaryFilesManager.ClearTemporaryFiles();
 			SelfPatcher.SelfPatch();
+			Spr.EnableImageSizeCheck = false;
 			Spr.AutomaticDowngradeOnRleException = true;
 			Configuration.ProgramDataPath = GrfPath.Combine(Configuration.ApplicationDataPath, ActEditorConfiguration.ProgramName);
 			EffectConfiguration.ConfigAsker = ActEditorConfiguration.ConfigAsker;
+			EncodingService.SetDisplayEncoding(ActEditorConfiguration.EncodingCodepage);
 			EffectConfiguration.DisplayAction = (effectConfig, act, actionIndex) => {
 				EffectPreviewDialog effectDialog = new EffectPreviewDialog(act, actionIndex, effectConfig);
 				EffectConfiguration.Displayed = true;
@@ -43,6 +46,14 @@ namespace ActEditor {
 		}
 
 		protected override void OnStartup(StartupEventArgs e) {
+			ApplicationManager.ThemeChanged += delegate {
+				try {
+					AppContext.SetSwitch("Switch.System.Windows.Controls.Text.UseAdornerForTextboxSelectionRendering", ActEditorConfiguration.ThemeIndex == 0);
+				}
+				catch {
+				}
+			};
+
 			ApplicationManager.CrashReportEnabled = true;
 			ImageConverterManager.AddConverter(new DefaultImageConverter());
 
@@ -51,7 +62,7 @@ namespace ActEditor {
 			Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/GRFEditorStyles.xaml", UriKind.RelativeOrAbsolute) });
 
 			if (ActEditorConfiguration.StyleTheme == "") {
-				
+				ActEditorConfiguration.ThemeIndex = 0;
 			}
 			else {
 				Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/" + Assembly.GetEntryAssembly().GetName().Name.Replace(" ", "%20") + ";component/WPF/Styles/StyleDark.xaml", UriKind.RelativeOrAbsolute) });
@@ -61,14 +72,14 @@ namespace ActEditor {
 
 					if (name.Contains("reset.png")) {
 						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
-							return Color.FromArgb(A, _clamp((R) * 1.8), _clamp(G / 3), _clamp(B / 3));
+							return Color.FromArgb(A, Methods.ClampToColorByte((R) * 1.8), Methods.ClampToColorByte(G / 3), Methods.ClampToColorByte(B / 3));
 						};
 
 						return _applyShader(img, shader);
 					}
 					else if (name.Contains("eye.png") || name.Contains("smallArrow.png") || name.Contains("cs_pen.png") || name.Contains("cs_eraser.png")) {
 						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
-							return Color.FromArgb(A, _clamp((255 - R) * 0.8), _clamp((255 - G) * 0.8), _clamp((255 - B) * 0.8));
+							return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.8), Methods.ClampToColorByte((255 - B) * 0.8));
 						};
 
 						return _applyShader(img, shader);
@@ -76,7 +87,7 @@ namespace ActEditor {
 					else if (name.Contains("arrow.png") ||
 							 name.Contains("arrowoblique.png")) {
 						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
-							return Color.FromArgb(A, _clamp((255 - R) * 0.8), _clamp((255 - G) * 0.6), 0);
+							return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.6), 0);
 						};
 						//F68D00
 						return _applyShader(img, shader);
@@ -84,6 +95,14 @@ namespace ActEditor {
 
 					return img;
 				};
+
+				ActEditorConfiguration.ThemeIndex = 1;
+
+				try {
+					AppContext.SetSwitch("Switch.System.Windows.Controls.Text.UseAdornerForTextboxSelectionRendering", false);
+				}
+				catch {
+				}
 
 				if (ActEditorConfiguration.StyleTheme != "Dark theme") {
 					var path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, "Themes", ActEditorConfiguration.StyleTheme + ".xaml");
@@ -110,22 +129,6 @@ namespace ActEditor {
 			}
 
 			base.OnStartup(e);
-		}
-
-		private byte _clamp(int val) {
-			if (val < 0)
-				return 0;
-			if (val > 255)
-				return 255;
-			return (byte)val;
-		}
-
-		private byte _clamp(double val) {
-			if (val < 0)
-				return 0;
-			if (val > 255)
-				return 255;
-			return (byte)val;
 		}
 
 		private void _darkTheme(byte[] pixels, PixelFormat format, List<Color> colors, Func<byte, byte, byte, byte, Color> shader) {

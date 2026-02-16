@@ -146,20 +146,19 @@ namespace PaletteEditor {
 			_colorFirst.Background = new SolidColorBrush {Color = first};
 
 			if (middle != null) {
-				_colorMiddle.Background = new SolidColorBrush {Color = middle.Value};
+				_colorMiddle.Background = new SolidColorBrush { Color = middle.Value };
 				BitmapSource imageTop = PickerGradientHelper.CreateFourColorImage(
 					middle.Value,
 					Colors.White,
 					middle.Value,
-					middle.Value, 136, 10);
+					middle.Value, 136, 10,
+					out byte[] pixelsTop);
 				BitmapSource imageBottom = PickerGradientHelper.CreateFourColorImage(
 					middle.Value,
 					middle.Value,
 					Colors.Black,
-					middle.Value, 136, 10);
-
-				byte[] pixelsTop = WpfImaging.GetData(imageTop);
-				byte[] pixelsBottom = WpfImaging.GetData(imageBottom);
+					middle.Value, 136, 10,
+					out byte[] pixelsBottom);
 
 				byte[] pixels = new byte[pixelsTop.Length + pixelsBottom.Length];
 

@@ -50,6 +50,41 @@ namespace ActEditor.Core.Scripts {
 		#endregion
 	}
 
+	public class FrameAdd : IActScript {
+		#region IActScript Members
+
+		public object DisplayName {
+			get { return "Add frame"; }
+		}
+
+		public string Group {
+			get { return "Frame"; }
+		}
+
+		public string InputGesture {
+			get { return "{FrameEditor.AddFrame|Ctrl-Enter}"; }
+		}
+
+		public string Image {
+			get { return "add.png"; }
+		}
+
+		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			try {
+				act.Commands.FrameInsertAt(selectedActionIndex, selectedFrameIndex + 1);
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err, ErrorLevel.Warning);
+			}
+		}
+
+		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			return act != null;
+		}
+
+		#endregion
+	}
+
 	public class FrameInsertAt : IActScript {
 		#region IActScript Members
 
@@ -189,7 +224,7 @@ namespace ActEditor.Core.Scripts {
 		#region IActScript Members
 
 		public object DisplayName {
-			get { return "Advanced edit..."; }
+			get { return "Edit frames..."; }
 		}
 
 		public string Group {
@@ -208,15 +243,17 @@ namespace ActEditor.Core.Scripts {
 			if (act == null) return;
 
 			try {
-				var dialog = new FrameInsertDialog(act, selectedActionIndex);
-				dialog.StartIndex = selectedFrameIndex;
-				dialog.EndIndex = selectedFrameIndex + 1;
-				dialog.Mode = FrameInsertDialog.EditMode.None;
-				dialog.Owner = WpfUtilities.TopWindow;
-
-				if (dialog.ShowDialog() == true) {
-					dialog.Execute(act, true);
-				}
+				var dialog = new FrameEditDialog(act, selectedActionIndex, selectedFrameIndex);
+				dialog.ShowDialog();
+				//var dialog = new FrameInsertDialog(act, selectedActionIndex);
+				//dialog.StartIndex = selectedFrameIndex;
+				//dialog.EndIndex = selectedFrameIndex + 1;
+				//dialog.Mode = FrameInsertDialog.EditMode.None;
+				//dialog.Owner = WpfUtilities.TopWindow;
+				//
+				//if (dialog.ShowDialog() == true) {
+				//	dialog.Execute(act, true);
+				//}
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err, ErrorLevel.Warning);
@@ -377,55 +414,5 @@ namespace ActEditor.Core.Scripts {
 		}
 
 		#endregion
-	}
-
-	public static class FrameHelper {
-		public static Grid GenerateContentGrid() {
-			Grid content = new Grid();
-			content.RowDefinitions.Add(new RowDefinition {Height = new GridLength(-1, GridUnitType.Auto)});
-			content.RowDefinitions.Add(new RowDefinition());
-			return content;
-		}
-
-		public static OkCancelEmptyDialog GenerateOkCancelDialog(string title, string image) {
-			var dialog = new OkCancelEmptyDialog(title, image);
-			dialog.Owner = WpfUtilities.TopWindow;
-
-			dialog.PreviewKeyDown += delegate {
-				if (Keyboard.IsKeyDown(Key.Enter)) {
-					dialog.DialogResult = true;
-					dialog.Close();
-				}
-			};
-
-			return dialog;
-		}
-
-		public static TextBlock GenerateTextBlock(string input) {
-			var tb = new TextBlock();
-			tb.Margin = new Thickness(3);
-			tb.TextWrapping = TextWrapping.Wrap;
-			tb.Text = input;
-			return tb;
-		}
-
-		public static ClickSelectTextBox GenerateClickSelectTb(int selectedFrameIndex) {
-			ClickSelectTextBox box = new ClickSelectTextBox();
-			box.SetValue(Grid.RowProperty, 1);
-			box.Text = (selectedFrameIndex).ToString(CultureInfo.InvariantCulture);
-			box.Margin = new Thickness(3);
-			box.SelectAll();
-			box.Focus();
-			return box;
-		}
-
-		public static UIElement GenerateCheckBox(string display = "Copy from the currently selected frame") {
-			var checkBox = new CheckBox {Content = "Copy from the currently selected frame"};
-			Binder.Bind(checkBox, () => ActEditorConfiguration.ActEditorCopyFromCurrentFrame, v => ActEditorConfiguration.ActEditorCopyFromCurrentFrame = v);
-			checkBox.HorizontalAlignment = HorizontalAlignment.Left;
-			checkBox.VerticalAlignment = VerticalAlignment.Center;
-			checkBox.Margin = new Thickness(3);
-			return checkBox;
-		}
 	}
 }

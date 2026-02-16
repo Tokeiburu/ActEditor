@@ -58,7 +58,12 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 		private void _renderer_KeyUp(object sender, KeyEventArgs e) {
 			if (!EnableEdit) return;
-			if (e.Key == Key.Left || e.Key == Key.Up || e.Key == Key.Right || e.Key == Key.Down) {
+			var left = Keyboard.IsKeyUp(Key.Left);
+			var right = Keyboard.IsKeyUp(Key.Right);
+			var up = Keyboard.IsKeyUp(Key.Up);
+			var down = Keyboard.IsKeyUp(Key.Down);
+
+			if (left && right && up && down) {
 				if (_frti.KeyboardTranslated) {
 					try {
 						_applyTranslate();
@@ -77,7 +82,12 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			if (ApplicationShortcut.IsCommandActive())
 				return;
 
-			if (e.Key == Key.Left || e.Key == Key.Up || e.Key == Key.Right || e.Key == Key.Down) {
+			var left = Keyboard.IsKeyDown(Key.Left);
+			var right = Keyboard.IsKeyDown(Key.Right);
+			var up = Keyboard.IsKeyDown(Key.Up);
+			var down = Keyboard.IsKeyDown(Key.Down);
+
+			if (left || right || up || down) {
 				if (_editor == null) return;
 
 				_renderer_MouseUp(this, null);
@@ -90,8 +100,8 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 					foreach (LayerDraw layer in _editor.SelectionEngine.SelectedLayerDraws) {
 						layer.PreviewTranslateRaw(
-							(Keyboard.IsKeyDown(Key.Left) ? -1 : 0) + (Keyboard.IsKeyDown(Key.Right) ? 1 : 0),
-							(Keyboard.IsKeyDown(Key.Up) ? -1 : 0) + (Keyboard.IsKeyDown(Key.Down) ? 1 : 0));
+							(left ? -1 : 0) + (right ? 1 : 0),
+							(up ? -1 : 0) + (down ? 1 : 0));
 					}
 				}
 
@@ -170,8 +180,8 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 				if (e.RightButton == MouseButtonState.Pressed && _frti.AnyMouseDown) {
 					_renderer.RelativeCenter = new Point(
-						_renderer.RelativeCenter.X + deltaX / _renderer.Canva.ActualWidth,
-						_renderer.RelativeCenter.Y + deltaY / _renderer.Canva.ActualHeight);
+						_renderer.RelativeCenter.X + deltaX / _renderer.Canvas.ActualWidth,
+						_renderer.RelativeCenter.Y + deltaY / _renderer.Canvas.ActualHeight);
 
 					_frti.BeforeTransformMousePosition = current;
 					_renderer.SizeUpdate();
@@ -211,6 +221,11 @@ namespace ActEditor.Core.WPF.FrameEditor {
 							}
 
 							_frti.Translated = true;
+						}
+
+						if (_frti.Scaled || _frti.Rotated || _frti.Translated) {
+							if (_editor.LayerEditor != null)
+								_editor.LayerEditor.SetReadonlyMode(true);
 						}
 
 						if (_renderer.MainDrawingComponent != null && _editor.SelectionEngine != null) {
@@ -278,6 +293,11 @@ namespace ActEditor.Core.WPF.FrameEditor {
 				_frti.AnyMouseDown = false;
 
 				if (!_editor.IndexSelector.IsPlaying && EnableEdit) {
+					if (_frti.Scaled || _frti.Rotated || _frti.Translated) {
+						if (_editor.LayerEditor != null)
+							_editor.LayerEditor.SetReadonlyMode(false);
+					}
+
 					if (_frti.Scaled) {
 						_applyScale();
 						_frti.Scaled = false;
@@ -317,16 +337,16 @@ namespace ActEditor.Core.WPF.FrameEditor {
 								if (_noSelectedComponentsUnderMouse(e)) {
 									foreach (var sd in reverse) {
 										if (sd.IsMouseUnder(e)) {
-											sd.IsSelected = true;
+											_editor.SelectionEngine?.AddSelection(sd.LayerIndex);
 											selected = sd.LayerIndex;
 											break;
 										}
 									}
 								}
-								else {
+								else if (_editor.SelectionEngine != null) {
 									// There is something selected, try and get it
 									foreach (var sd in reverse) {
-										if (sd.IsSelected && sd.IsMouseUnder(e)) {
+										if (_editor.SelectionEngine.IsSelected(sd.LayerIndex) && sd.IsMouseUnder(e)) {
 											selected = sd.LayerIndex;
 											break;
 										}
@@ -377,27 +397,45 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		}
 
 		private bool _noSelectedComponentsUnderMouse(MouseEventArgs e) {
+			//var main = _renderer.Components.OfType<ActDraw2>().FirstOrDefault(p => p.Primary);
+			//
+			//if (main == null) return true;
+			//
+			//if (_editor.SelectionEngine == null)
+			//	return true;
+			//
+			//int idx = main.GetLayerIndexUnderMouse(e.GetPosition(_renderer.Canvas));
+			//
+			//if (idx > -1)
+			//	return false;
+			//
+			//return true;
 			if (_renderer.MainDrawingComponent == null) return true;
-
+			
+			if (_editor.SelectionEngine == null)
+				return true;
+			
 			foreach (LayerDraw sd in _renderer.MainDrawingComponent.Components) {
-				if (sd.IsMouseUnder(e) && sd.IsSelected) {
+				if (sd.IsMouseUnder(e) && _editor.SelectionEngine.IsSelected(sd.LayerIndex)) {
 					return false;
 				}
 			}
-
+			
 			return true;
 		}
 
 		private bool _componentsUnderMouse(MouseEventArgs e) {
-			if (_renderer.MainDrawingComponent == null) return false;
+			return !_noSelectedComponentsUnderMouse(e);
 
-			foreach (LayerDraw sd in _renderer.MainDrawingComponent.Components) {
-				if (sd.IsMouseUnder(e)) {
-					return true;
-				}
-			}
-
-			return false;
+			//if (_renderer.MainDrawingComponent == null) return false;
+			//
+			//foreach (LayerDraw sd in _renderer.MainDrawingComponent.Components) {
+			//	if (sd.IsMouseUnder(e)) {
+			//		return true;
+			//	}
+			//}
+			//
+			//return false;
 		}
 
 		private double _getDistance(Point p1, Point p2) {

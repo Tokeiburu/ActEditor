@@ -38,14 +38,14 @@
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <Styles:FancyButton x:Name="_fancyButton3" Tag="3" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="0" />
-                            <Styles:FancyButton x:Name="_fancyButton4" Tag="4" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="1" />
-                            <Styles:FancyButton x:Name="_fancyButton5" Tag="5" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="2" />
-                            <Styles:FancyButton x:Name="_fancyButton2" Tag="2" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="1" Grid.Column="0" />
-                            <Styles:FancyButton x:Name="_fancyButton6" Tag="6" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="1" Grid.Column="2" />
-                            <Styles:FancyButton x:Name="_fancyButton1" Tag="1" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="0" />
-                            <Styles:FancyButton x:Name="_fancyButton0" Tag="0" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="1" />
-                            <Styles:FancyButton x:Name="_fancyButton7" Tag="7" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="2" />
+                            <Styles:FancyButton x:Name="_fancyButton3" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="0" />
+                            <Styles:FancyButton x:Name="_fancyButton4" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="1" />
+                            <Styles:FancyButton x:Name="_fancyButton5" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="0" Grid.Column="2" />
+                            <Styles:FancyButton x:Name="_fancyButton2" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="1" Grid.Column="0" />
+                            <Styles:FancyButton x:Name="_fancyButton6" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="1" Grid.Column="2" />
+                            <Styles:FancyButton x:Name="_fancyButton1" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="0" />
+                            <Styles:FancyButton x:Name="_fancyButton0" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="1" />
+                            <Styles:FancyButton x:Name="_fancyButton7" Click="_fancyButton_Click" Height="20" Width="20" Grid.Row="2" Grid.Column="2" />
                         </Grid>
                         <Grid Grid.Column="1">
                             <Grid.RowDefinitions>

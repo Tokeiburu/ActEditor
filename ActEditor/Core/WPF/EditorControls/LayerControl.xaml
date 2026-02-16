@@ -3,38 +3,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" mc:Ignorable="d" VirtualizingStackPanel.IsVirtualizing="True" >
-    <Grid Background="{StaticResource UIThemeTextBoxBackgroundBrush}" Name="_grid">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-            <ColumnDefinition MinWidth="43" />
-        </Grid.ColumnDefinitions>
-        <TextBlock Padding="0 0 3 0" TextAlignment="Right" x:Name="_tbSpriteId" Grid.Column="0" Margin="0 0 1 1" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="0" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbSpriteNumber" Grid.Column="1" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="1" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbOffsetX" Grid.Column="2" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="2" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbOffsetY" Grid.Column="3" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="3" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 IsHitTestVisible="False" TextAlignment="Right" x:Name="_tbMirror" Grid.Column="4" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <CheckBox FocusVisualStyle="{x:Null}" Name="_cbMirror" Grid.Column="4" Margin="0 0 1 1" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="4" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:QuickColorSelector x:Name="_color" Grid.Column="5" Margin="-3 -3 -2 -2" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="5" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbScaleX" Grid.Column="6" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="6" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbScaleY" Grid.Column="7" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="7" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbRotation" Grid.Column="8" BorderThickness="0" Margin="0 0 1 1" Background="Transparent" />
-        <Line HorizontalAlignment="Right" Width="1" Y2="1" Grid.Column="8" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square"  />
-        <Line Height="1" X1="0" X2="1" Grid.Column="0" VerticalAlignment="Bottom" Stroke="{StaticResource UIGridBackgroundBrush}" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square" Grid.ColumnSpan="10" />
-    </Grid>
+             xmlns:GenericControls="clr-namespace:ActEditor.Core.WPF.GenericControls" mc:Ignorable="d">
+	<UniformGrid x:Name="_grid" Background="{DynamicResource UIThemeTextBoxBackgroundBrush}" Height="17" Columns="7" SnapsToDevicePixels="True" UseLayoutRounding="True" >
+		<UniformGrid.Resources>
+			<Style TargetType="Border">
+				<Setter Property="BorderBrush" Value="{DynamicResource UIGridBackgroundBrush}" />
+				<Setter Property="BorderThickness" Value="0,0,1,1" />
+			</Style>
+		</UniformGrid.Resources>
+		<Border>
+		    <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbOffsetX" Background="Transparent" />
+		</Border>
+		<Border>
+            <GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbOffsetY" Background="Transparent" />
+		</Border>
+		<Border>
+			<CheckBox FocusVisualStyle="{x:Null}" Name="_cbMirror" HorizontalAlignment="Center" VerticalAlignment="Center" />
+		</Border>
+		<Border>
+			<GenericControls:LayerColorSelector x:Name="_color" />
+		</Border>
+		<Border>
+			<GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbScaleX" Background="Transparent" />
+		</Border>
+		<Border>
+			<GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbScaleY" Background="Transparent" />
+		</Border>
+		<Border>
+			<GenericControls:ClickSelectTextBox2 TextAlignment="Right" x:Name="_tbRotation" Background="Transparent" />
+		</Border>
+    </UniformGrid>
 </UserControl>

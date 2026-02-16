@@ -2,10 +2,11 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ListView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-        xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary" Icon="..\..\Resources\app.ico"
+        xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
         xmlns:WPF="clr-namespace:TokeiLibrary.WPF;assembly=TokeiLibrary"
-        xmlns:PreviewTabs="clr-namespace:ActEditor.Tools.GrfShellExplorer.PreviewTabs" Title="Grf Explorer" Height="400" Width="750">
-    <Grid>
+        xmlns:PreviewTabs="clr-namespace:ActEditor.Tools.GrfShellExplorer.PreviewTabs"
+		Title="Grf Explorer" Height="400" Width="750" Icon="..\..\Resources\app.ico">
+	<Grid Background="{DynamicResource UIThemeMenuBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
@@ -15,8 +16,8 @@
             <ColumnDefinition Width="500" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <DockPanel LastChildFill="False">
-            <Label Content="Search" />
+		<DockPanel LastChildFill="False" Background="{DynamicResource UIThemeMenuBackgroundBrush}">
+            <Label Content="Search" Foreground="{DynamicResource TextForeground}" />
             <Image Margin="3" Source="..\../Resources\find.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" Width="16"  HorizontalAlignment="Left" />
             <TextBox Name="_textBoxMainSearch" Width="130" BorderThickness="1" Height="24" TextChanged="_textBox_TextChanged" HorizontalAlignment="Left" />
         </DockPanel>
@@ -27,7 +28,7 @@
             </Grid.RowDefinitions>
             <Grid Visibility="Collapsed" Height="180" Name="_gridSearchResults" Grid.Row="0" >
                 <ListView TextSearch.TextPath="DisplayRelativePath" Name="_listBoxResults" SelectionChanged="_listBoxResults_SelectionChanged" BorderThickness="0" Foreground="Black" MouseDoubleClick="_listBoxResults_MouseDoubleClick"
-                              ListView:WpfUtils.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                              ListView:ListViewExtensions.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 </ListView>
             </Grid>
             <Grid Grid.Row="0" Name="_gridBoxResultsHeight" SizeChanged="_gridBoxResultsHeight_SizeChanged" />
@@ -39,7 +40,7 @@
                 </Grid.ColumnDefinitions>
                 <WPF:TkView BorderThickness="0" Margin="0 0 2 0" Name="_treeView" SelectedItemChanged="_treeView_SelectedItemChanged" PreviewMouseRightButtonDown="_treeView_PreviewMouseRightButtonDown" />
                 <GridSplitter Width="2" Grid.Column="0" HorizontalAlignment="Right" Background="{x:Static TokeiLibrary:Configuration.UIGridBackground}" />
-                <Grid Grid.Column="1">
+				<Grid Grid.Column="1" Background="{DynamicResource ListItemSearchBackground}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition />
@@ -50,17 +51,17 @@
                     </DockPanel>
                     <ListView TextSearch.TextPath="DisplayRelativePath" Foreground="Black" AllowDrop="True" Grid.Row="1" Name="_items" SelectionChanged="_items_SelectionChanged"  SelectionMode="Extended"
                               PreviewMouseLeftButtonDown="_items_PreviewMouseLeftButtonDown" BorderThickness="0" FocusVisualStyle="{x:Null}" MouseDoubleClick="_items_MouseDoubleClick"
-                              ListView:WpfUtils.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                              ListView:ListViewExtensions.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     </ListView>
                 </Grid>
             </Grid>
         </Grid>
         <GridSplitter Width="2" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" Background="{x:Static TokeiLibrary:Configuration.UIGridBackground}" />
-        <Grid Background="#F6F8FC" Grid.Column="1" Grid.Row="1" Grid.RowSpan="1" Margin="2 0 0 0">
-            <PreviewTabs:PreviewImage Background="White" x:Name="_previewImage" Visibility="Collapsed" />
-            <PreviewTabs:PreviewAct Background="White" x:Name="_previewAct" Visibility="Collapsed" />
+		<Grid Background="{DynamicResource TabControlBackground}" Grid.Column="1" Grid.Row="1" Grid.RowSpan="1" Margin="2 0 0 0">
+			<PreviewTabs:PreviewImage Style="{DynamicResource x:TabItemStyled}" x:Name="_previewImage" Visibility="Collapsed" />
+			<PreviewTabs:PreviewAct Style="{DynamicResource x:TabItemStyled}" x:Name="_previewAct" Visibility="Collapsed" />
         </Grid>
-        <Grid Name="_gridActionPresenter" Grid.ColumnSpan="2" ListView:WpfUtils.IsDraggable="True" Grid.Row="2" Height="50" Background="{DynamicResource UIDialogBackground}">
+        <Grid Name="_gridActionPresenter" Grid.ColumnSpan="2" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="2" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />

@@ -18,21 +18,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionCopy : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Copy action"; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.CopyAction|Alt-C}"; }
-		}
-
-		public string Image {
-			get { return "copy.png"; }
-		}
+		public object DisplayName => "Copy action";
+		public string Group => "Action";
+		public string InputGesture => "{FrameEditor.CopyAction|Alt-C}";
+		public string Image => "copy.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -50,21 +39,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionPaste : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Paste action"; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.PasteAction|Alt-V}"; }
-		}
-
-		public string Image {
-			get { return "paste.png"; }
-		}
+		public object DisplayName => "Paste action";
+		public string Group => "Action";
+		public string InputGesture => "{FrameEditor.PasteAction|Alt-V}";
+		public string Image => "paste.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -105,21 +83,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionDelete : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Delete action"; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.DeleteAction|Alt-Delete}"; }
-		}
-
-		public string Image {
-			get { return "delete.png"; }
-		}
+		public object DisplayName => "Delete action";
+		public string Group => "Action";
+		public string InputGesture => "{FrameEditor.DeleteAction|Alt-Delete}";
+		public string Image => "delete.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null || act.NumberOfActions <= 1) return;
@@ -139,11 +106,11 @@ namespace ActEditor.Core.Scripts {
 		#endregion
 	}
 
-	public class ActionInsertAt : IActScript {
+	public class ActionAdd : IActScript {
 		#region IActScript Members
 
 		public object DisplayName {
-			get { return "Add action to..."; }
+			get { return "Add action"; }
 		}
 
 		public string Group {
@@ -151,12 +118,36 @@ namespace ActEditor.Core.Scripts {
 		}
 
 		public string InputGesture {
-			get { return "{Dialog.AddActionTo|Alt-T}"; }
+			get { return "{FrameEditor.AddAction|Alt-Enter}"; }
 		}
 
 		public string Image {
 			get { return "add.png"; }
 		}
+
+		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			try {
+				act.Commands.ActionInsertAt(selectedActionIndex + 1);
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err, ErrorLevel.Warning);
+			}
+		}
+
+		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			return act != null;
+		}
+
+		#endregion
+	}
+
+	public class ActionInsertAt : IActScript {
+		#region IActScript Members
+
+		public object DisplayName => "Add action to...";
+		public string Group => "Action";
+		public string InputGesture => "{Dialog.AddActionTo|Alt-T}";
+		public string Image => "add.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -187,21 +178,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionSwitchSelected : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Switch action to..."; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.SwitchActionTo|Alt-M}"; }
-		}
-
-		public string Image {
-			get { return "refresh.png"; }
-		}
+		public object DisplayName => "Switch action to...";
+		public string Group => "Action";
+		public string InputGesture => "{Dialog.SwitchActionTo|Alt-M}";
+		public string Image => "refresh.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -237,21 +217,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionCopyAt : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Copy action and replace to..."; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.OverwriteActionTo|Alt-G}"; }
-		}
-
-		public string Image {
-			get { return "convert.png"; }
-		}
+		public object DisplayName => "Copy action and replace to...";
+		public string Group => "Action";
+		public string InputGesture => "{Dialog.OverwriteActionTo|Alt-G}";
+		public string Image => "convert.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -287,34 +256,18 @@ namespace ActEditor.Core.Scripts {
 	public class ActionAdvanced : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Advanced edit..."; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{Dialog.AdvancedEdit|Alt-E}"; }
-		}
-
-		public string Image {
-			get { return "advanced.png"; }
-		}
+		public object DisplayName => "Edit actions...";
+		public string Group => "Action";
+		public string InputGesture => "{Dialog.AdvancedEdit|Alt-E}";
+		public string Image => "advanced.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
 
 			try {
-				ActionInsertDialog dialog = new ActionInsertDialog(act);
-				dialog.StartIndex = selectedActionIndex;
-				dialog.EndIndex = selectedActionIndex + 1;
+				var dialog = new ActionEditDialog(act, selectedActionIndex);
 				dialog.Owner = WpfUtilities.TopWindow;
-
-				if (dialog.ShowDialog() == true) {
-					dialog.Execute(act);
-				}
+				dialog.ShowDialog();
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err, ErrorLevel.Warning);
@@ -344,17 +297,9 @@ namespace ActEditor.Core.Scripts {
 			}
 		}
 
-		public string InputGesture {
-			get { return "{FrameEditor.MirrorAction|Alt-X}"; }
-		}
-
-		public string Image {
-			get { return "convert.png"; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
+		public string InputGesture => "{FrameEditor.MirrorAction|Alt-X}";
+		public string Image => "convert.png";
+		public string Group => "Action";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -433,7 +378,7 @@ namespace ActEditor.Core.Scripts {
 				_callback(false);
 			}
 
-			public string CommandDescription { get { return "Selection changed..."; } }
+			public string CommandDescription => "Selection changed...";
 		}
 
 		private readonly MoveDirection _dir;
@@ -455,9 +400,7 @@ namespace ActEditor.Core.Scripts {
 			get { return _dir == MoveDirection.Up ? "back.png" : "front.png"; }
 		}
 
-		public string Group {
-			get { return "Action"; }
-		}
+		public string Group => "Action";
 
 		public ActionLayerMove(MoveDirection dir, IFrameRendererEditor editor) {
 			_dir = dir;
@@ -555,21 +498,10 @@ namespace ActEditor.Core.Scripts {
 	public class FrameMirrorVertical : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Mirror vertical"; }
-		}
-
-		public string Group {
-			get { return "Frame"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.FrameMirrorVertical|Ctrl-L}"; }
-		}
-
-		public string Image {
-			get { return "flip2.png"; }
-		}
+		public object DisplayName => "Mirror vertical";
+		public string Group => "Frame";
+		public string InputGesture => "{FrameEditor.FrameMirrorVertical|Ctrl-L}";
+		public string Image => "flip2.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -595,21 +527,10 @@ namespace ActEditor.Core.Scripts {
 	public class FrameMirrorHorizontal : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Mirror horizontal"; }
-		}
-
-		public string Group {
-			get { return "Frame"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.FrameMirrorHorizontal|Ctrl-Shift-L}"; }
-		}
-
-		public string Image {
-			get { return "flip.png"; }
-		}
+		public object DisplayName => "Mirror horizontal";
+		public string Group => "Frame";
+		public string InputGesture => "{FrameEditor.FrameMirrorHorizontal|Ctrl-Shift-L}";
+		public string Image => "flip.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -635,21 +556,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionMirrorVertical : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Mirror vertical"; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.ActionMirrorVertical|Alt-L}"; }
-		}
-
-		public string Image {
-			get { return "flip2.png"; }
-		}
+		public object DisplayName => "Mirror vertical";
+		public string Group => "Action";
+		public string InputGesture => "{FrameEditor.ActionMirrorVertical|Alt-L}";
+		public string Image => "flip2.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
@@ -675,21 +585,10 @@ namespace ActEditor.Core.Scripts {
 	public class ActionMirrorHorizontal : IActScript {
 		#region IActScript Members
 
-		public object DisplayName {
-			get { return "Mirror horizontal"; }
-		}
-
-		public string Group {
-			get { return "Action"; }
-		}
-
-		public string InputGesture {
-			get { return "{FrameEditor.ActionMirrorHorizontal|Alt-Shift-L}"; }
-		}
-
-		public string Image {
-			get { return "flip.png"; }
-		}
+		public object DisplayName => "Mirror horizontal";
+		public string Group => "Action";
+		public string InputGesture => "{FrameEditor.ActionMirrorHorizontal|Alt-Shift-L}";
+		public string Image => "flip.png";
 
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;

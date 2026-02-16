@@ -1,8 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:WPF="clr-namespace:TokeiLibrary.WPF;assembly=TokeiLibrary"
-                    xmlns:TreeViewManager="clr-namespace:GrfToWpfBridge.TreeViewManager;assembly=GrfToWpfBridge"
-                    xmlns:mapExtractor="clr-namespace:GRFEditor.Tools.MapExtractor">
+                    xmlns:TreeViewManager="clr-namespace:GrfToWpfBridge.TreeViewManager;assembly=GrfToWpfBridge">
     <Style TargetType="{x:Type ComboBox}">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
     </Style>
@@ -25,7 +24,11 @@
         <Setter Property="Template" Value="{DynamicResource ButtonTemplate}" />
     </Style>
 
-    <LinearGradientBrush x:Key="MouseOverBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+	<Color x:Key="UIThemeMenuBackgroundColor">#FFFFFF</Color>
+	<SolidColorBrush x:Key="UIThemeMenuBackgroundBrush" Color="{StaticResource UIThemeMenuBackgroundColor}" />
+	<Color x:Key="UIThemeTextBoxBackgroundColor">#FFFFFF</Color>
+	
+	<LinearGradientBrush x:Key="MouseOverBrush" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="#E8F5FC" Offset="0" />
         <GradientStop Color="#E0F2FB" Offset="0.318" />
         <GradientStop Color="#D8EFFB" Offset="0.488" />
@@ -74,9 +77,22 @@
     <SolidColorBrush x:Key="CellBrushModified" Color="Green"/>
     <SolidColorBrush x:Key="CellBrushMvp" Color="#FFBA6200"/>
     <Color x:Key="UIThemeAboutDialogColor">Transparent</Color>
-    <SolidColorBrush x:Key="UIThemeAboutDialogBrush" Color="{DynamicResource UIThemeAboutDialogColor}"/>
+	<SolidColorBrush x:Key="UIThemeAboutDialogBrush" Color="{DynamicResource UIThemeAboutDialogColor}"/>
 
-    <!-- TreeView -->
+	<!--
+	<LinearGradientBrush x:Key="UIThemeListEditSelectedBrush" StartPoint="0,0" EndPoint="0,1">
+		<GradientStop Offset="0" Color="#FFE9F3FF" />
+		<GradientStop Offset="0.5" Color="#FFC1DBFC" />
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="UIThemeListEditPreviewSelectedBrush" StartPoint="0,0" EndPoint="0,1">
+		<GradientStop Offset="0" Color="#FFFAFBFD" />
+		<GradientStop Offset="0.5" Color="#FFEBF3FD" />
+	</LinearGradientBrush>
+	-->
+	<SolidColorBrush x:Key="UIThemeListEditSelectedBrush" Color="#DEFBA9"/>
+	<SolidColorBrush x:Key="UIThemeListEditPreviewSelectedBrush" Color="#FFED7A"/>
+
+	<!-- TreeView -->
     <SolidColorBrush x:Key="UITreeViewDefaultForegroundBrush" Color="Black"/>
     <SolidColorBrush x:Key="UITreeViewSelectedBorderBrush" Color="#FF7DA2CE"/>
     <LinearGradientBrush x:Key="UITreeViewSelectedBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
@@ -112,9 +128,8 @@
         <GradientStop Offset="0.5" Color="#FFC1DBFC" />
     </LinearGradientBrush>
 
-    <Style TargetType="WPF:TkView">
-        <Setter Property="Background" Value="{DynamicResource UIThemeBackground1Brush}" />
-        <Style.Resources>
+	<Style TargetType="WPF:TkView">
+		<Style.Resources>
             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent" />
         </Style.Resources>
     </Style>
@@ -215,19 +230,15 @@
                 </Trigger.EnterActions>
 
             </Trigger>
-            <Trigger Property="IsPressed" Value="true">
-                <Trigger.ExitActions>
-                    <BeginStoryboard Storyboard="{StaticResource PressedOff}" />
-                </Trigger.ExitActions>
-                <Trigger.EnterActions>
-                    <BeginStoryboard Storyboard="{StaticResource PressedOn}" />
-                </Trigger.EnterActions>
-            </Trigger>
-
-            <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Foreground" Value="{DynamicResource DisabledForegroundBrush_Button}" />
-            </Trigger>
-        </ControlTemplate.Triggers>
+			<Trigger Property="IsPressed" Value="true">
+				<Trigger.ExitActions>
+					<BeginStoryboard Storyboard="{StaticResource PressedOff}" />
+				</Trigger.ExitActions>
+				<Trigger.EnterActions>
+					<BeginStoryboard Storyboard="{StaticResource PressedOn}" />
+				</Trigger.EnterActions>
+			</Trigger>
+		</ControlTemplate.Triggers>
     </ControlTemplate>
 
     <ControlTemplate x:Key="ButtonTemplateXP" TargetType="{x:Type Button}">
@@ -431,6 +442,9 @@
     <SolidColorBrush x:Key="MouseOverTextBrush" Color="Blue" />
     <SolidColorBrush x:Key="AvalonEditorBackground" Color="White"/>
     <SolidColorBrush x:Key="AvalonEditorSelectionBrush" Color="#A0ACD5FE" />
+	<SolidColorBrush x:Key="AvalonEditorSelectionBackgroundBrush" Color="#A0ACD5FE" />
+	<SolidColorBrush x:Key="AvalonEditorSelectionForegroundBrush" Color="#FF000000" />
+	<SolidColorBrush x:Key="AvalonEditorSearchForegroundBrush" Color="#FFFFFF00" />
     <SolidColorBrush x:Key="AvalonEditorMarkerBrush" Color="#8FFF8F" />
     <SolidColorBrush x:Key="ImageConverterGrayBrush" Color="Gray" />
     <SolidColorBrush x:Key="EncryptionDialogBorderBrush" Color="#CDD5E2" />
@@ -458,8 +472,8 @@
     <SolidColorBrush x:Key="UIThemeLayerControlOverlay" Color="#C9FFFFFF"/>
     <SolidColorBrush x:Key="UIThemeHyperlinkForegroundBrush" Color="#FF0000FE"/>
     <SolidColorBrush x:Key="UIThemeHyperlinkMouseOverBrush" Color="#FF005BFF"/>
-    <SolidColorBrush x:Key="UIThemeTextBoxBackgroundBrush" Color="White" />
-    <SolidColorBrush x:Key="UIThemeScriptRunnerConsoleErrorBrush" Color="#CBFAFBFD" />
+	<SolidColorBrush x:Key="UIThemeTextBoxBackgroundBrush" Color="{StaticResource UIThemeTextBoxBackgroundColor}" />
+	<SolidColorBrush x:Key="UIThemeScriptRunnerConsoleErrorBrush" Color="#CBFAFBFD" />
     <SolidColorBrush x:Key="UIThemeImageViewerBackground" Color="#BEBEBE" />
     
     <SolidColorBrush x:Key="UIThemeMainTabControlBorderBrush" Color="#CED6E3"/>
@@ -661,7 +675,9 @@
 
     <Thickness x:Key="CheckBoxMarginOffset" Left="4" Top="0" Right="0" Bottom="0" />
 
-    <LinearGradientBrush x:Key="ToggleMemoryBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+	<SolidColorBrush x:Key="SpriteConverterSelectionBorderBrush" Color="#8FCAEA" />
+
+	<LinearGradientBrush x:Key="ToggleMemoryBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Offset="0" Color="#DEDEDE" />
         <GradientStop Offset="0.5" Color="White" />
     </LinearGradientBrush>
@@ -672,5 +688,77 @@
     <Style x:Key="DefaultListViewItemStyle" TargetType="{x:Type ListViewItem}">
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-    </Style>
+	</Style>
+
+	<Style TargetType="{x:Type WPF:SimpleButton}">
+		<Setter Property="SnapsToDevicePixels" Value="True" />
+		<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+		<Setter Property="Focusable" Value="False" />
+
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="{x:Type Button}">
+					<Grid>
+						<Border x:Name="Border" BorderThickness="1" CornerRadius="1" Background="Transparent" BorderBrush="Transparent" />
+						<ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" />
+						<Border x:Name="BorderEnabled" BorderThickness="1" CornerRadius="1" Background="{DynamicResource FancyButtonDisabledBackgroundBrush}" BorderBrush="{DynamicResource FancyButtonDisabledBorderBrush}" Visibility="Hidden" />
+					</Grid>
+
+					<ControlTemplate.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter TargetName="Border" Property="Background" Value="{DynamicResource FancyButtonMouseOverBackgroundBrush}" />
+							<Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource FancyButtonMouseOverBorderBrush}" />
+						</Trigger>
+
+						<Trigger Property="WPF:SimpleButton.IsStatePressed" Value="True">
+							<Setter TargetName="Border" Property="Background" Value="{DynamicResource FancyButtonPressedBackgroundBrush}" />
+							<Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource FancyButtonPressedBorderBrush}" />
+						</Trigger>
+
+						<Trigger Property="IsEnabled" Value="False">
+							<Setter TargetName="BorderEnabled" Property="Visibility" Value="Visible" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
+
+	<Style x:Key="DarkToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+		<Setter Property="VerticalAlignment" Value="Center" />
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+		<Setter Property="SnapsToDevicePixels" Value="True" />
+
+		<Setter Property="Template">
+			<Setter.Value>
+				<ControlTemplate TargetType="ToggleButton">
+					<Border x:Name="Border" 
+							Width="{TemplateBinding Width}" 
+							Height="{TemplateBinding Height}" 
+							MinWidth="{TemplateBinding MinWidth}" 
+							ClipToBounds="True" 
+							Background="{DynamicResource UIThemeTextBoxBackgroundBrush}" 
+							BorderThickness="1" 
+							BorderBrush="{StaticResource UIGridBackgroundBrush}" >
+						<Border BorderThickness="1" BorderBrush="Transparent">
+							<ContentPresenter x:Name="myContentPresenter" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{TemplateBinding  Content}" />
+						</Border>
+					</Border>
+					<ControlTemplate.Triggers>
+						<MultiTrigger>
+							<MultiTrigger.Conditions>
+								<Condition Property="IsMouseOver" Value="True"/>
+								<Condition Property="IsChecked" Value="False"/>
+							</MultiTrigger.Conditions>
+							<Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeLayerControlPreviewSelectedBrush}" />
+						</MultiTrigger>
+
+						<Trigger Property="IsChecked" Value="True">
+							<Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeLayerControlSelectedBrush}" />
+						</Trigger>
+					</ControlTemplate.Triggers>
+				</ControlTemplate>
+			</Setter.Value>
+		</Setter>
+	</Style>
 </ResourceDictionary>

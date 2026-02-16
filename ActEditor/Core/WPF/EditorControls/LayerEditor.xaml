@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              FocusVisualStyle="{x:Null}"
              xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
-             xmlns:WPF="clr-namespace:ActEditor.Core.WPF" xmlns:Core="clr-namespace:ActEditor.Core"
              xmlns:EditorControls="clr-namespace:ActEditor.Core.WPF.EditorControls" mc:Ignorable="d" >
     <UserControl.ContextMenu>
         <ContextMenu>
@@ -27,21 +26,26 @@
     <Grid FocusVisualStyle="{x:Null}">
         <Grid Name="_displayGrid">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
+				<ColumnDefinition MinWidth="558" />
+                <ColumnDefinition Width="20" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <EditorControls:LayerControlHeader x:Name="_sfch" />
-            <Border BorderThickness="0 1 0 0" BorderBrush="{StaticResource UIGridBackgroundBrush}" VerticalAlignment="Top" />
+			<EditorControls:LayerControlHeader x:Name="_sfch" Width="558" />
+            <Border BorderThickness="0 1 0 0" BorderBrush="{DynamicResource UIGridBackgroundBrush}" VerticalAlignment="Top" />
             <ScrollViewer Name="_sv" Grid.Row="1" Grid.ColumnSpan="2" MinHeight="50" FocusVisualStyle="{x:Null}">
-                <StackPanel VirtualizingStackPanel.IsVirtualizing="True" Name="_sp" FocusVisualStyle="{x:Null}">
-                </StackPanel>
-            </ScrollViewer>
+				<Grid Width="558">
+				    <Grid Name="_gridBackground">
+					    <StackPanel Name="_sp" VirtualizingStackPanel.IsVirtualizing="True" FocusVisualStyle="{x:Null}">
+                        </StackPanel>
+				    </Grid>
+					<Grid x:Name="_gridOverlay" />
+				</Grid>
+			</ScrollViewer>
             <ListView Name="_listView" Visibility="Collapsed" Grid.Row="1" Foreground="Black" AllowDrop="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" FocusVisualStyle="{x:Null}" />
         </Grid>
-        <Line  Name="_lineMoveLayer" X1="0" Margin="0 0 0 0" X2="1" Stretch="Fill" Stroke="Red" StrokeThickness="3" VerticalAlignment="Top" Visibility="Hidden" Grid.ColumnSpan="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" />
+        <Line Name="_lineMoveLayer" X1="0" Margin="0 0 0 0" X2="1" Stretch="Fill" Stroke="Transparent" StrokeThickness="3" VerticalAlignment="Top" Visibility="Hidden" Grid.ColumnSpan="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" IsHitTestVisible="false" HorizontalAlignment="Left" />
     </Grid>
 </UserControl>

@@ -1,15 +1,16 @@
 ﻿<Styles:TkWindow x:Class="ActEditor.Core.ActEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-              xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
-                 SnapsToDevicePixels="True"
-                 xmlns:WpfBugFix="clr-namespace:TokeiLibrary.WpfBugFix;assembly=TokeiLibrary"
-                 xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
-                 Icon="..\Resources\app.ico" MinHeight="600" MinWidth="890" ShowInTaskbar="True">
+        xmlns:Styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
+        SnapsToDevicePixels="True"
+        xmlns:WpfBugFix="clr-namespace:TokeiLibrary.WpfBugFix;assembly=TokeiLibrary"
+        xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary"
+        Icon="..\Resources\app.ico" MinHeight="650" MinWidth="891" ShowInTaskbar="True"
+	    DragEnter="_actEditorWindow_DragEnter" Drop="_actEditorWindow_Drop" Loaded="_actEditorWindow_Loaded">
     <Styles:TkWindow.Resources>
         <Style x:Key="TabControlSprite" TargetType="{x:Type TabControl}">
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="{StaticResource UIThemeMainTabControlBorderBrush}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource UIThemeMainTabControlBorderBrush}" />
             <Setter Property="Padding" Value="0" />
         </Style>
 
@@ -19,7 +20,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TabItem}">
                         <Grid x:Name="Grid">
-                            <Border x:Name="Border" Margin="-1,0,0,0" Background="{StaticResource UIThemeMainTabControlTemplateBackground}" BorderBrush="{StaticResource UIThemeMainTabControlBorderBrush}" BorderThickness="1,1,1,0">
+							<Border x:Name="Border" Margin="-1,0,0,0" Background="{DynamicResource UIThemeMainTabControlTemplateBackground}" BorderBrush="{DynamicResource UIThemeMainTabControlBorderBrush}" BorderThickness="1,1,1,0">
                                 <Border Name="SubBorder" Margin="1,1,1,1">
                                     <ContentPresenter x:Name="ContentSite" TextElement.FontSize="13" VerticalAlignment="Center" ContentSource="Header" Margin="3 2 23 2" RecognizesAccessKey="False">
                                     </ContentPresenter>
@@ -27,39 +28,39 @@
                             </Border>
                             <Border Name="_borderButton" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Center" Width="16" Height="16" CornerRadius="2" Margin="0 0 4 0">
                                 <Canvas Name="Canva" Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Line Name="_line1" Stroke="{StaticResource UIThemeMainTabControlTemplateStroke}" StrokeThickness="2" X1="-3" X2="3" Y1="-3" Y2="3" StrokeEndLineCap="Round" StrokeStartLineCap="Round" />
-                                    <Line Name="_line2" Stroke="{StaticResource UIThemeMainTabControlTemplateStroke}" StrokeThickness="2" X1="-3" X2="3" Y1="3" Y2="-3" StrokeEndLineCap="Round" StrokeStartLineCap="Round" />
+									<Line Name="_line1" Stroke="{DynamicResource UIThemeMainTabControlTemplateStroke}" StrokeThickness="2" X1="-3" X2="3" Y1="-3" Y2="3" StrokeEndLineCap="Round" StrokeStartLineCap="Round" />
+									<Line Name="_line2" Stroke="{DynamicResource UIThemeMainTabControlTemplateStroke}" StrokeThickness="2" X1="-3" X2="3" Y1="3" Y2="-3" StrokeEndLineCap="Round" StrokeStartLineCap="Round" />
                                 </Canvas>
                             </Border>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger SourceName="_borderButton" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="_borderButton" Property="Background" Value="{StaticResource UIThemeMainTabControlTemplateTrigger1}" />
+								<Setter TargetName="_borderButton" Property="Background" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger1}" />
                                 <Setter Property="Cursor" Value="Hand" />
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeMainTabControlTemplateTrigger11}" />
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMainTabControlTemplateTrigger3}" />
-                                <Setter TargetName="_line1" Property="Stroke" Value="{StaticResource UIThemeMainTabControlTemplateTrigger9}" />
-                                <Setter TargetName="_line2" Property="Stroke" Value="{StaticResource UIThemeMainTabControlTemplateTrigger9}" />
+								<Setter TargetName="Border" Property="Background" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger11}" />
+								<Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger3}" />
+								<Setter TargetName="_line1" Property="Stroke" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger9}" />
+								<Setter TargetName="_line2" Property="Stroke" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger9}" />
                             </Trigger>
                             <Trigger SourceName="_borderButton" Property="IsMouseOver" Value="False">
                                 <Setter Property="Cursor" Value="Arrow" />
                             </Trigger>
                             <Trigger SourceName="Border" Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeMainTabControlTemplateTrigger4}" />
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMainTabControlTemplateTrigger5}" />
-                                <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeMainTabControlTemplateTrigger10}" />
+								<Setter TargetName="Border" Property="Background" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger4}" />
+								<Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger5}" />
+								<Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger10}" />
                                 <Setter Property="Cursor" Value="Hand" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Panel.ZIndex" Value="100" />
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource UIThemeMainTabControlTemplateTrigger2}" />
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource UIThemeMainTabControlTemplateTrigger6}" />
+								<Setter TargetName="Border" Property="Background" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger2}" />
+								<Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger6}" />
                                 <Setter TargetName="Border" Property="Margin" Value="-1,0,0,-1" />
                                 <Setter TargetName="SubBorder" Property="Margin" Value="1,1,1,2" />
-                                <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeMainTabControlTemplateTrigger7}" />
+								<Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger7}" />
                             </Trigger>
                             <Trigger Property="IsSelected" Value="False">
-                                <Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{StaticResource UIThemeMainTabControlTemplateTrigger8}" />
+								<Setter TargetName="ContentSite" Property="TextElement.Foreground" Value="{DynamicResource UIThemeMainTabControlTemplateTrigger8}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -67,7 +68,7 @@
             </Setter>
         </Style>
     </Styles:TkWindow.Resources>
-    <Grid Focusable="True" FocusVisualStyle="{x:Null}" Name="_gridPrimary" Background="{StaticResource TabItemBackground}">
+	<Grid Focusable="True" FocusVisualStyle="{x:Null}" Name="_gridPrimary" Background="{DynamicResource TabItemBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
@@ -77,8 +78,8 @@
                 <MenuItem.Header>
                     <Label Content="File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
-                <MenuItem Header="New Act" listView:WpfUtils.IconPath="add.png">
-                    <Styles:TkMenuItem Name="_miNew" Click="_miNew_Click" HeaderText="Default (empty)" IconPath="internalapp.png" ShortcutCmd="ActEditor.NewFile" Shortcut="Ctrl-N" />
+				<MenuItem Header="New Act" TokeiLibrary:WpfProperties.ImagePath="add.png">
+					<Styles:TkMenuItem Name="_miNew" Click="_miNew_Click" HeaderText="Default (empty)" TokeiLibrary:WpfProperties.ImagePath="internalapp.png" ShortcutCmd="ActEditor.NewFile" Shortcut="Ctrl-N" />
                     <Separator />
                     <Styles:TkMenuItem Name="_miNewHeadgearMale" Click="_miNewHeadgearMale_Click" HeaderText="Headgear (male)" />
                     <Styles:TkMenuItem Name="_miNewHeadgear" Click="_miNewHeadgear_Click" HeaderText="Headgear (female)" />
@@ -133,7 +134,7 @@
                 </MenuItem>
                 <Separator />
                 <MenuItem x:Name="_miAnchor" Header="Anchor">
-                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="0" HeaderText="Anchor 1" ShortcutCmd="FrameEditor.ShowAnchor1" Shortcut="Ctrl-1" IsCheckable="True" />
+                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="0" HeaderText="Anchor 1" ShortcutCmd="FrameEditor.ShowAnchor1" Shortcut="Ctrl-1" IsCheckable="True" IsChecked="True" />
                     <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="1" HeaderText="Anchor 2" ShortcutCmd="FrameEditor.ShowAnchor2" Shortcut="Ctrl-2" IsCheckable="True"  />
                     <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="2" HeaderText="Anchor 3" ShortcutCmd="FrameEditor.ShowAnchor3" Shortcut="Ctrl-3" IsCheckable="True"  />
                     <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="3" HeaderText="Anchor 4" ShortcutCmd="FrameEditor.ShowAnchor4" Shortcut="Ctrl-4" IsCheckable="True"  />
@@ -141,10 +142,10 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
-        <DockPanel Name="_dpUndoRedo" Margin="40 0 0 0" HorizontalAlignment="Left">
-            <WpfBugFix:ToggleMemoryButton x:Name="_tmbUndo" IsEnabled="False" PrimaryButtonImagePath="undo.png" DisplayFormat="Undo {0} action" />
-            <WpfBugFix:ToggleMemoryButton x:Name="_tmbRedo" IsEnabled="False"  PrimaryButtonImagePath="redo.png" DisplayFormat="Redo {0} action" />
+        <DockPanel Name="_dpUndoRedo" Margin="40 0 0 0" HorizontalAlignment="Left" SnapsToDevicePixels="true">
+			<WpfBugFix:ToggleMemoryButton x:Name="_tmbUndo" IsEnabled="False" PrimaryButtonImagePath="undo.png" DisplayFormat="Undo {0} action" SnapsToDevicePixels="true" />
+			<WpfBugFix:ToggleMemoryButton x:Name="_tmbRedo" IsEnabled="False" PrimaryButtonImagePath="redo.png" DisplayFormat="Redo {0} action" SnapsToDevicePixels="true" />
         </DockPanel>
-        <TabControl Grid.Row="1" x:Name="_tabControl" Style="{StaticResource TabControlSprite}" Visibility="Collapsed" BorderThickness="0 1 0 0" />
+		<TabControl Grid.Row="1" x:Name="_tabControl" Style="{DynamicResource TabControlSprite}" Visibility="Collapsed" BorderThickness="0 1 0 0" SelectionChanged="_tabControl_SelectionChanged" />
     </Grid>
 </Styles:TkWindow>

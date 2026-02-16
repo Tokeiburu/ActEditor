@@ -13,119 +13,30 @@ using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.Avalon;
 using ErrorManager;
 using GRF.FileFormats.LubFormat;
-using GRF.Image;
 using GRF.IO;
-using GRF.System;
+using GRF.GrfSystem;
 using GrfToWpfBridge.Application;
-using ICSharpCode.AvalonEdit.Highlighting;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
+using Microsoft.CodeAnalysis;
+using GRF.Threading;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
 	/// Interaction logic for ScriptRunnerDialog.xaml
 	/// </summary>
 	public partial class ScriptRunnerDialog : TkWindow {
-		public const string ScriptTemplate = "using System;\r\n" +
-		                                     "using System.Collections.Generic;\r\n" +
-		                                     "using System.Globalization;\r\n" +
-		                                     "using System.IO;\r\n" +
-		                                     "using System.Linq;\r\n" +
-		                                     "using System.Windows;\r\n" +
-		                                     "using System.Windows.Controls;\r\n" +
-		                                     "using System.Windows.Documents;\r\n" +
-		                                     "using System.Windows.Media;\r\n" +
-		                                     "using System.Windows.Media.Imaging;\r\n" +
-		                                     "using ErrorManager;\r\n" +
-		                                     "using GRF.FileFormats.ActFormat;\r\n" +
-		                                     "using GRF.FileFormats.SprFormat;\r\n" +
-		                                     "using GRF.FileFormats.PalFormat;\r\n" +
-		                                     "using GRF.Image;\r\n" +
-		                                     "using GRF.Image.Decoders;\r\n" +
-											 "using GRF.Graphics;\r\n" +
-											 "using GRF.Core;\r\n" +
-											 "using GRF.IO;\r\n" +
-											 "using GRF.System;\r\n" +
-		                                     "using GrfToWpfBridge;\r\n" +
-		                                     "using TokeiLibrary;\r\n" +
-											 "using TokeiLibrary.WPF;\r\n" +
-											 "using Utilities;\r\n" +
-											 "using Utilities.Extension;\r\n" +
-											 "using Utilities.Parsers;\r\n" +
-											 "using Utilities.Parsers.Yaml;\r\n" +
-											 "using Utilities.Parsers.Libconfig;\r\n" +
-											 "using Utilities.Services;\r\n" +
-											 "using GRF.FileFormats.LubFormat.Preset;\r\n" +
-											 "using GRF.Core.GroupedGrf;\r\n" +
-											 "using System.Text;\r\n" +
-		                                     "using Action = GRF.FileFormats.ActFormat.Action;\r\n" +
-		                                     "using Frame = GRF.FileFormats.ActFormat.Frame;\r\n" +
-		                                     "using Point = System.Windows.Point;\r\n" +
-		                                     "\r\n" +
-		                                     "namespace Scripts {\r\n" +
-		                                     "    public class Script : IActScript {\r\n" +
-		                                     "		public object DisplayName {\r\n" +
-		                                     "			get { return {0}; }\r\n" +
-		                                     "		}\r\n" +
-		                                     "		\r\n" +
-		                                     "		public string Group {\r\n" +
-		                                     "			get { return \"Scripts\"; }\r\n" +
-		                                     "		}\r\n" +
-		                                     "		\r\n" +
-		                                     "		public string InputGesture {\r\n" +
-		                                     "			get { return {1}; }\r\n" +
-		                                     "		}\r\n" +
-		                                     "		\r\n" +
-		                                     "		public string Image {\r\n" +
-		                                     "			get { return {2}; }\r\n" +
-		                                     "		}\r\n" +
-		                                     "		\r\n" +
-		                                     "		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {\r\n" +
-		                                     "			if (act == null) return;\r\n" +
-											 "			\r\n" +
-											 "			Exception backupErr = null;\r\n" +
-											 "			\r\n" +
-		                                     "			try {\r\n" +
-											 "				act.Commands.BeginNoDelay();\r\n" +
-											 "				act.Commands.Backup(_ => {\r\n" +
-											 "					try {\r\n" +
-		                                     "{3}\r\n" +
-											 "					}\r\n" +
-											 "					catch (Exception err) {\r\n" +
-											 "						backupErr = err;\r\n" +
-											 "					}\r\n" +
-		                                     "				}, {0}, true);\r\n" +
-											 "				\r\n" +
-											 "				if (backupErr != null) {\r\n" +
-											 "					throw backupErr;\r\n" +
-											 "				}\r\n" +
-		                                     "			}\r\n" +
-		                                     "			catch (Exception err) {\r\n" +
-		                                     "				act.Commands.CancelEdit();\r\n" +
-		                                     "				ErrorHandler.HandleException(err, ErrorLevel.Warning);\r\n" +
-		                                     "			}\r\n" +
-		                                     "			finally {\r\n" +
-		                                     "				act.Commands.End();\r\n" +
-		                                     "				act.InvalidateVisual();\r\n" +
-		                                     "				act.InvalidateSpriteVisual();\r\n" +
-		                                     "			}\r\n" +
-		                                     "		}\r\n" +
-		                                     "		\r\n" +
-		                                     "		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {\r\n" +
-		                                     "			return true;\r\n" +
-											 "			//return act != null;\r\n" +
-		                                     "		}\r\n" +
-		                                     "	}\r\n" +
-		                                     "}\r\n";
+		public static string ScriptTemplate;
 
 		public static string TmpFilePattern = "script_runner_{0:0000}.cs";
 		private WpfRecentFiles _rcm;
 
 		static ScriptRunnerDialog() {
 			TmpFilePattern = Process.GetCurrentProcess().Id + "_" + TmpFilePattern;
+			ScriptTemplate = Encoding.Default.GetString(ApplicationManager.GetResource("script_engine_template.txt"));
 		}
 
 		protected override void GRFEditorWindowKeyDown(object sender, KeyEventArgs e) {
@@ -145,6 +56,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			AvalonLoader.Load(_textEditor);
 			AvalonLoader.SetSyntax(_textEditor, "C#");
 			SizeToContent = SizeToContent.WidthAndHeight;
+			_autoCompletion = new ScriptAutoCompletion(this);
 
 			ListViewDataTemplateHelper.GenerateListViewTemplateNew(_listView, new ListViewDataTemplateHelper.GeneralColumnInfo[] {
 				new ListViewDataTemplateHelper.ImageColumnInfo {Header = "", DisplayExpression = "DataImage", SearchGetAccessor = "IsWarning", FixedWidth = 20, MaxHeight = 24},
@@ -176,6 +88,19 @@ namespace ActEditor.Core.WPF.Dialogs {
 				ActEditorWindow.Instance.Focus();
 				GC.Collect();
 			};
+
+			_textEditor.TextArea.TextEntered += (s, e) => {
+				_autoCompletion.ProcessText(e);
+			};
+
+
+			// Force load Roslyn on startup
+			GrfThread.Start(delegate {
+				try {
+					ScriptLoader.DummyCompile();
+				}
+				catch { }
+			});
 		}
 
 		private void _textEditor_PreviewKeyDown(object sender, KeyEventArgs e) {
@@ -187,13 +112,20 @@ namespace ActEditor.Core.WPF.Dialogs {
 				if (adorners != null && adorners.Length > 0)
 					return;
 			}
-			
+
+			switch (e.Key) {
+				case Key.Back:
+				case Key.Delete:
+					_autoCompletion.UpdateFilter();
+					break;
+			}
+
 			if (e.Key == Key.Escape) {
-				Close();
-				e.Handled = true;
+				_autoCompletion.CloseWindow();
 			}
 		}
 
+		private ScriptAutoCompletion _autoCompletion;
 		public const string DefaultScriptName = "\"MyCustomScript\"";
 		public const string DefaultInputGesture = "null";
 		public const string DefaultImage = "null";
@@ -216,8 +148,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 				_listView.ItemsSource = null;
 
-				if (res.Errors.Count > 0) {
-					_listView.ItemsSource = res.Errors.Cast<CompilerError>().ToList().Select(p => new CompilerErrorView(p)).ToList();
+				if (!res.Success) {
+					_listView.ItemsSource = res.Diagnostics.ToList().Select(p => new CompilerErrorView(p)).ToList();
 					_sp.Visibility = Visibility.Visible;
 				}
 				else {
@@ -340,15 +272,15 @@ namespace ActEditor.Core.WPF.Dialogs {
 				int first = text.IndexOf(ToFindBackup, StringComparison.Ordinal);
 
 				if (first < 0) {
-					return input;
+					return _extractBackupNoBackup(input);
 				}
-
+				
 				text = text.Substring(first + ToFindBackup.Length);
 
 				int end = text.IndexOf("act.Commands.CancelEdit();", StringComparison.Ordinal);
 
 				if (end < 0) {
-					return input;
+					return _extractBackupNoBackup(input);
 				}
 
 				int count = 0;
@@ -385,6 +317,42 @@ namespace ActEditor.Core.WPF.Dialogs {
 					}
 				}
 
+				LineHelper.FixIndent(lines, 0);
+
+				return string.Join("\r\n", lines.ToArray()).TrimEnd('\r', '\n', ' ', '\t');
+			}
+			catch {
+				return input;
+			}
+		}
+
+		private string _extractBackupNoBackup(string input) {
+			try {
+				string text = input;
+
+				const string ToFindExecute = "\t\tpublic void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {";
+
+				int first = text.IndexOf(ToFindExecute, StringComparison.Ordinal);
+
+				if (first < 0) {
+					return input;
+				}
+
+				text = text.Substring(first + ToFindExecute.Length);
+
+				int end = text.IndexOf("\n\t\t}", StringComparison.Ordinal);
+
+				if (end < 0)
+					end = text.IndexOf("\r\t\t}", StringComparison.Ordinal);
+
+				if (end < 0) {
+					return input;
+				}
+
+				text = text.Substring(0, end - 1).Trim('\r', '\n');
+
+				List<string> lines = text.Split(new string[] { "\r\n" }, StringSplitOptions.None).ToList();
+				LineHelper.FixIndent(lines, 0);
 				return string.Join("\r\n", lines.ToArray()).TrimEnd('\r', '\n', ' ', '\t');
 			}
 			catch {
@@ -399,7 +367,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				Process.Start(indexPath);
 			}
 			else {
-				ErrorHandler.HandleException("Path not found : " + indexPath);
+				ErrorHandler.HandleException("Path not found: " + indexPath);
 			}
 		}
 
@@ -420,6 +388,31 @@ namespace ActEditor.Core.WPF.Dialogs {
 		#region Nested type: CompilerErrorView
 
 		public class CompilerErrorView {
+			public CompilerErrorView(Diagnostic error) {
+				Description = error.GetMessage();
+				ToolTipDescription = error.ToString();
+				var lineSpan = error.Location.GetLineSpan();
+				Line = lineSpan.StartLinePosition.Line - 63 + 1;
+				Column = lineSpan.StartLinePosition.Character - 6 + 1;
+
+				IsWarning = (int)error.Severity;
+
+				switch (error.Severity) {
+					case DiagnosticSeverity.Error:
+						DataImage = ApplicationManager.PreloadResourceImage("error16.png");
+						break;
+					case DiagnosticSeverity.Warning:
+						DataImage = ApplicationManager.PreloadResourceImage("warning16.png");
+						break;
+					case DiagnosticSeverity.Info:
+						DataImage = ApplicationManager.PreloadResourceImage("help.png");
+						break;
+					case DiagnosticSeverity.Hidden:
+						DataImage = ApplicationManager.PreloadResourceImage("settings.png");
+						break;
+				}
+			}
+
 			public CompilerErrorView(CompilerError error) {
 				Description = error.ErrorText;
 				ToolTipDescription = error.ToString();

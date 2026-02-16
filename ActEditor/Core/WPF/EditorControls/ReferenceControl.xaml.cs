@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -15,8 +14,10 @@ using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.IO;
+using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
+using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
 using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
@@ -37,8 +38,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private readonly TabAct _actEditor;
 		private readonly string _defaultFemale;
 		private readonly string _defaultMale;
-		private readonly List<FancyButton> _fancyButtons;
-		private readonly LayerControl _layerControl;
+		private List<SimpleButton> _fancyButtons;
+		private LayerControl _layerControl;
 		private readonly string _name;
 		private string _filePath;
 		private ZMode _mode;
@@ -56,140 +57,30 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		public ReferenceControl(TabAct actEditor, string defaultMale, string defaultFemale, string name, bool directional) {
-			InitializeComponent();
-
-			try {
-				if (directional) {
-					_fancyButtons = new FancyButton[] {_fancyButton0, _fancyButton1, _fancyButton2, _fancyButton3, _fancyButton4, _fancyButton5, _fancyButton6, _fancyButton7}.ToList();
-					BitmapSource image = ApplicationManager.PreloadResourceImage("arrow.png");
-					BitmapSource image2 = ApplicationManager.PreloadResourceImage("arrowoblique.png");
-
-					_fancyButtons.ForEach(p => p.ImageIcon.Stretch = Stretch.Uniform);
-
-					_fancyButton0.ImageIcon.Source = image;
-					_fancyButton0.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton0.ImageIcon.RenderTransform = new RotateTransform {Angle = 90};
-
-					_fancyButton1.ImageIcon.Source = image2;
-					_fancyButton1.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton1.ImageIcon.RenderTransform = new RotateTransform {Angle = 90};
-
-					_fancyButton2.ImageIcon.Source = image;
-					_fancyButton2.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton2.ImageIcon.RenderTransform = new RotateTransform {Angle = 180};
-
-					_fancyButton3.ImageIcon.Source = image2;
-					_fancyButton3.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton3.ImageIcon.RenderTransform = new RotateTransform {Angle = 180};
-
-					_fancyButton4.ImageIcon.Source = image;
-					_fancyButton4.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton4.ImageIcon.RenderTransform = new RotateTransform {Angle = 270};
-
-					_fancyButton5.ImageIcon.Source = image2;
-					_fancyButton5.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton5.ImageIcon.RenderTransform = new RotateTransform {Angle = 270};
-
-					_fancyButton6.ImageIcon.Source = image;
-					_fancyButton6.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton6.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
-
-					_fancyButton7.ImageIcon.Source = image2;
-					_fancyButton7.ImageIcon.RenderTransformOrigin = new Point(0.5, 0.5);
-					_fancyButton7.ImageIcon.RenderTransform = new RotateTransform {Angle = 360};
-
-					_grid.Visibility = Visibility.Visible;
-				}
-			}
-			catch {
-			}
-
-			_directional = directional;
-			_layerControl = new LayerControl(actEditor, _header, name);
-			_layerControl.IsEnabled = false;
-			_sp.Children.Add(_layerControl);
-
-			TextBlock tb = (TextBlock) _refZState.FindName("_tbIdentifier");
-			tb.Margin = new Thickness(2);
-			tb.FontSize = 12;
-			tb.Foreground = (Brush)this.FindResource("TextForeground");
-
-			Grid grid = ((Grid) ((Grid) ((Border) _refZState.FindName("_border")).Child).Children[2]);
-
-			grid.HorizontalAlignment = HorizontalAlignment.Stretch;
-			grid.Margin = new Thickness(0, 0, 2, 0);
-			grid.ColumnDefinitions[0] = new ColumnDefinition();
-			grid.ColumnDefinitions[1] = new ColumnDefinition {Width = new GridLength(-1, GridUnitType.Auto)};
-			var child1 = grid.Children[0];
-			var child2 = grid.Children[1];
-
-			child1.SetValue(Grid.ColumnProperty, 1);
-			child2.SetValue(Grid.ColumnProperty, 0);
-
-			_header.HideIdAndSprite();
-
 			_actEditor = actEditor;
 			_defaultMale = defaultMale;
 			_defaultFemale = defaultFemale;
 			_name = name;
-
-			_layerControl._tbSpriteId.Visibility = Visibility.Collapsed;
-			_layerControl._tbSpriteNumber.Visibility = Visibility.Collapsed;
-
-			_layerControl.Grid.ColumnDefinitions[0].MinWidth = 0;
-			_layerControl.Grid.ColumnDefinitions[0].Width = new GridLength(0);
-
-			_layerControl.Grid.ColumnDefinitions[1].MinWidth = 0;
-			_layerControl.Grid.ColumnDefinitions[1].Width = new GridLength(0);
-
-			_layerControl.Grid.ColumnDefinitions[2].MinWidth = 0;
-			_layerControl.Grid.ColumnDefinitions[2].Width = new GridLength(0);
-
-			_cbRef.Checked += delegate {
-				_layerControl.IsEnabled = true;
-				_rectangleVisibility.Visibility = Visibility.Collapsed;
-				_rectangleVisibility.IsHitTestVisible = false;
-
-				ActEditorConfiguration.ConfigAsker["[ActEditor - IsEnabled - " + _name + "]"] = true.ToString();
-				Update(true);
-			};
-
-			_cbRef.Unchecked += delegate {
-				_layerControl.IsEnabled = false;
-				_rectangleVisibility.Visibility = Visibility.Visible;
-				_rectangleVisibility.IsHitTestVisible = true;
-
-				ActEditorConfiguration.ConfigAsker["[ActEditor - IsEnabled - " + _name + "]"] = false.ToString();
-				OnUpdated();
-				_actEditor.OnReferencesChanged();
-			};
-
-			_filePath = ActEditorConfiguration.ConfigAsker["[ActEditor - Path - " + name + "]", ""];
-
-			_actEditor.Loaded += delegate { _cbRef.IsChecked = Boolean.Parse(ActEditorConfiguration.ConfigAsker["[ActEditor - IsEnabled - " + _name + "]", false.ToString()]); };
+			_directional = directional;
 
 			_mode = Int32.Parse(ActEditorConfiguration.ConfigAsker["[ActEditor - Mode - " + name + "]", "0"]) == 0 ? ZMode.Front : ZMode.Back;
 			_sex = Boolean.Parse(ActEditorConfiguration.ConfigAsker["[ActEditor - Gender - " + name + "]", "true"]);
+			_filePath = ActEditorConfiguration.ConfigAsker["[ActEditor - Path - " + name + "]", ""];
+
+			InitializeComponent();
+
+			if (directional) {
+				InitializeDirectionalArrows();
+			}
+
+			InitializeLayerAndHeaderComponent();
+
+			// Must be executed last because if enabled, it will read the properties above
+			InitializeReferenceConfigComponents();
+
 			_updateGenderButton();
 
 			FilePathChanged += new ReferenceFrameEventHandler(_referenceFrame_FilePathChanged);
-
-			Action action = new Action(delegate {
-				bool isFront = Mode == 0;
-
-				_refZState.ImagePath = isFront ? "front.png" : "back.png";
-				_refZState.TextHeader = isFront ? "Front" : "Back";
-			});
-
-			_refZState.Click += delegate {
-				Mode = Mode == ZMode.Front ? ZMode.Back : ZMode.Front;
-				action();
-			};
-
-			_buttonSprite.NormalBrush = (Brush)this.TryFindResource("UIThemeHyperlinkForegroundBrush");
-			_buttonSprite.MouseOverBrush = (Brush)this.TryFindResource("UIThemeHyperlinkMouseOverBrush");
-
-			action();
 
 			_referenceFrame_FilePathChanged(null);
 
@@ -201,24 +92,11 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_cbAnchor.IsEnabled = true;
 			}
 
-			_cbRef.Content = name;
-			WpfUtils.AddMouseInOutEffectsBox(_cbRef);
+			InitializeAnchorComponent();
+			InitializeSpriteRetrieveComponent();
+		}
 
-			_cbAnchor.DropDownOpened += delegate { _buttonAnchor.IsPressed = true; };
-
-			_cbAnchor.DropDownClosed += delegate {
-				_buttonAnchor.IsPressed = false;
-				Keyboard.Focus(actEditor._gridPrimary);
-			};
-
-			_cbAnchor.SelectionChanged += new SelectionChangedEventHandler(_cbAnchor_SelectionChanged);
-			_cbAnchor_SelectionChanged(null, null);
-
-			if (name == "Nearby") {
-				_buttonAnchor.Visibility = Visibility.Collapsed;
-				_cbAnchor.Visibility = Visibility.Collapsed;
-			}
-
+		private void InitializeSpriteRetrieveComponent() {
 			_buttonSprite.DragEnter += (s, e) => {
 				if (e.Data.GetDataPresent(DataFormats.FileDrop, true)) {
 					string[] files = e.Data.GetData(DataFormats.FileDrop, true) as string[];
@@ -247,6 +125,100 @@ namespace ActEditor.Core.WPF.EditorControls {
 			};
 		}
 
+		private void InitializeAnchorComponent() {
+			_cbAnchor.DropDownOpened += delegate { _buttonAnchor.IsStatePressed = true; };
+
+			_cbAnchor.DropDownClosed += delegate {
+				_buttonAnchor.IsStatePressed = false;
+				Keyboard.Focus(_actEditor._gridPrimary);
+			};
+
+			_cbAnchor.SelectionChanged += new SelectionChangedEventHandler(_cbAnchor_SelectionChanged);
+			_cbAnchor_SelectionChanged(null, null);
+
+			if (_name == "Nearby") {
+				_buttonAnchor.Visibility = Visibility.Collapsed;
+				_cbAnchor.Visibility = Visibility.Collapsed;
+			}
+		}
+
+		private void InitializeLayerAndHeaderComponent() {
+			_layerControl = new LayerControl(_actEditor, _name);
+			_layerControl.IsEnabled = false;
+			_sp.Children.Add(_layerControl);
+			_header.HideIdAndSprite();
+
+			if (_directional)
+				_cdLayerControl.Width = new GridLength(371);
+		}
+
+		private void InitializeReferenceConfigComponents() {
+			TextBlock tb = (TextBlock)_refZState.FindName("_tbIdentifier");
+			tb.Margin = new Thickness(2);
+			tb.FontSize = 12;
+			tb.SetResourceReference(Control.ForegroundProperty, "TextForeground");
+
+			Grid grid = ((Grid)((Grid)((Border)_refZState.FindName("_border")).Child).Children[2]);
+
+			grid.HorizontalAlignment = HorizontalAlignment.Stretch;
+			grid.Margin = new Thickness(0, 0, 2, 0);
+			grid.ColumnDefinitions[0] = new ColumnDefinition();
+			grid.ColumnDefinitions[1] = new ColumnDefinition { Width = new GridLength(-1, GridUnitType.Auto) };
+			var child1 = grid.Children[0];
+			var child2 = grid.Children[1];
+
+			child1.SetValue(Grid.ColumnProperty, 1);
+			child2.SetValue(Grid.ColumnProperty, 0);
+
+			_refZState.Click += delegate {
+				Mode = Mode == ZMode.Front ? ZMode.Back : ZMode.Front;
+				UpdateRefZStateButtonImage();
+			};
+
+			UpdateRefZStateButtonImage();
+
+			string enabledSettingName = "[ActEditor - IsEnabled - " + _name + "]";
+			Binder.Bind(_cbRef, () => Boolean.Parse(ActEditorConfiguration.ConfigAsker[enabledSettingName, "false"]), v => ActEditorConfiguration.ConfigAsker[enabledSettingName] = v.ToString(), delegate {
+				bool isEnabled = Boolean.Parse(ActEditorConfiguration.ConfigAsker[enabledSettingName]);
+
+				_layerControl.IsEnabled = isEnabled;
+				_rectangleVisibility.Visibility = isEnabled ? Visibility.Collapsed : Visibility.Visible;
+				_rectangleVisibility.IsHitTestVisible = !isEnabled;
+
+				if (isEnabled) {
+					Update(true);
+				}
+				else {
+					OnUpdated();
+					_actEditor.OnReferencesChanged();
+				}
+			}, true);
+
+			_cbRef.Content = _name;
+			WpfUtilities.AddMouseInOutUnderline(_cbRef);
+		}
+
+		private void UpdateRefZStateButtonImage() {
+			bool isFront = Mode == 0;
+
+			_refZState.ImagePath = isFront ? "front.png" : "back.png";
+			_refZState.TextHeader = isFront ? "Front" : "Back";
+		}
+
+		private void InitializeDirectionalArrows() {
+			try {
+				if (_directional) {
+					_fancyButtons = new SimpleButton[] { _fancyButton0, _fancyButton1, _fancyButton2, _fancyButton3, _fancyButton4, _fancyButton5, _fancyButton6, _fancyButton7 }.ToList();
+
+					ActIndexSelectorHelper.BuildDirectionalActionSelectorUI(_fancyButtons, true);
+
+					_grid.Visibility = Visibility.Visible;
+				}
+			}
+			catch {
+			}
+		}
+
 		private void _updateGenderButton() {
 			if (_directional) {
 				_gender.Visibility = Visibility.Collapsed;
@@ -257,7 +229,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_gender.Visibility = Visibility.Collapsed;
 			}
 			else {	
-				_gender.IsPressed = _sex;
+				_gender.IsStatePressed = _sex;
 				_gender.ImagePath = _sex ? "female.png" : "male.png";
 			}
 		}
@@ -358,6 +330,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 					_actEditor._rendererPrimary.Update();
 				};
 			}
+
+			_actEditor.OnReferencesChanged();
 		}
 
 		public void RefreshSelection() {
@@ -401,7 +375,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				Act.Name = _name;
 			}
 
-			_layerControl.ReferenceSetAndUpdate(Act, _actEditor._frameSelector.SelectedAction, _actEditor._frameSelector.SelectedFrame, 0, false);
+			_layerControl.ReferenceSetAndUpdate(Act);
 			OnUpdated();
 			_actEditor.OnReferencesChanged();
 		}
@@ -466,47 +440,23 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _fancyButton_Click(object sender, RoutedEventArgs e) {
-			_fancyButtons.ForEach(p => p.IsPressed = false);
+			_fancyButtons.ForEach(p => p.IsStatePressed = false);
 
-			var fb = ((FancyButton) sender);
-			fb.IsPressed = true;
+			var fb = (SimpleButton) sender;
+			fb.IsStatePressed = true;
 
 			int offsetX = 0;
 			int offsetY = 0;
 
-			switch ((string) fb.Tag) {
-				case "0":
-					offsetY += 30;
-					break;
-				case "1":
-					offsetX -= 25;
-					offsetY += 30;
-					break;
-				case "2":
-					offsetX -= 25;
-					break;
-				case "3":
-					offsetX -= 25;
-					offsetY -= 30;
-					break;
-				case "4":
-					offsetY -= 30;
-					break;
-				case "5":
-					offsetX += 25;
-					offsetY -= 30;
-					break;
-				case "6":
-					offsetX += 25;
-					break;
-				case "7":
-					offsetX += 25;
-					offsetY += 30;
-					break;
-			}
+			int[] offsetsX = { 0, -25, -25, -25, 0, 25, 25, 25 };
+			int[] offsetsY = { 30, 30, 0, -30, -30, -30, 0, 30 };
 
-			_layerControl._tbOffsetX.Text = offsetX.ToString(CultureInfo.InvariantCulture);
-			_layerControl._tbOffsetY.Text = offsetY.ToString(CultureInfo.InvariantCulture);
+			int idx = _fancyButtons.IndexOf(fb);
+			offsetX += offsetsX[idx];
+			offsetY += offsetsY[idx];
+
+			_layerControl._tbOffsetX.SetValue(offsetX);
+			_layerControl._tbOffsetY.SetValue(offsetY);
 		}
 
 		private void _buttonAnchor_Click(object sender, RoutedEventArgs e) {
@@ -514,8 +464,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _gender_Click(object sender, RoutedEventArgs e) {
-			_sex = !_sex;
-			Sex = _sex;
+			Sex = !Sex;
 		}
 
 		public string ReferenceName {

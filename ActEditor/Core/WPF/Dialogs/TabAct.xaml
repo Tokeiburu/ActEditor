@@ -5,21 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:editorControls="clr-namespace:ActEditor.Core.WPF.EditorControls"
              xmlns:frameEditor="clr-namespace:ActEditor.Core.WPF.FrameEditor"
-             mc:Ignorable="d" Header="Test" Background="White" FocusVisualStyle="{x:Null}">
-    <Grid Focusable="True" FocusVisualStyle="{x:Null}" Name="_gridPrimary" Background="{StaticResource TabItemBackground}" TextBlock.Foreground="{StaticResource TextForeground}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition />
-            <RowDefinition Height="auto" MinHeight="120" MaxHeight="350" />
-        </Grid.RowDefinitions>
-        <Grid Name="_preloader" Visibility="Collapsed" Width="546" />
-        <Grid Grid.Row="2">
+             mc:Ignorable="d" Header="Test" Background="White" FocusVisualStyle="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True">
+	<Grid Focusable="True" FocusVisualStyle="{x:Null}" Name="_gridPrimary" Background="{DynamicResource TabItemBackground}" TextBlock.Foreground="{DynamicResource TextForeground}" >
+		<Grid.RowDefinitions>
+			<RowDefinition />
+			<RowDefinition Height="150" MinHeight="100" MaxHeight="350" />
+		</Grid.RowDefinitions>
+		<Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <Grid Name="_rendererGrid" MinWidth="300">
+			<Grid Name="_rendererGrid" MinWidth="300" UseLayoutRounding="False" SnapsToDevicePixels="False">
                 <Border BorderThickness="0 0 1 0" BorderBrush="#232323">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -27,28 +24,29 @@
                             <ColumnDefinition Name="_col1" />
                             <ColumnDefinition Name="_col2" Width="0" />
                         </Grid.ColumnDefinitions>
-                        <frameEditor:FrameRenderer x:Name="_rendererLeft" SnapsToDevicePixels="True" Grid.Column="0" Visibility="Collapsed" IsHitTestVisible="False" />
-                        <frameEditor:PrimaryFrameRenderer x:Name="_rendererPrimary" SnapsToDevicePixels="True" Grid.Column="1" />
-                        <frameEditor:FrameRenderer x:Name="_rendererRight" SnapsToDevicePixels="True" Grid.Column="2" Visibility="Collapsed" IsHitTestVisible="False" />
+                        <frameEditor:FrameRenderer x:Name="_rendererLeft" Grid.Column="0" Visibility="Collapsed" IsHitTestVisible="False" />
+						<frameEditor:PrimaryFrameRenderer x:Name="_rendererPrimary" Grid.Column="1" />
+                        <frameEditor:FrameRenderer x:Name="_rendererRight" Grid.Column="2" Visibility="Collapsed" IsHitTestVisible="False" />
                     </Grid>
                 </Border>
             </Grid>
-            <Grid Grid.Column="1">
+			<Grid Grid.Column="1" SnapsToDevicePixels="True" UseLayoutRounding="True">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <editorControls:ActIndexSelector x:Name="_frameSelector" />
-                <ScrollViewer Margin="0 10 0 0" Name="_sv" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Name="_stackPanelReferences" Grid.Row="1">
+				<editorControls:ActIndexSelector x:Name="_frameSelector" SnapsToDevicePixels="True" UseLayoutRounding="True" />
+				<ScrollViewer Margin="0 10 0 0" Name="_sv" Grid.Row="1" VerticalScrollBarVisibility="Auto"  SnapsToDevicePixels="True" UseLayoutRounding="True">
+					<StackPanel Name="_stackPanelReferences" Grid.Row="1" SnapsToDevicePixels="True" UseLayoutRounding="True">
                     </StackPanel>
                 </ScrollViewer>
-                <editorControls:LayerEditor Margin="0 10 0 0" x:Name="_layerEditor" Grid.Row="2" />
+				<editorControls:LayerEditor Margin="0 10 0 0" x:Name="_layerEditor" Grid.Row="2" SnapsToDevicePixels="True" UseLayoutRounding="True" />
             </Grid>
         </Grid>
-        <GridSplitter Height="1" Grid.Row="3" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="#232323" />
-        <Grid Name="_gridSpriteSelected" Grid.Row="3" SizeChanged="_gridSpriteSelected_SizeChanged" Margin="0 2 0 0" />
-        <editorControls:SpriteSelector x:Name="_spriteSelector" Grid.Row="3" Margin="0 2 0 0"/>
+		<Rectangle Height="1" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" Fill="#232323" />
+        <!-- <Grid Name="_gridSpriteSelected" Grid.Row="3" SizeChanged="_gridSpriteSelected_SizeChanged" Margin="0 2 0 0" /> -->
+        <editorControls:SpriteSelector x:Name="_spriteSelector" Grid.Row="1" Margin="0 1 0 0" />
+		<GridSplitter Height="3" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="Transparent" />
     </Grid>
 </TabItem>

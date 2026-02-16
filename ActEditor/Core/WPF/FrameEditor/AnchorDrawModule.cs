@@ -15,14 +15,8 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		private Point _oldAnchorPoint;
 
 		public int AnchorIndex { get; set; }
-
-		public int DrawingPriority {
-			get { return (int)DrawingPriorityValues.Highest; }
-		}
-
-		public bool Permanent {
-			get { return false; }
-		}
+		public int DrawingPriority => (int)DrawingPriorityValues.Highest;
+		public bool Permanent => false;
 
 		public List<DrawingComponent> GetComponents() {
 			if (_editor.Act != null) {
@@ -82,10 +76,14 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			anchor.OffsetX = offsetX;
 			anchor.OffsetY = offsetY;
 
-			var anchorDraw = _editor.FrameRenderer.Components.OfType<AnchorDraw>().ToList()[AnchorIndex];
+			var anchors = _editor.FrameRenderer.Components.OfType<AnchorDraw>().ToList();
 
-			if (anchorDraw != null) {
-				anchorDraw.RenderOffsets(_editor.FrameRenderer, point);
+			if (AnchorIndex < anchors.Count) {
+				var anchorDraw = anchors[AnchorIndex];
+
+				if (anchorDraw != null) {
+					anchorDraw.RenderOffsets(_editor.FrameRenderer, point);
+				}
 			}
 
 			var references = _editor.FrameRenderer.Components.OfType<ActDraw>().Where(p => !p.Primary);

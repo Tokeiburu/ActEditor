@@ -7,10 +7,6 @@ using TokeiLibrary.Shortcuts;
 
 namespace ActEditor.Core.WPF.GenericControls {
 	public class ClickSelectTextBox : TextBox {
-		private static readonly Thickness _sharedThickness = new Thickness(3, 0, 3, 1);
-		private readonly QuickTextPreviewAdorner _adorner;
-		private readonly TextBlock _tblock = new TextBlock();
-
 		static ClickSelectTextBox() {
 			EventsEnabled = true;
 		}
@@ -23,64 +19,9 @@ namespace ActEditor.Core.WPF.GenericControls {
 			IsUndoEnabled = false;
 
 			PreviewKeyDown += new KeyEventHandler(_clickSelectTextBox_KeyDown);
-
-			_tblock.Padding = _sharedThickness;
-			_tblock.IsHitTestVisible = false;
-			_tblock.Visibility = Visibility.Collapsed;
-			_tblock.Background = (Brush)this.TryFindResource("UIThemeTextBoxBorderBrush");
-			_tblock.VerticalAlignment = VerticalAlignment.Center;
-			_tblock.TextAlignment = TextAlignment.Right;
-			_tblock.ClipToBounds = true;
-
-			_adorner = new QuickTextPreviewAdorner(_tblock, this);
-
-			bool isLoaded = false;
-
-			Loaded += delegate {
-				if (isLoaded) return;
-				var layer = AdornerLayer.GetAdornerLayer(this);
-				if (layer != null) {
-					layer.Add(_adorner);
-				}
-
-				if (!EventsEnabled)
-					Text = _tblock.Text;
-
-				isLoaded = true;
-			};
 		}
 
 		public static bool EventsEnabled { get; set; }
-
-		public new string Text {
-			get { return (string) GetValue(TextProperty); }
-			set {
-				if (EventsEnabled) {
-					_tblock.Visibility = Visibility.Collapsed;
-					SetValue(TextProperty, value);
-				}
-				else {
-					if (IsLoaded) {
-						_setText(value);
-					}
-				}
-			}
-		}
-
-		private void _setText(string value) {
-			if (_adorner.Parent == null) {
-				_tblock.Text = value;
-				return;
-			}
-
-			if (_tblock.Visibility != Visibility.Visible || _tblock.Width <= 0) {
-				_tblock.Visibility = Visibility.Visible;
-				_tblock.Width = ActualWidth;
-				_tblock.Background = ((Grid) (Parent)).Background;
-			}
-
-			_tblock.Text = value;
-		}
 
 		private void _clickSelectTextBox_KeyDown(object sender, KeyEventArgs e) {
 			if (ApplicationShortcut.Is(ApplicationShortcut.Undo) || ApplicationShortcut.Is(ApplicationShortcut.Redo)) {
@@ -100,11 +41,6 @@ namespace ActEditor.Core.WPF.GenericControls {
 					element.RaiseEvent(newarg);
 				}
 			}
-		}
-
-		protected override void OnTextChanged(TextChangedEventArgs e) {
-			if (EventsEnabled)
-				base.OnTextChanged(e);
 		}
 
 		protected override void OnDragOver(DragEventArgs e) {
@@ -146,12 +82,6 @@ namespace ActEditor.Core.WPF.GenericControls {
 			var textBox = e.OriginalSource as TextBox;
 			if (textBox != null)
 				textBox.SelectAll();
-		}
-
-		public void UpdateBackground() {
-			if (_tblock != null) {
-				_tblock.Background = ((Grid) (Parent)).Background;
-			}
 		}
 	}
 }

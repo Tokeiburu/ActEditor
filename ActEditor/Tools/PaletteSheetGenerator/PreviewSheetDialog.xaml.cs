@@ -10,7 +10,6 @@ using ActEditor.Core;
 using ErrorManager;
 using GRF;
 using GRF.Core;
-using GRF.FileFormats;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
 using GRF.IO;
@@ -79,15 +78,15 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 					Binder.Bind((TextBox)_tbPalette, () => ActEditorConfiguration.PreviewSheetPredefinedPalettePath, v => ActEditorConfiguration.PreviewSheetPredefinedPalettePath = v);
 
 					WpfUtilities.AddFocus(_tbFrom, _tbMax, _tbPalette);
-					WpfUtils.AddMouseInOutEffectsBox(_cbBodyAffectedPalette);
-					WpfUtils.AddMouseInOutEffectsBox(_cbHeadAffectedPalette);
-					WpfUtils.AddMouseInOutEffectsBox(_cbShowBodySprite);
-					WpfUtils.AddMouseInOutEffectsBox(_cbShowHeadSprite);
-					WpfUtils.AddMouseInOutEffectsBox(_cbShowPalId);
-					WpfUtils.AddMouseInOutEffectsBox(_cTransparentBackground);
-					WpfUtils.AddMouseInOutEffectsBox(_cShowShadow);
-					WpfUtils.AddMouseInOutEffectsBox(_cbPalette);
-					WpfUtils.AddMouseInOutEffectsBox(_cbPaletteOld);
+					WpfUtilities.AddMouseInOutUnderline(_cbBodyAffectedPalette);
+					WpfUtilities.AddMouseInOutUnderline(_cbHeadAffectedPalette);
+					WpfUtilities.AddMouseInOutUnderline(_cbShowBodySprite);
+					WpfUtilities.AddMouseInOutUnderline(_cbShowHeadSprite);
+					WpfUtilities.AddMouseInOutUnderline(_cbShowPalId);
+					WpfUtilities.AddMouseInOutUnderline(_cTransparentBackground);
+					WpfUtilities.AddMouseInOutUnderline(_cShowShadow);
+					WpfUtilities.AddMouseInOutUnderline(_cbPalette);
+					WpfUtilities.AddMouseInOutUnderline(_cbPaletteOld);
 
 					_pbJob.TextChanged += delegate {
 						if (File.Exists(_pbJob.Text)) {
@@ -215,24 +214,44 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 			}
 
 			SpriteResource bodyMale = new SpriteResource(
-				grf => new Act(
-					grf.FileTable.TryGet(String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\³²\costume_1\{0}_³²_1.act" : @"data\sprite\ÀÎ°£Á·\¸öÅë\³²\{0}_³².act"), sprite)),
-					grf.FileTable.TryGet(String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\³²\costume_1\{0}_³²_1.spr" : @"data\sprite\ÀÎ°£Á·\¸öÅë\³²\{0}_³².spr"), sprite))),
+				grf => {
+					var path = String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\³²\costume_1\{0}_³²_1.act" : @"data\sprite\ÀÎ°£Á·\¸öÅë\³²\{0}_³².act"), sprite);
+					var entryAct = grf.FileTable.TryGet(path);
+					var entrySpr = grf.FileTable.TryGet(path.ReplaceExtension(".spr"));
+
+					if (entryAct == null || entrySpr == null)
+						return null;
+
+					return new Act(entryAct, entrySpr);
+				},
 				EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderMale),
 				sprite,
 				displayName2,
-				palette
+				palette,
+				isCostume
 			);
 
+			bodyMale.LoadPath = String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\costume_1\{0}_¿©_1.act" : @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\{0}_¿©.act"), sprite);
+
 			SpriteResource bodyFemale = new SpriteResource(
-				grf => new Act(
-					grf.FileTable.TryGet(String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\costume_1\{0}_¿©_1.act" : @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\{0}_¿©.act"), sprite)),
-					grf.FileTable.TryGet(String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\costume_1\{0}_¿©_1.spr" : @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\{0}_¿©.spr"), sprite))),
+				grf => {
+					var path = String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\costume_1\{0}_¿©_1.act" : @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\{0}_¿©.act"), sprite);
+					var entryAct = grf.FileTable.TryGet(path);
+					var entrySpr = grf.FileTable.TryGet(path.ReplaceExtension(".spr"));
+
+					if (entryAct == null || entrySpr == null)
+						return null;
+
+					return new Act(entryAct, entrySpr);
+				},
 				EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderFemale),
 				sprite,
 				displayName2,
-				palette
+				palette,
+				isCostume
 			);
+
+			bodyFemale.LoadPath = String.Format(EncodingService.FromAnyToDisplayEncoding(isCostume ? @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\costume_1\{0}_³²_1.act" : @"data\sprite\ÀÎ°£Á·\¸öÅë\¿©\{0}_¿©.act"), sprite);
 
 			if (!female && !male) {
 				_resources[0].Add(bodyMale);
@@ -268,8 +287,10 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 						EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderMale),
 						entry.RelativePath,
 						String.Format("Head Sprite #{0:000}", Path.GetFileName(entry.RelativePath).Replace(EncodingService.FromAnyToDisplayEncoding("_³².act"), "")),
-						""
+						"",
+						false
 						);
+					male.LoadPath = entry_s.RelativePath;
 
 					_resources[2].Add(male);
 				}
@@ -287,13 +308,15 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 						EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderMale),
 						entry.RelativePath,
 						String.Format("Head Sprite #{0:000}", Path.GetFileName(entry.RelativePath).Replace(EncodingService.FromAnyToDisplayEncoding("_¿©.act"), "")),
-						""
+						"",
+						false
 						);
+					female.LoadPath = entry_s.RelativePath;
 
 					_resources[3].Add(female);
 				}
 
-				var comprarer = new AlphanumComparator(StringComparison.OrdinalIgnoreCase);
+				var comprarer = new AlphanumComparer(StringComparison.OrdinalIgnoreCase);
 				_resources[2] = _resources[2].OrderBy(p => p.DisplayName, comprarer).ToList();
 				_resources[3] = _resources[3].OrderBy(p => p.DisplayName, comprarer).ToList();
 				_lvHM.ItemsSource = _resources[2];
@@ -348,47 +371,88 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 		}
 
 		private GrfImage _previewReloadSub(string pattern) {
+			DisplayError("");
+
 			int actionIndex = _cbDirection.SelectedIndex;
 
 			if (actionIndex < 0)
 				actionIndex = 0;
 
-			if (_pbJob.Text == "" || _pbPalettes.Text == "")
+			if (_pbJob.Text == "") {
+				DisplayError("The GRF path for job sprites has not been set yet. Use data.grf if you're not sure.");
 				return null;
+			}
+
+			if (_pbPalettes.Text == "") {
+				DisplayError("The GRF path for palettes has not been set yet. Use data.grf if you're not sure (you can use the same as the job sprites one).");
+				return null;
+			}
 
 			if (_grfPalettes == null || _grfPalettes.FileName != _pbPalettes.Text) {
 				_grfPalettes = new GrfHolder(_pbPalettes.Text);
 			}
 
-			if (_lastBodyResource == null)
-				_lastBodyResource = _resources[0].First();
-			if (_lastHeadResource == null)
-				_lastHeadResource = _resources[2].First();
+			try {
+				if (_lastBodyResource == null)
+					_lastBodyResource = _resources[0].First();
+			}
+			catch {
+				DisplayError("Failed to load default body sprite. There are no body sprites loaded in this GRF (job sprites): " + _pbJob.Text);
+				throw;
+			}
+
+			try {
+				if (_lastHeadResource == null && _resources[2].Count > 0)
+					_lastHeadResource = _resources[2].First();
+			}
+			catch {
+				// Do nothing, it will be handled later
+			}
 
 			Act bodyAct = _lastBodyResource.GetAct(_grfJobs);
-			Act headAct = _lastHeadResource.GetAct(_grfJobs);
+			Act headAct = _lastHeadResource?.GetAct(_grfJobs);
 
 			if (bodyAct == null) {
+				DisplayError("Failed to load body sprite. The following files are missing from your GRF: \r\n" + _pbJob.Text + "\r\n" +
+					_lastBodyResource.LoadPath + "\r\n" +
+					_lastBodyResource.LoadPath.ReplaceExtension(".spr"));
 				throw new Exception("No body has been selected.");
 			}
 
+			var settings = _generatePreviewSettings();
+
+			if (headAct == null && settings.ShowHead) {
+				if (_lastHeadResource == null) {
+					DisplayError("Failed to load head sprite. Are you missing the head sprites in your job sprite GRF? \r\n" + _pbJob.Text + "\r\n" +
+					EncodingService.FromAnyToDisplayEncoding(@"data\sprite\ÀÎ°£Á·\¸Ó¸®Åë\³²\"));
+				}
+				else {
+					DisplayError("Failed to load head sprite. The following files are missing from your GRF: \r\n" + _pbJob.Text + "\r\n" +
+					_lastHeadResource.LoadPath + "\r\n" +
+					_lastHeadResource.LoadPath.ReplaceExtension(".spr"));
+				}
+				throw new Exception("No head has been selected.");
+			}
+
 			Func<int, byte[]> getPaletteMethod = index => {
-				var res = _grfPalettes.FileTable.TryGet(String.Format(EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{2}_{0}_{1}.pal"), _lastBodyResource.Gender, index, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath));
+				string path = String.Format(EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{2}_{0}_{1}.pal"), _lastBodyResource.Gender, index, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath);
+				string path2 = String.Format(EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{2}_{1}.pal"), _lastBodyResource.Gender, index, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath);
+
+				var res = _grfPalettes.FileTable.TryGet(path) ?? _grfPalettes.FileTable.TryGet(path2);
 
 				if (res != null)
 					return res.GetDecompressedData();
 
-				return null;
+				DisplayError("Failed to loaded palette file:\r\n" + _pbPalettes.Text + "\r\n" + path);
+				throw new Exception("Palette path is misssing: " + path);
 			};
 
-			var settings = _generatePreviewSettings();
 			var im = SpriteSheetGenerator.GeneratePreviewSheet(bodyAct, headAct, settings, pattern, getPaletteMethod);
-			Z.Stop(100, true);
-			Z.Stop(101, true);
-			Z.Stop(102, true);
-			Z.Stop(103, true);
-			Z.Stop(104, true);
 			return im;
+		}
+
+		public void DisplayError(string text) {
+			_tbError.Text = text;
 		}
 
 		private GeneratorSettings _generatePreviewSettings() {
@@ -423,6 +487,11 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 						return;
 
 					image.Save(path);
+
+					try {
+						OpeningService.FileOrFolder(path);
+					}
+					catch { }
 				}
 			}
 			catch (Exception err) {
