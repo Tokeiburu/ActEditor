@@ -319,8 +319,10 @@ namespace ActEditor.Core {
 
 					image = GrfImage.SprConvert(_sprite, image, ActEditorConfiguration.UseDithering, (GrfImage.SprTransparencyMode)ActEditorConfiguration.TransparencyMode, mode);
 
-					if (image.GrfImageType == GrfImageType.Indexed8)
+					if (image.GrfImageType == GrfImageType.Indexed8) {
+						image.Palette[3] = 0;
 						_actEditor.Act.Commands.SpriteSetPalette(image.Palette);
+					}
 				}
 				else {
 					if (!enableBgra32Convert) {
@@ -344,6 +346,7 @@ namespace ActEditor.Core {
 						image = dialog.Result;
 
 						if (image.GrfImageType == GrfImageType.Indexed8) {
+							image.Palette[3] = 0;
 							_actEditor.Act.Commands.SpriteSetPalette(image.Palette);
 						}
 					}
