@@ -55,19 +55,19 @@
   <ItemGroup>
     <Reference Include="ColorPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\ColorPicker.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\ColorPicker.dll</HintPath>
     </Reference>
     <Reference Include="ErrorManager, Version=1.2.5494.34248, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\ErrorManager.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\ErrorManager.dll</HintPath>
     </Reference>
     <Reference Include="GRF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\GRF.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\GRF.dll</HintPath>
     </Reference>
     <Reference Include="GrfToWpfBridge, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\GrfToWpfBridge.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\GrfToWpfBridge.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -77,11 +77,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="TokeiLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\TokeiLibrary.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\TokeiLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Utilities, Version=1.2.9380.32499, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\Utilities.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\Utilities.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -196,11 +196,27 @@
     <Resource Include="pal.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <PropertyGroup>
+    <ExternalDllsPath>$(SolutionDir)..\..\tktoolsuite\Libraries\</ExternalDllsPath>
+    <GrfEditorDllsPath>$(SolutionDir)Libraries\</GrfEditorDllsPath>
+  </PropertyGroup>
+  <ItemGroup Condition="Exists('$(ExternalDllsPath)')">
+    <ExternalDlls Include="$(ExternalDllsPath)\ColorPicker.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)\ErrorManager.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)\GRF.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)\GrfToWpfBridge.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)\TokeiLibrary.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)\Utilities.dll" Visible="false" />
+  </ItemGroup>
+  <Target Name="CopyExternalDlls" BeforeTargets="BeforeBuild">
+    <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />
+    <Copy SourceFiles="@(ExternalDlls)" DestinationFolder="$(GrfEditorDllsPath)" SkipUnchangedFiles="true" Condition="Exists('$(ExternalDllsPath)')" />
   </Target>
-  <Target Name="AfterBuild">
+  <Target Name="CopyBuildDll" BeforeTargets="AfterBuild">
+    <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />
+    <Message Text="$(ProjectName) -&gt; $([System.IO.Path]::GetFullPath('$(ExternalDllsPath)$(TargetFileName)'))" Importance="High" Condition="Exists('$(ExternalDllsPath)')" />
+    <Message Text="$(ProjectName) -&gt; $(GrfEditorDllsPath)$(TargetFileName)" Importance="High" Condition="Exists('$(GrfEditorDllsPath)')" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ExternalDllsPath)" SkipUnchangedFiles="true" Condition="Exists('$(ExternalDllsPath)')" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GrfEditorDllsPath)" SkipUnchangedFiles="true" Condition="Exists('$(GrfEditorDllsPath)')" />
   </Target>
-  -->
 </Project>

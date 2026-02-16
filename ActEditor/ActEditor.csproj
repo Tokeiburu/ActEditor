@@ -66,36 +66,36 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ActImaging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\ActImaging.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\ActImaging.dll</HintPath>
     </Reference>
     <Reference Include="ColorPicker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\ColorPicker.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\ColorPicker.dll</HintPath>
     </Reference>
     <Reference Include="Encryption, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\Encryption.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\Encryption.dll</HintPath>
     </Reference>
     <Reference Include="ErrorManager, Version=1.2.5494.34248, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\ErrorManager.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\ErrorManager.dll</HintPath>
     </Reference>
     <Reference Include="Gif.Components, Version=0.0.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\Gif.Components.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\Gif.Components.dll</HintPath>
     </Reference>
     <Reference Include="GRF, Version=1.2.8542.22323, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\GRF.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\GRF.dll</HintPath>
     </Reference>
     <Reference Include="GrfToWpfBridge, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\GrfToWpfBridge.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\GrfToWpfBridge.dll</HintPath>
     </Reference>
     <Reference Include="Humanizer, Version=2.14.0.0, Culture=neutral, PublicKeyToken=979442b78dfc278e, processorArchitecture=MSIL">
       <HintPath>..\packages\Humanizer.Core.2.14.1\lib\netstandard2.0\Humanizer.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.AvalonEdit, Version=4.3.1.9429, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\ICSharpCode.AvalonEdit.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\ICSharpCode.AvalonEdit.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.5.0.0\lib\netstandard2.0\Microsoft.CodeAnalysis.dll</HintPath>
@@ -147,11 +147,11 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="TokeiLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Libraries\TokeiLibrary.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\TokeiLibrary.dll</HintPath>
     </Reference>
     <Reference Include="Utilities, Version=1.2.8542.22321, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Libraries\Utilities.dll</HintPath>
+      <HintPath>$(SolutionDir)Libraries\Utilities.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -873,12 +873,6 @@
     <Resource Include="Resources\addgrf.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PaletteEditor\PaletteEditor.csproj">
-      <Project>{19ACA37E-ACA3-47D4-962C-7DC5004B3C9E}</Project>
-      <Name>PaletteEditor</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\def_garment_paths.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -952,10 +946,16 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\particle.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PaletteEditor\PaletteEditor.csproj">
+      <Project>{19aca37e-aca3-47d4-962c-7dc5004b3c9e}</Project>
+      <Name>PaletteEditor</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">
@@ -965,11 +965,24 @@
     </ItemGroup>
     <Delete Files="@(ExtraFiles)" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <PropertyGroup>
+    <ExternalDllsPath>$(SolutionDir)..\..\tktoolsuite\Libraries\</ExternalDllsPath>
+    <GrfEditorDllsPath>$(SolutionDir)Libraries\</GrfEditorDllsPath>
+  </PropertyGroup>
+  <ItemGroup Condition="Exists('$(ExternalDllsPath)')">
+    <ExternalDlls Include="$(ExternalDllsPath)ActImaging.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)ColorPicker.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)Encryption.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)ErrorManager.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)Gif.Components.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)GRF.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)GrfToWpfBridge.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)ICSharpCode.AvalonEdit.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)TokeiLibrary.dll" Visible="false" />
+    <ExternalDlls Include="$(ExternalDllsPath)Utilities.dll" Visible="false" />
+  </ItemGroup>
+  <Target Name="CopyExternalDlls" BeforeTargets="BeforeBuild">
+    <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />
+    <Copy SourceFiles="@(ExternalDlls)" DestinationFolder="$(GrfEditorDllsPath)" SkipUnchangedFiles="true" Condition="Exists('$(ExternalDllsPath)')" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
