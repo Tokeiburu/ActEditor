@@ -189,7 +189,7 @@
     </Compile>
     <Compile Include="Core\Scripts\Effects\CrystalErosionEffect.cs" />
     <Compile Include="Core\Scripts\Effects\FadeParticleEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\StrokeSilouhetteEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\StrokeSilhouetteEffect.cs" />
     <Compile Include="Core\Scripts\Effects\TrailAttackEffect.cs" />
     <Compile Include="Core\Scripts\Effects\SpriteOutlineEffect.cs" />
     <Compile Include="Core\Scripts\Effects\DelayedShadowEffect.cs" />
@@ -200,7 +200,7 @@
     <Compile Include="Core\Scripts\Effects\SmokeFadeEffect.cs" />
     <Compile Include="Core\Scripts\Effects\SpikeEffect.cs" />
     <Compile Include="Core\Scripts\Effects\SimpleAttackEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\SilouhetteDistortionEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\SilhouetteDistortionEffect.cs" />
     <Compile Include="Core\Scripts\Effects\VerticalStripeErosionEffect.cs" />
     <Compile Include="Core\WPF\Dialogs\ActEditListInteraction.cs" />
     <Compile Include="Core\WPF\Dialogs\FrameEditDialog.xaml.cs">
@@ -955,7 +955,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">

@@ -133,7 +133,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		public void NewAction(IEditData item) {
+		public void New(IEditData item) {
 			try {
 				var insertIndex = _listBoxExtension.GetInsertIndexFromSelectedItem();
 

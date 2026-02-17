@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using TokeiLibrary;
+using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
 
@@ -68,6 +69,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_editBox.TextAlignment = TextAlignment.Right;
 			_editBox.Padding = new Thickness(0);
 			_editBox.BorderThickness = new Thickness(0);
+			_editBox.IsUndoEnabled = false;
 
 			_gridOverlay.Children.Add(_editBox);
 
@@ -83,6 +85,27 @@ namespace ActEditor.Core.WPF.EditorControls {
 			};
 
 			_editBox.PreviewLostKeyboardFocus += _editBox_PreviewLostKeyboardFocus;
+			_editBox.PreviewKeyDown += _editBox_PreviewKeyDown;
+		}
+
+		private void _editBox_PreviewKeyDown(object sender, KeyEventArgs e) {
+			if (ApplicationShortcut.Is(ApplicationShortcut.Undo) || ApplicationShortcut.Is(ApplicationShortcut.Redo)) {
+				UIElement element = _editBox;
+
+				int maxlevel = 0;
+
+				do {
+					element = VisualTreeHelper.GetParent(element) as UIElement;
+					maxlevel++;
+				} while (element == null && maxlevel < 1000);
+
+				if (element != null) {
+					KeyEventArgs newarg = new KeyEventArgs(e.KeyboardDevice, e.InputSource, e.Timestamp, e.Key);
+					newarg.RoutedEvent = UIElement.KeyDownEvent;
+					newarg.Source = sender;
+					element.RaiseEvent(newarg);
+				}
+			}
 		}
 
 		private void _editBox_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {

@@ -30,33 +30,9 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		//private Dictionary<(int w, int h, uint color, GrfImageType fmt), Stack<BitmapHandle>> _bitmapPool = new Dictionary<(int w, int h, uint color, GrfImageType fmt), Stack<BitmapHandle>>();
 
 		public BitmapHandle GetBitmapHandle(SpriteIndex index, Act act, GrfImage image, GrfColor color) {
-			Z.Start(101);
 			ValidateCache(act);
 
 			var handle = _getBitmapHandle(index, act, image, color);
-
-			//if (image.GrfImageType == GrfImageType.Indexed8) {
-			//	handle.Bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height), image.Pixels, image.Width, 0);
-			//}
-			//else {
-			//	if (handle.New) {
-			//		handle.Bitmap.Lock();
-			//
-			//		unsafe {
-			//			fixed (byte* src = image.Pixels) {
-			//				Buffer.MemoryCopy(
-			//					src,
-			//					(void*)handle.Bitmap.BackBuffer,
-			//					image.Pixels.Length,
-			//					image.Pixels.Length);
-			//			}
-			//		}
-			//
-			//		handle.Bitmap.AddDirtyRect(new Int32Rect(0, 0, image.Width, image.Height));
-			//		handle.Bitmap.Unlock();
-			//	}
-			//}
-			Z.Stop(101);
 
 			return handle;
 		}

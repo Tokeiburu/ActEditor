@@ -62,7 +62,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		public void InitializeShortcuts() {
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-N", "ListData.NewAction"), () => _editListInteraction.NewAction(new ActionIndexData()), this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-N", "ListData.New"), () => _editListInteraction.New(new ActionIndexData()), this);
 		}
 
 		private void _lvActions_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -156,7 +156,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		private void _miCut_Click(object sender, RoutedEventArgs e) => _editListInteraction.Cut();
 		private void _miMove_Click(object sender, RoutedEventArgs e) => _editListInteraction.MoveAt();
 		private void _miInsert_Click(object sender, RoutedEventArgs e) => _editListInteraction.InsertAt();
-		private void _miNewAction_Click(object sender, RoutedEventArgs e) => _editListInteraction.NewAction(new ActionIndexData());
+		private void _miNewAction_Click(object sender, RoutedEventArgs e) => _editListInteraction.New(new ActionIndexData());
 	}
 
 	[Serializable]

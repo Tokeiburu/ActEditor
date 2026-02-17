@@ -38,7 +38,7 @@
 							<Separator />
 							<Styles:TkMenuItem x:Name="_miCut" Click="_miCut_Click" HeaderText="Cut" ShortcutCmd="ListData.Cut" IconPath="cut.png" />
 							<Styles:TkMenuItem x:Name="_miMove" Click="_miMove_Click" HeaderText="Move..." ShortcutCmd="ListData.MoveAt" IconPath="back.png" />
-							<Styles:TkMenuItem x:Name="_miNewAction" Click="_miNewAction_Click" HeaderText="New action" ShortcutCmd="ListData.NewAction" IconPath="add.png" />
+							<Styles:TkMenuItem x:Name="_miNewAction" Click="_miNewAction_Click" HeaderText="New" ShortcutCmd="ListData.New" IconPath="add.png" />
 						</ContextMenu>
 					</ListBox.ContextMenu>
 					<ListBox.ItemContainerStyle>

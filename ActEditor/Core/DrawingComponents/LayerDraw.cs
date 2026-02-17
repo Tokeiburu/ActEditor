@@ -85,14 +85,6 @@ namespace ActEditor.Core.DrawingComponents {
 			_border = _drawSlot.Border;
 			_image = _drawSlot.Image;
 
-			// Border
-			if (_act.IsSelectable && _editor.SelectionEngine != null) {
-			}
-			else {
-				if (_border.Visibility != Visibility.Hidden)
-					_border.Visibility = Visibility.Hidden;
-			}
-
 			// Image
 			{
 				var isHitTestVisible = _act.IsSelectable && _editor.SelectionEngine != null;
@@ -100,9 +92,11 @@ namespace ActEditor.Core.DrawingComponents {
 				if (_image.IsHitTestVisible != isHitTestVisible)
 					_image.IsHitTestVisible = isHitTestVisible;
 
-				if (_act.IsSelectable && _editor.SelectionEngine != null) {
+				if (_act.IsSelectable && _editor.SelectionEngine != null)
 					_image.PreviewMouseLeftButtonUp += _image_MouseLeftButtonUp;
-				}
+
+				if (_image.Visibility != Visibility.Visible)
+					_image.Visibility = Visibility.Visible;
 			}
 
 			_drawSlot.IsConfigured = true;
@@ -190,7 +184,7 @@ namespace ActEditor.Core.DrawingComponents {
 
 				// Fix: 2026-01-17
 				// Required for border rendering
-				QuickRender(renderer);
+				DrawSelection();
 				return;
 			}
 			
@@ -198,6 +192,7 @@ namespace ActEditor.Core.DrawingComponents {
 
 			if (index < 0 || index >= act.Sprite.Images.Count) {
 				_image.Source = null;
+				DrawSelection();
 				return;
 			}
 
@@ -261,34 +256,40 @@ namespace ActEditor.Core.DrawingComponents {
 		}
 
 		public override void QuickRender(FrameRenderer renderer) {
-			var m = _transformGroup.Value * renderer.View;
-			var transform = new MatrixTransform(m);
+			if (_image.Visibility != Visibility.Visible)
+				return;
 
-			if (_border != null) {
-				if (_image.Source == null) {
-					_border.BorderThickness = new Thickness(0);
-					_border.Width = 0;
-					_border.Height = 0;
-				}
-				else {
-					double scaleX = Math.Abs(1d / (renderer.ZoomEngine.Scale * _scale.ScaleX));
-					double scaleY = Math.Abs(1d / (renderer.ZoomEngine.Scale * _scale.ScaleY));
-					
-					if (_border.BorderThickness.Left != scaleX ||
-						_border.BorderThickness.Top != scaleY)
-						_border.BorderThickness = new Thickness(scaleX, scaleY, scaleX, scaleY);
-				}
-
-				_border.RenderTransform = transform;
-			}
-
-			_image.RenderTransform = transform;
+			_image.RenderTransform = new MatrixTransform(_transformGroup.Value * renderer.View);
 			DrawSelection();
 		}
 
 		public void DrawSelection() {
 			if (_border == null || !_act.IsSelectable || _editor.SelectionEngine == null)
 				return;
+
+			if (_image.Visibility == Visibility.Visible) {
+				if (_image.Source == null) {
+					_border.BorderThickness = new Thickness(0);
+					_border.Width = 0;
+					_border.Height = 0;
+				}
+				else {
+					double scaleX = Math.Abs(1d / (_renderer.ZoomEngine.Scale * _scale.ScaleX));
+					double scaleY = Math.Abs(1d / (_renderer.ZoomEngine.Scale * _scale.ScaleY));
+
+					if (_border.BorderThickness.Left != scaleX ||
+						_border.BorderThickness.Top != scaleY) {
+						if (_scale.ScaleX == 0 || _scale.ScaleY == 0) {
+							_border.BorderThickness = new Thickness(0);
+						}
+						else {
+							_border.BorderThickness = new Thickness(scaleX, scaleY, scaleX, scaleY);
+						}
+					}
+				}
+
+				_border.RenderTransform = _image.RenderTransform;
+			}
 
 			bool isSelected = _editor.SelectionEngine.IsSelected(LayerIndex);
 

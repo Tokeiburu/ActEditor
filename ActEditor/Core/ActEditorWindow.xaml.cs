@@ -297,14 +297,15 @@ namespace ActEditor.Core {
 			_scriptLoader.AddScriptsToMenu(new EffectBreathing(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new FloatingEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new TrailAttackEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SimpleAttackEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new HitEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new RadialErosionEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SpikeErosionEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new VerticalStripeErosion(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new CrystalErosionEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SmokeFadeEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new StrokeSilouhetteEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SilouhetteDistortionEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new StrokeSilhouetteEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SilhouetteDistortionEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new FloorAuraEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new DelayedShadowEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SpriteOutlineEffect(), this, _mainMenu, null);

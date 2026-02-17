@@ -98,10 +98,10 @@ namespace ActEditor.Core {
 			{
 				var drawSlot = DrawSlots[drawIndex];
 				drawSlot.InUse = true;
-				if (drawSlot.Image.Visibility != Visibility.Visible)
-					drawSlot.Image.Visibility = Visibility.Visible;
-				if (drawSlot.Border.Visibility != Visibility.Hidden)
-					drawSlot.Border.Visibility = Visibility.Hidden;
+				//if (drawSlot.Image.Visibility != Visibility.Visible)
+				//	drawSlot.Image.Visibility = Visibility.Visible;
+				//if (drawSlot.Border.Visibility != Visibility.Hidden)
+				//	drawSlot.Border.Visibility = Visibility.Hidden;
 				Panel.SetZIndex(drawSlot.Image, 4 * drawIndex + 10);
 				Panel.SetZIndex(drawSlot.Border, 4 * drawIndex + 12);
 				return drawSlot;

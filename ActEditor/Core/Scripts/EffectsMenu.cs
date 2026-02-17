@@ -73,67 +73,117 @@ namespace ActEditor.Core.Scripts {
 		#endregion
 	}
 
-	public class EffectBreathing : IActScript {
+	public class EffectBreathing : ImageProcessingEffect {
 		#region IActScript Members
 
-		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
-			if (act == null) return;
-
-			EffectConfiguration effect = new EffectConfiguration("EffectBreathing");
-			effect.AddProperty("Scalar", 0.04F, 0, 0.2F);
-			effect.AddProperty("AnimLength", 20, 3, 100);
-			effect.AddProperty("Animation", "0;1;2;3;4", "", "");
-			effect.Apply(actInput => {
-				float b = effect.GetProperty<float>("Scalar");
-				int animLength = effect.GetProperty<int>("AnimLength");
-				string animation = effect.GetProperty<string>("Animation");
-				int midPoint = animLength / 2;
-				List<float> scales = new List<float>();
-				List<float> scalesR;
-
-				for (int i = 0; i <= midPoint; i++) {
-					scales.Add(1 + (b * i));
-				}
-
-				scalesR = new List<float>(scales);
-				scalesR.Reverse();
-				scalesR = scalesR.Skip(1).ToList();
-
-				scales.AddRange(scalesR);
-
-				// Only process the animation indexes provided by the animation variable; QueryIndexProvider provides index for the format such as 1-5;7;8
-				var animIndexes = new HashSet<int>(new QueryIndexProvider(animation).GetIndexes());
-
-				// Copy effect from actEffect
-				actInput.AllActions((action, aid) => {
-					int animIndex = aid / 8;
-
-					if (!animIndexes.Contains(animIndex))
-						return;
-
-					var insertLocation = Math.Min(selectedFrameIndex, action.NumberOfFrames);
-
-					for (int i = 0; i < animLength; i++) {
-						var frameCopy = new Frame(action[insertLocation + i]);
-						action.Frames.Add(frameCopy);
-						action[insertLocation + i].Scale(1f, scales[i]);
-					}
-				});
-			});
-			effect.Display(act, selectedActionIndex);
+		public class EffectOptions {
+			public float ScaleX;
+			public float ScaleY;
 		}
 
-		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
-			return act != null && !EffectConfiguration.Displayed;
+		private EffectOptions _options = new EffectOptions();
+		private Func<float, float> _easeMethod;
+
+		public EffectBreathing() : base("Breathing effect") {
 		}
 
-		public object DisplayName => "Breathing [Palooza]";
-		public string Group => "Effects/Idle";
-		public string InputGesture => "{Dialog.AnimationBreathing}";
-		public string Image => "effect_breathing.png";
+		public override void OnAddProperties(EffectConfiguration effect) {
+			base.OnAddProperties(effect);
+			effect.AddProperty("ScaleX", 1f, 0f, 3f);
+			effect.AddProperty("ScaleY", 1.3f, 0f, 3f);
+
+			_animationComponent.DefaultSaveData.SetAnimation(0);
+			_animationComponent.DefaultSaveData.LoopFrames = false;
+			_animationComponent.DefaultSaveData.AddEmptyFrame = false;
+			_animationComponent.LoadProperty();
+		}
+
+		public override void OnPreviewApplyEffect(EffectConfiguration effect) {
+			base.OnPreviewApplyEffect(effect);
+			_options.ScaleX = effect.GetProperty<float>("ScaleX");
+			_options.ScaleY = effect.GetProperty<float>("ScaleY");
+		}
+
+		public override void ProcessLayer(Act act, Layer layer, int step, int animLength) {
+			float t = (float)step / animLength;
+
+			if (t > 0.5f) {
+				Z.F();
+			}
+
+			layer.ScaleX *= (float)(1 + Math.Sin(t) * 0.015) * _options.ScaleX;
+			layer.ScaleY *= (float)(1 - Math.Sin(t) * 0.020) * _options.ScaleY;
+			layer.OffsetY += (int)(Math.Sin(t) * 0.6 * _options.ScaleY);
+		}
+
+		public override string Group => "Effects/Idle";
+		public override string InputGesture => "{Dialog.AnimationBreathing}";
+		public override string Image => "effect_breathing.png";
 
 		#endregion
 	}
+
+	//public class EffectBreathing : IActScript {
+	//	#region IActScript Members
+	//
+	//	public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+	//		if (act == null) return;
+	//
+	//		EffectConfiguration effect = new EffectConfiguration("EffectBreathing");
+	//		effect.AddProperty("Scalar", 0.04F, 0, 0.2F);
+	//		effect.AddProperty("AnimLength", 20, 3, 100);
+	//		effect.AddProperty("Animation", "0;1;2;3;4", "", "");
+	//		effect.Apply(actInput => {
+	//			float b = effect.GetProperty<float>("Scalar");
+	//			int animLength = effect.GetProperty<int>("AnimLength");
+	//			string animation = effect.GetProperty<string>("Animation");
+	//			int midPoint = animLength / 2;
+	//			List<float> scales = new List<float>();
+	//			List<float> scalesR;
+	//
+	//			for (int i = 0; i <= midPoint; i++) {
+	//				scales.Add(1 + (b * i));
+	//			}
+	//
+	//			scalesR = new List<float>(scales);
+	//			scalesR.Reverse();
+	//			scalesR = scalesR.Skip(1).ToList();
+	//
+	//			scales.AddRange(scalesR);
+	//
+	//			// Only process the animation indexes provided by the animation variable; QueryIndexProvider provides index for the format such as 1-5;7;8
+	//			var animIndexes = new HashSet<int>(new QueryIndexProvider(animation).GetIndexes());
+	//
+	//			// Copy effect from actEffect
+	//			actInput.AllActions((action, aid) => {
+	//				int animIndex = aid / 8;
+	//
+	//				if (!animIndexes.Contains(animIndex))
+	//					return;
+	//
+	//				var insertLocation = Math.Min(selectedFrameIndex, action.NumberOfFrames);
+	//
+	//				for (int i = 0; i < animLength; i++) {
+	//					var frameCopy = new Frame(action[insertLocation + i]);
+	//					action.Frames.Add(frameCopy);
+	//					action[insertLocation + i].Scale(1f, scales[i]);
+	//				}
+	//			});
+	//		});
+	//		effect.Display(act, selectedActionIndex);
+	//	}
+	//
+	//	public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+	//		return act != null && !EffectConfiguration.Displayed;
+	//	}
+	//
+	//	public object DisplayName => "Breathing [Palooza]";
+	//	public string Group => "Effects/Idle";
+	//	public string InputGesture => "{Dialog.AnimationBreathing}";
+	//	public string Image => "effect_breathing.png";
+	//
+	//	#endregion
+	//}
 
 	public class ImageProcessingEffect : IActScript {
 		private string _displayName;

@@ -59,7 +59,7 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 								var idx = _editor.Act.Sprite.Exists(image);
 
 								if (!idx.Valid) {
-									idx = _editor.SpriteManager.AddImage(image);
+									idx = _editor.SpriteManager.AddImage(image, false);
 								}
 
 								layer.SprSpriteIndex = idx;

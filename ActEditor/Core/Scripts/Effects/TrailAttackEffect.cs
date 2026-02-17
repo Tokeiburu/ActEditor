@@ -15,6 +15,7 @@ namespace ActEditor.Core.Scripts.Effects {
 		public class EffectOptions {
 			public TkVector2 Vector;
 			public int TrailCount;
+			public bool UseTrailColor;
 			public GrfColor TrailColor;
 			public float StartOpacity;
 		}
@@ -29,6 +30,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			effect.AddProperty("VectorX", -32, -50, 50);
 			effect.AddProperty("VectorY", 18, -50, 50);
 			effect.AddProperty("TrailCount", 4, 0, 10);
+			effect.AddProperty("UseTrailColor", false, false, true);
 			effect.AddProperty("TrailColor", new GrfColor(255, 255, 255, 255), null, null);
 			effect.AddProperty("StartOpacity", 0.2f, 0.0f, 1.0f);
 
@@ -43,6 +45,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			base.OnPreviewApplyEffect(effect);
 			_options.Vector = new TkVector2(effect.GetProperty<int>("VectorX"), effect.GetProperty<int>("VectorY"));
 			_options.TrailCount = effect.GetProperty<int>("TrailCount");
+			_options.UseTrailColor = effect.GetProperty<bool>("UseTrailColor");
 			_options.TrailColor = effect.GetProperty<GrfColor>("TrailColor");
 			_options.StartOpacity = effect.GetProperty<float>("StartOpacity");
 		}
@@ -95,7 +98,11 @@ namespace ActEditor.Core.Scripts.Effects {
 							Layer nLayer = new Layer(layer);
 							nLayer.OffsetX = (int)(layer.OffsetX - (1 - mult) * actionVector.X * (1f - mult2));
 							nLayer.OffsetY = (int)(layer.OffsetY - (1 - mult) * actionVector.Y * (1f - mult2));
-							nLayer.Color = new GrfColor((byte)(_options.TrailColor.A * opacity), _options.TrailColor.R, _options.TrailColor.G, _options.TrailColor.B);
+
+							if (_options.UseTrailColor)
+								nLayer.Color = new GrfColor((byte)(_options.TrailColor.A * opacity), _options.TrailColor.R, _options.TrailColor.G, _options.TrailColor.B);
+							else
+								nLayer.Color = new GrfColor((byte)(nLayer.Color.A * opacity), nLayer.Color.R, nLayer.Color.G, nLayer.Color.B);
 
 							toAddSub.Add(nLayer);
 						}

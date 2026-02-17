@@ -232,6 +232,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			_act.Commands.SetMirror(_actionIndex, _frameIndex, _layerIndex, false);
+			_eventsEnabled = false;
+			SetMirror(false);
+			_eventsEnabled = true;
 
 			if (_renderer != null) {
 				_renderer.Update(_layerIndex);
@@ -242,6 +245,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (!_eventsEnabled) return;
 
 			_act.Commands.SetMirror(_actionIndex, _frameIndex, _layerIndex, true);
+			_eventsEnabled = false;
+			SetMirror(true);
+			_eventsEnabled = true;
 
 			if (_renderer != null) {
 				_renderer.Update(_layerIndex);
@@ -260,7 +266,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 					}
 					else {
 						_actEditor.SelectionEngine.InvertSelection(layer.LayerIndex);
-						layer.QuickRender(_renderer);
 					}
 
 					Keyboard.Focus(_renderer.Editor.GridPrimary);
@@ -400,34 +405,53 @@ namespace ActEditor.Core.WPF.EditorControls {
 			int value;
 			float valueF;
 
-			switch (editValue) {
-				case LayerVisualEditor.EditableDataValues.OffsetX:
-					if (Int32.TryParse(text, out value))
-						_act.Commands.SetOffsetX(_actionIndex, _frameIndex, _layerIndex, value);
-					break;
-				case LayerVisualEditor.EditableDataValues.OffsetY:
-					if (Int32.TryParse(text, out value))
-						_act.Commands.SetOffsetY(_actionIndex, _frameIndex, _layerIndex, value);
-					break;
-				case LayerVisualEditor.EditableDataValues.Rotation:
-					if (Int32.TryParse(text, out value))
-						_act.Commands.SetRotation(_actionIndex, _frameIndex, _layerIndex, value);
-					break;
-				case LayerVisualEditor.EditableDataValues.SpriteNumber:
-					if (Int32.TryParse(text, out value))
-						_act.Commands.SetAbsoluteSpriteId(_actionIndex, _frameIndex, _layerIndex, value);
-					break;
-				case LayerVisualEditor.EditableDataValues.ScaleX:
-					if (_getDecimalVal(text, out valueF))
-						_act.Commands.SetScaleX(_actionIndex, _frameIndex, _layerIndex, valueF);
-					break;
-				case LayerVisualEditor.EditableDataValues.ScaleY:
-					if (_getDecimalVal(text, out valueF))
-						_act.Commands.SetScaleY(_actionIndex, _frameIndex, _layerIndex, valueF);
-					break;
-				case LayerVisualEditor.EditableDataValues.Color:
-				case LayerVisualEditor.EditableDataValues.Mirror:
-					throw new InvalidOperationException("Cannot set the layer value for this property through VisualLayer; they are handled on their own.");
+			try {
+				_eventsEnabled = false;
+
+				switch (editValue) {
+					case LayerVisualEditor.EditableDataValues.OffsetX:
+						if (Int32.TryParse(text, out value)) {
+							_act.Commands.SetOffsetX(_actionIndex, _frameIndex, _layerIndex, value);
+							SetOffsetX(value);
+						}
+						break;
+					case LayerVisualEditor.EditableDataValues.OffsetY:
+						if (Int32.TryParse(text, out value)) {
+							_act.Commands.SetOffsetY(_actionIndex, _frameIndex, _layerIndex, value);
+							SetOffsetY(value);
+						}
+						break;
+					case LayerVisualEditor.EditableDataValues.Rotation:
+						if (Int32.TryParse(text, out value)) {
+							_act.Commands.SetRotation(_actionIndex, _frameIndex, _layerIndex, value);
+							SetRotation(value);
+						}
+						break;
+					case LayerVisualEditor.EditableDataValues.SpriteNumber:
+						if (Int32.TryParse(text, out value)) {
+							_act.Commands.SetAbsoluteSpriteId(_actionIndex, _frameIndex, _layerIndex, value);
+							SetSpriteNumber(value);
+						}
+						break;
+					case LayerVisualEditor.EditableDataValues.ScaleX:
+						if (_getDecimalVal(text, out valueF)) {
+							_act.Commands.SetScaleX(_actionIndex, _frameIndex, _layerIndex, valueF);
+							SetScaleX(valueF);
+						}
+						break;
+					case LayerVisualEditor.EditableDataValues.ScaleY:
+						if (_getDecimalVal(text, out valueF)) {
+							_act.Commands.SetScaleY(_actionIndex, _frameIndex, _layerIndex, valueF);
+							SetScaleY(valueF);
+						}
+						break;
+					case LayerVisualEditor.EditableDataValues.Color:
+					case LayerVisualEditor.EditableDataValues.Mirror:
+						throw new InvalidOperationException("Cannot set the layer value for this property through VisualLayer; they are handled on their own.");
+				}
+			}
+			finally {
+				_eventsEnabled = true;
 			}
 
 			_renderer?.Update(_layerIndex);
