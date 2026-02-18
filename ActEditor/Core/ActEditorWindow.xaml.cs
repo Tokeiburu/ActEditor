@@ -63,6 +63,21 @@ namespace ActEditor.Core {
 		public ActEditorWindow()
 			: base("Act Editor", "app.ico", SizeToContent.WidthAndHeight, ResizeMode.CanResize) {
 			Instance = this;
+			//var result = new GrfImage(@"C:\test\t.png");
+			//result.Convert(GrfImageType.Bgra32);
+			//
+			//for (int i = 0; i < result.Pixels.Length; i += 4) {
+			//	result.Pixels[i + 3] = (byte)(255 - result.Pixels[i + 2]);
+			//	result.Pixels[i + 0] = 0;
+			//	result.Pixels[i + 1] = 0;
+			//	result.Pixels[i + 2] = 0;
+			//}
+			//
+			//result.Save(@"C:\test\t.png");
+
+
+
+
 			_initializeSplashWindow();
 			
 			InitializeComponent();
@@ -293,12 +308,20 @@ namespace ActEditor.Core {
 			((MenuItem)_mainMenu.Items[5]).Items.Add(new Separator());
 			_scriptLoader.AddScriptsToMenu(new InterpolationAnimationAdv(), this, _mainMenu, null);
 
-			_scriptLoader.AddScriptsToMenu(new EffectFadeAnimation(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EffectBreathing(), this, _mainMenu, null);
+			// Idle
 			_scriptLoader.AddScriptsToMenu(new FloatingEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new BleedingOutlineEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FadeInOutColorOverlayEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new EffectBreathing(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new CutSpriteEffect(), this, _mainMenu, null);
+			// Attack
 			_scriptLoader.AddScriptsToMenu(new TrailAttackEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SimpleAttackEffect(), this, _mainMenu, null);
+			// Hit
 			_scriptLoader.AddScriptsToMenu(new HitEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new RecoilEffect(), this, _mainMenu, null);
+			// Global
+			_scriptLoader.AddScriptsToMenu(new EffectFadeAnimation(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new RadialErosionEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SpikeErosionEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new VerticalStripeErosion(), this, _mainMenu, null);
@@ -310,7 +333,6 @@ namespace ActEditor.Core {
 			_scriptLoader.AddScriptsToMenu(new DelayedShadowEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new SpriteOutlineEffect(), this, _mainMenu, null);
 			_scriptLoader.AddScriptsToMenu(new FadeParticleEffect(), this, _mainMenu, null);
-
 
 			_scriptLoader.AddScriptsToMenu(new ScriptRunnerMenu(), this, _mainMenu, null);
 			((MenuItem)_mainMenu.Items[7]).Items.Add(new Separator());

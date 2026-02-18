@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core;
+using ActEditor.Core.WPF.EditorControls;
 using ErrorManager;
 using GRF;
 using GRF.Core;
@@ -38,11 +40,19 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 		private readonly ListView[] _lists;
 		private readonly List<SpriteResource>[] _resources = { new List<SpriteResource>(), new List<SpriteResource>(), new List<SpriteResource>(), new List<SpriteResource>() };
 		private readonly bool _isLoaded = false;
+		private QuickPreviewPaletteSheet _quickPreview = null;
 
 		public PreviewSheetDialog()
 			: base("Palette sheet generator", "busy.png", SizeToContent.Manual, ResizeMode.CanResize) {
 			InitializeComponent();
 			this.ShowInTaskbar = true;
+
+			Unloaded += delegate {
+				if (_quickPreview != null) {
+					_quickPreview.Close();
+					_quickPreview = null;
+				}
+			};
 
 			try {
 				List<int> actionIndexes = Enumerable.Range(0, 104).ToList();
@@ -76,6 +86,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 						_previewReload();
 					}, true);
 					Binder.Bind((TextBox)_tbPalette, () => ActEditorConfiguration.PreviewSheetPredefinedPalettePath, v => ActEditorConfiguration.PreviewSheetPredefinedPalettePath = v);
+					Binder.Bind(_cbFontType, () => ActEditorConfiguration.PreviewFontType, v => ActEditorConfiguration.PreviewFontType = v, _previewReload);
 
 					WpfUtilities.AddFocus(_tbFrom, _tbMax, _tbPalette);
 					WpfUtilities.AddMouseInOutUnderline(_cbBodyAffectedPalette);
@@ -305,7 +316,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 						grf => new Act(
 							entry,
 							_grfJobs.FileTable.TryGet(entry.RelativePath.ReplaceExtension(".spr"))),
-						EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderMale),
+						EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderFemale),
 						entry.RelativePath,
 						String.Format("Head Sprite #{0:000}", Path.GetFileName(entry.RelativePath).Replace(EncodingService.FromAnyToDisplayEncoding("_¿©.act"), "")),
 						"",
@@ -364,6 +375,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 				_imagePreview.Source = image.Cast<ImageSource>();
 				_imagePreview.Width = image.Width;
 				_imagePreview.Height = image.Height;
+				_showQuickPreview();
 			}
 			catch {
 				_imagePreview.Source = null;
@@ -373,23 +385,26 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 		private GrfImage _previewReloadSub(string pattern) {
 			DisplayError("");
 
-			int actionIndex = _cbDirection.SelectedIndex;
+			int actionIndex = ActEditorConfiguration.PreviewSheetActionIndex;
 
 			if (actionIndex < 0)
 				actionIndex = 0;
 
-			if (_pbJob.Text == "") {
+			var pbJob = _pbJob.Dispatch(p => p.Text);
+			var pbPalettes = _pbPalettes.Dispatch(p => p.Text);
+
+			if (pbJob == "") {
 				DisplayError("The GRF path for job sprites has not been set yet. Use data.grf if you're not sure.");
 				return null;
 			}
 
-			if (_pbPalettes.Text == "") {
+			if (pbPalettes == "") {
 				DisplayError("The GRF path for palettes has not been set yet. Use data.grf if you're not sure (you can use the same as the job sprites one).");
 				return null;
 			}
 
-			if (_grfPalettes == null || _grfPalettes.FileName != _pbPalettes.Text) {
-				_grfPalettes = new GrfHolder(_pbPalettes.Text);
+			if (_grfPalettes == null || _grfPalettes.FileName != pbPalettes) {
+				_grfPalettes = new GrfHolder(pbPalettes);
 			}
 
 			try {
@@ -397,7 +412,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 					_lastBodyResource = _resources[0].First();
 			}
 			catch {
-				DisplayError("Failed to load default body sprite. There are no body sprites loaded in this GRF (job sprites): " + _pbJob.Text);
+				DisplayError("Failed to load default body sprite. There are no body sprites loaded in this GRF (job sprites): " + pbJob);
 				throw;
 			}
 
@@ -413,7 +428,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 			Act headAct = _lastHeadResource?.GetAct(_grfJobs);
 
 			if (bodyAct == null) {
-				DisplayError("Failed to load body sprite. The following files are missing from your GRF: \r\n" + _pbJob.Text + "\r\n" +
+				DisplayError("Failed to load body sprite. The following files are missing from your GRF: \r\n" + pbJob + "\r\n" +
 					_lastBodyResource.LoadPath + "\r\n" +
 					_lastBodyResource.LoadPath.ReplaceExtension(".spr"));
 				throw new Exception("No body has been selected.");
@@ -423,27 +438,56 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 
 			if (headAct == null && settings.ShowHead) {
 				if (_lastHeadResource == null) {
-					DisplayError("Failed to load head sprite. Are you missing the head sprites in your job sprite GRF? \r\n" + _pbJob.Text + "\r\n" +
+					DisplayError("Failed to load head sprite. Are you missing the head sprites in your job sprite GRF? \r\n" + pbJob  + "\r\n" +
 					EncodingService.FromAnyToDisplayEncoding(@"data\sprite\ÀÎ°£Á·\¸Ó¸®Åë\³²\"));
 				}
 				else {
-					DisplayError("Failed to load head sprite. The following files are missing from your GRF: \r\n" + _pbJob.Text + "\r\n" +
+					DisplayError("Failed to load head sprite. The following files are missing from your GRF: \r\n" + pbJob + "\r\n" +
 					_lastHeadResource.LoadPath + "\r\n" +
 					_lastHeadResource.LoadPath.ReplaceExtension(".spr"));
 				}
 				throw new Exception("No head has been selected.");
 			}
 
+			string headId = "0";
+
+			if (settings.ShowHead) {
+				try {
+					headId = Path.GetFileNameWithoutExtension(_lastHeadResource.LoadPath);
+					headId = headId.Split('_')[0];
+				}
+				catch {
+
+				}
+			}
+
+			string path0 = settings.ShowBody ?
+				EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{0}_" + _lastBodyResource.Gender + "_{1}.pal") :
+				EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸Ó¸®\¸Ó¸®{0}_" + _lastHeadResource.Gender + "_{2}.pal");
+
+			string path1 = settings.ShowBody ?
+				EncodingService.FromAnyToDisplayEncoding($@"data\palette\¸ö\{0}_{1}.pal") :
+				path0;
+
 			Func<int, byte[]> getPaletteMethod = index => {
-				string path = String.Format(EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{2}_{0}_{1}.pal"), _lastBodyResource.Gender, index, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath);
-				string path2 = String.Format(EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{2}_{1}.pal"), _lastBodyResource.Gender, index, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath);
+				string path;
+				string path2;
+
+				if (settings.ShowBody) {
+					path = String.Format(path0, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath, index);
+					path2 = String.Format(path1, ActEditorConfiguration.PreviewSheetUsePredefinedPalettePath ? _lastBodyResource.PalettePath : ActEditorConfiguration.PreviewSheetPredefinedPalettePath, index);
+				}
+				else {
+					path = String.Format(path0, headId, _lastHeadResource.Gender, index);
+					path2 = path;
+				}
 
 				var res = _grfPalettes.FileTable.TryGet(path) ?? _grfPalettes.FileTable.TryGet(path2);
 
 				if (res != null)
 					return res.GetDecompressedData();
 
-				DisplayError("Failed to loaded palette file:\r\n" + _pbPalettes.Text + "\r\n" + path);
+				DisplayError("Failed to loaded palette file:\r\n" + pbPalettes + "\r\n" + path);
 				throw new Exception("Palette path is misssing: " + path);
 			};
 
@@ -452,14 +496,29 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 		}
 
 		public void DisplayError(string text) {
-			_tbError.Text = text;
+			_tbError.Dispatch(p => p.Text = text);
 		}
 
 		private GeneratorSettings _generatePreviewSettings() {
 			GeneratorSettings settings = new GeneratorSettings();
 			settings.ActionIndex = ActEditorConfiguration.PreviewSheetActionIndex;
 			settings.BodyAffected = ActEditorConfiguration.PreviewSheetBodyAffected;
-			settings.Font = new GrfImage(ApplicationManager.GetResource("font.png"));
+
+			switch (ActEditorConfiguration.PreviewFontType) {
+				case 0:
+					settings.Font = new GrfImage(ApplicationManager.GetResource("font.png"));
+					break;
+				case 1:
+					settings.Font = new GrfImage(ApplicationManager.GetResource("font2.png"));
+					break;
+				case 2:
+					settings.Font = new GrfImage(ApplicationManager.GetResource("font4.png"));
+					break;
+				default:
+					settings.Font = new GrfImage(ApplicationManager.GetResource("font.png"));
+					break;
+			}
+
 			settings.HeadAffected = ActEditorConfiguration.PreviewSheetHeadAffected;
 			settings.MaxPerLine = ActEditorConfiguration.PreviewSheetMaxPerLine;
 			settings.Shadow = new GrfImage(ApplicationManager.GetResource("shadow.bmp"));
@@ -477,7 +536,9 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 
 		private void _buttonGenerate_Click(object sender, RoutedEventArgs e) {
 			try {
-				string path = TkPathRequest.SaveFile<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", "PNG Files|*.png");
+				string suggestedName = _getSuggestedName();
+
+				string path = TkPathRequest.SaveFile<ActEditorConfiguration>("ExtractingServiceLastPath", "filter", "PNG Files|*.png", "fileName", suggestedName);
 
 				if (path != null) {
 					var image = _previewReloadSub(ActEditorConfiguration.PreviewSheetIndexes);
@@ -496,6 +557,73 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
+			}
+		}
+
+		private string _getSuggestedName() {
+			try {
+				string name = "";
+
+				var settings = _generatePreviewSettings();
+
+				if (settings.ShowHead && !settings.ShowBody) {
+					name = Path.GetFileNameWithoutExtension(_lastHeadResource.LoadPath);
+					return "head_" + ((_lastHeadResource.Gender == EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderFemale)) ? "f" : "m") + "_" + String.Format("{0:0000}", name.Split('_')[0]) + ".png";
+				}
+
+				name = _lastBodyResource.DisplayName.Replace("[", "").Replace("]", "").Replace(" ", "_").ToLowerInvariant();
+
+				int idx = name.IndexOf("(");
+				
+				if (idx > -1) {
+					name = name.Remove(idx, name.IndexOf(")", idx) - idx + 1);
+					name = name.Insert(idx, "riding");
+				}
+
+				name += "_" + (_lastBodyResource.Gender == EncodingService.FromAnyToDisplayEncoding(GrfStrings.GenderFemale) ? "f" : "m");
+				name += ".png";
+				return name;
+			}
+			catch {
+				return "sheet.png";
+			}
+		}
+
+		private void _buttonQuickPreview_Click(object sender, RoutedEventArgs e) {
+			if (_quickPreview == null) {
+				_quickPreview = new QuickPreviewPaletteSheet();
+				_quickPreview.Show();
+				_quickPreview.Owner = this;
+
+				_showQuickPreview();
+
+				_quickPreview.Closed += delegate {
+					_quickPreview = null;
+				};
+			}
+		}
+
+		private Debouncer _debouncer = new Debouncer();
+
+		private void _showQuickPreview() {
+			try {
+				if (_quickPreview == null)
+					return;
+
+				_quickPreview.SetImage(null);
+
+				_debouncer.Execute(delegate {
+					try {
+						var image = _previewReloadSub(ActEditorConfiguration.PreviewSheetIndexes);
+
+						if (_quickPreview != null)
+							_quickPreview.Dispatch(p => p.SetImage(image));
+					}
+					catch {
+					}
+				}, 100);
+			}
+			catch {
 			}
 		}
 	}

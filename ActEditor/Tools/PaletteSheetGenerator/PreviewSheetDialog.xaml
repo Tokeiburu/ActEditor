@@ -6,7 +6,7 @@
         mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:genericControls="clr-namespace:ActEditor.Core.WPF.GenericControls"
         Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}"
-        Height="540" Width="950" UseLayoutRounding="True">
+        Height="560" Width="950" UseLayoutRounding="True">
     <Grid Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition />
@@ -131,7 +131,12 @@
                     <CheckBox Name="_cbShowPalId" Margin="3" Content="Show palette id" HorizontalAlignment="Left" />
                     <CheckBox Name="_cTransparentBackground" Margin="3" Content="Transparent background" HorizontalAlignment="Left" />
                     <CheckBox Name="_cShowShadow" Margin="3" Content="Show shadow" HorizontalAlignment="Left" />
-                </StackPanel>
+					<ComboBox Name="_cbFontType" HorizontalAlignment="Left" Margin="3" Width="120">
+						<ComboBoxItem Content="Pixel" />
+						<ComboBoxItem Content="Cascadia" />
+						<ComboBoxItem Content="Courier New" />
+					</ComboBox>
+				</StackPanel>
 				<TextBlock x:Name="_tbError" Grid.Row="7" VerticalAlignment="Bottom" Grid.ColumnSpan="2" Grid.RowSpan="2" TextWrapping="WrapWithOverflow" Foreground="Red" Margin="3" />
 			</Grid>
             <Image Name="_imagePreview" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
@@ -142,7 +147,13 @@
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
-                <Button Name="_buttonGenerate" Click="_buttonGenerate_Click" Content="Generate" Height="24" Margin="3" MinWidth="100" />
+				<Button Name="_buttonQuickPreview" Click="_buttonQuickPreview_Click" Height="24" Margin="3" MinWidth="120">
+					<DockPanel>
+						<Image Source="..\..\Resources\search.png" Height="16" Width="16" />
+						<TextBlock Text="Quick preview" Margin="3 0 0 0" />
+					</DockPanel>
+				</Button>
+				<Button Name="_buttonGenerate" Click="_buttonGenerate_Click" Content="Generate" Height="24" Margin="3" MinWidth="100" />
                 <Button Name="_buttonCancel" Click="_buttonCancel_Click" Content="Close" Height="24" Margin="3" MinWidth="100" />
             </DockPanel>
         </Grid>

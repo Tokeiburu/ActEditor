@@ -140,7 +140,7 @@ namespace ActEditor.Core.Scripts.Effects {
 
 				Layer layer = new Layer(newSpriteIndex);
 				layer.OffsetY = -1;
-				frame.Layers.Insert(_applyLayerIndexes == null ? 0 : _applyLayerIndexes.First(), layer);
+				frame.Layers.Insert(_applyLayerIndexes == null ? 0 : Math.Min(_applyLayerIndexes.First(), frame.Layers.Count), layer);
 			}
 		}
 

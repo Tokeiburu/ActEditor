@@ -11,17 +11,17 @@ namespace ActEditor.Core {
 			return new TokeiLibrary.WPF.RangeObservableCollection<string>(act.GetAnimations());
 		}
 
-		public static void TrimImages(Act act, byte tolerance = 0x10) {
+		public static void TrimImages(Act act, byte tolerance = 0x10, bool keepPerfectAlignment = false) {
 			List<ActIndex> indexes = new List<ActIndex>();
 
 			act.AllLayersAdv((index, layer) => {
 				indexes.Add(index);
 			});
 
-			TrimImages(act, indexes, tolerance);
+			TrimImages(act, indexes, tolerance, keepPerfectAlignment);
 		}
 
-		public static void TrimImages(Act act, List<ActIndex> layers, byte tolerance = 0x10) {
+		public static void TrimImages(Act act, List<ActIndex> layers, byte tolerance = 0x10, bool keepPerfectAlignment = false) {
 			var planes = new Dictionary<ActIndex, Plane>();
 			
 			Dictionary<SpriteIndex, GrfImage> images = new Dictionary<SpriteIndex, GrfImage>();
@@ -54,6 +54,22 @@ namespace ActEditor.Core {
 					Math.Max(0, trimLengths.Right - 1),
 					Math.Max(0, trimLengths.Bottom - 1)
 				};
+
+				if (keepPerfectAlignment) {
+					if ((trims[0] + trims[2]) % 2 == 1) {
+						if (trims[0] > trims[2])
+							trims[0]--;
+						else
+							trims[2]--;
+					}
+
+					if ((trims[1] + trims[3]) % 2 == 1) {
+						if (trims[1] > trims[3])
+							trims[1]--;
+						else
+							trims[3]--;
+					}
+				}
 
 				image.Crop(trims[0], trims[1], trims[2], trims[3]);
 

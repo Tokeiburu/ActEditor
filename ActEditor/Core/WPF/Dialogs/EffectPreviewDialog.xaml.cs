@@ -65,6 +65,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		public EffectPreviewDialog(Act act, int actionIndex, EffectConfiguration effectConfiguration) : this() {
+			Title += " - " + effectConfiguration.ParentType;
 			_effectConfiguration = effectConfiguration;
 
 			if (effectConfiguration.PreferredSelectedAction > -1 && effectConfiguration.PreferredSelectedAction < act.NumberOfActions)

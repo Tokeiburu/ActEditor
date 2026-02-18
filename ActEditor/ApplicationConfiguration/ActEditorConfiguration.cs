@@ -447,6 +447,11 @@ namespace ActEditor.ApplicationConfiguration {
 			set { ConfigAsker["[ActEditor - Preview sheet - Action index]"] = value.ToString(CultureInfo.InvariantCulture); }
 		}
 
+		public static int PreviewFontType {
+			get { return Int32.Parse(ConfigAsker["[ActEditor - Preview sheet - PreviewFontType]", "2"]); }
+			set { ConfigAsker["[ActEditor - Preview sheet - PreviewFontType]"] = value.ToString(CultureInfo.InvariantCulture); }
+		}
+
 		public static bool ShowErrorRleDowngrade {
 			get { return Boolean.Parse(ConfigAsker["[ActEditor - ShowErrorRleDowngrade]", true.ToString()]); }
 			set { ConfigAsker["[ActEditor - ShowErrorRleDowngrade]"] = value.ToString(); }

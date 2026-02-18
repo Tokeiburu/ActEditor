@@ -189,6 +189,7 @@
     </Compile>
     <Compile Include="Core\Scripts\Effects\CrystalErosionEffect.cs" />
     <Compile Include="Core\Scripts\Effects\FadeParticleEffect.cs" />
+    <Compile Include="Core\Scripts\Effects\RecoilEffect.cs" />
     <Compile Include="Core\Scripts\Effects\StrokeSilhouetteEffect.cs" />
     <Compile Include="Core\Scripts\Effects\TrailAttackEffect.cs" />
     <Compile Include="Core\Scripts\Effects\SpriteOutlineEffect.cs" />
@@ -211,6 +212,9 @@
     </Compile>
     <Compile Include="Core\WPF\Dialogs\SelectableListBoxExtension.cs" />
     <Compile Include="Core\WPF\EditorControls\ActIndexSelectorHelper.cs" />
+    <Compile Include="Core\WPF\EditorControls\QuickPreviewPaletteSheet.xaml.cs">
+      <DependentUpon>QuickPreviewPaletteSheet.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Core\WPF\EditorControls\VisualLayer.xaml.cs">
       <DependentUpon>VisualLayer.xaml</DependentUpon>
     </Compile>
@@ -457,6 +461,10 @@
     <Page Include="Core\WPF\EditorControls\CompactActIndexSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Core\WPF\EditorControls\QuickPreviewPaletteSheet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Core\WPF\EditorControls\VisualLayer.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -980,6 +988,15 @@
     <ExternalDlls Include="$(ExternalDllsPath)ICSharpCode.AvalonEdit.dll" Visible="false" />
     <ExternalDlls Include="$(ExternalDllsPath)TokeiLibrary.dll" Visible="false" />
     <ExternalDlls Include="$(ExternalDllsPath)Utilities.dll" Visible="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\font2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\font3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\font4.png" />
   </ItemGroup>
   <Target Name="CopyExternalDlls" BeforeTargets="BeforeBuild">
     <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />

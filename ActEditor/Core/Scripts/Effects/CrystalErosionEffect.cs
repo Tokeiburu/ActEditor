@@ -227,7 +227,7 @@ namespace ActEditor.Core.Scripts.Effects {
 
 		public override void OnPostBackupCommand() {
 			// Cleanup images...
-			ActHelper.TrimImages(_actInput, _processedActIndexes.ToList(), 0x10);
+			ActHelper.TrimImages(_actInput, _processedActIndexes.ToList(), 0x10, keepPerfectAlignment: true);
 
 			for (int i = _actInput.Sprite.Images.Count - 1; i >= 0; i--) {
 				var image = _actInput.Sprite.Images[i];
