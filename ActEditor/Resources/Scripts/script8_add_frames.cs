@@ -49,7 +49,7 @@ namespace Scripts {
 			effect.AddProperty("SpriteTo", 5, 0, act.Sprite.NumberOfImagesLoaded);
 			effect.AddProperty("OffsetX", 0, -100, 100);
 			effect.AddProperty("OffsetY", 0, -100, 100);
-			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
+			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), default, default);
 			effect.AddProperty("Animation", "0;1;2;3;4;5;6;7;8;9;10;11;12", "", "");
 
 			effect.Apply(actInput => {

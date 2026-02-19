@@ -22,6 +22,7 @@ namespace ActEditor.ApplicationConfiguration {
 		public static readonly SelfPatch Patch0131 = new RefreshScripts6(131);
 		public static readonly SelfPatch Patch0132 = new RefreshScripts7(132);
 		public static readonly SelfPatch Patch0133 = new RefreshScripts8(133);
+		public static readonly SelfPatch Patch0134 = new RefreshScripts9(134);
 
 		static SelfPatcher() {
 			Patches = Patches.OrderBy(p => p.PatchId).ToList();
@@ -256,6 +257,30 @@ namespace ActEditor.ApplicationConfiguration {
 
 				GrfPath.Delete(Path.Combine(path, "sprites.conf"));
 				GrfPath.Delete(Path.Combine(path, "sprites_old.conf"));
+			}
+			catch {
+				return false;
+			}
+
+			return true;
+		}
+	}
+
+	public class RefreshScripts9 : SelfPatch {
+		public RefreshScripts9(int patchId)
+			: base(patchId) {
+		}
+
+		public override bool PatchAppliaction() {
+			try {
+				string path = GrfPath.Combine(ActEditorConfiguration.ProgramDataPath, ScriptLoader.OutputPath);
+
+				foreach (var dllPath in Directory.GetFiles(path, "*.dll")) {
+					GrfPath.Delete(dllPath);
+				}
+
+				GrfPath.Delete(Path.Combine(path, "script7_add_effect1.cs"));
+				GrfPath.Delete(Path.Combine(path, "script8_add_frames.cs"));
 			}
 			catch {
 				return false;

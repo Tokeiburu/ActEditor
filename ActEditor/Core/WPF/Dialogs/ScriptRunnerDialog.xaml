@@ -25,7 +25,7 @@
                     <Styles:TkMenuItem Header="Run" TokeiLibrary:WpfProperties.ImagePath="play.png" Click="_buttonRun_Click" ShortcutCmd="ScriptRunner.RunScript" Shortcut="Ctrl-R" />
                     <Separator />
                     <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="add.png" Header="New" ShortcutCmd="ScriptRunner.NewScript" Shortcut="Ctrl-N" Click="_buttonClear_Click" />
-                    <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="python.png" Header="Open..." ShortcutCmd="ScriptRunner.OpenFile" Shortcut="Ctrl-O" Click="_buttonLoad_Click" />
+                    <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="empty.png" Header="Open..." ShortcutCmd="ScriptRunner.OpenFile" Shortcut="Ctrl-O" Click="_buttonLoad_Click" />
                     <Styles:TkMenuItem x:Name="_miLoadRecent" Header="Open recent" IsEnabled="False" />
                     <Styles:TkMenuItem TokeiLibrary:WpfProperties.ImagePath="save.png" Header="Save..." ShortcutCmd="ScriptRunner.SaveFile" Shortcut="Ctrl-S" Click="_buttonSaveAs_Click" />
                     <Separator />

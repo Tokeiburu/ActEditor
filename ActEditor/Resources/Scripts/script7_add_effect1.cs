@@ -55,7 +55,7 @@ namespace Scripts {
 			effect.AddProperty("OffsetY", 0, -100, 100);
 			effect.AddProperty("Back/Front", true, false, true);
 			effect.AddProperty("Scale", 1f, 0f, 5f);
-			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
+			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), default, default);
 			effect.AddProperty("Delay", 0, 0, 10);
 			effect.AddProperty("Effect", "script7_add_effect*.act", "FileSelect", null);
 
