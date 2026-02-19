@@ -63,21 +63,6 @@ namespace ActEditor.Core {
 		public ActEditorWindow()
 			: base("Act Editor", "app.ico", SizeToContent.WidthAndHeight, ResizeMode.CanResize) {
 			Instance = this;
-			//var result = new GrfImage(@"C:\test\t.png");
-			//result.Convert(GrfImageType.Bgra32);
-			//
-			//for (int i = 0; i < result.Pixels.Length; i += 4) {
-			//	result.Pixels[i + 3] = (byte)(255 - result.Pixels[i + 2]);
-			//	result.Pixels[i + 0] = 0;
-			//	result.Pixels[i + 1] = 0;
-			//	result.Pixels[i + 2] = 0;
-			//}
-			//
-			//result.Save(@"C:\test\t.png");
-
-
-
-
 			_initializeSplashWindow();
 			
 			InitializeComponent();

@@ -16,9 +16,18 @@ using Utilities.Extension;
 using Utilities.Services;
 
 namespace ActEditor.Core {
-	public enum SpriteManagerStatus {
-		Ready,
-		Cancel,
+	public enum SpriteEditMode {
+		Replace,
+		Remove,
+		Before,
+		After,
+		Insert,
+		ReplaceFlipHorizontal,
+		ReplaceFlipVertical,
+		Export,
+		Add,
+		Convert,
+		Usage,
 	}
 
 	/// <summary>
@@ -28,28 +37,21 @@ namespace ActEditor.Core {
 		public static int SpriteConverterOption = -1;
 		private TabAct _actEditor;
 		private List<SpriteEditMode> _disabledModes = new List<SpriteEditMode>();
-		public SpriteManagerStatus Status = SpriteManagerStatus.Ready;
-
-		private List<GrfImage> _images {
-			get { return _actEditor.Act.Sprite.Images; }
-		}
-
-		private Spr _sprite {
-			get { return _actEditor.Act.Sprite; }
-		}
+		private List<GrfImage> _images => _actEditor.Act.Sprite.Images;
+		private Spr _sprite => _actEditor.Act.Sprite;
 
 		public void Init(TabAct actEditor) {
 			_actEditor = actEditor;
 		}
 
-		public void Execute(SpriteIndex index, GrfImage image, SpriteEditMode mode) {
+		public void ApplyCommand(SpriteIndex index, GrfImage image, SpriteEditMode mode) {
 			bool isDelayed = _actEditor.Act.Commands.IsDelayed;
 
 			try {
 				if (!isDelayed)
 					_actEditor.Act.Commands.ActEditBegin("Sprite: " + mode);
 
-				_execute(index, image, mode);
+				_applyCommand(index, image, mode);
 			}
 			catch {
 				if (!isDelayed)
@@ -63,7 +65,7 @@ namespace ActEditor.Core {
 			}
 		}
 
-		public void _execute(SpriteIndex index, GrfImage image, SpriteEditMode mode) {
+		public void _applyCommand(SpriteIndex index, GrfImage image, SpriteEditMode mode) {
 			image = image ?? _sprite.GetImage(index);
 
 			switch (mode) {
@@ -174,8 +176,6 @@ namespace ActEditor.Core {
 		}
 
 		public void InsertImage(SpriteIndex insertIndex, GrfImage toAddImage, bool adjustLayerReferences = true) {
-			_validateActEditOnly();
-			
 			var image = _sprite.GetImage(insertIndex);
 			var imageCopy = toAddImage.Copy();
 			int absoluteIndex = insertIndex.GetAbsoluteIndex(_sprite);
@@ -237,11 +237,6 @@ namespace ActEditor.Core {
 			}
 		}
 
-		private void _validateActEditOnly() {
-			//if (!_actEditor.Act.Commands.IsActEdit)
-			//	throw new InvalidOperationException("Act object must be in ActEdit mode to use this function, with Act.Commands.ActEditBegin().");
-		}
-
 		private void _visualUpdate() {
 			_actEditor._rendererPrimary.Update();
 			_actEditor._layerEditor.Update();
@@ -260,7 +255,7 @@ namespace ActEditor.Core {
 			HashSet<GrfColor> colors = new HashSet<GrfColor>();
 
 			foreach (byte b in usedPixels) {
-				colors.Add(new GrfColor(image.Palette, b * 4));
+				colors.Add(GrfColor.FromByteArray(image.Palette, b * 4, GrfImageType.Indexed8));
 			}
 
 			return colors;
@@ -289,13 +284,13 @@ namespace ActEditor.Core {
 
 					if (hasAllBeenFound) {
 						image.Palette[0] = palette[0];
+						return image;
+					}
 						image.Palette[1] = palette[1];
 						image.Palette[2] = palette[2];
 						image.Palette[3] = palette[3];
 						image.Convert(new Indexed8FormatConverter { ExistingPalette = _sprite.Palette.BytePalette, Options = Indexed8FormatConverter.PaletteOptions.UseExistingPalette });
 						//image.SetPalette(ref palette);
-						return image;
-					}
 				}
 
 				if (SpriteConverterOption == -2)
@@ -383,7 +378,7 @@ namespace ActEditor.Core {
 			colors.Add(new GrfColor(255, palette[0], palette[1], palette[2]));
 
 			for (int i = 4; i < 1024; i += 4) {
-				colors.Add(new GrfColor(palette, i));
+				colors.Add(GrfColor.FromByteArray(palette, i, GrfImageType.Indexed8));
 			}
 
 			return colors;
@@ -459,14 +454,6 @@ namespace ActEditor.Core {
 			return _disabledModes.Any(p => p == mode);
 		}
 
-		public void Begin() {
-			Status = SpriteManagerStatus.Ready;
-		}
-
-		public void End() {
-			Status = SpriteManagerStatus.Ready;
-		}
-
 		public void Insert(int absoluteIndex, IEnumerable<GrfImage> images) {
 			try {
 				_actEditor.Act.Commands.BeginNoDelay();
@@ -491,21 +478,20 @@ namespace ActEditor.Core {
 
 		public void InsertImages(int absoluteIndex, List<string> files) {
 			try {
-				Begin();
 				SpriteConverterOption = -1;
 
 				_actEditor.Act.Commands.ActEditBegin("Sprite: " + SpriteEditMode.Insert.ToString());
 
 				foreach (var file in files) {
 					if (file.IsExtension(".bmp", ".tga", ".jpg", ".png")) {
-						Execute(SpriteIndex.FromAbsoluteIndex(absoluteIndex, _sprite), new GrfImage(file), SpriteEditMode.Insert);
+						ApplyCommand(SpriteIndex.FromAbsoluteIndex(absoluteIndex, _sprite), new GrfImage(file), SpriteEditMode.Insert);
 					}
 					else if (file.IsExtension(".spr")) {
 						List<GrfImage> images = new Spr(file).Images;
 						images.Reverse();
 
 						foreach (var image in images) {
-							Execute(SpriteIndex.FromAbsoluteIndex(absoluteIndex, _sprite), image, SpriteEditMode.Insert);
+							ApplyCommand(SpriteIndex.FromAbsoluteIndex(absoluteIndex, _sprite), image, SpriteEditMode.Insert);
 						}
 					}
 				}
@@ -518,22 +504,7 @@ namespace ActEditor.Core {
 			}
 			finally {
 				_actEditor.Act.Commands.ActEditEnd();
-				End();
 			}
 		}
-	}
-
-	public enum SpriteEditMode {
-		Replace,
-		Remove,
-		Before,
-		After,
-		Insert,
-		ReplaceFlipHorizontal,
-		ReplaceFlipVertical,
-		Export,
-		Add,
-		Convert,
-		Usage,
 	}
 }

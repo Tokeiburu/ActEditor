@@ -24,7 +24,7 @@ namespace ActEditor.Core {
 			GrfColor activeColor = _getters[brushName]();
 			GrfColor current = _current[brushName];
 
-			if (current == null || !activeColor.Equals(current)) {
+			if (!activeColor.Equals(current)) {
 				_current[brushName] = activeColor;
 				var brush = new SolidColorBrush(activeColor.ToColor());
 				_brushes[brushName] = brush;

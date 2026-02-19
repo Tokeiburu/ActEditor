@@ -25,7 +25,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			base.OnAddProperties(effect);
 			effect.AddProperty("ScaleX", 0.082f, 0f, 1f);
 			effect.AddProperty("ScaleY", 0.035f, 0f, 1f);
-			effect.AddProperty("Color", new GrfColor("0xFFAD5500"), null, null);
+			effect.AddProperty("Color", new GrfColor("0xFFAD5500"), default, default);
 
 			_animationComponent.DefaultSaveData.LoopFrames = false;
 			_animationComponent.DefaultSaveData.AddEmptyFrame = false;
@@ -56,7 +56,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					var layer = frame[layerIndex];
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					var nLayer = new Layer(layer);
 					nLayer.ScaleX += _options.ScaleX;

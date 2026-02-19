@@ -244,9 +244,9 @@ namespace PaletteEditor {
 				  (last.G - middle.Value.G) / (0f - (middle.Value.G <= 0 ? 1 : middle.Value.G)) +
 				  (last.B - middle.Value.B) / (0f - (middle.Value.B <= 0 ? 1 : middle.Value.B)))) / 6f;
 
-			GrfColor firstGrf = first.ToGrfColor();
-			GrfColor middleGrf = middle.Value.ToGrfColor();
-			GrfColor lastGrf = last.ToGrfColor();
+			var firstGrf = first.ToGrfColor().Hsv;
+			var middleGrf = middle.Value.ToGrfColor().Hsv;
+			var lastGrf = last.ToGrfColor().Hsv;
 
 			max = middleGrf.Saturation - firstGrf.Saturation + firstGrf.Brightness - middleGrf.Brightness;
 			_gpGradient.SetPosition(max, true);
@@ -367,11 +367,10 @@ namespace PaletteEditor {
 			int baseIndex = _paletteSelector.SelectedItems.Count - 8;
 
 			GrfColor colorMiddleGrf = colorMiddle.ToGrfColor();
-			int hue = (((int)(colorMiddleGrf.Hue * 100)) / 5);
+			HsvColor hsvColorMiddle = colorMiddleGrf.Hsv;
+			int hue = (((int)(hsvColorMiddle.Hue * 100)) / 5);
 
 			double[] hues = new double[8];
-			//double[] bris = new double[8];
-			//double[] sats = new double[8];
 
 			switch (hue) {
 				case 19: hues = new double[] { -0.921550671550672, -0.974519632414369, -0.979717813051146, -0.986507936507937, -0.011671335200747, -0.0173160173160173, -0.0357793390580275, -0.0587301587301587 }; break;
@@ -404,83 +403,17 @@ namespace PaletteEditor {
 				//hues = new double[] { 0.0156202950918397, 0.0109924026590693, 0.00886045221251197, 0.00226942628903393, -0.0028314546430489, -0.00895061728395063, -0.0209034792368127, -0.0236229819563155 };
 			}
 
-			/*
-			GrfColor[] colors = new GrfColor[8];
-
 			for (int i = 0; i < 8; i++) {
-				colors[i] = _palOriginal.GetColor(_paletteSelector.SelectedItems[baseIndex + i]);
-			}
-
-			GrfColor middle = new GrfColor(
-				255,
-				(byte)((colors[3].R + colors[4].R) / 2),
-				(byte)((colors[3].G + colors[4].G) / 2),
-				(byte)((colors[3].B + colors[4].B) / 2));
-
-			StringBuilder builderHues = new StringBuilder();
-			StringBuilder builderBris = new StringBuilder();
-			StringBuilder builderSats = new StringBuilder();
-
-			builderHues.Append("HUES: ");
-			builderBris.Append("BRIS: ");
-			builderSats.Append("SATS: ");
-
-			for (int i = 0; i < 8; i++) {
-				builderHues.Append((colors[i].Hsv.H - middle.Hsv.H).ToString().Replace(",", ".") + ", ");
-				builderBris.Append((colors[i].Hsv.V - middle.Hsv.V).ToString().Replace(",", ".") + ", ");
-				builderSats.Append((colors[i].Hsv.S - middle.Hsv.S).ToString().Replace(",", ".") + ", ");
-			}
-
-			builderHues.AppendLine();
-			builderBris.AppendLine();
-			builderSats.AppendLine();
-			*/
-
-
-
-
-
-			for (int i = 0; i < 8; i++) {
-				GrfColor colorD = new GrfColor(colorMiddleGrf);
+				HsvColor colorD = new GrfColor(colorMiddleGrf).Hsv;
 				colorD.Hue += hues[i];
 				_applyFactor(colorD, factor - i * (2 * factor) / 7);
-				Buffer.BlockCopy(colorD.ToRgbaBytes(), 0, colorsData, 4 * i, 4);
+				Buffer.BlockCopy(colorD.ToColor().ToRgbaBytes(), 0, colorsData, 4 * i, 4);
 			}
 
-
-
-			//byte[] colorsData = new byte[8 * 4];
-			//
-			//Color colorFirst = Color.FromArgb(
-			//	255,
-			//	_clamp((int) ((255 - colorMiddle.R) * factor + colorMiddle.R)),
-			//	_clamp((int) ((255 - colorMiddle.G) * factor + colorMiddle.G)),
-			//	_clamp((int) ((255 - colorMiddle.B) * factor + colorMiddle.B))
-			//	);
-			//
-			//Color colorLast = Color.FromArgb(
-			//	255,
-			//	_clamp((int) ((0 - colorMiddle.R) * factor + colorMiddle.R)),
-			//	_clamp((int) ((0 - colorMiddle.G) * factor + colorMiddle.G)),
-			//	_clamp((int) ((0 - colorMiddle.B) * factor + colorMiddle.B))
-			//	);
-			//
-			//Buffer.BlockCopy(colorFirst.ToBytesRgba(), 0, colorsData, 0, 4);
-			//Buffer.BlockCopy(colorLast.ToBytesRgba(), 0, colorsData, 28, 4);
-			//
-			//_setColor(colorFirst, colorMiddle, 0 * 4, 0, colorsData);
-			//_setColor(colorFirst, colorMiddle, 1 * 4, 2 / 7f, colorsData);
-			//_setColor(colorFirst, colorMiddle, 2 * 4, 4 / 7f, colorsData);
-			//_setColor(colorFirst, colorMiddle, 3 * 4, 6 / 7f, colorsData);
-			//_setColor(colorMiddle, colorLast, 4 * 4, 1 / 7f, colorsData);
-			//_setColor(colorMiddle, colorLast, 5 * 4, 3 / 7f, colorsData);
-			//_setColor(colorMiddle, colorLast, 6 * 4, 5 / 7f, colorsData);
-			//_setColor(colorMiddle, colorLast, 7 * 4, 1, colorsData);
-			//
 			return colorsData;
 		}
 
-		private void _applyFactor(GrfColor color, double factor) {
+		private void _applyFactor(HsvColor color, double factor) {
 			if (factor > 0) {
 				double remains = (color.Brightness + factor - 1);
 				color.Brightness += factor;
@@ -559,11 +492,11 @@ namespace PaletteEditor {
 				}
 				else if (_locked[0]) {
 					gradient = _makeGradient(_getColor(_colorMiddle).Value, _gpGradient.Position);
-					gradient = _makeGradient3(_getColor(_colorFirst).Value, value, new GrfColor(gradient, 28).ToColor());
+					gradient = _makeGradient3(_getColor(_colorFirst).Value, value, GrfColor.FromByteArray(gradient, 28, GrfImageType.Indexed8).ToColor());
 				}
 				else if (_locked[2]) {
 					gradient = _makeGradient(_getColor(_colorMiddle).Value, _gpGradient.Position);
-					gradient = _makeGradient3(new GrfColor(gradient, 0).ToColor(), value, _getColor(_colorLast).Value);
+					gradient = _makeGradient3(GrfColor.FromByteArray(gradient, 0, GrfImageType.Indexed8).ToColor(), value, _getColor(_colorLast).Value);
 				}
 				else {
 					gradient = _makeGradient(_getColor(_colorMiddle).Value, _gpGradient.Position);

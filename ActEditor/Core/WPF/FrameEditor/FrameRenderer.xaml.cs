@@ -26,8 +26,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		protected Point _relativeCenter = new Point(0.5, 0.8);
 		protected ZoomEngine _zoomEngine = new ZoomEngine();
 		protected List<IDrawingModule> _drawingModules = new List<IDrawingModule>();
-		private UIElementProvider<Border> _borderProvider = new UIElementProvider<Border>();
-		private UIElementProvider<Image> _imageProvider = new UIElementProvider<Image>();
 		private DrawSlotManager _drawSlotManager;
 		private BitmapResourceManager _bitmapResourceManager = new BitmapResourceManager();
 		private int _drawIndex;
@@ -351,8 +349,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		public ZoomEngine ZoomEngine => _zoomEngine;
 		public Canvas Canvas => _primary;
 		public virtual List<DrawingComponent> Components => _components;
-		public virtual UIElementProvider<Border> BorderProvider => _borderProvider;
-		public virtual UIElementProvider<Image> ImageProvider => _imageProvider;
 		public DrawSlotManager DrawSlotManager => _drawSlotManager;
 		public int DrawIndex { get => _drawIndex; set => _drawIndex = value; }
 		public BitmapResourceManager BitmapResourceManager => _bitmapResourceManager;

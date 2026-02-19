@@ -134,13 +134,11 @@ namespace ActEditor.Core.WPF.GenericControls {
 
 		private void _quickColorSelector_Drop(object sender, DragEventArgs e) {
 			if (e.Data.GetData("GrfColor") != null) {
-				GrfColor color = e.Data.GetData("GrfColor") as GrfColor;
+				GrfColor color = (GrfColor)e.Data.GetData("GrfColor");
 
-				if (color != null) {
-					InitialColor = Color.ToGrfColor();
-					OnPreviewColorChanged(color.ToColor());
-					OnColorChanged(color.ToColor());
-				}
+				InitialColor = Color.ToGrfColor();
+				OnPreviewColorChanged(color.ToColor());
+				OnColorChanged(color.ToColor());
 			}
 			else {
 				var txt = e.Data.GetData("System.String") as string;

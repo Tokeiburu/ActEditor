@@ -26,9 +26,9 @@ namespace ActEditor.Core.Scripts.Effects {
 			base.OnAddProperties(effect);
 			effect.AddProperty("VectorX", 1, -5, 5);
 			effect.AddProperty("VectorY", 1, -5, 5);
-			effect.AddProperty("Color1", new GrfColor(180, 255, 0, 0), null, null);
-			effect.AddProperty("Color2", new GrfColor(0, 0, 255, 0), null, null);
-			effect.AddProperty("Color3", new GrfColor(0, 0, 0, 255), null, null);
+			effect.AddProperty("Color1", new GrfColor(180, 255, 0, 0), default, default);
+			effect.AddProperty("Color2", new GrfColor(0, 0, 255, 0), default, default);
+			effect.AddProperty("Color3", new GrfColor(0, 0, 0, 255), default, default);
 
 			_animationComponent.DefaultSaveData.LoopFrames = false;
 			_animationComponent.DefaultSaveData.AddEmptyFrame = false;
@@ -65,7 +65,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					var layer = frame[layerIndex];
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					TkVector2 actionVector = _options.Vector;
 

@@ -19,7 +19,7 @@ namespace ActEditor.Core.Scripts.Effects {
 		public override void OnAddProperties(EffectConfiguration effect) {
 			base.OnAddProperties(effect);
 			effect.AddProperty("SyncFrameTarget", -1, -10, 10);
-			effect.AddProperty("Color", new GrfColor(200, 0, 255, 255), null, null);
+			effect.AddProperty("Color", new GrfColor(200, 0, 255, 255), default, default);
 
 			_animationComponent.DefaultSaveData.SetAnimation(0, 1);
 			_animationComponent.DefaultSaveData.SetLayers(0);

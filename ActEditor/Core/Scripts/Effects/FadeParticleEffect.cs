@@ -42,7 +42,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			effect.AddProperty("FadeEase", 0, -50, 50);
 			effect.AddProperty("Direction", new TkVector2(0, 40), new TkVector2(-100, 100), new TkVector2(-100, 100));
 			effect.AddProperty("ParticleCount", 10, 1, 100);
-			effect.AddProperty("ParticleColor", new GrfColor(255, 0, 0, 0), null, null);
+			effect.AddProperty("ParticleColor", new GrfColor(255, 0, 0, 0), default, default);
 			effect.AddProperty("MinScale", 0.1f, 0f, 2f);
 			effect.AddProperty("MaxScale", 0.3f, 0f, 2f);
 			effect.AddProperty("ZMode", 2, 0, 2);

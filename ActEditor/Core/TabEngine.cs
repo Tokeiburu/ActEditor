@@ -15,6 +15,9 @@ using Utilities.Services;
 using ActEditor.Components;
 
 namespace ActEditor.Core {
+	/// <summary>
+	/// Class responsible for loading and managing an Act into a tab in the main editor.
+	/// </summary>
 	public class TabEngine {
 		private readonly TabControl _tabControl;
 		private readonly ActEditorWindow _actEditor;
@@ -22,6 +25,11 @@ namespace ActEditor.Core {
 		private ActSaveService _actSaveService = new ActSaveService();
 		private ActLoadService _actLoadService = new ActLoadService();
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TabEngine"/> class.
+		/// </summary>
+		/// <param name="tabControl">The tab control who holds the tabs.</param>
+		/// <param name="editor">The editor.</param>
 		public TabEngine(TabControl tabControl, ActEditorWindow editor) {
 			_tabControl = tabControl;
 			_actEditor = editor;

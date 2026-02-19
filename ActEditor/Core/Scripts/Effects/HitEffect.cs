@@ -87,7 +87,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					var layer = frame[layerIndex];
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					Layer nLayer = null;
 

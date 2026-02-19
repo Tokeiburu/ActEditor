@@ -32,12 +32,12 @@ namespace ActEditor.Core.Scripts.Effects {
 			effect.AddProperty("Animation", "4", "", "");
 			effect.AddProperty("TargetX", 0.5f, 0.0f, 1.0f);
 			effect.AddProperty("TargetY", 0.7f, 0.0f, 1.0f);
-			effect.AddProperty("End color", new GrfColor(255, 0, 0, 0), null, null);
+			effect.AddProperty("End color", new GrfColor(255, 0, 0, 0), default, default);
 
 			effect.AddProperty("CrystalCount", 40, 1, 200);
 			effect.AddProperty("Implode", true, false, true);
 			effect.AddProperty("UseOutline", false, false, true);
-			effect.AddProperty("OutlineColor", new GrfColor(100, 255, 255, 255), null, null);
+			effect.AddProperty("OutlineColor", new GrfColor(100, 255, 255, 255), default, default);
 		}
 
 		public override void OnPreviewApplyEffect(EffectConfiguration effect) {
@@ -113,7 +113,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					_processedActIndexes.Add(new ActIndex { ActionIndex = _status.Aid, FrameIndex = i, LayerIndex = layerIndex });
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					ProcessLayer(act, layer, step, animLength);
 
@@ -152,7 +152,7 @@ namespace ActEditor.Core.Scripts.Effects {
 								}
 
 								var outline = new Layer(layer);
-								outline.Color = GrfColor.White;
+								outline.Color = GrfColors.White;
 								outline.SprSpriteIndex = newSpriteIndex;
 
 								toInsert.Add((layerIndex + 1, outline));

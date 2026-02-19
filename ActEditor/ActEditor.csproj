@@ -224,7 +224,6 @@
     <Compile Include="Core\WPF\InteractionComponent\AdvancedTextBox.xaml.cs">
       <DependentUpon>AdvancedTextBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Core\WPF\InteractionComponent\CanvasComponentProvider.cs" />
     <Compile Include="Core\DrawingComponents\AnchorDraw.cs" />
     <Compile Include="Core\DrawingComponents\DrawingModule.cs" />
     <Compile Include="Core\DrawingComponents\DrawingPriorityValues.cs" />
@@ -963,7 +962,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">

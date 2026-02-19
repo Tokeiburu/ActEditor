@@ -111,7 +111,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				if (_cbMirror.IsChecked == true)
 					_act.Commands.SetMirror(_cbMirror.IsChecked == true);
 
-				if (!_color.Color.ToGrfColor().Equals(GrfColor.White))
+				if (!_color.Color.ToGrfColor().Equals(GrfColors.White))
 					_act.Commands.SetColor(_color.Color.ToGrfColor());
 
 				List<string> data = new List<string> {

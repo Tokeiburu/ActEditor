@@ -192,7 +192,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					_processedActIndexes.Add(_index);
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					ProcessLayer(act, layer, step, animLength);
 				}

@@ -108,7 +108,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					var layer = frame[layerIndex];
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					if (baseAction <= 1 || baseAction >= 6)
 						animation = animationBottom;

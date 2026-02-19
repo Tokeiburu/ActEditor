@@ -7,6 +7,7 @@ using GRF.FileFormats.PalFormat;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using Utilities;
 using Utilities.Controls;
 
 namespace PaletteEditor {
@@ -146,7 +147,8 @@ namespace PaletteEditor {
 
 			value = value / 2d;
 
-			double hue = color.Hue;
+			var hsvColor = color.Hsv;
+			double hue = hsvColor.Hue;
 			double hueMin = hue - value;
 			double hueMax = hue + value;
 			double rotatedHue;
@@ -165,7 +167,7 @@ namespace PaletteEditor {
 				Pal originalPal = new Pal(original);
 
 				for (int i = 0; i < 256; i++) {
-					GrfColor palColor = originalPal.GetColor(i);
+					var palColor = originalPal.GetColor(i).Hsv;
 
 					if (_hueBetween(palColor.Hue, hueMin, hueMax, out rotatedHue)) {
 						_hueMultipliers[i] = (1d - Math.Abs((((rotatedHue - hueMin) / fullVal) - 0.5d) * 2d));
@@ -178,11 +180,11 @@ namespace PaletteEditor {
 				}
 			}
 
-			_sliderHue.GradientBackground = _generateHueGradient(color);
+			_sliderHue.GradientBackground = _generateHueGradient(color.Hsv);
 			_update();
 		}
 
-		private Brush _generateHueGradient(GrfColor color) {
+		private Brush _generateHueGradient(HsvColor color) {
 			LinearGradientBrush brush = new LinearGradientBrush();
 
 			brush.StartPoint = new Point(0, 0);
@@ -274,14 +276,15 @@ namespace PaletteEditor {
 					if (_hueMultipliers[i] == 0) continue;
 
 					GrfColor palColor = originalPal.GetColor(i);
+					HslColor hslColor = palColor.Hsl;
 
-					double satDiff2 = - palColor.Hsl.S * satDiff / (satDiff - 1.0048);
+					double satDiff2 = -hslColor.Saturation * satDiff / (satDiff - 1.0048);
 					satDiff2 = negSat ? -1 * satDiff2 : satDiff2;
 
 					GrfColor palColor2 = GrfColor.FromHsl(
-						palColor.Hue + hueDiff * _hueMultipliers[i],
-						GrfColor.ClampDouble(palColor.Hsl.S + satDiff2 * _hueMultipliers[i]),
-						GrfColor.ClampDouble(palColor.Lightness + ligDiff * _hueMultipliers[i]),
+						hslColor.Hue + hueDiff * _hueMultipliers[i],
+						Methods.Clamp(hslColor.Saturation + satDiff2 * _hueMultipliers[i], 0, 1),
+						Methods.Clamp(hslColor.Lightness + ligDiff * _hueMultipliers[i], 0, 1),
 						palColor.A);
 
 					Buffer.BlockCopy(palColor2.ToRgbaBytes(), 0, original, 4 * i, 4);

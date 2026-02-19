@@ -362,7 +362,7 @@ namespace ActEditor.Core.Scripts {
 				effect.AddProperty("OffsetY", 0, -150, 150);
 				effect.AddProperty("Back/Front", 1, 0, 1);
 				effect.AddProperty("Scale", 1f, 0f, 5f);
-				effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
+				effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), default, default);
 				effect.AddProperty("Animation", "0;1;2;3;4;5;6;7;8;9;10;11;12", "", "");
 				effect.AddProperty("Sprite Index", 0, 0, act.Sprite.Images.Count - 1);
 

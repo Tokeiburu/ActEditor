@@ -257,6 +257,7 @@ namespace ActEditor.ApplicationConfiguration {
 			public Func<string, T> ConverterTo;
 			public Func<T, string> ConverterFrom;
 			private T _cached;
+			private bool _isCached = false;
 
 			public delegate void PropertyChangedEventHandler();
 
@@ -270,8 +271,9 @@ namespace ActEditor.ApplicationConfiguration {
 			}
 
 			public T Get() {
-				if (_cached == null) {
+				if (!_isCached) {
 					_cached = ConverterTo(ConfigAsker[_propertyName, _defaultValue]);
+					_isCached = true;
 				}
 
 				return _cached;
@@ -280,6 +282,7 @@ namespace ActEditor.ApplicationConfiguration {
 			public void Set(T value) {
 				ConfigAsker[_propertyName] = ConverterFrom(value);
 				_cached = value;
+				_isCached = true;
 				PropertyChanged?.Invoke();
 			}
 

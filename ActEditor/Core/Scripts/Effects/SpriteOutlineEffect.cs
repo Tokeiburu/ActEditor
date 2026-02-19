@@ -22,7 +22,7 @@ namespace ActEditor.Core.Scripts.Effects {
 
 		public override void OnAddProperties(EffectConfiguration effect) {
 			base.OnAddProperties(effect);
-			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), null, null);
+			effect.AddProperty("Color", new GrfColor(255, 255, 255, 255), default, default);
 			effect.AddProperty("Thickness", 1, 1, 5);
 			_animationComponent.SetEditType(AnimationEditTypes.TargetOnly);
 			_animationComponent.DefaultSaveData.AllAnimations = true;

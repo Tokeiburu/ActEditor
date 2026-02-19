@@ -29,7 +29,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			base.OnAddProperties(effect);
 			effect.AddProperty("TargetX", 0.5f, 0.0f, 1.0f);
 			effect.AddProperty("TargetY", 0.7f, 0.0f, 1.0f);
-			effect.AddProperty("End color", new GrfColor(255, 0, 0, 0), null, null);
+			effect.AddProperty("End color", new GrfColor(255, 0, 0, 0), default, default);
 			effect.AddProperty("NoiseStrength", 25f, 0f, 100f);
 
 			_animationComponent.DefaultSaveData.SetAnimation(4);

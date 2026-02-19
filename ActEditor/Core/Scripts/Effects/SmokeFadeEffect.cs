@@ -30,8 +30,8 @@ namespace ActEditor.Core.Scripts.Effects {
 
 		public override void OnAddProperties(EffectConfiguration effect) {
 			base.OnAddProperties(effect);
-			effect.AddProperty("SpriteOverlayColor", new GrfColor(255, 255, 255, 255), null, null);
-			effect.AddProperty("SmokeColor", new GrfColor(255, 82, 239, 211), null, null);
+			effect.AddProperty("SpriteOverlayColor", new GrfColor(255, 255, 255, 255), default, default);
+			effect.AddProperty("SmokeColor", new GrfColor(255, 82, 239, 211), default, default);
 			effect.AddProperty("SmokeCount", 15, 1, 50);
 			effect.AddProperty("OverlayBrightness", 0f, 0f, 100f);
 			effect.AddProperty("SpreadMult", 1f, 0f, 2f);
@@ -156,7 +156,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					var layer = frame[layerIndex];
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					ProcessLayer(act, layer, step, animLength);
 				}

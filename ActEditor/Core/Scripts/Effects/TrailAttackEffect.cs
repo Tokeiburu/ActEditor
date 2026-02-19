@@ -31,7 +31,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			effect.AddProperty("VectorY", 18, -50, 50);
 			effect.AddProperty("TrailCount", 4, 0, 10);
 			effect.AddProperty("UseTrailColor", false, false, true);
-			effect.AddProperty("TrailColor", new GrfColor(255, 150, 0, 0), null, null);
+			effect.AddProperty("TrailColor", new GrfColor(255, 150, 0, 0), default, default);
 			effect.AddProperty("StartOpacity", 0.2f, 0.0f, 1.0f);
 
 			_animationComponent.DefaultSaveData.SetAnimation(2);
@@ -69,7 +69,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					var layer = frame[layerIndex];
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					TkVector2 actionVector = _options.Vector;
 

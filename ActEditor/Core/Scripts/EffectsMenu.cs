@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.WPF.Dialogs;
 using ErrorManager;
@@ -36,7 +37,7 @@ namespace ActEditor.Core.Scripts {
 
 		public override void OnAddProperties(EffectConfiguration effect) {
 			base.OnAddProperties(effect);
-			effect.AddProperty("TargetColor", new GrfColor(0, 255, 255, 255), null, null);
+			effect.AddProperty("TargetColor", new GrfColor(0, 255, 255, 255), default, default);
 			effect.AddProperty("Ease", 10, -50, 50);
 
 			_animationComponent.DefaultSaveData.SetAnimation(4);
@@ -298,7 +299,7 @@ namespace ActEditor.Core.Scripts {
 			effect.AddProperty("MaxHeight", 4, 1, 10);
 			effect.AddProperty("PauseCycle", 3, 0, 10);
 			effect.AddProperty("DeadPixelRate", 0.5f, 0f, 1f);
-			effect.AddProperty("Color", new GrfColor(255, 240, 209, 220), null, null);
+			effect.AddProperty("Color", new GrfColor(255, 240, 209, 220), default, default);
 			effect.AddProperty("RngSeed", 1234, 0, 10000);
 
 			_animationComponent.DefaultSaveData.AllAnimations = true;
@@ -483,7 +484,7 @@ namespace ActEditor.Core.Scripts {
 
 		public override void OnAddProperties(EffectConfiguration effect) {
 			base.OnAddProperties(effect);
-			effect.AddProperty("Color", new GrfColor(200, 255, 150, 0), null, null);
+			effect.AddProperty("Color", new GrfColor(200, 255, 150, 0), default, default);
 			effect.AddProperty("Ease", 0, -50, 50);
 			effect.AddProperty("Multiply/Additive", true, false, true);
 
@@ -571,7 +572,7 @@ namespace ActEditor.Core.Scripts {
 							}
 
 							_paletteInsertIndex = unused.First();
-							act.Sprite.Palette.SetColor(_paletteInsertIndex, GrfColor.White);
+							act.Sprite.Palette.SetColor(_paletteInsertIndex, GrfColors.White);
 						}
 					}
 
@@ -625,7 +626,7 @@ namespace ActEditor.Core.Scripts {
 			public Act ModifiedAct;
 		}
 
-		public GrfColor TargetColor;
+		public GrfColor? TargetColor;
 		protected Dictionary<(SpriteIndex, int), SpriteIndex> _transformedSprites;
 		protected HashSet<int> _applyLayerIndexes;
 		protected HashSet<byte> _temporaryUsedPaletteColors = new HashSet<byte>();
@@ -865,7 +866,7 @@ namespace ActEditor.Core.Scripts {
 				_status.Lid = layerIndex;
 
 				if (TargetColor != null)
-					ProcessColor(layer, mult, TargetColor);
+					ProcessColor(layer, mult, TargetColor.Value);
 
 				_status.ActIndex = new ActIndex() { ActionIndex = _status.Aid, FrameIndex = _status.Fid, LayerIndex = _status.Lid };
 				ProcessLayer(_status.ModifiedAct, layer, step, animLength);

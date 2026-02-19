@@ -34,7 +34,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			base.OnAddProperties(effect);
 			effect.AddProperty("TargetX", 0.5f, 0.0f, 1.0f);
 			effect.AddProperty("TargetY", 0.5f, 0.0f, 1.0f);
-			effect.AddProperty("End color", new GrfColor(255, 0, 0, 0), null, null);
+			effect.AddProperty("End color", new GrfColor(255, 0, 0, 0), default, default);
 
 			effect.AddProperty("SpikesPerFrame", 80, 1, 200);
 			effect.AddProperty("SpikeHalfAngle", 24f, 0f, 180f);
@@ -108,7 +108,7 @@ namespace ActEditor.Core.Scripts.Effects {
 					_index = new ActIndex() { ActionIndex = aid, FrameIndex = i, LayerIndex = layerIndex };
 
 					if (TargetColor != null)
-						ProcessColor(layer, mult, TargetColor);
+						ProcessColor(layer, mult, TargetColor.Value);
 
 					ProcessLayer(act, layer, step, animLength);
 				}

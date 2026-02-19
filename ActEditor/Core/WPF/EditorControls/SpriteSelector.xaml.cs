@@ -420,7 +420,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				case SpriteEditMode.Convert:
 				case SpriteEditMode.ReplaceFlipHorizontal:
 				case SpriteEditMode.ReplaceFlipVertical:
-					_editor.SpriteManager.Execute(SpriteIndex.FromAbsoluteIndex(index, _editor.Act.Sprite), null, mode);
+					_editor.SpriteManager.ApplyCommand(SpriteIndex.FromAbsoluteIndex(index, _editor.Act.Sprite), null, mode);
 					break;
 				case SpriteEditMode.Before:
 				case SpriteEditMode.After:
@@ -436,7 +436,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 							int index2 = index;
 
 							foreach (GrfImage image1 in images) {
-								_editor.SpriteManager.Execute(SpriteIndex.FromAbsoluteIndex(index2, _editor.Act.Sprite), image1, mode);
+								_editor.SpriteManager.ApplyCommand(SpriteIndex.FromAbsoluteIndex(index2, _editor.Act.Sprite), image1, mode);
 								index2++;
 							}
 						}

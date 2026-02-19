@@ -162,35 +162,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			handle.LastUse = DateTime.Now;
 			handle.CreationTime = DateTime.Now;
 			return handle;
-			//if (_bitmapPool.Count > 50) {
-			//	_bitmapPool.Clear();
-			//}
-			//
-			//if (!_bitmapPool.TryGetValue((width, height, color, type), out Stack<BitmapHandle> handleStack)) {
-			//	handleStack = new Stack<BitmapHandle>();
-			//	_bitmapPool[(width, height, color, type)] = handleStack;
-			//}
-			//
-			//foreach (var handle in handleStack) {
-			//	handle.InUse = true;
-			//	handle.New = false;
-			//	return handle;
-			//	//if (!handle.InUse) {
-			//	//	handle.InUse = true;
-			//	//	return handle;
-			//	//}
-			//}
-			//
-			//BitmapHandle nHandle = new BitmapHandle();
-			//BitmapPalette palette = null;
-			//if (type == GrfImageType.Indexed8)
-			//	palette = new BitmapPalette(_loadColors(image.Palette));
-			//
-			//nHandle.Bitmap = new WriteableBitmap(width, height, 96, 96, type == GrfImageType.Indexed8 ? PixelFormats.Indexed8 : PixelFormats.Bgra32, palette);
-			//nHandle.InUse = true;
-			//nHandle.New = true;
-			//handleStack.Push(nHandle);
-			//return nHandle;
 		}
 
 		private List<Color> _loadColors(byte[] palette, GrfColor multColor) {
@@ -208,16 +179,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			}
 
 			return colors;
-		}
-
-		internal void PrintDebug() {
-			//foreach (var group in _cachedBitmaps) {
-			//	Console.WriteLine("group count: " + group.Value.Count);
-			//
-			//	foreach (var st in group.Value) {
-			//		Console.WriteLine("\t: " + st.GetHashCode() + " - " + st.InUse);
-			//	}
-			//}
 		}
 	}
 }

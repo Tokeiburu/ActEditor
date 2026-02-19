@@ -42,32 +42,26 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 
 				// Resolve images
 				if (_editor.Act.LoadedPath != layerClipboardData.SourceActPath) {
-					try {
-						_editor.SpriteManager.Begin();
-						SpriteManager.SpriteConverterOption = -1;
+					SpriteManager.SpriteConverterOption = -1;
 
-						var spr = new Spr(File.ReadAllBytes(layerClipboardData.SourceSprPath));
+					var spr = new Spr(File.ReadAllBytes(layerClipboardData.SourceSprPath));
 
-						foreach (var layer in layerClipboardData.Layers) {
-							var image = layer.GetImage(spr);
+					foreach (var layer in layerClipboardData.Layers) {
+						var image = layer.GetImage(spr);
 
-							if (image.GrfImageType == GRF.Image.GrfImageType.Indexed8)
-								image.Palette[3] = 0;
+						if (image.GrfImageType == GRF.Image.GrfImageType.Indexed8)
+							image.Palette[3] = 0;
 
-							if (image != null) {
-								// Check if image exists already
-								var idx = _editor.Act.Sprite.Exists(image);
+						if (image != null) {
+							// Check if image exists already
+							var idx = _editor.Act.Sprite.Exists(image);
 
-								if (!idx.Valid) {
-									idx = _editor.SpriteManager.AddImage(image, false);
-								}
-
-								layer.SprSpriteIndex = idx;
+							if (!idx.Valid) {
+								idx = _editor.SpriteManager.AddImage(image, false);
 							}
+
+							layer.SprSpriteIndex = idx;
 						}
-					}
-					finally {
-						_editor.SpriteManager.End();
 					}
 				}
 
