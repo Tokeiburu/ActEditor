@@ -1,5 +1,12 @@
 */Release/*
 */Debug/*
 */obj/*
+.vs
+packages
 bin
 _ReSharper
+/Dump.vs/ActEditor/FileContentIndex/*.vsidx
+/Dump.vs/ActEditor/FileContentIndex/*.lock
+/Dump.vs/ActEditor/v17/*.suo
+/*.user
+/*.suo

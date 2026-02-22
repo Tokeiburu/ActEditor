@@ -126,7 +126,8 @@ namespace ActEditor.Core.Scripts {
 		}
 
 		public override void OnPreviewProcessAction(Act act, Action action, int aid) {
-			_actionBox = ActImaging.Imaging.GenerateBoundingBox(act, aid);
+			_actionBox = ActImaging.Imaging.GenerateBoundingBox(act, aid, enableScaling: false);
+
 			int w = (int)(_actionBox.Max.X - _actionBox.Min.X) + 1;
 			int h = (int)(_actionBox.Max.Y - _actionBox.Min.Y) + 1;
 
@@ -145,7 +146,10 @@ namespace ActEditor.Core.Scripts {
 
 		public override void ProcessImage(GrfImage img, int step, int totalSteps) {
 			var box = new BoundingBox();
-			box.Add(_status.Layer.ToPlane(_status.OriginalAct));
+			var layerT = new Layer(_status.Layer);
+			layerT.ScaleX = 1;
+			layerT.ScaleY = 1;
+			box.Add(layerT.ToPlane(_status.OriginalAct));
 
 			var startX = (int)(box.Min.X - _actionBox.Min.X);
 			var startY = (int)(box.Min.Y - _actionBox.Min.Y);

@@ -266,7 +266,7 @@ namespace ActEditor.Components {
 				stream.Seek(0, SeekOrigin.Begin);
 				stream.Read(data, 0, data.Length);
 
-				GrfImage grfImage = new GrfImage(ref data);
+				GrfImage grfImage = new GrfImage(data);
 				grfImage.Save(sc.FilePath);
 			}
 

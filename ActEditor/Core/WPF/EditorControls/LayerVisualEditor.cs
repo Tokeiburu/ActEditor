@@ -8,36 +8,32 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
 using TokeiLibrary;
-using TokeiLibrary.Shortcuts;
-using TokeiLibrary.WPF.Styles.ListView;
-using Utilities;
 
 namespace ActEditor.Core.WPF.EditorControls {
-	public class LayerVisualEditor {
-		private TabAct _actEditor;
-		private ScrollViewer _sv;
-		private StackPanel _sp;
-		private LayerEditor _layerEditor;
-		private Grid _gridBackground;
-		private Grid _gridOverlay;
-		private TextBox _editBox;
+	public class LayerEditorComponents {
+		public ScrollViewer Part_ScrollViewer;
+		public StackPanel Part_Content;
+		public Grid Part_ContentContainer;
+		public Grid Part_ContentOverlay;
+		public LayerEditor LayerEditor;
+	}
 
+	public class LayerVisualEditor {
+		private LayerEditorComponents _components;
+		private TabAct _actEditor;
+		private LayerVisualEditBox _editBoxControl;
+		
 		public LayerVisualEditor() {
 		}
 
-		public void Init(TabAct actEditor) {
+		public void Init(TabAct actEditor, LayerEditorComponents components) {
+			_components = components;
 			_actEditor = actEditor;
-			_sv = _actEditor.LayerEditor._sv;
-			_sp = _actEditor.LayerEditor._sp;
-			_layerEditor = _actEditor.LayerEditor;
-			_gridBackground = _actEditor.LayerEditor._gridBackground;
-			_gridOverlay = _actEditor.LayerEditor._gridOverlay;
 
 			_actEditor.IndexSelector.FrameChanged += (s, e) => {
-				if (_layerEditor.DoNotRemove && !ActEditorConfiguration.ActEditorRefreshLayerEditor)
+				if (_components.LayerEditor.DoNotRemove && !ActEditorConfiguration.ActEditorRefreshLayerEditor)
 					return;
 
 				InvalidateVisual();
@@ -48,167 +44,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 				_actEditor.Act.RenderInvalidated += (s) => InvalidateVisual();
 			};
 
-			_sv.ScrollChanged += _sv_ScrollChanged;
-			_sv.SizeChanged += _sv_SizeChanged;
+			_components.Part_ScrollViewer.ScrollChanged += _sv_ScrollChanged;
+			_components.Part_ScrollViewer.SizeChanged += _sv_SizeChanged;
 
-			_layerEditor.PreviewKeyDown += _layerEditor_PreviewKeyDown;
-			_layerEditor.PreviewMouseLeftButtonDown += _layerEditor_PreviewMouseLeftButtonDown;
+			_components.LayerEditor.PreviewKeyDown += _layerEditor_PreviewKeyDown;
 
-			InitializeEditTextBox();
-		}
-
-		private void InitializeEditTextBox() {
-			_editBox = new TextBox();
-			_editBox.Text = "Test";
-			_editBox.Width = 100;
-			_editBox.Height = 17;
-			_editBox.Background = Brushes.Transparent;
-			_editBox.Visibility = Visibility.Collapsed;
-			_editBox.HorizontalAlignment = HorizontalAlignment.Left;
-			_editBox.VerticalAlignment = VerticalAlignment.Top;
-			_editBox.TextAlignment = TextAlignment.Right;
-			_editBox.Padding = new Thickness(0);
-			_editBox.BorderThickness = new Thickness(0);
-			_editBox.IsUndoEnabled = false;
-
-			_gridOverlay.Children.Add(_editBox);
-
-			_editBox.TextChanged += delegate {
-				if (_editBoxEventDisabled) return;
-
-				var visualLayer = GetVisualLayer(_editLayerIndex);
-
-				if (visualLayer != null) {
-					visualLayer.SetLayerValue(_editBox.Text, _editValue);
-					_editTextBlock.Text = _editBox.Text;
-				}
-			};
-
-			_editBox.PreviewLostKeyboardFocus += _editBox_PreviewLostKeyboardFocus;
-			_editBox.PreviewKeyDown += _editBox_PreviewKeyDown;
-		}
-
-		private void _editBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Is(ApplicationShortcut.Undo) || ApplicationShortcut.Is(ApplicationShortcut.Redo)) {
-				UIElement element = _editBox;
-
-				int maxlevel = 0;
-
-				do {
-					element = VisualTreeHelper.GetParent(element) as UIElement;
-					maxlevel++;
-				} while (element == null && maxlevel < 1000);
-
-				if (element != null) {
-					KeyEventArgs newarg = new KeyEventArgs(e.KeyboardDevice, e.InputSource, e.Timestamp, e.Key);
-					newarg.RoutedEvent = UIElement.KeyDownEvent;
-					newarg.Source = sender;
-					element.RaiseEvent(newarg);
-				}
-			}
-		}
-
-		private void _editBox_PreviewLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
-			if (_editBoxFocusEventDisabled) return;
-
-			_editLayerIndex = -1;
-			_editBox.Visibility = Visibility.Collapsed;
-
-			if (_editTextBlock != null && _editTextBlock.Visibility != Visibility.Visible)
-				_editTextBlock.Visibility = Visibility.Visible;
-
-			//Console.WriteLine("_editBox.Visibility = " + _editBox.Visibility + ", _editTextBlock.Visibility = " + _editTextBlock.Visibility + " (_editBox_PreviewLostKeyboardFocus)");
-		}
-
-		private bool _editBoxFocusEventDisabled = false;
-		private bool _editBoxEventDisabled = false;
-		private EditableDataValues _editValue = EditableDataValues.SpriteNumber;
-		private int _editLayerIndex = -1;
-		private TextBlock _editTextBlock;
-		private VisualLayer _editVisualLayer;
-
-		private void _layerEditor_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-			var point = e.GetPosition(_gridBackground);
-
-			var layerIndex = (int)(point.Y / PreviewElementHeight);
-			var visualLayer = GetVisualLayer(layerIndex);
-
-			if (point.Y >= 0 && visualLayer != null && visualLayer.Visibility == Visibility.Visible) {
-				if (SetEditBox(layerIndex, visualLayer.GetColumn(_gridBackground.GetObjectAtPoint<TextBlock>(point)))) {
-					//e.Handled = true;
-					return;
-				}
-			}
-
-			_editBox.Visibility = Visibility.Collapsed;
-
-			if (_editTextBlock != null && _editTextBlock.Visibility != Visibility.Visible)
-				_editTextBlock.Visibility = Visibility.Visible;
-
-			//Console.WriteLine("_editBox.Visibility = " + _editBox.Visibility + ", _editTextBlock.Visibility = " + _editTextBlock.Visibility + " (_layerEditor_PreviewMouseLeftButtonDown)");
-		}
-
-		public void FocusEditBox() {
-			_editBoxFocusEventDisabled = true;
-
-			_editBox.Dispatcher.BeginInvoke(new System.Action(delegate {
-				_editBox.Focus();
-				_editBox.SelectAll();
-				_editBoxFocusEventDisabled = false;
-			}), DispatcherPriority.Render);
-		}
-
-		public void UpdateEditBoxValue(string text) {
-			try {
-				_editBoxEventDisabled = true;
-				_editBox.Text = text;
-			}
-			finally {
-				_editBoxEventDisabled = false;
-			}
-		}
-
-		public bool SetEditBox(int row, int col) {
-			if (_editBox.Visibility == Visibility.Visible && row == _editLayerIndex && col == (int)_editValue)
-				return true;
-
-			var visualLayer = GetVisualLayer(row);
-
-			if (visualLayer == null || visualLayer.Visibility != Visibility.Visible || col < 0)
-				return false;
-
-			var block = visualLayer.GetBlockFromCol(col);
-
-			if (block != null) {
-				var blockPosition = block.TransformToVisual(_gridBackground).Transform(new Point(0, 0));
-				var editValue = (EditableDataValues)col;
-
-				if (editValue != EditableDataValues.LayerIndex) {
-					if (_editTextBlock != null && _editTextBlock.Visibility != Visibility.Visible && _editTextBlock != block) {
-						_editTextBlock.Visibility = Visibility.Visible;
-					}
-					_editBox.Visibility = Visibility.Visible;
-					_editTextBlock = block;
-					_editTextBlock.Visibility = Visibility.Hidden;
-					//Console.WriteLine("_editBox.Visibility = " + _editBox.Visibility + ", _editTextBlock.Visibility = " + _editTextBlock.Visibility + " (SetEditBox)");
-					_editValue = editValue;
-					_editBox.Width = ((Border)block.Parent).ActualWidth - 1;
-					_editBox.Height = block.ActualHeight;
-					//_editBox.Height = ((Border)block.Parent).ActualHeight;
-					_editVisualLayer = visualLayer;
-
-					_editBox.Margin = new Thickness(blockPosition.X, blockPosition.Y, 0, 0);
-					
-					UpdateEditBoxValue(block.Text);
-
-					_editLayerIndex = row;
-
-					FocusEditBox();
-					return true;
-				}
-			}
-
-			return false;
+			_editBoxControl = new LayerVisualEditBox(this, actEditor, _components);
 		}
 
 		private int _focusRow = -1;
@@ -257,9 +98,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 			_focusRow = -1;
 			_focusCol = -1;
 
-			if (Keyboard.FocusedElement == _editBox) {
-				_focusRow = _editLayerIndex;
-				_focusCol = (int)_editValue;
+			if (Keyboard.FocusedElement == _editBoxControl.EditBox) {
+				_focusRow = _editBoxControl.EditLayerIndex;
+				_focusCol = (int)_editBoxControl.EditValue;
 				return;
 			}
 
@@ -305,14 +146,14 @@ namespace ActEditor.Core.WPF.EditorControls {
 				// Need to force the visual layer!
 				var targetOffset = _focusRow * PreviewElementHeight;
 
-				if (_sv.VerticalOffset > targetOffset || targetOffset == 0) {
-					_sv.ScrollToVerticalOffset(targetOffset);
+				if (_components.Part_ScrollViewer.VerticalOffset > targetOffset || targetOffset == 0) {
+					_components.Part_ScrollViewer.ScrollToVerticalOffset(targetOffset);
 				}
 				else {
-					_sv.ScrollToVerticalOffset(targetOffset + _sv.ViewportHeight - PreviewElementHeight);
+					_components.Part_ScrollViewer.ScrollToVerticalOffset(targetOffset + _components.Part_ScrollViewer.ViewportHeight - PreviewElementHeight);
 				}
 
-				_sv.Dispatcher.BeginInvoke(new Action(() =>
+				_components.Part_ScrollViewer.Dispatcher.BeginInvoke(new Action(() =>
 				{
 					visualLayer = GetVisualLayer(row);
 
@@ -370,13 +211,16 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private int _lastAid = -1;
 		private int _lastFid = -1;
 
+		public int LastAid => _lastAid;
+		public int LastFid => _lastFid;
+
 		private void _updateVisual(bool canCancel = true) {
 			Stopwatch watch = Stopwatch.StartNew();
 
 			var aid = _actEditor.SelectedAction;
 			var fid = _actEditor.SelectedFrame;
 
-			var minimumHeight = _sv.ActualHeight;
+			var minimumHeight = _components.Part_ScrollViewer.ActualHeight;
 			int lineCount = 0;
 			int numberOfLayers = 0;
 
@@ -392,28 +236,28 @@ namespace ActEditor.Core.WPF.EditorControls {
 			var targetHeight = lineCount * PreviewElementHeight;
 			targetHeight = Math.Max(minimumHeight, targetHeight);
 
-			_gridBackground.Height = targetHeight;
-			_gridOverlay.Height = targetHeight;
+			_components.Part_ContentContainer.Height = targetHeight;
+			_components.Part_ContentOverlay.Height = targetHeight;
 			
 			int elementCount = (int)(Math.Ceiling(minimumHeight / PreviewElementHeight) + 1);
-			
-			_sp.Height = elementCount * PreviewElementHeight;
+
+			_components.Part_Content.Height = elementCount * PreviewElementHeight;
 
 			// Store correct layers
 			Dictionary<int, VisualLayer> validLayers = new Dictionary<int, VisualLayer>();
 			List<int> dirtyLayers = new List<int>();
 			_layerIdx2VisualControl.Clear();
 
-			if (Keyboard.FocusedElement == _editBox) {
+			if (Keyboard.FocusedElement == _editBoxControl.EditBox) {
 				var oldFocussedLayer = _focussedLayer;
-				_focussedLayer = _editVisualLayer;
+				_focussedLayer = _editBoxControl.EditVisualLayer;
 
 				if (oldFocussedLayer != _focussedLayer && oldFocussedLayer != null && !_visualLayers.Contains(oldFocussedLayer)) {
-					_gridBackground.Children.Remove(oldFocussedLayer);
+					_components.Part_ContentContainer.Children.Remove(oldFocussedLayer);
 				}
 			}
 
-			var start = (int)(_sv.ContentVerticalOffset / PreviewElementHeight);
+			var start = (int)(_components.Part_ScrollViewer.ContentVerticalOffset / PreviewElementHeight);
 
 			for (int i = 0; i < _visualLayers.Count; i++) {
 				var layerControl = _visualLayers[i];
@@ -451,7 +295,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					layerIdx = missingLayerIndexes.Dequeue();
 
 					if (_focussedLayer != null && _focussedLayer.LayerIndex == layerIdx) {
-						_gridBackground.Children.Remove(visualLayer);
+						_components.Part_ContentContainer.Children.Remove(visualLayer);
 						visualLayer = _focussedLayer;
 						_visualLayers[i] = _focussedLayer;
 					}
@@ -460,7 +304,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 					visualLayer.Margin = new Thickness(0, layerIdx * PreviewElementHeight, 0, 0);
 
 					if (visualLayer.LayerIndex == -1)
-						_gridBackground.Children.Add(visualLayer);
+						_components.Part_ContentContainer.Children.Add(visualLayer);
 				}
 				else {
 					layerIdx = visualLayer.LayerIndex;
@@ -469,10 +313,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 				visualLayer.Set(_actEditor.Act, aid, fid, layerIdx);
 				visualLayer.InternalUpdate();
 
-				if (visualLayer == _editVisualLayer && visualLayer == _focussedLayer) {
-					if (_editTextBlock.Text != _editBox.Text) {
-						UpdateEditBoxValue(_editTextBlock.Text);
-					}
+				if (visualLayer == _editBoxControl.EditVisualLayer && visualLayer == _focussedLayer) {
+					_editBoxControl.UpdateEditBox();
 				}
 
 				if (canCancel && watch.ElapsedMilliseconds > 10) {
@@ -497,9 +339,8 @@ namespace ActEditor.Core.WPF.EditorControls {
 				else {
 					if (visualLayer.Visibility != Visibility.Hidden)
 						visualLayer.Visibility = Visibility.Hidden;
-					if (visualLayer == _editVisualLayer && visualLayer == _focussedLayer && _editBox.Visibility != Visibility.Collapsed) {
-						_editBox.Visibility = Visibility.Collapsed;
-						_editTextBlock.Visibility = Visibility.Visible;
+					if (visualLayer == _editBoxControl.EditVisualLayer && visualLayer == _focussedLayer && _editBoxControl.EditBox.Visibility != Visibility.Collapsed) {
+						_editBoxControl.HideEditBox();
 						//Console.WriteLine("_editBox.Visibility = " + _editBox.Visibility + ", _editTextBlock.Visibility = " + _editTextBlock.Visibility + " (_updateVisual2)");
 					}
 				}
@@ -539,7 +380,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 				foreach (var idx in dirtyLayers.OrderByDescending(p => p)) {
 					// Keep the focussed layer in the grid
 					if (_focussedLayer != _visualLayers[idx]) {
-						_gridBackground.Children.Remove(_visualLayers[idx]);
+						_components.Part_ContentContainer.Children.Remove(_visualLayers[idx]);
 					}
 
 					_visualLayers.RemoveAt(idx);
@@ -560,7 +401,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 						visualLayer.Set(_actEditor.Act, aid, fid, layerIdx);
 						visualLayer.Margin = new Thickness(0, layerIdx * PreviewElementHeight, 0, 0);
 						visualLayer.IsVisualDirty = false;
-						_gridBackground.Children.Add(visualLayer);
+						_components.Part_ContentContainer.Children.Add(visualLayer);
 					}
 					
 					_layerIdx2VisualControl[layerIdx] = visualLayer;
@@ -569,7 +410,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		private VisualLayer CreateNewVisualLayer() {
+		public VisualLayer CreateNewVisualLayer() {
 			VisualLayer visualLayer = new VisualLayer(_actEditor.Act, _actEditor, -1);
 			visualLayer.IsVisualLayer = true;
 			//visualLayer.Height = PreviewElementHeight;
@@ -578,7 +419,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			return visualLayer;
 		}
 
-		internal void PreviewSelect(VisualLayer layer) {
+		public void PreviewSelect(VisualLayer layer) {
 			foreach (var visualLayer in _visualLayers) {
 				if (visualLayer == layer)
 					visualLayer.IsPreviewSelected = true;
@@ -587,18 +428,22 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 		}
 
-		internal void DrawSelection(int layerIndex) {
+		public void DrawSelection(int layerIndex) {
 			if (_layerIdx2VisualControl.TryGetValue(layerIndex, out VisualLayer visualLayer)) {
 				visualLayer.DrawSelection();
 			}
 		}
 
-		internal VisualLayer GetVisualLayer(int layerIndex) {
+		public VisualLayer GetVisualLayer(int layerIndex) {
 			if (_layerIdx2VisualControl.TryGetValue(layerIndex, out VisualLayer visualLayer)) {
 				return visualLayer;
 			}
 
 			return null;
+		}
+
+		public void SetEditBox(int layerIndex, int col) {
+			_editBoxControl.SetEditBox(layerIndex, col);
 		}
 	}
 }

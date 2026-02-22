@@ -41,7 +41,7 @@ namespace ActEditor.Core.Scripts.Effects {
 		private Dictionary<ActIndex, BoundingBox> _layer2BoundingBox;
 		private HashSet<ActIndex> _processedActIndexes;
 
-		public VerticalStripeErosion() : base("Vertical stripe erosion [Tokei]") {
+		public VerticalStripeErosion() : base("Vertical stripe erosion") {
 			_inputGesture = "{Dialog.AnimationStripeErosion}";
 			_generateBgra32Images = true;
 		}
@@ -158,7 +158,6 @@ namespace ActEditor.Core.Scripts.Effects {
 							continue;
 
 						var box = _layer2BoundingBox[new ActIndex { ActionIndex = aid, FrameIndex = j, LayerIndex = i }];
-
 						var offsetX = (int)layerBox.Min.X;
 
 						for (int x = 0; x < image.Width; x++) {
@@ -234,11 +233,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			int lightIncrease = _options.WhiteIntensity;
 			float excessMult = 1f;
 
-			for (int i = 0; i < img.Pixels.Length; i += 4) {
-				img.Pixels[i + 0] = Methods.ClampToColorByte(img.Pixels[i + 0] + lightIncrease);
-				img.Pixels[i + 1] = Methods.ClampToColorByte(img.Pixels[i + 1] + lightIncrease);
-				img.Pixels[i + 2] = Methods.ClampToColorByte(img.Pixels[i + 2] + lightIncrease);
-			}
+			img.Add(new GrfColor(255, (byte)lightIncrease, (byte)lightIncrease, (byte)lightIncrease));
 
 			var adjustOffsetX = _layer2Offsets[_index.LayerIndex];
 			var stripes = _layer2Stripes[_index.LayerIndex];

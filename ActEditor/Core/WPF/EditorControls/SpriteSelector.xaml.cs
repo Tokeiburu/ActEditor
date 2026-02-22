@@ -200,6 +200,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 					for (int i = 1; i < menuItems.Count; i++) {
 						menuItems[i].Visibility = Visibility.Visible;
 					}
+
+					try {
+						int index = _lastSelectedSpriteControl.SpriteIndex;
+						_miConvert.Header = "Convert to " + (_editor.Act.Sprite.Images[index].GrfImageType == GrfImageType.Indexed8 ? "Bgra32" : "Indexed8");
+					}
+					catch { }
 				}
 				else {
 					_miAdd.Visibility = Visibility.Visible;

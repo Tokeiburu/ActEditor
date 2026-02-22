@@ -14,6 +14,7 @@ using ActEditor.Core.WPF.EditorControls;
 using ActEditor.Core.WPF.FrameEditor;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
@@ -493,7 +494,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			var im2 = finalLayer.GetImage(act.Sprite);
 
 			if (im1 != null && im2 != null) {
-				if (im1.SimilarityWith(im2) > ActEditorConfiguration.InterpolateTolerance) {
+				if (GrfImageAnalysis.SimilarityWith(im1, im2) > ActEditorConfiguration.InterpolateTolerance) {
 					return true;
 				}
 			}

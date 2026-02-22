@@ -876,7 +876,7 @@ namespace ActEditor.Core {
 
 			if (File.Exists(path)) {
 				byte[] data = File.ReadAllBytes(path);
-				GrfImage grfImage = new GrfImage(ref data);
+				GrfImage grfImage = new GrfImage(data);
 				return grfImage.Cast<BitmapSource>();
 			}
 

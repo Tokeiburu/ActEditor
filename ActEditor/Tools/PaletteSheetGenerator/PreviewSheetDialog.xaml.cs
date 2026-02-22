@@ -466,7 +466,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 				EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸Ó¸®\¸Ó¸®{0}_" + _lastHeadResource.Gender + "_{2}.pal");
 
 			string path1 = settings.ShowBody ?
-				EncodingService.FromAnyToDisplayEncoding($@"data\palette\¸ö\{0}_{1}.pal") :
+				EncodingService.FromAnyToDisplayEncoding(@"data\palette\¸ö\{0}_{1}.pal") :
 				path0;
 
 			Func<int, byte[]> getPaletteMethod = index => {

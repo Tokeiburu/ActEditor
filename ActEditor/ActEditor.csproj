@@ -212,6 +212,7 @@
     </Compile>
     <Compile Include="Core\WPF\Dialogs\SelectableListBoxExtension.cs" />
     <Compile Include="Core\WPF\EditorControls\ActIndexSelectorHelper.cs" />
+    <Compile Include="Core\WPF\EditorControls\LayerVisualEditBox.cs" />
     <Compile Include="Core\WPF\EditorControls\QuickPreviewPaletteSheet.xaml.cs">
       <DependentUpon>QuickPreviewPaletteSheet.xaml</DependentUpon>
     </Compile>
@@ -962,7 +963,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">

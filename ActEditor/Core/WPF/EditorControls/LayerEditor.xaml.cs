@@ -119,7 +119,15 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private int _scrollDirection;
 
 		public void Init(TabAct actEditor) {
-			_visualEditor.Init(actEditor);
+			LayerEditorComponents components = new LayerEditorComponents();
+
+			components.Part_ScrollViewer = _sv;
+			components.Part_Content = _sp;
+			components.Part_ContentContainer = _gridBackground;
+			components.Part_ContentOverlay = _gridOverlay;
+			components.LayerEditor = this;
+
+			_visualEditor.Init(actEditor, components);
 			_actEditor = actEditor;
 
 			_actEditor.ActLoaded += delegate {

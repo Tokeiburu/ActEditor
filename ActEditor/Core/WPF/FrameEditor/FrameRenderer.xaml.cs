@@ -180,6 +180,9 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		}
 
 		private void _update() {
+			if (_components == null)
+				return;
+
 			_updateBackground();
 
 			View = ComputeViewMatrix();

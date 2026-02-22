@@ -2,6 +2,7 @@
 using GRF.FileFormats.SprFormat;
 using GRF.Graphics;
 using GRF.Image;
+using GrfToWpfBridge;
 using System;
 using System.Collections.Generic;
 using TokeiLibrary;
@@ -33,7 +34,7 @@ namespace ActEditor.Core.Scripts.Effects {
 			effect.AddProperty("SpriteOverlayColor", new GrfColor(255, 255, 255, 255), default, default);
 			effect.AddProperty("SmokeColor", new GrfColor(255, 82, 239, 211), default, default);
 			effect.AddProperty("SmokeCount", 15, 1, 50);
-			effect.AddProperty("OverlayBrightness", 0f, 0f, 100f);
+			effect.AddProperty("OverlayBrightness", 50, 0, 255);
 			effect.AddProperty("SpreadMult", 1f, 0f, 2f);
 			effect.AddProperty("RngSeed", 1234, 0, 10000);
 
@@ -200,36 +201,10 @@ namespace ActEditor.Core.Scripts.Effects {
 		}
 
 		public override void ProcessImage(GrfImage img, int step, int totalSteps) {
-			byte min = 255;
-			byte max = 0;
-
-			for (int i = 0; i < img.Pixels.Length; i += 4) {
-				for (int j = 0; j < 3; j++) {
-					if (img.Pixels[i + j] < min)
-						min = img.Pixels[i + j];
-					if (img.Pixels[i + j] > min)
-						max = img.Pixels[i + j];
-				}
-			}
-
-			float range = max - min;
-			float l = _options.OverlayBrightness;
-
-			for (int i = 0; i < img.Pixels.Length; i += 4) {
-				if (img.Pixels[i + 3] == 0)
-					continue;
-
-				var b = Math.Max(Math.Max(img.Pixels[i + 0], img.Pixels[i + 1]), img.Pixels[i + 2]);
-
-				b = (byte)Math.Min(255, b / range * (255 - 70) + 70);
-
-				if (l > 0)
-					b = (byte)Math.Min(255, b + (255 - b) / 255f * l);
-
-				img.Pixels[i + 0] = b;
-				img.Pixels[i + 1] = b;
-				img.Pixels[i + 2] = b;
-			}
+			img.Grayscale(GrayscaleMode.MaxValue);
+			byte add = (byte)_options.OverlayBrightness;
+			img.Add(new GrfColor(255, add, add, add));
+			return;
 		}
 
 		public override void EnsureFrameCount(Action action, int animStart, int animLength, bool loopMissingFrames) {

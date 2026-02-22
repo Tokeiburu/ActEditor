@@ -119,7 +119,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			}
 			else {
 				image = image.Copy();
-				image.ApplyChannelColor(color);
+				image.Multiply(color);
 			}
 
 			int srcStride = width;
@@ -170,12 +170,17 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 			List<Color> colors = new List<Color>(256);
 
+			int fA = (multColor.A << 16) / 255;
+			int fR = (multColor.R << 16) / 255;
+			int fG = (multColor.G << 16) / 255;
+			int fB = (multColor.B << 16) / 255;
+
 			for (int i = 0, count = palette.Length; i < count; i += 4) {
 				colors.Add(Color.FromArgb(
-					(byte)(palette[i + 3] * multColor.A / 255), 
-					(byte)(palette[i + 0] * multColor.R / 255), 
-					(byte)(palette[i + 1] * multColor.G / 255), 
-					(byte)(palette[i + 2] * multColor.B / 255)));
+					(byte)((palette[i + 3] * fA) >> 16), 
+					(byte)((palette[i + 0] * fR) >> 16), 
+					(byte)((palette[i + 1] * fG) >> 16), 
+					(byte)((palette[i + 2] * fB) >> 16)));
 			}
 
 			return colors;

@@ -46,7 +46,7 @@ namespace ActEditor.Core {
 				if (image.Width == 103)
 					oriWidth = image.Width;
 
-				var trimLengths = image.GetTrimLenghts(tolerance);
+				var trimLengths = image.GetTrimLengths(tolerance);
 
 				int[] trims = new int[] {
 					Math.Max(0, trimLengths.Left - 1),

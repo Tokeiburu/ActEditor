@@ -259,7 +259,7 @@ namespace PaletteEditor {
 				}
 			}
 			
-			GrfImage image = new GrfImage(ref imagePixels, 256, 256, GrfImageType.Bgra32);
+			GrfImage image = new GrfImage(imagePixels, 256, 256, GrfImageType.Bgra32);
 			_imageSelectionPalette.Source = image.Cast<BitmapSource>();
 		}
 
@@ -282,7 +282,7 @@ namespace PaletteEditor {
 				}
 			}
 			
-			GrfImage image = new GrfImage(ref imagePixels, 256, 256, GrfImageType.Bgra32);
+			GrfImage image = new GrfImage(imagePixels, 256, 256, GrfImageType.Bgra32);
 			_imageUsedPalette.Source = image.Cast<BitmapSource>();
 		}
 

@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -78,13 +80,13 @@ namespace ActEditor.Core {
 			_miReverseAnchors.Unchecked += (e, s) => _tabEngine.ReverseAnchorUnchecked();
 			_miReverseAnchors.IsChecked = ActEditorConfiguration.ReverseAnchor;
 			_initializeMetaGrf();
+			_splashWindow.Display = "Loading custom scripts...";
 		}
 
 		private void _actEditorWindow_Loaded(object sender, RoutedEventArgs e) {
 			// Allow modifying size on load
 			SizeToContent = SizeToContent.Manual;
 			_editorPosition.Load(this);
-
 			_initializeScripts();
 
 			try {
@@ -169,8 +171,6 @@ namespace ActEditor.Core {
 		}
 
 		private void _initializeScripts() {
-			_splashWindow.Display = "Loading custom scripts...";
-
 			try {
 				ScriptLoader.VerifyExampleScriptsInstalled();
 				_scriptLoader.PendingErrors.Clear();
