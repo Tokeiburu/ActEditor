@@ -38,6 +38,7 @@ namespace ActEditor.Tools.GrfShellExplorer {
 		private readonly GrfHolder _grfHolder = new GrfHolder();
 		private readonly object _listLoadLock = new object();
 		private FileEntry _latestSelectedItem;
+		private byte[] _latestSelectedData;
 		private TreeViewPathManager _treeViewPathManager;
 
 		public GrfExplorer() {
@@ -71,6 +72,8 @@ namespace ActEditor.Tools.GrfShellExplorer {
 		public string SelectedItem {
 			get { return _latestSelectedItem == null ? null : _latestSelectedItem.RelativePath; }
 		}
+
+		public byte[] SelectedData => _latestSelectedData;
 
 		private void _loadEditorUI() {
 			_treeViewPathManager = new TreeViewPathManager(_treeView);
@@ -168,6 +171,13 @@ namespace ActEditor.Tools.GrfShellExplorer {
 
 		private void _buttonOk_Click(object sender, RoutedEventArgs e) {
 			if (_latestSelectedItem != null) {
+				try {
+					_latestSelectedData = _latestSelectedItem.GetDecompressedData();
+				}
+				catch {
+					_latestSelectedData = null;
+				}
+
 				DialogResult = true;
 			}
 			else {

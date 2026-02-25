@@ -6,6 +6,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ActEditor.ApplicationConfiguration;
 using ErrorManager;
+using GRF.Image;
+using TokeiLibrary;
 using Utilities.Tools;
 
 namespace ActEditor.Tools.PaletteEditorTool {
@@ -65,6 +67,16 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			PreviewMouseMove += _imageViewer_PreviewMouseMove;
 			PreviewMouseUp += new MouseButtonEventHandler(_imageViewer_PreviewMouseUp);
 			MouseUp += delegate { Cursor = Cursors.Arrow; };
+			ZoomEngine.ZoomFunction = ZoomEngine.DefaultLimitZoom;
+
+			if (ActEditorConfiguration.ThemeIndex == 1) {
+				if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+					return;
+				
+				var image = new GrfImage(ApplicationManager.GetResource("background.png"));
+				image.Multiply(0.5f);
+				_imageBackground.Source = image.Cast<BitmapSource>();
+			}
 		}
 
 		private void _imageViewer_PreviewMouseUp(object sender, MouseButtonEventArgs e) {
@@ -159,22 +171,8 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		}
 
 		public void Load(BitmapSource image) {
-			//bool shouldResetView = true;
-
-			//if (_currentBitmap != null) {
-			//    if (_currentBitmap.PixelWidth == image.PixelWidth &&
-			//        _currentBitmap.PixelHeight == image.PixelHeight) {
-			//        shouldResetView = false;
-			//    }
-			//}
-
 			((VisualBrush)_borderSprite.Background).Viewport = new Rect(0, 0, 16d / image.PixelWidth, 16d / image.PixelHeight);
 			_currentBitmap = image;
-
-			//if (shouldResetView) {
-			//    RelativeCenter = new Point(0.5, 0.5);
-			//}
-
 			_updatePreview();
 		}
 

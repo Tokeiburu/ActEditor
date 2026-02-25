@@ -10,7 +10,7 @@ namespace PaletteEditor {
 			//var app = new App();
 			//app.StartupUri = new Uri("PaletteMakerWindow.xaml", UriKind.Relative);
 			//app.Run();
-			new MultiColorEditDialog().ShowDialog();
+			new GradientColorEditDialog().ShowDialog();
 		}
 	}
 }

@@ -8,6 +8,8 @@
              xmlns:PaletteEditorTool="clr-namespace:ActEditor.Tools.PaletteEditorTool"
              xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"
              xmlns:listView="clr-namespace:TokeiLibrary.WPF.Styles.ListView;assembly=TokeiLibrary"
+			 AllowDrop="True"
+			 PreviewKeyDown="_spriteEditorControl_PreviewKeyDown" PreviewKeyUp="_spriteEditorControl_PreviewKeyDown"
              mc:Ignorable="d" 
              FocusVisualStyle="{x:Null}">
     <Grid FocusVisualStyle="{x:Null}">
@@ -36,14 +38,21 @@
                 <MenuItem.Header>
                     <Label Content="Tools" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
-                <styles:TkMenuItem Name="_menuItemSwitchGradient3" Click="_menuItemSwitchGradient_Click" Header="Switch colors" IconPath="reverse.png" ShortcutCmd="SpriteEditor.SwitchColors" Shortcut="Ctrl-1" />
-                <styles:TkMenuItem Name="_menuItemSwitchGradient2" Click="_menuItemSwitchGradient_Click" Header="Switch colors (by switching indexes)" IconPath="reverse.png" ShortcutCmd="SpriteEditor.SwitchColorsIndex" Shortcut="Ctrl-2" />
-                <styles:TkMenuItem Name="_menuItemSwitchGradient1" Click="_menuItemSwitchGradient_Click" Header="Switch indexes (keep colors)" ShortcutCmd="SpriteEditor.SwitchColorsKeep" Shortcut="Ctrl-3" />
-                <styles:TkMenuItem Name="_menuItemSwitchGradient4" Click="_menuItemSwitchGradient4_Click" Header="Redirect to" IconPath="arrowdown.png" ShortcutCmd="SpriteEditor.RedirectTo" Shortcut="Ctrl-4" />
+				<styles:TkMenuItem Name="_menuItemSwitchGradient3" Click="_menuItemSwapPaletteColors_Click" Header="Switch palette colors" IconPath="reverse.png" ShortcutCmd="SpriteEditor.SwitchColors" Shortcut="Ctrl-1" />
+				<styles:TkMenuItem Name="_menuItemSwitchGradient2" Click="_menuItemSwapSpriteIndexes_Click" Header="Switch sprite indexes" IconPath="reverse.png" ShortcutCmd="SpriteEditor.SwitchColorsIndex" Shortcut="Ctrl-2" />
+				<styles:TkMenuItem Name="_menuItemSwitchGradient1" Click="_menuItemSwapColorsAndIndexes_Click" Header="Switch colors and indexes" ShortcutCmd="SpriteEditor.SwitchColorsKeep" Shortcut="Ctrl-3" />
+				<styles:TkMenuItem Name="_menuItemSwitchGradient4" Click="_menuItemRedirectTo_Click" Header="Redirect to" IconPath="arrowdown.png" ShortcutCmd="SpriteEditor.RedirectTo" Shortcut="Ctrl-4" />
                 <styles:TkMenuItem Name="_menuItemStampLock" Click="_menuItemStampLock_Click" Header="Stamp lock" ShortcutCmd="SpriteEditor.StampLock" Shortcut="Ctrl-L" />
                 <Separator />
                 <styles:TkMenuItem Name="_menuItemBrushPlus" Click="_menuItemBrushPlus_Click" Header="Brush size increase" IconPath="add.png" ShortcutCmd="SpriteEditor.BrushIncrease" Shortcut="Add" />
                 <styles:TkMenuItem Name="_menuItemBrushMinus" Click="_menuItemBrushMinus_Click" Header="Brush size decrease" IconPath="minus.png" ShortcutCmd="SpriteEditor.BrushDecrease" Shortcut="Subtract" />
+                <Separator />
+				<MenuItem Header="Grayscale">
+					<MenuItem Name="_menuItemGrayscaleMaxValue" Header="Max" Click="_menuItemGrayscaleMaxValue_Click" />
+					<MenuItem Name="_menuItemGrayscaleAverage" Header="Average" Click="_menuItemGrayscaleAverage_Click" />
+					<MenuItem Name="_menuItemGrayscaleLightness" Header="Lightness" Click="_menuItemGrayscaleLightness_Click" />
+					<MenuItem Name="_menuItemGrayscaleLuminosity" Header="Luminosity" Click="_menuItemGrayscaleLuminosity_Click" />
+				</MenuItem>
                 <Separator />
                 <styles:TkMenuItem Name="_menuItemPaletteSelector" Click="_menuItemPaletteSelector_Click" Header="Palette selector" IconPath="pal.png" ShortcutCmd="SpriteEditor.PaletteSelector" Shortcut="Ctrl-U" />
             </MenuItem>
@@ -54,9 +63,13 @@
         </DockPanel>
         <Grid Grid.Row="1">
             <Grid>
-                <PaletteEditorTool:SpriteViewer x:Name="_spriteViewer" FocusVisualStyle="{x:Null}" />
+				<PaletteEditorTool:SpriteViewer x:Name="_spriteViewer" FocusVisualStyle="{x:Null}" 
+												DragEnter="_spriteEditorControl_DragEnter" DragOver="_spriteEditorControl_DragEnter" Drop="_spriteEditorControl_Drop" 
+												PixelClicked="_spriteViewer_PixelClicked" MouseMove="_spriteViewer_MouseMove" MouseEnter="_spriteViewer_MouseEnter" MouseLeave="_spriteViewer_MouseLeave" 
+												PreviewKeyDown="_spriteEditorControl_PreviewKeyDown" PreviewKeyUp="_spriteEditorControl_PreviewKeyDown" MouseLeftButtonUp="_spriteViewer_MouseLeftButtonUp"
+												LostMouseCapture="_spriteViewer_LostMouseCapture" />
                 <WrapPanel HorizontalAlignment="Left" Width="32">
-                    <styles:FancyButton x:Name="_buttonSelection" ImagePath="cs_cursor.png" Width="18" Height="18" Click="_buttonSelection_Click">
+                    <styles:FancyButton x:Name="_buttonSelection" ImagePath="cs_cursor.png" Width="18" Height="18" Click="_buttonSelection_Click" IsPressed="true">
                         <styles:FancyButton.ToolTip>
                             <TextBlock>
                                 Selects the color in the palettes by clicking on the image.
@@ -77,10 +90,31 @@
                             </TextBlock>
                         </styles:FancyButton.ToolTip>
                     </styles:FancyButton>
-                    <styles:FancyButton x:Name="_buttonEraser" ImagePath="cs_eraser.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonEraser_Click">
+                    <styles:FancyButton x:Name="_buttonEraser" ImagePath="cs_eraser2.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonEraser_Click">
                         <styles:FancyButton.ToolTip>
                             <TextBlock>
                                 Removes the selected colors of the image.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+					<styles:FancyButton x:Name="_buttonRectangle" ImagePath="cs_eraser.png" VerticalAlignment="Top" Height="18" Width="18" Click="_rectangleTool_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Creates a rectangle with the selected color.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+					<styles:FancyButton x:Name="_buttonLine" ImagePath="cs_line.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonLine_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Creates a line with the selected color.
+                            </TextBlock>
+                        </styles:FancyButton.ToolTip>
+                    </styles:FancyButton>
+					<styles:FancyButton x:Name="_buttonEllipse" ImagePath="cs_circle.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonEllipse_Click">
+                        <styles:FancyButton.ToolTip>
+                            <TextBlock>
+                                Creates an ellipse with the selected color.
                             </TextBlock>
                         </styles:FancyButton.ToolTip>
                     </styles:FancyButton>
@@ -99,11 +133,11 @@
                         </styles:FancyButton.ToolTip>
                     </styles:FancyButton>
                 </WrapPanel>
-                <ComboBox Width="100" IsEditable="True" Name="_cbSpriteId" Margin="100 0 0 0" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+				<ComboBox Width="100" IsEditable="True" Name="_cbSpriteId" Margin="100 0 0 0" VerticalAlignment="Bottom" HorizontalAlignment="Left" SelectionChanged="_cbSpriteId_SelectionChanged" />
             </Grid>
         </Grid>
         <!--<PaletteEditorTool:SpriteViewer MinWidth="300" MinHeight="300" x:Name="_spriteViewer" Grid.Row="1" FocusVisualStyle="{x:Null}" />-->
-        <Grid Name="_mainGrid" Grid.Row="1" Grid.Column="1" MinHeight="550" MinWidth="575">
+        <Grid Name="_mainGrid" Grid.Row="1" Grid.Column="1" MinHeight="550" MinWidth="575" VerticalAlignment="Center">
             <PaletteEditor:SingleColorEditControl PalAtTop="True" x:Name="_sce" VerticalAlignment="Top" />
             <PaletteEditor:GradientColorEditControl PalAtTop="True" x:Name="_gceControl" VerticalAlignment="Top" />
         </Grid>

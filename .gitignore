@@ -10,3 +10,6 @@ _ReSharper
 /Dump.vs/ActEditor/v17/*.suo
 /*.user
 /*.suo
+/ColorMultiply.ps
+/changes_20250830.diff
+/shader_compile.txt

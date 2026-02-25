@@ -370,6 +370,11 @@
     <Compile Include="Tools\PaletteEditorTool\PalettePreset.xaml.cs">
       <DependentUpon>PalettePreset.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\PaletteEditorTool\SpriteBrush.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteEditorState.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteEditorTools.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteOperation.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteLoadAndSaveService.cs" />
     <Compile Include="Tools\PaletteSheetGenerator\PreviewSheetDialog.xaml.cs">
       <DependentUpon>PreviewSheetDialog.xaml</DependentUpon>
     </Compile>
@@ -997,6 +1002,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\font4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cs_eraser2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cs_line.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cs_circle.png" />
   </ItemGroup>
   <Target Name="CopyExternalDlls" BeforeTargets="BeforeBuild">
     <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />

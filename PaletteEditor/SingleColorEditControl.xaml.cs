@@ -22,7 +22,7 @@ namespace PaletteEditor {
 	/// Interaction logic for SingleColorEditControl.xaml
 	/// </summary>
 	public partial class SingleColorEditControl : UserControl {
-		private byte[] _oldColor = new byte[4];
+		private byte[] _oldColor = null;
 		private Pal _pal;
 
 		public bool PalAtTop {
@@ -52,11 +52,11 @@ namespace PaletteEditor {
 		public SingleColorEditControl() {
 			InitializeComponent();
 
-			_colorPicker.ColorChanged += new SliderGradient.GradientPickerColorEventHandler(_colorPicker_ColorChanged);
+			_colorPicker.ColorChanged += _colorPicker_ColorChanged;
 			_colorPicker.Commands.PreviewCommandExecuted += new AbstractCommand<ICommand>.AbstractCommandsEventHandler(_commands_PreviewCommandExecuted);
 			_paletteSelector.IsMultipleColorsSelectable = true;
 			_paletteSelector.SelectionChanged += new ObservableList.ObservableListEventHandler(_paletteSelector_SelectionChanged);
-			_colorPicker.PreviewColorChanged += new SliderGradient.GradientPickerColorEventHandler(_colorPicker_PreviewColorChanged);
+
 			Loaded += delegate {
 				Window parent = WpfUtilities.FindParentControl<Window>(this);
 
@@ -73,11 +73,15 @@ namespace PaletteEditor {
 			get { return _colorPicker; }
 		}
 
-		private void _colorPicker_PreviewColorChanged(object sender, Color value) {
+		public void PreviewModifyColor(Color value) {
 			if (_paletteSelector.SelectedItems.Count == 0) return;
 
 			int baseIndex = _paletteSelector.SelectedItems.Last();
 
+			if (_oldColor != null)
+				return;
+
+			_colorPicker.Commands.ClearCommands();
 			_oldColor = new byte[4];
 			Buffer.BlockCopy(_pal.BytePalette, baseIndex * 4, _oldColor, 0, _oldColor.Length);
 		}
@@ -106,10 +110,13 @@ namespace PaletteEditor {
 			}
 		}
 
-		private void _colorPicker_ColorChanged(object sender, Color value) {
+		private void _colorPicker_ColorChanged(object sender, ColorEventArgs args) {
+			if (args.Preview)
+				PreviewModifyColor(args.Value);
+
 			if (_paletteSelector.SelectedItem != null) {
 				int index = _paletteSelector.SelectedItem.Value;
-				_pal.SetBytes(index * 4, value.ToBytesRgba());
+				_pal.SetBytes(index * 4, args.Value.ToBytesRgba());
 				//_oldColor = value.ToBytesRgba();
 			}
 		}
@@ -124,7 +131,16 @@ namespace PaletteEditor {
 
 				int baseIndex = _paletteSelector.SelectedItems.Last();
 				_pal.EnableRaiseEvents = false;
+
+				if (_oldColor == null) {
+					_oldColor = new byte[4];
+					Buffer.BlockCopy(_pal.BytePalette, baseIndex * 4, _oldColor, 0, _oldColor.Length);
+				}
+
 				_pal.Commands.ChangeColor(baseIndex, _oldColor, gradient);
+				_colorPicker.Commands.ClearCommands();
+				_oldColor = null;
+
 				_pal.EnableRaiseEvents = true;
 			}
 		}

@@ -187,7 +187,8 @@ namespace ActEditor.Core.Scripts {
 
 				act.Sprite.Palette.SetPalette(paletteBefore);
 
-				if (!Methods.ByteArrayCompare(paletteBefore, 4, 1020, dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette, 4)) {
+				if (!Methods.ByteArrayCompare(paletteBefore, 0, 1024, dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette, 0)) {
+					dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette[3] = 0;
 					act.Commands.SpriteSetPalette(dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette);
 					act.InvalidateVisual();
 				}
@@ -216,7 +217,7 @@ namespace ActEditor.Core.Scripts {
 			var dialog = new PaletteEditorWindow();
 			string tempPath = TemporaryFilesManager.GetTemporaryFilePath("tmp_sprite_{0:0000}.spr");
 			act.Sprite.Save(tempPath);
-			if (dialog.PaletteEditor.Open(tempPath)) {
+			if (dialog.PaletteEditor.Load(tempPath)) {
 				dialog.Owner = WpfUtilities.TopWindow;
 				dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 				dialog.Closing += delegate {

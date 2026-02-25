@@ -13,6 +13,7 @@ using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using Utilities;
+using static ColorPicker.ColorChangedDelegate;
 
 namespace ActEditor.Core.WPF.GenericControls {
 	/// <summary>
@@ -53,7 +54,7 @@ namespace ActEditor.Core.WPF.GenericControls {
 				}
 
 				_previewPanelBg.Fill = new SolidColorBrush(lastColor);
-				SliderGradient.GradientPickerColorEventHandler handler = PreviewColorChanged;
+				ColorChangedEventHandler_Old handler = PreviewColorChanged;
 				if (handler != null) handler(this, lastColor);
 			}
 
@@ -130,8 +131,8 @@ namespace ActEditor.Core.WPF.GenericControls {
 			}
 		}
 
-		public event SliderGradient.GradientPickerColorEventHandler ColorChanged;
-		public event SliderGradient.GradientPickerColorEventHandler PreviewColorChanged;
+		public event ColorChangedEventHandler_Old ColorChanged;
+		public event ColorChangedEventHandler_Old PreviewColorChanged;
 
 		public void OnPreviewColorChanged(Color value) {
 			if (PreviewUpdateInterval > 0) {
@@ -148,7 +149,7 @@ namespace ActEditor.Core.WPF.GenericControls {
 				}
 
 				_previewPanelBg.Fill = new SolidColorBrush(value);
-				SliderGradient.GradientPickerColorEventHandler handler = PreviewColorChanged;
+				ColorChangedEventHandler_Old handler = PreviewColorChanged;
 				if (handler != null) handler(this, value);
 			}
 		}
@@ -158,7 +159,7 @@ namespace ActEditor.Core.WPF.GenericControls {
 				_reset.Visibility = _defaultColor().Replace("0x", "#") == value.ToGrfColor().ToHexString().Replace("0x", "#") ? Visibility.Collapsed : Visibility.Visible;
 			}
 
-			SliderGradient.GradientPickerColorEventHandler handler = ColorChanged;
+			ColorChangedEventHandler_Old handler = ColorChanged;
 			if (handler != null) handler(this, value);
 		}
 
@@ -274,8 +275,8 @@ namespace ActEditor.Core.WPF.GenericControls {
 
 			InitialColor = Color.ToGrfColor();
 
-			dialog.PickerControl.ColorChanged += delegate(object s, Color newColor) {
-				OnPreviewColorChanged(newColor);
+			dialog.PickerControl.ColorChanged += delegate(object s, ColorEventArgs args) {
+				OnPreviewColorChanged(args.Value);
 			};
 
 			dialog.Closed += delegate {

@@ -17,13 +17,13 @@
                     <VisualBrush TileMode="Tile" Viewport="0,0,0.5,0.5" ViewportUnits="RelativeToBoundingBox" >
                         <VisualBrush.Visual>
                             <Grid>
-                                <Image Source="../../Resources/background.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Width="256" Height="256" />
+                                <Image x:Name="_imageBackground" Source="../../Resources/background.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Width="256" Height="256" />
                             </Grid>
                         </VisualBrush.Visual>
                     </VisualBrush>
                 </Border.Background>
             </Border>
-            <Image Name="_imageSprite" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
+			<Image Name="_imageSprite" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
             <!--<Rectangle Name="_imageRectGridX" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                     <Rectangle Name="_imageRectGridY" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
                     <Image Name="_imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />-->

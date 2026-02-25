@@ -16,6 +16,7 @@ using GrfToWpfBridge.Application;
 using TokeiLibrary;
 using Utilities;
 using Utilities.Services;
+using System.IO;
 
 namespace ActEditor {
 	/// <summary>
@@ -70,27 +71,36 @@ namespace ActEditor {
 				ApplicationManager.ImageProcessing = delegate(string name, BitmapFrame img) {
 					if (img == null) return null;
 
-					if (name.Contains("reset.png")) {
-						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
-							return Color.FromArgb(A, Methods.ClampToColorByte((R) * 1.8), Methods.ClampToColorByte(G / 3), Methods.ClampToColorByte(B / 3));
-						};
+					var pName = Path.GetFileName(name).ToLowerInvariant();
+					Func<byte, byte, byte, byte, Color> shader;
 
-						return _applyShader(img, shader);
-					}
-					else if (name.Contains("eye.png") || name.Contains("smallArrow.png") || name.Contains("cs_pen.png") || name.Contains("cs_eraser.png")) {
-						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
-							return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.8), Methods.ClampToColorByte((255 - B) * 0.8));
-						};
+					switch (pName) {
+						case "reset.png":
+							shader = delegate(byte A, byte R, byte G, byte B) {
+								return Color.FromArgb(A, Methods.ClampToColorByte((R) * 1.8), Methods.ClampToColorByte(G / 3), Methods.ClampToColorByte(B / 3));
+							};
 
-						return _applyShader(img, shader);
-					}
-					else if (name.Contains("arrow.png") ||
-							 name.Contains("arrowoblique.png")) {
-						Func<byte, byte, byte, byte, Color> shader = delegate(byte A, byte R, byte G, byte B) {
-							return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.6), 0);
-						};
-						//F68D00
-						return _applyShader(img, shader);
+							return _applyShader(img, shader);
+						case "eye.png":
+						case "smallArrow.png":
+						case "cs_pen.png":
+						case "cs_eraser.png":
+						case "cs_line.png":
+						case "cs_circle.png":
+						case "cs_eraser2.png":
+						case "cs_bucket.png":
+							shader = delegate(byte A, byte R, byte G, byte B) {
+								return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.8), Methods.ClampToColorByte((255 - B) * 0.8));
+							};
+
+							return _applyShader(img, shader);
+						case "arrow.png":
+						case "arrowoblique.png":
+							shader = delegate (byte A, byte R, byte G, byte B) {
+								return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.6), 0);
+							};
+
+							return _applyShader(img, shader);
 					}
 
 					return img;

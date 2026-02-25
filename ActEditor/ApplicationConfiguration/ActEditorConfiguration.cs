@@ -592,7 +592,7 @@ namespace ActEditor.ApplicationConfiguration {
 
 		#region Program's internal configuration and information
 
-		public static string PublicVersion => "1.3.2";
+		public static string PublicVersion => "1.3.3";
 		public static string Author => "Tokeiburu";
 		public static string ProgramName => "Act Editor";
 		public static string RealVersion => Assembly.GetEntryAssembly().GetName().Version.ToString();

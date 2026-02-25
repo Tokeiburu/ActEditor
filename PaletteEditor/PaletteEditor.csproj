@@ -86,19 +86,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdjustColorControl.xaml.cs">
-      <DependentUpon>AdjustColorControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="AdjustColorDialog.xaml.cs">
-      <DependentUpon>AdjustColorDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MultiColorEditDialog.xaml.cs">
-      <DependentUpon>MultiColorEditDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Main.cs" />
-    <Compile Include="MultiColorEditControl.xaml.cs">
-      <DependentUpon>MultiColorEditControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GradientColorEditControl.xaml.cs">
       <DependentUpon>GradientColorEditControl.xaml</DependentUpon>
     </Compile>
@@ -107,9 +95,6 @@
     </Compile>
     <Compile Include="LargePaletteOverlay.xaml.cs">
       <DependentUpon>LargePaletteOverlay.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="MultiColorDialog.xaml.cs">
-      <DependentUpon>MultiColorDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="PaletteOverlay.xaml.cs">
       <DependentUpon>PaletteOverlay.xaml</DependentUpon>
@@ -126,22 +111,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AdjustColorControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="AdjustColorDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="MultiColorEditDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="MultiColorEditControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="GradientColorEditControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -151,10 +120,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="LargePaletteOverlay.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="MultiColorDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

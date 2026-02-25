@@ -26,6 +26,7 @@ using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
 using Utilities.Extension;
 using Utilities.Services;
+using ColorPicker;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -153,11 +154,11 @@ namespace ActEditor.Core.WPF.Dialogs {
 			slider.SetPosition((FormatConverters.IntConverter(tb.Text) + 30) / 60d, true);
 		}
 
-		private void _sliderOffset_ValueChanged(TextBox sender, double value) {
+		private void _sliderOffset_ValueChanged(TextBox sender, ValueEventArgs args) {
 			if (!_enableAdjustmentEvents)
 				return;
 
-			int offset = (int)Math.Round(value * 60 - 30, MidpointRounding.AwayFromZero);
+			int offset = (int)Math.Round(args.Value * 60 - 30, MidpointRounding.AwayFromZero);
 			sender.Text = offset + "";
 		}
 

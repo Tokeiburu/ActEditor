@@ -29,10 +29,6 @@ namespace ActEditor.Components {
 			}
 		}
 
-		public void LoadFromGrf(TkPath file) {
-
-		}
-
 		public LoadResult Load(TkPath file) {
 			if (file.FilePath.IsExtension(".act") || String.IsNullOrEmpty(file.RelativePath)) {
 				return _loadFromFileSystem(file.FilePath);
