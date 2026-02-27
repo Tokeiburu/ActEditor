@@ -4,13 +4,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
 using GRF.Graphics;
 using GRF.Image;
-using Utilities;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 using Point = System.Windows.Point;
 

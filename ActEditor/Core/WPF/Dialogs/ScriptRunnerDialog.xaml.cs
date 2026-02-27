@@ -23,6 +23,8 @@ using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
 using Microsoft.CodeAnalysis;
 using GRF.Threading;
+using Utilities.Extension;
+using ActEditor.Core.Scripting;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -30,6 +32,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 	/// </summary>
 	public partial class ScriptRunnerDialog : TkWindow {
 		public static string ScriptTemplate;
+		public static int ScriptTemplateRowErrorOffset;
+		public static int ScriptTemplateColumnErrorOffset;
+		const string BeginScript = "//_BEGIN_SCRIPT";
+		const string EndScript = "//_END_SCRIPT";
 
 		public static string TmpFilePattern = "script_runner_{0:0000}.cs";
 		private WpfRecentFiles _rcm;
@@ -37,6 +43,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 		static ScriptRunnerDialog() {
 			TmpFilePattern = Process.GetCurrentProcess().Id + "_" + TmpFilePattern;
 			ScriptTemplate = Encoding.Default.GetString(ApplicationManager.GetResource("script_engine_template.txt"));
+
+			ScriptTemplateRowErrorOffset = -60;
+			ScriptTemplateColumnErrorOffset = -6;
 		}
 
 		protected override void GRFEditorWindowKeyDown(object sender, KeyEventArgs e) {
@@ -56,7 +65,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			AvalonLoader.Load(_textEditor);
 			AvalonLoader.SetSyntax(_textEditor, "C#");
 			SizeToContent = SizeToContent.WidthAndHeight;
-			_autoCompletion = new ScriptAutoCompletion(this);
+			_autoCompletion = new ScriptAutoCompletion(_textEditor);
 
 			ListViewDataTemplateHelper.GenerateListViewTemplateNew(_listView, new ListViewDataTemplateHelper.GeneralColumnInfo[] {
 				new ListViewDataTemplateHelper.ImageColumnInfo {Header = "", DisplayExpression = "DataImage", SearchGetAccessor = "IsWarning", FixedWidth = 20, MaxHeight = 24},
@@ -92,7 +101,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_textEditor.TextArea.TextEntered += (s, e) => {
 				_autoCompletion.ProcessText(e);
 			};
-
 
 			// Force load Roslyn on startup
 			GrfThread.Start(delegate {
@@ -137,23 +145,22 @@ namespace ActEditor.Core.WPF.Dialogs {
 		private void _buttonRun_Click(object sender, RoutedEventArgs e) {
 			try {
 				string tmp = TemporaryFilesManager.GetTemporaryFilePath(TmpFilePattern);
+				string dllPath = tmp.ReplaceExtension(".dll");
 
 				string script = _fixIndent(_textEditor.Text);
 				script = ScriptTemplate.Replace("{0}", DefaultScriptName).Replace("{1}", DefaultInputGesture).Replace("{2}", DefaultImage).Replace("{3}", script);
-				File.WriteAllText(tmp, script);
 
-				string outDll;
-				var res = ScriptLoader.Compile(tmp, out outDll);
-				GrfPath.Delete(tmp);
+				var res = ScriptLoader.CompileFromText(script, dllPath);
 
 				_listView.ItemsSource = null;
 
 				if (!res.Success) {
-					_listView.ItemsSource = res.Diagnostics.ToList().Select(p => new CompilerErrorView(p)).ToList();
+					_listView.ItemsSource = res.CompileResult.Diagnostics.ToList().Select(p => new CompilerErrorView(p, ScriptTemplateRowErrorOffset, ScriptTemplateColumnErrorOffset)).ToList();
 					_sp.Visibility = Visibility.Visible;
 				}
 				else {
-					var actScript = ScriptLoader.GetScriptObjectFromAssembly(outDll);
+					var loadResult = ScriptLoader.LoadScriptFromAssembly(dllPath);
+					var actScript = loadResult.ActScript;
 
 					try {
 						var tab = ActEditorWindow.Instance.GetCurrentTab2();
@@ -176,8 +183,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		private string _fixIndent(string text) {
-			if (text.Contains("act.Commands."))
-				throw new Exception("Command methods cannot be executed within another command (Backup).");
+			// Fix: This isn't true anymore, scripts now use ActEditBegin rather than the Backup feature.
+			//if (text.Contains("act.Commands."))
+			//	throw new Exception("Command methods cannot be executed within another command (Backup).");
 
 			List<string> lines = text.Split(new string[] {"\r\n"}, StringSplitOptions.None).ToList();
 			LineHelper.FixIndent(lines, 5);
@@ -269,6 +277,11 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 				const string ToFindBackup = "act.Commands.Backup(_ => {";
 
+				// Try loading using new format
+				if (_extractWithCommentBlocks(text, out string output)) {
+					return output;
+				}
+
 				int first = text.IndexOf(ToFindBackup, StringComparison.Ordinal);
 
 				if (first < 0) {
@@ -324,6 +337,19 @@ namespace ActEditor.Core.WPF.Dialogs {
 			catch {
 				return input;
 			}
+		}
+
+		private bool _extractWithCommentBlocks(string text, out string output) {
+			int indexBegin = text.IndexOf(BeginScript);
+			int indexEnd = text.IndexOf(EndScript);
+			output = null;
+
+			if (indexBegin == -1 || indexEnd == -1 || indexEnd < indexBegin)
+				return false;
+
+			indexBegin = indexBegin + BeginScript.Length + 2;
+			output = text.Substring(indexBegin, indexEnd - indexBegin - 2);
+			return true;
 		}
 
 		private string _extractBackupNoBackup(string input) {
@@ -388,12 +414,12 @@ namespace ActEditor.Core.WPF.Dialogs {
 		#region Nested type: CompilerErrorView
 
 		public class CompilerErrorView {
-			public CompilerErrorView(Diagnostic error) {
+			public CompilerErrorView(Diagnostic error, int adjustLine = 0, int adjustColumn = 0) {
 				Description = error.GetMessage();
 				ToolTipDescription = error.ToString();
 				var lineSpan = error.Location.GetLineSpan();
-				Line = lineSpan.StartLinePosition.Line - 63 + 1;
-				Column = lineSpan.StartLinePosition.Character - 6 + 1;
+				Line = lineSpan.StartLinePosition.Line + adjustLine + 1;
+				Column = lineSpan.StartLinePosition.Character + adjustColumn + 1;
 
 				IsWarning = (int)error.Severity;
 
@@ -413,11 +439,11 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 			}
 
-			public CompilerErrorView(CompilerError error) {
+			public CompilerErrorView(CompilerError error, int adjustLine = -63, int adjustColumn = -6) {
 				Description = error.ErrorText;
 				ToolTipDescription = error.ToString();
-				Line = error.Line - 63;
-				Column = error.Column - 6;
+				Line = error.Line + adjustLine;
+				Column = error.Column + adjustColumn;
 
 				IsWarning = error.IsWarning ? 0 : 1;
 				DataImage = error.IsWarning ? ApplicationManager.PreloadResourceImage("warning16.png") : ApplicationManager.PreloadResourceImage("error16.png");

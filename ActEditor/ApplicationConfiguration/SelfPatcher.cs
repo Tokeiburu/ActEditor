@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using ActEditor.Core;
+using ActEditor.Core.Scripting;
 using GRF.IO;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ActEditor.ApplicationConfiguration {
 	/// <summary>
@@ -26,6 +23,7 @@ namespace ActEditor.ApplicationConfiguration {
 			PatchIds.Add(133);
 			PatchIds.Add(134);
 			PatchIds.Add(137);
+			PatchIds.Add(138);
 		}
 
 		public static void SelfPatch() {
@@ -128,6 +126,11 @@ namespace ActEditor.ApplicationConfiguration {
 					case 137:
 						GrfPath.Delete(Path.Combine(path, "sprites.conf"));
 						GrfPath.Delete(Path.Combine(path, "sprites_old.conf"));
+						break;
+					case 138:
+						GrfPath.Delete(Path.Combine(path, "script1_replace_color_all.cs"));
+						GrfPath.Delete(Path.Combine(path, "script4_generate_single_sprite.cs"));
+						GrfPath.Delete(Path.Combine(path, "script1_replace_color.cs"));
 						break;
 				}
 			}

@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.WPF.Dialogs;
 using ActEditor.Tools.GrfShellExplorer;
@@ -18,11 +17,8 @@ using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.WPF;
-using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
 using Utilities.Extension;
-using Action = System.Action;
 
 namespace ActEditor.Core.WPF.EditorControls {
 	/// <summary>

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using System.Windows;
 using ActEditor.ApplicationConfiguration;
-using GRF.Threading;
 using TokeiLibrary;
 
 namespace ActEditor.Core.WPF.Dialogs {

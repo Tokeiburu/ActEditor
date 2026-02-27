@@ -5,7 +5,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using TokeiLibrary.Shortcuts;
-using Utilities;
 
 namespace ActEditor.Core.WPF.GenericControls {
 	/// <summary>

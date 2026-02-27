@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
-using ActEditor.Core.Scripts;
-using ActEditor.Core.Scripts.Effects;
+using ActEditor.Core.Scripting;
+using ActEditor.Core.Scripting.Scripts.Effects;
 using ActEditor.Core.WPF.Dialogs;
 using ActEditor.Tools.GrfShellExplorer;
 using ErrorManager;
@@ -22,7 +19,6 @@ using GRF.FileFormats;
 using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.GrfSystem;
-using GRF.Image;
 using GRF.Threading;
 using GrfToWpfBridge;
 using GrfToWpfBridge.Application;
@@ -35,7 +31,8 @@ using TokeiLibrary.WPF.Styles;
 using Utilities;
 using Utilities.CommandLine;
 using Utilities.Extension;
-using Utilities.Services;
+using Action = System.Action;
+using ActEditor.Core.Scripting.Scripts;
 
 namespace ActEditor.Core {
 	/// <summary>
@@ -149,11 +146,11 @@ namespace ActEditor.Core {
 				else
 					v._frameSelector.Play();
 			}), this);
-			//ApplicationShortcut.Link(ApplicationShortcut.FromString("R", "Debug.TestMethod"), delegate {
-			//	_tabEngine.Execute(v => {
-			//		//v.DummyScript();
-			//	});
-			//}, this);
+			ApplicationShortcut.Link(ApplicationShortcut.FromString("R", "Debug.TestMethod"), delegate {
+				_tabEngine.Execute(v => {
+					v.DummyScript();
+				});
+			}, this);
 
 			try {
 				ApplicationShortcut.OverrideBindings(ActEditorConfiguration.Remapper);
@@ -171,24 +168,22 @@ namespace ActEditor.Core {
 		}
 
 		private void _initializeScripts() {
+			ScriptLoaderResult result = null;
+
 			try {
 				ScriptLoader.VerifyExampleScriptsInstalled();
-				_scriptLoader.PendingErrors.Clear();
-				_scriptLoader.CombineErrors = true;
-				_scriptLoader.AddScriptsToMenu(this, _mainMenu, _dpUndoRedo);
+				result = _scriptLoader.ReloadScriptFolderToEditor(this, _mainMenu, _dpUndoRedo);
 			}
 			catch (Exception err) {
 				ShowException(_splashWindow, err);
 			}
-			finally {
-				_scriptLoader.CombineErrors = false;
+			
+			if (result!= null && result.Errors.Count > 0) {
+				Dispatcher.BeginInvoke(new Action(() =>
+				{
+					ScriptLoader.ShowErrors(result);
+				}), DispatcherPriority.Render);
 			}
-
-			foreach (var exception in _scriptLoader.PendingErrors) {
-				ShowException(_splashWindow, exception);
-			}
-
-			_scriptLoader.PendingErrors.Clear();
 		}
 
 		private void _initializeSplashWindow() {
@@ -221,110 +216,103 @@ namespace ActEditor.Core {
 
 		private void _initializeMenu() {
 			_splashWindow.Display = "Loading Act Editor's scripts...";
-			_scriptLoader.AddScriptsToMenu(new SpriteExportNormal(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SpriteExport(), this, _mainMenu, null);
-
-			_scriptLoader.AddScriptsToMenu(new EditSelectAll(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EditDeselectAll(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new InvertSelection(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new SpriteExportNormal(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new SpriteExport(), this, _mainMenu);
+			
+			_scriptLoader.AddScriptsToMenu(new EditSelectAll(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new EditDeselectAll(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new InvertSelection(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[1]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new BringToFront(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new BringToBack(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new BringToFront(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new BringToBack(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[1]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new EditSound(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new EditSound(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[1]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new EditBackground(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new EditBackground(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[1]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new EditClearPalette(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EditPalette(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EditPaletteAdvanced(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ImportPaletteFrom(), this, _mainMenu, null);
-
-			_scriptLoader.AddScriptsToMenu(new EditAnchor(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new EditClearPalette(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new EditPalette(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new EditPaletteAdvanced(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ImportPaletteFrom(), this, _mainMenu);
+			
+			_scriptLoader.AddScriptsToMenu(new EditAnchor(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[2]).Items.Add(new Separator());
 			((MenuItem)_mainMenu.Items[2]).Items.Add(new TkMenuItem { Header = "Set anchors", IconPath = "forward.png" });
-			_scriptLoader.AddScriptsToMenu(new ImportAnchor(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ImportDefaultMaleAnchor(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ImportDefaultFemaleAnchor(), this, _mainMenu, null);
-
-			_scriptLoader.AddScriptsToMenu(new ActionCopy(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionPaste(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new ImportAnchor(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ImportDefaultMaleAnchor(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ImportDefaultFemaleAnchor(), this, _mainMenu);
+			
+			_scriptLoader.AddScriptsToMenu(new ActionCopy(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ActionPaste(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new ActionDelete(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionAdd(), this, _mainMenu, null);
-			//_scriptLoader.AddScriptsToMenu(new ActionInsertAt(), this, _mainMenu, null);
-			//_scriptLoader.AddScriptsToMenu(new ActionSwitchSelected(), this, _mainMenu, null);
-			//_scriptLoader.AddScriptsToMenu(new ActionCopyAt(), this, _mainMenu, null);
-			//((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new ActionAdvanced(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new ActionDelete(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ActionAdd(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ActionAdvanced(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new ActionCopyMirror(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionMirrorVertical(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionMirrorHorizontal(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new ActionCopyMirror(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ActionMirrorVertical(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ActionMirrorHorizontal(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[3]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new ActionLayerMove(ActionLayerMove.MoveDirection.Down, null), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ActionLayerMove(ActionLayerMove.MoveDirection.Up, null), this, _mainMenu, null);
-
-			_scriptLoader.AddScriptsToMenu(new FrameDelete(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameAdd(), this, _mainMenu, null);
-			//_scriptLoader.AddScriptsToMenu(new FrameInsertAt(), this, _mainMenu, null);
-			//_scriptLoader.AddScriptsToMenu(new FrameSwitchSelected(), this, _mainMenu, null);
-			//_scriptLoader.AddScriptsToMenu(new FrameCopyAt(), this, _mainMenu, null);
-			//((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new FrameAdvanced(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new ActionLayerMove(ActionLayerMove.MoveDirection.Down, null), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ActionLayerMove(ActionLayerMove.MoveDirection.Up, null), this, _mainMenu);
+			
+			_scriptLoader.AddScriptsToMenu(new FrameDelete(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameAdd(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameAdvanced(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new FrameDuplicate(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameAddLayerToAllFrames(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FrameDuplicate(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameAddLayerToAllFrames(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[4]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new FrameMirrorVertical(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameMirrorHorizontal(), this, _mainMenu, null);
-
-			_scriptLoader.AddScriptsToMenu(new FrameCopyBrB(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyBBl(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyBBr(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyBlB(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ReverseAnimation(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyHead(this), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyHead2(this), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FrameCopyGarment(this), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FrameMirrorVertical(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameMirrorHorizontal(), this, _mainMenu);
+			
+			_scriptLoader.AddScriptsToMenu(new FrameCopyBrB(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameCopyBBl(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameCopyBBr(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameCopyBlB(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ReverseAnimation(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameCopyHead(this), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameCopyHead2(this), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FrameCopyGarment(this), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[5]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new InterpolationAnimation(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new LayerInterpolationAnimation(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new InterpolationAnimation(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new LayerInterpolationAnimation(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[5]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new InterpolationAnimationAdv(), this, _mainMenu, null);
-
+			_scriptLoader.AddScriptsToMenu(new InterpolationAnimationAdv(), this, _mainMenu);
+			
 			// Idle
-			_scriptLoader.AddScriptsToMenu(new FloatingEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new BleedingOutlineEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FadeInOutColorOverlayEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new EffectBreathing(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new CutSpriteEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new FloatingEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new BleedingOutlineEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FadeInOutColorOverlayEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new EffectBreathing(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new CutSpriteEffect(), this, _mainMenu);
 			// Attack
-			_scriptLoader.AddScriptsToMenu(new TrailAttackEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SimpleAttackEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new TrailAttackEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new SimpleAttackEffect(), this, _mainMenu);
 			// Hit
-			_scriptLoader.AddScriptsToMenu(new HitEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new RecoilEffect(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new HitEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new RecoilEffect(), this, _mainMenu);
 			// Global
-			_scriptLoader.AddScriptsToMenu(new EffectFadeAnimation(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new RadialErosionEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SpikeErosionEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new VerticalStripeErosion(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new CrystalErosionEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SmokeFadeEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new StrokeSilhouetteEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SilhouetteDistortionEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FloorAuraEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new DelayedShadowEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new SpriteOutlineEffect(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new FadeParticleEffect(), this, _mainMenu, null);
-
-			_scriptLoader.AddScriptsToMenu(new ScriptRunnerMenu(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new EffectFadeAnimation(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new RadialErosionEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new SpikeErosionEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new VerticalStripeErosion(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new CrystalErosionEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new SmokeFadeEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new StrokeSilhouetteEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new SilhouetteDistortionEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FloorAuraEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new DelayedShadowEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new SpriteOutlineEffect(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new FadeParticleEffect(), this, _mainMenu);
+			
+			_scriptLoader.AddScriptsToMenu(new ScriptRunnerMenu(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[7]).Items.Add(new Separator());
-			_scriptLoader.AddScriptsToMenu(new OpenScriptsFolder(), this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new ReloadScripts { ActEditor = this }, this, _mainMenu, null);
-			_scriptLoader.AddScriptsToMenu(new BatchScriptMenu(), this, _mainMenu, null);
+			_scriptLoader.AddScriptsToMenu(new OpenScriptsFolder(), this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new ReloadScripts { ActEditor = this }, this, _mainMenu);
+			_scriptLoader.AddScriptsToMenu(new BatchScriptMenu(), this, _mainMenu);
 			((MenuItem)_mainMenu.Items[7]).Items.Add(new Separator());
+			_scriptLoader.UpdateRedoUndoPosition(_mainMenu, _dpUndoRedo);
 
 			Binder.Bind(_miViewSameAction, () => ActEditorConfiguration.KeepPreviewSelectionFromActionChange);
 		}

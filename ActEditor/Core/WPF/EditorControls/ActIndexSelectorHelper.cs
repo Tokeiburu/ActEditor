@@ -1,7 +1,4 @@
-﻿using ActEditor.ApplicationConfiguration;
-using GRF.FileFormats.ActFormat;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,7 +6,6 @@ using System.Windows.Media.Imaging;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
-using Utilities.Extension;
 
 namespace ActEditor.Core.WPF.EditorControls {
 	public static class ActIndexSelectorHelper {

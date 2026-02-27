@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using ActEditor.ApplicationConfiguration;
+using ActEditor.Core.Scripting;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
 using GRF.IO;
@@ -13,7 +14,6 @@ using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 using Utilities.Extension;
 
 namespace ActEditor.Core.WPF.Dialogs {
@@ -72,9 +72,9 @@ namespace ActEditor.Core.WPF.Dialogs {
 					MenuItem scriptMenu = new MenuItem();
 					var script = actScript;
 
-					scriptMenu.Header = ScriptLoader.GenerateHeader(actScript);
+					scriptMenu.Header = ActScriptLoader.GenerateHeader(actScript);
 
-					if (actScript.Image != null) scriptMenu.Icon = new Image { Source = ScriptLoader.GetImage(actScript.Image) };
+					if (actScript.Image != null) scriptMenu.Icon = new Image { Source = ActScriptLoader.GetScriptImage(actScript.Image) };
 
 					scriptMenu.Click += delegate {
 						_group = script.Group;

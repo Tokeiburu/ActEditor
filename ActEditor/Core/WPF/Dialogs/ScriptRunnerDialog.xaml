@@ -41,9 +41,9 @@
             </Menu>
             <avalonedit:TextEditor MinWidth="400" MinHeight="250"
                     Grid.Row="1"
-					Name="_textEditor"
-					FontFamily="Consolas"
-					ShowLineNumbers="True">
+					          Name="_textEditor"
+					          FontFamily="Consolas"
+					          ShowLineNumbers="True">
             </avalonedit:TextEditor>
             <StackPanel Name="_sp" Grid.Row="2" Grid.ColumnSpan="2" Background="White">
                 <Label Background="{StaticResource UIThemeScriptRunnerConsoleErrorBrush}" Content="Error console" />

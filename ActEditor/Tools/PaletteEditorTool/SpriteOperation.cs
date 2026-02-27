@@ -1,12 +1,7 @@
 ﻿using ErrorManager;
-using GRF.FileFormats.PalFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ActEditor.Tools.PaletteEditorTool {
 	public enum GradientOperation {

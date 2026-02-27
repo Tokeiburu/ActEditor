@@ -11,8 +11,11 @@ using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.EditorControls;
 using ActEditor.Core.WPF.FrameEditor;
+using ErrorManager;
 using GRF.FileFormats.ActFormat;
+using GRF.FileFormats.SprFormat;
 using GRF.Image;
+using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
@@ -501,6 +504,139 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Image image = new Image { Source = ApplicationManager.PreloadResourceImage(imagePath) };
 			image.SetValue(RenderOptions.BitmapScalingModeProperty, BitmapScalingMode.HighQuality);
 			return image;
+		}
+
+		internal void DummyScript() {
+			var script = new DummyScript();
+			script.Execute(Act, 0, 0, new int[0]);
+		}
+	}
+
+	public class DummyScript : IActScript {
+		public object DisplayName {
+			get { return "Merge layers (new sprites)"; }
+		}
+
+		public string Group {
+			get { return "Scripts"; }
+		}
+
+		public string InputGesture {
+			get { return "{Scripts.MergeLayers}"; }
+		}
+
+		public string Image {
+			get { return "addgrf.png"; }
+		}
+
+		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			if (act == null) return;
+
+			try {
+				act.Commands.ActEditBegin("Merge layers into new sprite");
+				int count = act.GetAllFrames().Count + 1;
+				int index = 0;
+
+				try {
+					int aid = 0;
+					foreach (var action in act) {
+						Z.F();
+
+						foreach (var frame in action) {
+							//if (frame.Layers.Count <= 1) {
+							//	index++;
+							//	continue;
+							//}
+
+							//if (aid != 4) {
+							//	continue;
+							//}
+
+							var image = frame.Render(act);
+							var box = ActImaging.Imaging.GenerateFrameBoundingBox(act, frame);
+							SpriteIndex sprIndex = SpriteIndex.Null;
+
+							for (int i = 0; i < act.Sprite.Images.Count; i++) {
+								if (image.Equals(act.Sprite.Images[i])) {
+									sprIndex = SpriteIndex.FromAbsoluteIndex(i, act.Sprite, act.Sprite.Images[i]);
+								}
+							}
+
+							if (!sprIndex.Valid) {
+								sprIndex = act.Sprite.InsertAny(image);
+							}
+
+							int offsetX = (int)((int)((box.Max.X - box.Min.X + 1) / 2) + box.Min.X);
+							int offsetY = (int)((int)((box.Max.Y - box.Min.Y + 1) / 2) + box.Min.Y);
+							var layer = new Layer(sprIndex);
+							act.Commands.SetColor(selectedActionIndex, selectedFrameIndex, act[selectedActionIndex, selectedFrameIndex].Layers.Count - 1, new GrfColor("#FFFFFFFF"));
+							layer.OffsetX = offsetX;
+							layer.OffsetY = offsetY;
+
+							frame.Layers.Clear();
+							frame.Layers.Add(layer);
+
+							var newBox = ActImaging.Imaging.GenerateFrameBoundingBox(act, frame);
+
+							if ((newBox.Min.X - box.Min.X) > 0.7) {
+								layer.OffsetX--;
+							}
+							else if ((newBox.Min.X - box.Min.X) < -0.7) {
+								layer.OffsetX++;
+							}
+
+							if ((newBox.Min.Y - box.Min.Y) > 0.7) {
+								layer.OffsetY--;
+							}
+							else if ((newBox.Min.Y - box.Min.Y) < -0.7) {
+								layer.OffsetY++;
+							}
+
+							index++;
+						}
+
+						aid++;
+					}
+
+					// Removes unused sprites - old way, older versions have a bug
+					for (int i = act.Sprite.Images.Count - 1; i >= 0; i--) {
+						if (act.FindUsageOf(i).Count == 0) {
+							var type = act.Sprite.Images[i].GrfImageType;
+							var relativeIndex = act.Sprite.AbsoluteToRelative(i, type == GrfImageType.Indexed8 ? 0 : 1);
+							act.Sprite.Remove(relativeIndex, type);
+
+							if (type == GrfImageType.Indexed8) {
+								act.AllLayers(layer => {
+									if ((layer.IsIndexed8() && type == GrfImageType.Indexed8) ||
+										(layer.IsBgra32() && type == GrfImageType.Bgra32)) {
+										if (layer.SpriteIndex == relativeIndex) {
+											layer.SpriteIndex = -1;
+										}
+									}
+								});
+							}
+
+							act.Sprite.ShiftIndexesAbove(act, type, -1, relativeIndex);
+						}
+					}
+				}
+				finally {
+					index = count;
+				}
+			}
+			catch (Exception err) {
+				act.Commands.ActCancelEdit();
+				ErrorHandler.HandleException(err, ErrorLevel.Warning);
+			}
+			finally {
+				act.Commands.ActEditEnd();
+				act.InvalidateVisual();
+				act.InvalidateSpriteVisual();
+			}
+		}
+
+		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
+			return act != null;
 		}
 	}
 }

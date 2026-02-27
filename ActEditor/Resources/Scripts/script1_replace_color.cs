@@ -43,10 +43,8 @@ namespace Scripts {
 			
 			var initialLayers = _backupLayers(frame, selectedLayerIndexes);
 			
-			picker.PickerControl.PreviewColorChanged += (s, color) => _previewUpdate(act, frame, selectedLayerIndexes, color.ToGrfColor());
-			picker.PickerControl.ColorChanged += (s, color) => _previewUpdate(act, frame, selectedLayerIndexes, color.ToGrfColor());
-			picker.PickerControl.UpdateInterval = 100;
-			
+			picker.PickerControl.ColorChanged += (s, args) => _previewUpdate(act, frame, selectedLayerIndexes, args.Value.ToGrfColor());
+
 			picker.ShowDialog();
 			
 			_restoreLayers(frame, selectedLayerIndexes, initialLayers);

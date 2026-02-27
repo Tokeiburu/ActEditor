@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,11 +16,9 @@ using GRF.FileFormats.ActFormat.Commands;
 using GRF.FileFormats.SprFormat;
 using GRF.FileFormats.SprFormat.Commands;
 using GRF.Image;
-using GRF.Threading;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
-using Utilities;
 using Utilities.Extension;
 
 namespace ActEditor.Core.WPF.EditorControls {

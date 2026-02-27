@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.WPF.Dialogs;
 using ActEditor.Core.WPF.FrameEditor;
@@ -13,7 +9,6 @@ using ActEditor.Core.WPF.GenericControls;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
 using GrfToWpfBridge;
-using TokeiLibrary;
 using Utilities;
 
 namespace ActEditor.Core.WPF.EditorControls {

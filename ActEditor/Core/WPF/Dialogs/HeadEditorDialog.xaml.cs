@@ -442,7 +442,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			_listViewHeads.ItemsSource = items;
 			_listViewHeads.SelectedIndex = 0;
-			OnActLoaded();
+			ActLoaded?.Invoke(this);
 		}
 
 		private void _listViewHeads_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -601,12 +601,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Frame frameSource = _actOriginal[aid, fid];
 			Frame frameReference = _actReferenceOriginal[aid, referenceFrameIndex];
 			Layer layerReference = frameReference.Layers.FirstOrDefault(p => p.SpriteIndex > -1);
-
-			if (aid == 29) {
-				if (fid == 0) {
-					fid = 0;
-				}
-			}
 
 			if (layerReference == null)
 				return;
@@ -834,14 +828,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Close();
 		}
 
-		public UIElement Element {
-			get { return this; }
-		}
-
-		public Act Act {
-			get { return _actSource; }
-		}
-
 		public int SelectedAction {
 			get {
 				if (_listViewHeads.SelectedItem == null)
@@ -851,113 +837,22 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		public int SelectedFrame {
-			get { return 0; }
+		public void OnReferencesChanged(object sender) {
+			ReferencesChanged?.Invoke(sender);
 		}
 
-		public SelectionEngine SelectionEngine {
-			get { return _selectionEngine; }
-		}
-
-		public List<ReferenceControl> References {
-			get { return _references; }
-		}
-
-		public class HeadEditorActIndexSelector : IActIndexSelector {
-			private readonly HeadEditorDialog _editor;
-
-			public HeadEditorActIndexSelector(HeadEditorDialog editor) {
-				_editor = editor;
-			}
-
-			public void OnFrameChanged(int actionindex) {
-				ActIndexSelector.FrameIndexChangedDelegate handler = FrameChanged;
-				if (handler != null) handler(this, actionindex);
-			}
-
-			public bool IsPlaying { get { return false; } }
-			public event ActIndexSelector.FrameIndexChangedDelegate ActionChanged;
-
-			public void OnActionChanged(int actionindex) {
-				ActIndexSelector.FrameIndexChangedDelegate handler = ActionChanged;
-				if (handler != null) handler(this, actionindex);
-			}
-
-			public event ActIndexSelector.FrameIndexChangedDelegate FrameChanged;
-			public event ActIndexSelector.FrameIndexChangedDelegate SpecialFrameChanged;
-
-			public void OnSpecialFrameChanged(int actionindex) {
-				ActIndexSelector.FrameIndexChangedDelegate handler = SpecialFrameChanged;
-				if (handler != null) handler(this, actionindex);
-			}
-
-			public void OnAnimationPlaying(int actionindex) {
-			}
-
-			public void SetAction(int index) {
-				_editor._listViewHeads.SelectedIndex = index;
-			}
-
-			public void SetFrame(int index) {
-				// Nothing to do
-			}
-
-			public int SelectedAction { get; set; }
-			public int SelectedFrame { get; set; }
-			
-			public void Play() {
-				// Nothing to do
-			}
-
-			public void Stop() {
-				// Nothing to do
-			}
-
-			public void Init(IFrameRendererEditor editor, int actionIndex, int selectedAction) {
-				// Nothing to do
-			}
-		}
-
-		public IActIndexSelector IndexSelector {
-			get { return _actIndexSelector; }
-		}
-
+		public UIElement Element => this;
+		public Act Act => _actSource;
 		public event ActEditorWindow.ActEditorEventDelegate ReferencesChanged;
-
-		protected virtual void OnReferencesChanged() {
-			ActEditorWindow.ActEditorEventDelegate handler = ReferencesChanged;
-			if (handler != null) handler(this);
-		}
-
 		public event ActEditorWindow.ActEditorEventDelegate ActLoaded;
-
-		public void OnActLoaded() {
-			ActEditorWindow.ActEditorEventDelegate handler = ActLoaded;
-			if (handler != null) handler(this);
-		}
-
-		public Grid GridPrimary {
-			get { return _gridPrimary; }
-		}
-
-		public LayerEditor LayerEditor {
-			get {
-				return null;
-			}
-		}
-
-		public SpriteSelector SpriteSelector {
-			get { return _spriteSelector; }
-		}
-
-		public FrameRenderer FrameRenderer {
-			get { return _rendererPrimary; }
-		}
-
-		public SpriteManager SpriteManager {
-			get {
-				return _spriteManager;
-			}
-		}
+		public int SelectedFrame => 0;
+		public SelectionEngine SelectionEngine => _selectionEngine;
+		public List<ReferenceControl> References => _references;
+		public IActIndexSelector IndexSelector => _actIndexSelector;
+		public Grid GridPrimary => _gridPrimary;
+		public LayerEditor LayerEditor => null;
+		public SpriteSelector SpriteSelector => _spriteSelector;
+		public FrameRenderer FrameRenderer => _rendererPrimary;
+		public SpriteManager SpriteManager => _spriteManager;
 	}
 }

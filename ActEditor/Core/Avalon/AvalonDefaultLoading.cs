@@ -13,7 +13,6 @@ using ICSharpCode.AvalonEdit.Editing;
 using ICSharpCode.AvalonEdit.Rendering;
 using ICSharpCode.AvalonEdit.Search;
 using TokeiLibrary;
-using TokeiLibrary.Shortcuts;
 using Utilities.Extension;
 
 namespace ActEditor.Core.Avalon {

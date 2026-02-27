@@ -1,5 +1,4 @@
 ﻿using ErrorManager;
-using GRF.Graphics;
 using GRF.Image;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
-using Utilities;
 
 namespace ActEditor.Tools.PaletteEditorTool {
 	public class SpriteEditorTool {

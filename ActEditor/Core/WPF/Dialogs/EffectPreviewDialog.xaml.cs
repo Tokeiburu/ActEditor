@@ -7,26 +7,22 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
-using ActEditor.Core.WPF.EditorControls;
+using ActEditor.Core.Scripting;
 using ActEditor.Core.WPF.FrameEditor;
 using ActEditor.Core.WPF.GenericControls;
 using ActEditor.Core.WPF.InteractionComponent;
 using ColorPicker.Sliders;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
-using GRF.FileFormats.SprFormat;
 using GRF.Graphics;
 using GRF.Image;
 using GRF.IO;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
-using Action = GRF.FileFormats.ActFormat.Action;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>

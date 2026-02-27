@@ -220,8 +220,12 @@ namespace ActEditor.Core {
 
 		public void Open(TkPath file, bool isNew = false, bool focusTab = true) {
 			try {
-				if (TabExists(file))
+				TabAct openedTab = TabExists(file);
+
+				if (openedTab != null) {
+					openedTab.IsSelected = true;
 					return;
+				}
 
 				var result = _actLoadService.Load(file);
 
@@ -251,18 +255,17 @@ namespace ActEditor.Core {
 			}
 		}
 
-		public bool TabExists(TkPath file) {
+		public TabAct TabExists(TkPath file) {
 			var fullPath = file.GetFullPath();
 
 			// Check if the path is already loaded
 			foreach (var tabS in GetTabs()) {
 				if (tabS.Act.LoadedPath == fullPath) {
-					tabS.IsSelected = true;
-					return true;
+					return tabS;
 				}
 			}
 
-			return false;
+			return null;
 		}
 
 		public void CloseAct() {

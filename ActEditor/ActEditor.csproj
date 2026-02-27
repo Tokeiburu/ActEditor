@@ -169,46 +169,50 @@
     </Compile>
     <Compile Include="Components\ActSaveService.cs" />
     <Compile Include="Core\ActHelper.cs" />
-    <Compile Include="Core\ActionEditCommands\ActionEditGroupCommand.cs" />
-    <Compile Include="Core\ActionEditCommands\CommandsHolder.cs" />
-    <Compile Include="Core\ActionEditCommands\EditCommand.cs" />
-    <Compile Include="Core\ActionEditCommands\IActionEditCommand.cs" />
+    <Compile Include="Core\Scripting\ActScriptLoader.cs" />
+    <Compile Include="Core\ListEditCommands\ListEditGroupCommand.cs" />
+    <Compile Include="Core\ListEditCommands\CommandsHolder.cs" />
+    <Compile Include="Core\ListEditCommands\ListEditCommand.cs" />
+    <Compile Include="Core\ListEditCommands\IListEditCommand.cs" />
     <Compile Include="Core\Avalon\AvalonDefaultLoading.cs" />
     <Compile Include="Core\Avalon\AvalonLoader.cs" />
     <Compile Include="Core\Avalon\RegexSearchStrategy.cs" />
-    <Compile Include="Core\DrawingComponents\ActDraw2.cs" />
     <Compile Include="Core\DrawingComponents\LineRenderer.cs" />
-    <Compile Include="Core\DrawingComponents\Renderer.cs" />
     <Compile Include="Core\DrawingComponents\SpriteImageControl.xaml.cs">
       <DependentUpon>SpriteImageControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\EditorPosition.cs" />
     <Compile Include="Core\ScriptAutoCompletion.cs" />
-    <Compile Include="Core\Scripts\AnimationEditComponent.xaml.cs">
+    <Compile Include="Core\Scripting\ScriptResults.cs" />
+    <Compile Include="Core\Scripting\Scripts\AnimationEditComponent.xaml.cs">
       <DependentUpon>AnimationEditComponent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Core\Scripts\Effects\CrystalErosionEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\FadeParticleEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\RecoilEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\StrokeSilhouetteEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\TrailAttackEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\SpriteOutlineEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\DelayedShadowEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\FloorAuraEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\FloatingEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\HitEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\RadialErosionEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\SmokeFadeEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\SpikeEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\SimpleAttackEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\SilhouetteDistortionEffect.cs" />
-    <Compile Include="Core\Scripts\Effects\VerticalStripeErosionEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\CrystalErosionEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\FadeParticleEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\RecoilEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\StrokeSilhouetteEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\TrailAttackEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\SpriteOutlineEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\DelayedShadowEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\FloorAuraEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\HitEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\RadialErosionEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\SmokeFadeEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\SpikeEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\SimpleAttackEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\SilhouetteDistortionEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\VerticalStripeErosionEffect.cs" />
+    <Compile Include="Core\Scripting\Scripts\Effects\FloatingEffect.cs" />
     <Compile Include="Core\WPF\Dialogs\ActEditListInteraction.cs" />
     <Compile Include="Core\WPF\Dialogs\FrameEditDialog.xaml.cs">
       <DependentUpon>FrameEditDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\WPF\Dialogs\ActionEditDialog.xaml.cs">
       <DependentUpon>ActionEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Core\WPF\Dialogs\HeadEditorActIndexSelector.cs" />
+    <Compile Include="Core\WPF\Dialogs\ScriptErrorDialog.xaml.cs">
+      <DependentUpon>ScriptErrorDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\WPF\Dialogs\SelectableListBoxExtension.cs" />
     <Compile Include="Core\WPF\EditorControls\ActIndexSelectorHelper.cs" />
@@ -229,23 +233,22 @@
     <Compile Include="Core\DrawingComponents\DrawingModule.cs" />
     <Compile Include="Core\DrawingComponents\DrawingPriorityValues.cs" />
     <Compile Include="Core\DrawingComponents\SelectionDraw.cs" />
-    <Compile Include="Core\DrawSlotManager.cs" />
+    <Compile Include="Core\DrawingComponents\DrawSlotManager.cs" />
     <Compile Include="Core\IFrameRenderer.cs" />
     <Compile Include="Core\CoalescingExecutor.cs" />
-    <Compile Include="Core\Scripts\AnchorMenu.cs" />
-    <Compile Include="Core\ScriptLoader.cs" />
-    <Compile Include="Core\Scripts\ActionMenu.cs" />
-    <Compile Include="Core\Scripts\AnimationMenu.cs" />
-    <Compile Include="Core\Scripts\EditMenu.cs" />
-    <Compile Include="Core\Scripts\EffectsMenu.cs" />
-    <Compile Include="Core\Scripts\FrameMenu.cs" />
-    <Compile Include="Core\Scripts\FileMenu.cs" />
-    <Compile Include="Core\Scripts\ScriptMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\AnchorMenu.cs" />
+    <Compile Include="Core\Scripting\ScriptLoader.cs" />
+    <Compile Include="Core\Scripting\Scripts\ActionMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\AnimationMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\EditMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\EffectsMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\FrameMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\FileMenu.cs" />
+    <Compile Include="Core\Scripting\Scripts\ScriptMenu.cs" />
     <Compile Include="Core\SelectionEngine.cs" />
     <Compile Include="Core\SoundEffect.cs" />
     <Compile Include="Core\SpriteManager.cs" />
     <Compile Include="Core\TabEngine.cs" />
-    <Compile Include="Core\Test\ColorAdjacencyGraph.cs" />
     <Compile Include="Core\WPF\Dialogs\ActionInsertDialog.xaml.cs">
       <DependentUpon>ActionInsertDialog.xaml</DependentUpon>
     </Compile>
@@ -326,7 +329,6 @@
     <Compile Include="Core\WPF\EditorControls\ActIndexSelector.xaml.cs">
       <DependentUpon>ActIndexSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Core\DrawingComponents\GridLine.cs" />
     <Compile Include="Core\WPF\EditorControls\ReferenceControl.xaml.cs">
       <DependentUpon>ReferenceControl.xaml</DependentUpon>
     </Compile>
@@ -419,7 +421,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Core\Scripts\AnimationEditComponent.xaml">
+    <Page Include="Core\Scripting\Scripts\AnimationEditComponent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -440,6 +442,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Core\WPF\Dialogs\SaveGarmentDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Core\WPF\Dialogs\ScriptErrorDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -968,7 +974,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
+      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">
@@ -1012,6 +1018,7 @@
   <ItemGroup>
     <Resource Include="Resources\cs_circle.png" />
   </ItemGroup>
+  <ItemGroup />
   <Target Name="CopyExternalDlls" BeforeTargets="BeforeBuild">
     <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />
     <Copy SourceFiles="@(ExternalDlls)" DestinationFolder="$(GrfEditorDllsPath)" SkipUnchangedFiles="true" Condition="Exists('$(ExternalDllsPath)')" />

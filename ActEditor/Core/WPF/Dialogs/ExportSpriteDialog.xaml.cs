@@ -16,7 +16,6 @@ using GRF.IO;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 using Utilities.Extension;
 using Imaging = ActImaging.Imaging;
 

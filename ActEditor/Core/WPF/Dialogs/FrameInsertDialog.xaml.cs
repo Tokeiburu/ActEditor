@@ -10,7 +10,6 @@ using GRF.FileFormats.ActFormat;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>

@@ -1,18 +1,10 @@
-﻿using ActEditor.ApplicationConfiguration;
-using ActEditor.Tools.GrfShellExplorer;
+﻿using ActEditor.Tools.GrfShellExplorer;
 using GRF.Core;
-using GRF.FileFormats;
 using GRF.FileFormats.PalFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.GrfSystem;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TokeiLibrary;
-using TokeiLibrary.Paths;
 using Utilities;
 using Utilities.Extension;
 

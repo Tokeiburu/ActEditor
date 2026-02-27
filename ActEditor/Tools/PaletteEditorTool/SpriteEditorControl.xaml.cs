@@ -11,7 +11,6 @@ using GRF.FileFormats.PalFormat;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using GrfToWpfBridge.Application;
-using PaletteEditor;
 using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.Shortcuts;

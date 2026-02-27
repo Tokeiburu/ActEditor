@@ -55,29 +55,18 @@ namespace Scripts {
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
 			
-			Exception backupErr = null;
-			
 			try {
-				act.Commands.BeginNoDelay();
-				act.Commands.Backup(_ => {
-					try {
+				act.Commands.ActEditBegin({0});
+//_BEGIN_SCRIPT
 {3}
-					}
-					catch (Exception err) {
-						backupErr = err;
-					}
-				}, {0}, true);
-				
-				if (backupErr != null) {
-					throw backupErr;
-				}
+//_END_SCRIPT
 			}
 			catch (Exception err) {
-				act.Commands.CancelEdit();
+				act.Commands.ActCancelEdit();
 				ErrorHandler.HandleException(err, ErrorLevel.Warning);
 			}
 			finally {
-				act.Commands.End();
+				act.Commands.ActEditEnd();
 				act.InvalidateVisual();
 				act.InvalidateSpriteVisual();
 			}
@@ -85,7 +74,6 @@ namespace Scripts {
 		
 		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			return true;
-			//return act != null;
 		}
 	}
 }

@@ -44,9 +44,7 @@ namespace Scripts {
 			
 			var initialLayers = _backupLayers(frame);
 			
-			picker.PickerControl.PreviewColorChanged += (s, color) => _previewUpdate(act, frame, color.ToGrfColor());
-			picker.PickerControl.ColorChanged += (s, color) => _previewUpdate(act, frame, color.ToGrfColor());
-			picker.PickerControl.UpdateInterval = 100;
+			picker.PickerControl.ColorChanged += (s, args) => _previewUpdate(act, frame, args.Value.ToGrfColor());
 			
 			if (EffectConfiguration.SkipAndRememberInput > 0) {
 				picker.Loaded += delegate {

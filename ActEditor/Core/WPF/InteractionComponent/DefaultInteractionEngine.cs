@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using ActEditor.Core.WPF.FrameEditor;
 using ErrorManager;
-using GRF.FileFormats.ActFormat;
 using GRF.FileFormats.SprFormat;
 using Utilities.Extension;
 
@@ -44,7 +43,15 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 				if (_editor.Act.LoadedPath != layerClipboardData.SourceActPath) {
 					SpriteManager.SpriteConverterOption = -1;
 
-					var spr = new Spr(File.ReadAllBytes(layerClipboardData.SourceSprPath));
+					var tab = ActEditorWindow.Instance.TabEngine.TabExists(layerClipboardData.SourceSprPath.ReplaceExtension(".act"));
+					Spr spr;
+
+					if (tab != null) {
+						spr = tab.Act.Sprite;
+					}
+					else {
+						spr = new Spr(File.ReadAllBytes(layerClipboardData.SourceSprPath));
+					}
 
 					foreach (var layer in layerClipboardData.Layers) {
 						var image = layer.GetImage(spr);

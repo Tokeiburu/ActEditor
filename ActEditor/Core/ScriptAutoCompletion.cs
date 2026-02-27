@@ -1,6 +1,5 @@
-﻿using ActEditor.Core.WPF.Dialogs;
-using GRF.FileFormats.ActFormat;
-using GRF.Threading;
+﻿using ActEditor.Core.Scripting;
+using ActEditor.Core.WPF.Dialogs;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
@@ -12,7 +11,6 @@ using Microsoft.CodeAnalysis.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -22,7 +20,6 @@ using Utilities;
 
 namespace ActEditor.Core {
 	public class ScriptAutoCompletion {
-		private ScriptRunnerDialog _scriptRunnerDialog;
 		private TextEditor _textEditor;
 
 		private int _completionStartOffset;
@@ -30,9 +27,8 @@ namespace ActEditor.Core {
 		private List<ICompletionData> _data;
 		private int _startCursorFixAdjust;
 
-		public ScriptAutoCompletion(ScriptRunnerDialog scriptRunnerDialog) {
-			_scriptRunnerDialog = scriptRunnerDialog;
-			_textEditor = _scriptRunnerDialog._textEditor;
+		public ScriptAutoCompletion(TextEditor textEditor) {
+			_textEditor = textEditor;
 			_startCursorFixAdjust = ScriptRunnerDialog.ScriptTemplate.Replace("{0}", ScriptRunnerDialog.DefaultScriptName).Replace("{1}", ScriptRunnerDialog.DefaultInputGesture).IndexOf("{3}");
 		}
 
@@ -64,7 +60,7 @@ namespace ActEditor.Core {
 		}
 
 		internal void UpdateFilter() {
-			_scriptRunnerDialog.Dispatcher.BeginInvoke((System.Action)_updateFilter);
+			_textEditor.Dispatcher.BeginInvoke((System.Action)_updateFilter);
 		}
 
 		private void _updateFilter() {
@@ -197,7 +193,7 @@ namespace ActEditor.Core {
 							}
 
 							if (members.Count > 0) {
-								_scriptRunnerDialog.Dispatch(delegate {
+								_textEditor.Dispatch(delegate {
 									_completionStartOffset = _textEditor.CaretOffset;
 									_completionWindow = new CompletionWindow(_textEditor.TextArea);
 									_completionWindow.AllowsTransparency = true;

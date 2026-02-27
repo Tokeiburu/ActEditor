@@ -1,18 +1,11 @@
-﻿using ActEditor.ApplicationConfiguration;
-using ActEditor.Core.ActionEditCommands;
+﻿using ActEditor.Core.ListEditCommands;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.FrameEditor;
-using ErrorManager;
 using GRF.FileFormats.ActFormat;
-using GrfToWpfBridge;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using TokeiLibrary;
 using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
@@ -108,7 +101,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			};
 		}
 
-		private void _commands_ModifiedStateChanged(object sender, IActionEditCommand<IEditData> command) {
+		private void _commands_ModifiedStateChanged(object sender, IListEditCommand<IEditData> command) {
 			// Update the data list!
 			_actions.Disable();
 

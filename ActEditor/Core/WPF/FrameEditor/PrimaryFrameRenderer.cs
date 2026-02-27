@@ -9,11 +9,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
-using ActEditor.Core.Scripts;
+using ActEditor.Core.Scripting.Scripts;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
 using TokeiLibrary.WPF.Styles;
-using Utilities;
 
 namespace ActEditor.Core.WPF.FrameEditor {
 	public class PrimaryFrameRenderer : FrameRenderer {

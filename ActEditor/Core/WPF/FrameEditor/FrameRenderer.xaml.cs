@@ -5,15 +5,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.InteractionComponent;
 using ErrorManager;
 using GRF.FileFormats.ActFormat;
-using TokeiLibrary;
-using Utilities;
 using Utilities.Tools;
 
 namespace ActEditor.Core.WPF.FrameEditor {
@@ -226,21 +223,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 				if (frameDimensions == _oldFrameDimensions && _oldZoom == ZoomEngine.Scale)
 					return;
-
-				//const double imageSize = 512d;
-				//double xUnits = imageSize / _gridBackground.ActualWidth;
-				//double yUnits = imageSize / _gridBackground.ActualHeight;
-				//
-				//if (ZoomEngine.Scale >= 0.45) {
-				//	xUnits *= ZoomEngine.Scale;
-				//	yUnits *= ZoomEngine.Scale;
-				//}
-				//
-				//double x = _relativeCenter.X + xUnits / 2f;
-				//double y = _relativeCenter.Y + yUnits / 2f;
-				//
-				//_imBrush.ViewportUnits = BrushMappingMode.RelativeToBoundingBox;
-				//_imBrush.Viewport = new Rect(x, y, xUnits, yUnits);
 
 				const double imageSize = 16d;
 				double xUnits = imageSize;

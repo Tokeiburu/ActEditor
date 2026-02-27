@@ -1,5 +1,4 @@
 ﻿using ColorPicker;
-using ColorPicker.Sliders;
 using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;

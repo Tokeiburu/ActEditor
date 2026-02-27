@@ -19,7 +19,6 @@ using TokeiLibrary;
 using TokeiLibrary.Paths;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 using Utilities;
 using Utilities.Extension;
 using Imaging = ActImaging.Imaging;

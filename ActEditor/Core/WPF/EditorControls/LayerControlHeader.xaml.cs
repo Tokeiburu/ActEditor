@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Shapes;
+﻿using System.Windows.Controls;
 
 namespace ActEditor.Core.WPF.EditorControls {
 	/// <summary>

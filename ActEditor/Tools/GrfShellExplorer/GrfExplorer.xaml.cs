@@ -13,7 +13,6 @@ using ActEditor.ApplicationConfiguration;
 using ErrorManager;
 using GRF.Core;
 using GRF.IO;
-using GRF.Threading;
 using GrfToWpfBridge;
 using GrfToWpfBridge.TreeViewManager;
 using TokeiLibrary;

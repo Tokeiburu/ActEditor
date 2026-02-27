@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,17 +8,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ColorPicker;
 using ColorPicker.Core;
-using ColorPicker.Core.Commands;
-using ColorPicker.Sliders;
 using GRF.FileFormats.PalFormat;
 using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using Utilities;
-using Utilities.Commands;
 using Utilities.Controls;
-using ICommand = ColorPicker.Core.Commands.ICommand;
 
 namespace PaletteEditor {
 	/// <summary>

@@ -12,7 +12,6 @@ using GRF.Image;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
-using TokeiLibrary.WPF.Styles.ListView;
 using Utilities.Tools;
 
 namespace ActEditor.Core.WPF.Dialogs {

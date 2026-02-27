@@ -13,7 +13,6 @@ using ActImaging;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
 using TokeiLibrary;
-using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
 using Action = System.Action;
 

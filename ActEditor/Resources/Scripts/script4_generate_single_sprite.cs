@@ -94,7 +94,7 @@ namespace Scripts {
 					byte[] imData = new byte[stream.Length];
 					stream.Read(imData, 0, imData.Length);
 
-					grfImage = new GrfImage(ref imData);
+					grfImage = new GrfImage(imData);
 
 					if (selected.All(p => p.IsIndexed8())) {
 						grfImage.Convert(new Indexed8FormatConverter {ExistingPalette = act.Sprite.Palette.BytePalette, Options = Indexed8FormatConverter.PaletteOptions.UseExistingPalette}, null);

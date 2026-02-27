@@ -7,7 +7,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ColorPicker;
-using ColorPicker.Sliders;
 using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;

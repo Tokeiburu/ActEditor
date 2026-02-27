@@ -1,13 +1,11 @@
 ﻿using ActEditor.ApplicationConfiguration;
-using ActEditor.Core.ActionEditCommands;
+using ActEditor.Core.ListEditCommands;
 using ActEditor.Tools.PaletteEditorTool;
 using ErrorManager;
 using GrfToWpfBridge;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -415,14 +413,14 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_autoScrollTimer.Stop();
 		}
 
-		public void UpdateSelectionFromCommand(IActionEditCommand<IEditData> command) {
+		public void UpdateSelectionFromCommand(IListEditCommand<IEditData> command) {
 			if (command == null)
 				return;
 
 			// Fix selection
-			List<IActionEditCommand<IEditData>> commands = new List<IActionEditCommand<IEditData>>();
+			List<IListEditCommand<IEditData>> commands = new List<IListEditCommand<IEditData>>();
 
-			if (command is ActionEditGroupCommand<IEditData> groupCmd) {
+			if (command is ListEditGroupCommand<IEditData> groupCmd) {
 				commands = groupCmd.Commands;
 			}
 			else {
@@ -432,7 +430,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			List<IEditData> newSelection = new List<IEditData>();
 
 			foreach (var cmd in commands) {
-				if (cmd is EditCommand editCmd) {
+				if (cmd is ListEditCommand editCmd) {
 					newSelection.AddRange(editCmd.Selection);
 				}
 			}
