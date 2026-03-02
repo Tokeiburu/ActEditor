@@ -150,7 +150,7 @@
 				<Button Name="_buttonQuickPreview" Click="_buttonQuickPreview_Click" Height="24" Margin="3" MinWidth="120">
 					<DockPanel>
 						<Image Source="..\..\Resources\search.png" Height="16" Width="16" />
-						<TextBlock Text="Quick preview" Margin="3 0 0 0" />
+						<TextBlock Text="Quick preview" Foreground="{DynamicResource TextForeground}" Margin="3 0 0 0" />
 					</DockPanel>
 				</Button>
 				<Button Name="_buttonGenerate" Click="_buttonGenerate_Click" Content="Generate" Height="24" Margin="3" MinWidth="100" />

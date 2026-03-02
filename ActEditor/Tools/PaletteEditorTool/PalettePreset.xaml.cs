@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using ActEditor.ApplicationConfiguration;
 using GRF.FileFormats.PalFormat;
 using GRF.IO;
 using PaletteEditor;
@@ -14,19 +15,21 @@ namespace ActEditor.Tools.PaletteEditorTool {
 	/// Interaction logic for PalettePreset.xaml
 	/// </summary>
 	public partial class PalettePreset : TkWindow {
+		private List<PaletteSelector> _selectors;
+
 		public PalettePreset()
 			: base("Palette selector", "pal.png", SizeToContent.WidthAndHeight, ResizeMode.CanResize) {
 			InitializeComponent();
 			WindowStyle = System.Windows.WindowStyle.ToolWindow;
 
-			List<PaletteSelector> selectors = new List<PaletteSelector> {
+			_selectors = new List<PaletteSelector> {
 				_paletteSelector0,
 				_paletteSelector1,
 				_paletteSelector2,
 				_paletteSelector3,
 			};
 
-			for (int i = 0; i < selectors.Count; i++) {
+			for (int i = 0; i < _selectors.Count; i++) {
 				string path = GrfPath.Combine(Configuration.ApplicationDataPath, "preset_" + i + ".pal");
 
 				if (!File.Exists(path)) {
@@ -42,27 +45,41 @@ namespace ActEditor.Tools.PaletteEditorTool {
 					//pal.Save(path);
 				};
 
-				selectors[i].IsMultipleColorsSelectable = true;
+				_selectors[i].IsMultipleColorsSelectable = true;
 
 				int current = i;
 
-				selectors[i].PreviewMouseMove += delegate {
+				_selectors[i].PreviewMouseMove += delegate {
 					if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) {
-						selectors[current].UseLargeSelector = false;
+						_selectors[current].UseLargeSelector = false;
 					}
 					else {
-						selectors[current].UseLargeSelector = true;
+						_selectors[current].UseLargeSelector = true;
 					}
 				};
-				ApplicationShortcut.Link("Ctrl-Z", "Undo Palette Edit " + i, () => selectors[current].Palette.Commands.Undo(), "Palette", selectors[i]);
-				ApplicationShortcut.Link("Ctrl-Y", "Redo Palette Edit " + i, () => selectors[current].Palette.Commands.Redo(), "Palette", selectors[i]);
-				selectors[i].UseLargeSelector = true;
-				selectors[i].SetPalette(pal);
+				
+				_selectors[i].UseLargeSelector = true;
+				_selectors[i].SetPalette(pal);
 
 				this.Loaded += delegate {
 					this.MaxHeight = this.ActualHeight;
 					this.MaxWidth = this.ActualWidth;
 				};
+			}
+
+			ApplicationShortcut.Link(ActEditorCommands.Undo, Undo, this);
+			ApplicationShortcut.Link(ActEditorCommands.Redo, Redo, this);
+		}
+
+		public void Undo() {
+			foreach (var selector in _selectors) {
+				selector.Palette.Commands.Undo();
+			}
+		}
+
+		public void Redo() {
+			foreach (var selector in _selectors) {
+				selector.Palette.Commands.Redo();
 			}
 		}
 	}

@@ -44,83 +44,81 @@ namespace Scripts {
 			if (act == null) return;
 		   
 			try {
-				act.Commands.Begin();
-				act.Commands.Backup(_ => {
-					int count = act.GetAllFrames().Count + 1;
-					int index = 0;
-				   
-					TaskManager.DisplayTaskC("Rendering frames...", "Please wait...", () => index, count, new Action<Func<bool>>(isCancelling => {
-						try {
-							foreach (var action in act) {
-								foreach (var frame in action) {
-									if (frame.Layers.Count <= 1) {
-										index++;
-										continue;
-									}
-									if (isCancelling()) return;
-								   
-									var image = frame.Render(act);
-									var box = ActImaging.Imaging.GenerateFrameBoundingBox(act, frame);
-									SpriteIndex sprIndex = SpriteIndex.Null;
-								   
-									for (int i = 0; i < act.Sprite.Images.Count; i++) {
-										if (image.Equals(act.Sprite.Images[i])) {
-											if (isCancelling()) return;
-											sprIndex = SpriteIndex.FromAbsoluteIndex(i, act.Sprite, act.Sprite.Images[i]);
-										}
-									}
-								   
-									if (!sprIndex.Valid) {
-										sprIndex = act.Sprite.InsertAny(image);
-									}
-								   
-									int offsetX = (int) ((int) ((box.Max.X - box.Min.X + 1) / 2) + box.Min.X);
-									int offsetY = (int) ((int) ((box.Max.Y - box.Min.Y + 1) / 2) + box.Min.Y);
-									var layer = new Layer(sprIndex);
-								   
-									layer.OffsetX = offsetX;
-									layer.OffsetY = offsetY;
-								   
-									frame.Layers.Clear();
-									frame.Layers.Add(layer);
+				act.Commands.ActEditBegin("Merge layers into new sprite");
+				int count = act.GetAllFrames().Count + 1;
+				int index = 0;
+			   
+				TaskManager.DisplayTaskC("Rendering frames...", "Please wait...", () => index, count, new Action<Func<bool>>(isCancelling => {
+					try {
+						foreach (var action in act) {
+							foreach (var frame in action) {
+								if (frame.Layers.Count <= 1) {
 									index++;
+									continue;
 								}
-							}
-						   
-							// Removes unused sprites - old way, older versions have a bug
-							for (int i = act.Sprite.Images.Count - 1; i >= 0 ; i--) {
-								if (act.FindUsageOf(i).Count == 0) {
-									var type = act.Sprite.Images[i].GrfImageType;
-									var relativeIndex = act.Sprite.AbsoluteToRelative(i, type == GrfImageType.Indexed8 ? 0 : 1);
-									act.Sprite.Remove(relativeIndex, type);
-								   
-									if (type == GrfImageType.Indexed8) {
-										act.AllLayers(layer => {
-											if ((layer.IsIndexed8() && type == GrfImageType.Indexed8) ||
-												(layer.IsBgra32() && type == GrfImageType.Bgra32)) {
-												if (layer.SpriteIndex == relativeIndex) {
-													layer.SpriteIndex = -1;
-												}
-											}
-										});
+								if (isCancelling()) return;
+							   
+								var image = frame.Render(act);
+								var box = ActImaging.Imaging.GenerateFrameBoundingBox(act, frame);
+								SpriteIndex sprIndex = SpriteIndex.Null;
+							   
+								for (int i = 0; i < act.Sprite.Images.Count; i++) {
+									if (image.Equals(act.Sprite.Images[i])) {
+										if (isCancelling()) return;
+										sprIndex = SpriteIndex.FromAbsoluteIndex(i, act.Sprite, act.Sprite.Images[i]);
 									}
-				   
-									act.Sprite.ShiftIndexesAbove(act, type, -1, relativeIndex);
+								} 
+							   
+								if (!sprIndex.Valid) {
+									sprIndex = act.Sprite.InsertAny(image);
 								}
+								
+								int offsetX = (int) ((int) ((box.Max.X - box.Min.X + 1) / 2) + box.Min.X);
+								int offsetY = (int) ((int) ((box.Max.Y - box.Min.Y + 1) / 2) + box.Min.Y);
+								var layer = new Layer(sprIndex);
+							   
+								layer.OffsetX = offsetX;
+								layer.OffsetY = offsetY;
+							   
+								frame.Layers.Clear();
+								frame.Layers.Add(layer);
+								index++;
 							}
 						}
-						finally {
-							index = count;
+					   
+						// Removes unused sprites - old way, older versions have a bug
+						for (int i = act.Sprite.Images.Count - 1; i >= 0 ; i--) {
+							if (act.FindUsageOf(i).Count == 0) {
+								var type = act.Sprite.Images[i].GrfImageType;
+								var relativeIndex = act.Sprite.AbsoluteToRelative(i, type == GrfImageType.Indexed8 ? 0 : 1);
+								act.Sprite.Remove(relativeIndex, type);
+							   
+								if (type == GrfImageType.Indexed8) {
+									act.AllLayers(layer => {
+										if ((layer.IsIndexed8() && type == GrfImageType.Indexed8) ||
+											(layer.IsBgra32() && type == GrfImageType.Bgra32)) {
+											if (layer.SpriteIndex == relativeIndex) {
+												layer.SpriteIndex = -1;
+											}
+										}
+									});
+								}
+			   
+								act.Sprite.ShiftIndexesAbove(act, type, -1, relativeIndex);
+							}
 						}
-					}));
-				}, "MyCustomScript", true);
+					}
+					finally {
+						index = count;
+					}
+				}));
 			}
 			catch (Exception err) {
-				act.Commands.CancelEdit();
+				act.Commands.ActCancelEdit();
 				ErrorHandler.HandleException(err, ErrorLevel.Warning);
 			}
 			finally {
-				act.Commands.End();
+				act.Commands.ActEditEnd();
 				act.InvalidateVisual();
 				act.InvalidateSpriteVisual();
 			}

@@ -43,9 +43,6 @@ namespace ActEditor.Core {
 				var oriWidth = image.Width;
 				var oriHeight = image.Height;
 
-				if (image.Width == 103)
-					oriWidth = image.Width;
-
 				var trimLengths = image.GetTrimLengths(tolerance);
 
 				int[] trims = new int[] {
@@ -84,8 +81,6 @@ namespace ActEditor.Core {
 					if (layer.SprSpriteIndex != spriteIndex)
 						return;
 
-					//if (index.ActionIndex != 2) return;
-
 					var previousCenter = planes[index].Center;
 					var newPlane = Layer2PlaneAdjust(act, layer, oriWidth, oriHeight, trims);
 					var diff = newPlane.Center - previousCenter;
@@ -101,11 +96,23 @@ namespace ActEditor.Core {
 			var image = layer.GetImage(act.Sprite);
 
 			Plane plane = new Plane(oriWidth, oriHeight);
-			plane.Translate(layer.Mirror ? -(image.Width + 1) % 2 : 0, 0);
+			plane.Translate(layer.Mirror ? image.Width % 2 : 0, 0);
 			plane.Crop(trims[0], trims[1], trims[2], trims[3]);
 
 			if ((trims[0] + trims[2]) % 2 == 1) {
-				plane.Translate(layer.Mirror ? -1.5f : 0.5f, 0);
+				// Uneven cropping!
+				if (layer.Mirror) {
+					if (image.Width % 2 == 0)
+						plane.Translate(1.5f, 0);
+					else
+						plane.Translate(-1.5f, 0);
+				}
+				else {
+					if (image.Width % 2 == 0)
+						plane.Translate(-0.5f, 0);
+					else
+						plane.Translate(0.5f, 0);
+				}
 			}
 
 			if ((trims[1] + trims[3]) % 2 == 1) {

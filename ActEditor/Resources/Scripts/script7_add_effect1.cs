@@ -19,7 +19,7 @@ using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
 using Utilities.Extension;
-using ActEditor.Core.Scripts;
+using ActEditor.Core.Scripting.Scripts;
 using Action = GRF.FileFormats.ActFormat.Action;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 using Point = System.Windows.Point;

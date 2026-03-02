@@ -17,6 +17,7 @@ using static ActEditor.Core.WPF.Dialogs.ScriptRunnerDialog;
 using Utilities.Services;
 using TokeiLibrary.Shortcuts;
 using ActEditor.Core.Scripting;
+using ActEditor.ApplicationConfiguration;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -51,7 +52,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "File name", DisplayExpression = "DisplayFileName", ToolTipBinding = "FileName", TextAlignment = TextAlignment.Left, TextWrapping = TextWrapping.Wrap, IsFill = true},
 			}, new DefaultListViewComparer<ScriptFileErrorView>(), new string[] { "Default", "{DynamicResource TextForeground}" });
 
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-S", "ScriptError.Save"), Save, this);
+			ApplicationShortcut.Link(ActEditorCommands.Save, Save, this);
 
 			_lvFiles.ItemsSource = scriptLoaderResult.Errors.Select(p => new ScriptFileErrorView(p)).ToList();
 			_textEditor.PreviewKeyDown += new KeyEventHandler(_textEditor_PreviewKeyDown);
@@ -220,7 +221,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 			if (errorView != null) {
 				try {
-					Process.Start(errorView.FileName);
+					Process.Start(errorView.FileName).Dispose();
 				}
 				catch {
 				}

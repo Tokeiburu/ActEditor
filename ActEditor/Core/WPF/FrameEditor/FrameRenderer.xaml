@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			 mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
+	<UserControl.Resources>
+		<PopupAnimation x:Key="{x:Static SystemParameters.MenuPopupAnimationKey}">None</PopupAnimation>
+	</UserControl.Resources>
 	<Grid Name="_gridBackground" FocusVisualStyle="{x:Null}" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" UseLayoutRounding="False">
 		<Grid.Background>
 			<ImageBrush x:Name="_imBrush" ImageSource="../../../Resources/background.png" TileMode="Tile" Viewport="0,0,16,16" ViewportUnits="Absolute" RenderOptions.BitmapScalingMode="NearestNeighbor" />

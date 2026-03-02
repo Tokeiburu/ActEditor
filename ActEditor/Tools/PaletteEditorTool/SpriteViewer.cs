@@ -1,4 +1,5 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System;
+using System.Windows.Media.Imaging;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
 
@@ -6,24 +7,27 @@ namespace ActEditor.Tools.PaletteEditorTool {
 	public class SpriteViewer : ImageViewer {
 		private Spr _spr;
 
+		public GrfImage LoadedImage { get; internal set; }
+
 		public void SetSpr(Spr spr) {
 			_spr = spr;
 		}
 
-		public void Load(int index) {
-			Load(_spr.Images[index].Cast<BitmapSource>());
-		}
-
 		public void LoadIndexed8(int index) {
-			Load(_spr.Images[index].Cast<BitmapSource>());
+			LoadImage(_spr.Images[index]);
 		}
 
 		public void LoadImage(GrfImage image) {
+			image.Palette[3] = 0;
+			LoadedImage = image;
 			Load(image.Cast<BitmapSource>());
 		}
 
-		public void LoadBgra32(int index) {
-			Load(_spr.Images[index + _spr.NumberOfIndexed8Images].Cast<BitmapSource>());
+		public GrfImage GetImage(int index) {
+			if (index < 0)
+				return null;
+
+			return _spr.Images[index];
 		}
 	}
 }

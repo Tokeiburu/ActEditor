@@ -14,6 +14,7 @@
         </Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="200" />
+			<ColumnDefinition Width="1" />
 			<ColumnDefinition Width="*" MinWidth="400" />
 		</Grid.ColumnDefinitions>
 		<ListView Name="_lvFiles" Grid.Row="0" Grid.Column="0" SelectionChanged="_lvFiles_SelectionChanged" BorderThickness="0" FocusVisualStyle="{x:Null}" ListView:ListViewExtensions.IsGridSortable="False" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Visible">
@@ -26,12 +27,13 @@
 		</ListView>
 		<avalonedit:TextEditor
 				    Grid.Row="0"
-                    Grid.Column="1"
+                    Grid.Column="2"
 					Name="_textEditor"
 					FontFamily="Consolas"
 					ShowLineNumbers="True">
 		</avalonedit:TextEditor>
-		<Grid Name="_sp" Grid.Row="1" Grid.ColumnSpan="2">
+		<Rectangle Width="2" Grid.Column="1" Fill="{DynamicResource TabItemBackground}" />
+		<Grid Name="_sp" Grid.Row="1" Grid.ColumnSpan="3">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="auto" />
 				<RowDefinition />
@@ -39,7 +41,7 @@
 			<Label Background="{StaticResource UIThemeScriptRunnerConsoleErrorBrush}" Content="Error console" />
 			<ListView Grid.Row="1" MouseDoubleClick="_listView_MouseDoubleClick" SelectionChanged="_listView_SelectionChanged" BorderThickness="0 1 0 1" ListView:ListViewExtensions.IsGridSortable="True" VirtualizingStackPanel.IsVirtualizing="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Name="_listView" />
 		</Grid>
-		<Grid Name="_gridActionPresenter" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="2" Grid.ColumnSpan="2" Height="50" Background="{DynamicResource UIDialogBackground}">
+		<Grid Name="_gridActionPresenter" TokeiLibrary:WpfProperties.IsDraggable="True" Grid.Row="2" Grid.ColumnSpan="3" Height="50" Background="{DynamicResource UIDialogBackground}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />

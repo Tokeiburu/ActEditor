@@ -233,9 +233,9 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		public void Init(IFrameRendererEditor renderer, int selectedAction, int selectedFrame) {
+			_renderer = renderer;
 			SelectedAction = selectedAction < 0 ? renderer.SelectedAction : selectedAction;
 			SelectedFrame = selectedFrame < 0 ? renderer.SelectedFrame : selectedFrame;
-			_renderer = renderer;
 		}
 
 		public void Update() {

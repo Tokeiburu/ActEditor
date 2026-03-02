@@ -329,6 +329,18 @@ namespace ActEditor.Core.Scripting.Scripts {
 		private List<Stripe> _stripes = new List<Stripe>();
 		private BoundingBox _actionBox;
 
+		public Stripe AddStripe(Stripe previous, int min, int max) {
+			var stripe = new Stripe();
+			int maxAttempt = 3;
+
+			do {
+				stripe.Height = _options.Rng.Next(min, max);
+			} while (previous != null && previous.Height == stripe.Height && --maxAttempt > 0);
+
+			stripe.Dir = (_options.Rng.Next() % 2) * 2 - 1;
+			return stripe;
+		}
+
 		public override void OnPreviewProcessAction(Act act, Action action, int aid) {
 			_stripes = new List<Stripe>();
 			_actionBox = ActImaging.Imaging.GenerateBoundingBox(act, aid);
@@ -344,15 +356,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 			}
 
 			for (int i = 0; i < w; i++) {
-				var stripe = new Stripe();
-				int maxAttempt = 3;
-
-				do {
-					stripe.Height = _options.Rng.Next(min, max);
-				} while (i > 0 && _stripes[i - 1].Height == stripe.Height && --maxAttempt > 0);
-
-				stripe.Dir = (_options.Rng.Next() % 2) * 2 - 1;
-				_stripes.Add(stripe);
+				_stripes.Add(AddStripe(i > 0 ? _stripes[i - 1] : null, min, max));
 			}
 
 			// Create empty blocks
@@ -404,12 +408,30 @@ namespace ActEditor.Core.Scripting.Scripts {
 				_paletteInsertIndex = _addPaletteColor(_options.Color);
 			}
 
+			var min = _options.MinHeight;
+			var max = _options.MaxHeight;
+
+			if (min > max) {
+				var t = max;
+				max = min;
+				min = t;
+			}
+
 			for (int x = 0; x < img.Width; x++) {
 				bool found = false;
 
 				for (int y = 0; y < img.Height; y++) {
 					// Find edge of the sprite
 					if (!found && !img.IsPixelTransparent(x, y)) {
+						while (x + start >= _stripes.Count) {
+							Stripe previousStripe = null;
+
+							if (_stripes.Count > 0)
+								previousStripe = _stripes.Last();
+
+							_stripes.Add(AddStripe(previousStripe, min, max));
+						}
+
 						var stripe = _stripes[x + start];
 
 						for (int yy = 0; yy < Math.Max(0, stripe.Height); yy++) {
@@ -538,12 +560,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 						image.Convert(GrfImageType.Bgra32);
 					}
 
-					for (int i = 0; i < image.Pixels.Length; i += 4) {
-						image.Pixels[i + 0] = 255;
-						image.Pixels[i + 1] = 255;
-						image.Pixels[i + 2] = 255;
-						image.Pixels[i + 3] = (byte)(_options.Color.A * image.Pixels[i + 3] / 255);
-					}
+					image.ChangeIntoWhite();
 				}
 				else {
 					if (_paletteInsertIndex < 0) {
@@ -570,11 +587,12 @@ namespace ActEditor.Core.Scripting.Scripts {
 					}
 
 					image.SetPalette(act.Sprite.Palette.BytePalette);
+					image.ChangeIntoWhite(_paletteInsertIndex);
 
-					for (int i = 0; i < image.Pixels.Length; i++) {
-						if (image.Pixels[i] != 0)
-							image.Pixels[i] = (byte)_paletteInsertIndex;
-					}
+					//for (int i = 0; i < image.Pixels.Length; i++) {
+					//	if (image.Pixels[i] != 0)
+					//		image.Pixels[i] = (byte)_paletteInsertIndex;
+					//}
 				}
 
 				newSpriteIndex = act.Sprite.InsertAny(image);

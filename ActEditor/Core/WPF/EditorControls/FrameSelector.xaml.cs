@@ -72,28 +72,13 @@ namespace ActEditor.Core.WPF.EditorControls {
 			SelectedFrame = value;
 
 			if (SelectedFrame < Action.NumberOfFrames) {
-				try {
-					foreach (GrfImage image in _act.Sprite.Images) {
-						if (image.GrfImageType == GrfImageType.Indexed8) {
-							image.Palette[3] = 0;
-						}
-					}
+				var source = Imaging.GenerateImage(_act, _actionIndex, SelectedFrame);
+				_imagePreview.Margin = new Thickness(
+					(int) (_scrollViewer.ActualWidth / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Width)) / 2),
+					(int) (_scrollViewer.ActualHeight / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Height)) / 2),
+					0, 0);
 
-					var source = Imaging.GenerateImage(_act, _actionIndex, SelectedFrame);
-					_imagePreview.Margin = new Thickness(
-						(int) (_scrollViewer.ActualWidth / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Width)) / 2),
-						(int) (_scrollViewer.ActualHeight / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Height)) / 2),
-						0, 0);
-
-					_imagePreview.Source = source;
-				}
-				finally {
-					foreach (GrfImage image in _act.Sprite.Images) {
-						if (image.GrfImageType == GrfImageType.Indexed8) {
-							image.Palette[3] = 255;
-						}
-					}
-				}
+				_imagePreview.Source = source;
 			}
 			else {
 				_imagePreview.Source = null;

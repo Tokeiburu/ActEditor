@@ -25,6 +25,8 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private BitmapSource _currentBitmap;
 		private Point? _oldPosition;
 		private Point _relativeCenter = new Point(0.5, 0.5);
+		public Rect Selection;
+		public Point ImageOperationPosition;
 
 		public BitmapSource Bitmap {
 			get { return _currentBitmap; }
@@ -197,6 +199,18 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_imageSprite.Margin = new Thickness(left, top, 0, 0);
 			_borderSprite.Margin = new Thickness(left, top, 0, 0);
 			_borderSpriteGlow.Margin = new Thickness(left, top, 0, 0);
+
+			if (_rectOverlay.Visibility == Visibility.Visible) {
+				_rectOverlay.Margin = new Thickness(left + Selection.X * _zoomEngine.Scale, top + Selection.Y * _zoomEngine.Scale, 0, 0);
+				_rectOverlay.Width = Selection.Width * _zoomEngine.Scale;
+				_rectOverlay.Height = Selection.Height * _zoomEngine.Scale;
+			}
+
+			if (_imageOperation.Visibility == Visibility.Visible) {
+				_imageOperation.Margin = new Thickness(left + ImageOperationPosition.X * _zoomEngine.Scale, top + ImageOperationPosition.Y * _zoomEngine.Scale, 0, 0);
+				_imageOperation.Width = _imageOperation.Source.Width * _zoomEngine.Scale;
+				_imageOperation.Height = _imageOperation.Source.Height * _zoomEngine.Scale;
+			}
 		}
 
 		public void ForceUpdatePreview(BitmapSource bitmap) {
@@ -236,6 +250,35 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		public void Clear() {
 			_currentBitmap = null;
 			_imageSprite.Source = null;
+		}
+
+		public void SetOverlaySelection(Rect selection) {
+			_rectOverlay.Visibility = Visibility.Visible;
+			Selection = selection;
+			_updatePreview();
+		}
+
+		public void SetOverlaySelection((int X, int Y) start, (int X, int Y) end) {
+			_rectOverlay.Visibility = Visibility.Visible;
+			Point p0 = new Point(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
+			Point p1 = new Point(Math.Max(start.X, end.X) + 1, Math.Max(start.Y, end.Y) + 1);
+			Selection = new Rect(p0, p1);
+			_updatePreview();
+		}
+
+		public void SetOverlayOperation(Point position, BitmapSource image) {
+			_imageOperation.Visibility = Visibility.Visible;
+			_imageOperation.Source = image;
+			ImageOperationPosition = position;
+			_updatePreview();
+		}
+
+		public void ClearSelection() {
+			_rectOverlay.Visibility = Visibility.Collapsed;
+		}
+
+		public void ClearOverlayOperation() {
+			_imageOperation.Visibility = Visibility.Collapsed;
 		}
 	}
 }

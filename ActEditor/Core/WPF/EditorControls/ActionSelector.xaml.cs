@@ -60,6 +60,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 						window.Closed += delegate {
 							_isRunning = false;
 							_enableActThread = true;
+							_actThreadHandle?.Dispose();
 						};
 					}
 
@@ -212,31 +213,15 @@ namespace ActEditor.Core.WPF.EditorControls {
 									_changedAnimationIndex = false;
 								}
 
-								foreach (GrfImage image in Act.Sprite.Images) {
-									if (image.GrfImageType == GrfImageType.Indexed8) {
-										image.Palette[3] = 0;
-									}
-								}
-
 								ImageSource source = Imaging.GenerateImage(Act, SelectedAction, _frameIndex);
 								_imagePreview.Margin = new Thickness(
 									(int) (_scrollViewer.ActualWidth / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Width)) / 2),
 									(int) (_scrollViewer.ActualHeight / 2 - (double) source.Dispatcher.Invoke(new Func<double>(() => source.Height)) / 2),
 									0, 0);
 								_imagePreview.Source = source;
-								//_scrollViewer.ScrollToVerticalOffset(_scrollViewer.ScrollableHeight / 2d);
-								//_scrollViewer.ScrollToHorizontalOffset(_scrollViewer.ScrollableWidth / 2d);
 							}
 							catch {
 								_enableActThread = false;
-								//ErrorHandler.HandleException("Unable to load the animation.");
-							}
-							finally {
-								foreach (GrfImage image in Act.Sprite.Images) {
-									if (image.GrfImageType == GrfImageType.Indexed8) {
-										image.Palette[3] = 255;
-									}
-								}
 							}
 						}));
 

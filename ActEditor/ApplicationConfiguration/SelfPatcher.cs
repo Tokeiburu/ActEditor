@@ -24,6 +24,7 @@ namespace ActEditor.ApplicationConfiguration {
 			PatchIds.Add(134);
 			PatchIds.Add(137);
 			PatchIds.Add(138);
+			PatchIds.Add(139);
 		}
 
 		public static void SelfPatch() {
@@ -131,6 +132,13 @@ namespace ActEditor.ApplicationConfiguration {
 						GrfPath.Delete(Path.Combine(path, "script1_replace_color_all.cs"));
 						GrfPath.Delete(Path.Combine(path, "script4_generate_single_sprite.cs"));
 						GrfPath.Delete(Path.Combine(path, "script1_replace_color.cs"));
+						break;
+					case 139:
+						foreach (string resource in ScriptLoader.ScriptNames) {
+							foreach (string file in new string[] { resource + ".cs", resource + ".dll" }) {
+								GrfPath.Delete(Path.Combine(path, file));
+							}
+						}
 						break;
 				}
 			}

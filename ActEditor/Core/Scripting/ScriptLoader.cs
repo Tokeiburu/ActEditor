@@ -519,7 +519,8 @@ namespace ActEditor.Core.Scripting {
 
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
-				if (_fsw != null) _fsw.Dispose();
+				_fsw?.Dispose();
+				_debouncer?.Dispose();
 			}
 		}
 

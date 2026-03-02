@@ -252,6 +252,12 @@ namespace ActEditor.Tools.GrfShellExplorer {
 			}
 		}
 
+		protected override void OnClosed(EventArgs e) {
+			base.OnClosed(e);
+
+			_grfHolder?.Dispose();
+		}
+
 		#region TreeView loading (logic)
 
 		private void _load(string filename) {

@@ -397,19 +397,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		}
 
 		private bool _noSelectedComponentsUnderMouse(MouseEventArgs e) {
-			//var main = _renderer.Components.OfType<ActDraw2>().FirstOrDefault(p => p.Primary);
-			//
-			//if (main == null) return true;
-			//
-			//if (_editor.SelectionEngine == null)
-			//	return true;
-			//
-			//int idx = main.GetLayerIndexUnderMouse(e.GetPosition(_renderer.Canvas));
-			//
-			//if (idx > -1)
-			//	return false;
-			//
-			//return true;
 			if (_renderer.MainDrawingComponent == null) return true;
 			
 			if (_editor.SelectionEngine == null)
@@ -425,17 +412,15 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		}
 
 		private bool _componentsUnderMouse(MouseEventArgs e) {
-			return !_noSelectedComponentsUnderMouse(e);
-
-			//if (_renderer.MainDrawingComponent == null) return false;
-			//
-			//foreach (LayerDraw sd in _renderer.MainDrawingComponent.Components) {
-			//	if (sd.IsMouseUnder(e)) {
-			//		return true;
-			//	}
-			//}
-			//
-			//return false;
+			if (_renderer.MainDrawingComponent == null) return false;
+			
+			foreach (LayerDraw sd in _renderer.MainDrawingComponent.Components) {
+				if (sd.IsMouseUnder(e)) {
+					return true;
+				}
+			}
+			
+			return false;
 		}
 
 		private double _getDistance(Point p1, Point p2) {

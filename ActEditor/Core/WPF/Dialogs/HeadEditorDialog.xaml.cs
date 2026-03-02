@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.WPF.EditorControls;
 using ActEditor.Core.WPF.FrameEditor;
@@ -86,20 +87,20 @@ namespace ActEditor.Core.WPF.Dialogs {
 				new ListViewDataTemplateHelper.GeneralColumnInfo { Header = "File name", DisplayExpression = "DisplayName", SearchGetAccessor = "DisplayName", IsFill = true, TextAlignment = TextAlignment.Left, ToolTipBinding = "DisplayName" }
 			}, new DefaultListViewComparer<ActReferenceView>(), new string[] { "Default", "{DynamicResource TextForeground}" }, "generateHeader", "true", "overrideSizeRedraw", "true");
 
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "HeadEditor.Undo"), () => {
+			ApplicationShortcut.Link(ActEditorCommands.Undo, () => {
 				if (Act != null) {
 					Act.Commands.Undo();
 					_selectionEngine.AddSelection(0);
 				}
 			}, this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "HeadEditor.Redo"), () => {
+			ApplicationShortcut.Link(ActEditorCommands.Redo, () => {
 				if (Act != null) {
 					Act.Commands.Redo();
 					_selectionEngine.AddSelection(0);
 				}
 			}, this);
 
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-A", "HeadEditor.ShowAdjacentFrames"), () => {
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAdjascentFrames, () => {
 				if (_rendererLeft.IsHitTestVisible || _rendererRight.IsHitTestVisible) {
 					_col0.Width = new GridLength(0);
 					_col2.Width = new GridLength(0);

@@ -25,6 +25,7 @@ using Microsoft.CodeAnalysis;
 using GRF.Threading;
 using Utilities.Extension;
 using ActEditor.Core.Scripting;
+using TokeiLibrary.Shortcuts;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -102,6 +103,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 				_autoCompletion.ProcessText(e);
 			};
 
+			_initializeShortcuts();
+
 			// Force load Roslyn on startup
 			GrfThread.Start(delegate {
 				try {
@@ -109,6 +112,13 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 				catch { }
 			});
+		}
+
+		private void _initializeShortcuts() {
+			ApplicationShortcut.Link(ActEditorCommands.ScriptRunnerRunScript, _miRun, this);
+			ApplicationShortcut.Link(ActEditorCommands.New, _miNew, this);
+			ApplicationShortcut.Link(ActEditorCommands.Open, _miOpen, this);
+			ApplicationShortcut.Link(ActEditorCommands.Save, _miSave, this);
 		}
 
 		private void _textEditor_PreviewKeyDown(object sender, KeyEventArgs e) {
@@ -390,7 +400,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			string indexPath = GrfPath.Combine(Configuration.ApplicationPath, "doc", "index.html");
 
 			if (File.Exists(indexPath)) {
-				Process.Start(indexPath);
+				Process.Start(indexPath).Dispose();
 			}
 			else {
 				ErrorHandler.HandleException("Path not found: " + indexPath);

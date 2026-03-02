@@ -72,9 +72,6 @@ namespace ActEditor.Core.DrawingComponents {
 					drawSlot.Border.BorderBrush = borderBrush;
 					drawSlot.Border.Background = backgroundBrush;
 					drawSlot.Border.BorderThickness = new Thickness(1);
-					//drawSlot.Border.Stroke = borderBrush;
-					//drawSlot.Border.Fill = backgroundBrush;
-					//drawSlot.Border.StrokeThickness = 1d;
 					drawSlot.Border.SetValue(RenderOptions.EdgeModeProperty, edgeMode);
 					drawSlot.Border.SnapsToDevicePixels = true;
 					drawSlot.Border.IsHitTestVisible = false;
@@ -84,9 +81,6 @@ namespace ActEditor.Core.DrawingComponents {
 					drawSlot.Image.SnapsToDevicePixels = true;
 					drawSlot.Image.SetValue(RenderOptions.BitmapScalingModeProperty, ActEditorConfiguration.ActEditorScalingMode);
 
-					//var effect = new ColorMultiplyEffect();
-					//drawSlot.Image.Effect = effect;
-
 					_canvas.Children.Add(drawSlot.Image);
 					_canvas.Children.Add(drawSlot.Border);
 				}
@@ -95,30 +89,11 @@ namespace ActEditor.Core.DrawingComponents {
 			{
 				var drawSlot = DrawSlots[drawIndex];
 				drawSlot.InUse = true;
-				//if (drawSlot.Image.Visibility != Visibility.Visible)
-				//	drawSlot.Image.Visibility = Visibility.Visible;
-				//if (drawSlot.Border.Visibility != Visibility.Hidden)
-				//	drawSlot.Border.Visibility = Visibility.Hidden;
 				Panel.SetZIndex(drawSlot.Image, 4 * drawIndex + 10);
 				Panel.SetZIndex(drawSlot.Border, 4 * drawIndex + 12);
 				return drawSlot;
 			}
 		}
-
-		//public void SetUnused(DrawSlot drawSlot) {
-		//	drawSlot.InUse = false;
-		//	drawSlot.Image.Visibility = Visibility.Hidden;
-		//	//drawSlot.Image.Source = null;
-		//	drawSlot.Border.Visibility = Visibility.Hidden;
-		//}
-		//
-		//public void SetUnused(int index) {
-		//	var drawSlot = DrawSlots[index];
-		//	drawSlot.InUse = false;
-		//	drawSlot.Image.Visibility = Visibility.Hidden;
-		//	//drawSlot.Image.Source = null;
-		//	drawSlot.Border.Visibility = Visibility.Hidden;
-		//}
 
 		public void ImagesDirty() {
 			var scalingMode = ActEditorConfiguration.ActEditorScalingMode;

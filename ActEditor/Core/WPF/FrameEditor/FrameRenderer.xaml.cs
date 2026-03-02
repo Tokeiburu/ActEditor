@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -17,7 +18,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 	/// <summary>
 	/// Interaction logic for FrameRenderer.xaml
 	/// </summary>
-	public partial class FrameRenderer : UserControl {
+	public partial class FrameRenderer : UserControl, IDisposable {
 		// Private fields
 		protected List<DrawingComponent> _components = new List<DrawingComponent>();
 		protected Point _relativeCenter = new Point(0.5, 0.8);
@@ -26,6 +27,7 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		private DrawSlotManager _drawSlotManager;
 		private BitmapResourceManager _bitmapResourceManager = new BitmapResourceManager();
 		private int _drawIndex;
+		private bool _disposed;
 
 		public delegate void RenderUpdateEventHandler(object sender);
 
@@ -99,6 +101,12 @@ namespace ActEditor.Core.WPF.FrameEditor {
 
 			SizeChanged += _renderer_SizeChanged;
 			MouseWheel += _renderer_MouseWheel;
+
+			Unloaded += _frameRenderer_Unloaded;
+		}
+
+		private void _frameRenderer_Unloaded(object sender, RoutedEventArgs e) {
+			Editor?.IndexSelector?.Stop();
 		}
 
 		public virtual void Init(IFrameRendererEditor editor) {
@@ -135,19 +143,6 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			foreach (var dc in _components) {
 				dc.QuickRender(this);
 			}
-		}
-
-		public virtual void Unload() {
-			if (_components == null)
-				return;
-
-			foreach (var dc in _components) {
-				dc.Unload(this);
-			}
-
-			DrawSlotManager.Unload();
-			_bitmapResourceManager.ClearCache();
-			_components = null;
 		}
 
 		public virtual void Update() {
@@ -324,6 +319,27 @@ namespace ActEditor.Core.WPF.FrameEditor {
 		public void SetAnchorIndex(int anchorIndex) {
 			AnchorModule.AnchorIndex = anchorIndex;
 			Update();
+		}
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (!_disposed) {
+				if (disposing) {
+					foreach (var dc in _components) {
+						dc.Unload(this);
+					}
+
+					DrawSlotManager.Unload();
+					_bitmapResourceManager.ClearCache();
+					_components = null;
+				}
+
+				_disposed = true;
+			}
 		}
 
 		public Act Act => Editor.Act;

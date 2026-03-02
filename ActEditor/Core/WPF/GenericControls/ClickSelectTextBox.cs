@@ -23,7 +23,7 @@ namespace ActEditor.Core.WPF.GenericControls {
 		public static bool EventsEnabled { get; set; }
 
 		private void _clickSelectTextBox_KeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Is(ApplicationShortcut.Undo) || ApplicationShortcut.Is(ApplicationShortcut.Redo)) {
+			if (ApplicationShortcut.Undo.IsMatch() || ApplicationShortcut.Redo.IsMatch()) {
 				UIElement element = this;
 
 				int maxlevel = 0;

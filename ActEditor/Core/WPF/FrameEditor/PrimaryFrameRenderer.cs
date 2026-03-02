@@ -12,6 +12,7 @@ using ActEditor.Core.DrawingComponents;
 using ActEditor.Core.Scripting.Scripts;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
+using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF.Styles;
 
 namespace ActEditor.Core.WPF.FrameEditor {
@@ -86,24 +87,22 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			ContextMenu.Items.Add(menuItem);
 			ContextMenu.Items.Add(new Separator());
 
-			menuItem = new TkMenuItem { HeaderText = "Bring one up", InputGestureText = "Alt-F", IconPath = "front.png" };
+			menuItem = new TkMenuItem { HeaderText = "Bring one up", ShortcutCmd = "LayerEditor.BringOneUp", IconPath = "front.png" };
 			menuItem.Click += delegate {
-				var alm = new ActionLayerMove(ActionLayerMove.MoveDirection.Down, Editor);
-				if (alm.CanExecute(Act, SelectedAction, SelectedFrame, Editor.SelectionEngine.SelectedItems.ToArray())) {
-					alm.Execute(Act, SelectedAction, SelectedFrame, Editor.SelectionEngine.SelectedItems.ToArray());
-				}
+				if (Editor.LayerEditor != null)
+					Editor.LayerEditor.BringOneUp();
 			};
 			ContextMenu.Items.Add(menuItem);
 			ContextMenu.Items.Add(new Separator());
 
-			menuItem = new TkMenuItem { HeaderText = "Mirror vertical", ShortcutCmd = "FrameEditor.LayerMirrorVertical", Shortcut = "NA", IconPath = "flip2.png" };
+			menuItem = new TkMenuItem { HeaderText = "Mirror vertical", ShortcutCmd = "FrameEditor.LayerMirrorVertical", IconPath = "flip2.png" };
 			menuItem.Click += delegate {
 				if (Editor.LayerEditor != null)
 					Editor.LayerEditor.MirrorFromOffset(FlipDirection.Vertical);
 			};
 			ContextMenu.Items.Add(menuItem);
 
-			menuItem = new TkMenuItem { HeaderText = "Mirror horizontal", IconPath = "flip.png", ShortcutCmd = "FrameEditor.LayerMirrorHorizontal", Shortcut = "NA" };
+			menuItem = new TkMenuItem { HeaderText = "Mirror horizontal", ShortcutCmd = "FrameEditor.LayerMirrorHorizontal", IconPath = "flip.png" };
 			menuItem.Click += delegate {
 				if (Editor.LayerEditor != null)
 					Editor.LayerEditor.MirrorFromOffset(FlipDirection.Horizontal);
@@ -111,11 +110,11 @@ namespace ActEditor.Core.WPF.FrameEditor {
 			ContextMenu.Items.Add(menuItem);
 			ContextMenu.Items.Add(new Separator());
 
-			menuItem = new TkMenuItem { HeaderText = "Copy", InputGestureText = "Ctrl-C", IconPath = "copy.png" };
+			menuItem = new TkMenuItem { HeaderText = "Copy", ShortcutCmd = ApplicationShortcut.Copy.CommandName, IconPath = "copy.png" };
 			menuItem.Click += (e, s) => Copy();
 			ContextMenu.Items.Add(menuItem);
 
-			menuItem = new TkMenuItem { HeaderText = "Cut", InputGestureText = "Ctrl-X", IconPath = "cut.png" };
+			menuItem = new TkMenuItem { HeaderText = "Cut", ShortcutCmd = ApplicationShortcut.Cut.CommandName, IconPath = "cut.png" };
 			menuItem.Click += (e, s) => Cut();
 			ContextMenu.Items.Add(menuItem);
 			ContextMenu.Items.Add(new Separator());

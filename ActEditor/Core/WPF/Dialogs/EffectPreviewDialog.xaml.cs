@@ -111,7 +111,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				if (editor.Act != null) {
 					return new List<DrawingComponent> { new ActDraw(editor.Act, editor) };
 				}
-
+			
 				return new List<DrawingComponent>();
 			}, DrawingPriorityValues.Normal, false));
 
@@ -644,6 +644,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 			Execute(_act);
 			DialogResult = true;
 			Close();
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			_rfp.Dispose();
 		}
 	}
 

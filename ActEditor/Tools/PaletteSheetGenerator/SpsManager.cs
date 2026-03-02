@@ -28,7 +28,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 				lv.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Disabled);
 
 				lv.KeyDown += delegate {
-					if (ApplicationShortcut.Is(ApplicationShortcut.Copy)) {
+					if (ApplicationShortcut.Copy.IsMatch()) {
 						StringBuilder builder = new StringBuilder();
 
 						foreach (SpriteResource res in lv.SelectedItems) {

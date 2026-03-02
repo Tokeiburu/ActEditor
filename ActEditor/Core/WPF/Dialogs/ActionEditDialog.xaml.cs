@@ -1,4 +1,5 @@
-﻿using ActEditor.Core.ListEditCommands;
+﻿using ActEditor.ApplicationConfiguration;
+using ActEditor.Core.ListEditCommands;
 using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
 using System;
@@ -54,7 +55,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		public void InitializeShortcuts() {
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-N", "ListData.New"), () => _editListInteraction.New(new ActionIndexData()), this);
+			ApplicationShortcut.Link(ActEditorCommands.ListDataNew, () => _editListInteraction.New(new ActionIndexData()), this);
 		}
 
 		private void _lvActions_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -140,6 +141,12 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _buttonCancel_Click(object sender, RoutedEventArgs e) {
 			Close();
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			base.OnClosed(e);
+
+			_listBoxExtension?.Dispose();
 		}
 
 		private void _miDelete_Click(object sender, RoutedEventArgs e) => _editListInteraction.Remove();

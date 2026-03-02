@@ -6,7 +6,8 @@ using Utilities;
 namespace ActEditor.Tools.PaletteEditorTool {
 	public class SpriteEditorState {
 		public int SelectedSpriteIndex;
-		public GrfImage SelectedImage;
+		public GrfImage SelectedImage => SpriteViewer.GetImage(SelectedSpriteIndex);
+		public GrfImage LoadedImage => SpriteViewer.LoadedImage;
 		public SpriteBrush Brush;
 		public SpriteViewer SpriteViewer;
 		public GrfImage EditingImage;
@@ -23,14 +24,12 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		public event InvalidateImageEventHandler ImageInvalidated;
 
 		public void InvalidateImage(GrfImage image) {
-			if (Methods.ByteArrayCompare(image?.Pixels, SelectedImage?.Pixels))
-				return;
-
 			ImageInvalidated?.Invoke(image);
 		}
 
 		public void ResetImage() {
-			ImageInvalidated?.Invoke(SelectedImage);
+			if (SelectedImage != null)
+				ImageInvalidated?.Invoke(SelectedImage);
 		}
 	}
 }

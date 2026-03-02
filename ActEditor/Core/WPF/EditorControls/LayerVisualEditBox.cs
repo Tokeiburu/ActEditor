@@ -141,7 +141,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 		}
 
 		private void _editBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Is(ApplicationShortcut.Undo) || ApplicationShortcut.Is(ApplicationShortcut.Redo)) {
+			if (ApplicationShortcut.Undo.IsMatch() || ApplicationShortcut.Redo.IsMatch()) {
 				UIElement element = _editBox;
 
 				int maxlevel = 0;

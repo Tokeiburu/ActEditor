@@ -59,7 +59,7 @@ namespace Scripts {
 			List<Layer> selected = selectedLayerIndexes.Select(index => layers[index]).ToList();
 			
 			try {
-				act.Commands.BeginNoDelay();
+				act.Commands.ActEditBegin("Generate single sprite");
 
 				Act action = new Act(act.Sprite);
 				action.AddAction();
@@ -68,19 +68,8 @@ namespace Scripts {
 
 				BitmapFrame bitFrame;
 
-				try {
-					for (int i = 0; i < action.Sprite.NumberOfIndexed8Images; i++) {
-						action.Sprite.Images[i].Palette[3] = 0;
-					}
-
-					ImageSource image = ActImaging.Imaging.GenerateFrameImage(action, action[0, 0]);
-					bitFrame = ActImaging.Imaging.ForceRender(image, BitmapScalingMode.NearestNeighbor);
-				}
-				finally {
-					for (int i = 0; i < action.Sprite.NumberOfIndexed8Images; i++) {
-						action.Sprite.Images[i].Palette[3] = 255;
-					}
-				}
+				ImageSource image = ActImaging.Imaging.GenerateFrameImage(action, action[0, 0]);
+				bitFrame = ActImaging.Imaging.ForceRender(image, BitmapScalingMode.NearestNeighbor);
 
 				PngBitmapEncoder encoder = new PngBitmapEncoder();
 				encoder.Frames.Add(bitFrame);
@@ -92,7 +81,7 @@ namespace Scripts {
 
 					stream.Seek(0, SeekOrigin.Begin);
 					byte[] imData = new byte[stream.Length];
-					stream.Read(imData, 0, imData.Length);
+					stream.Read(imData, 0, imData.Length); 
 
 					grfImage = new GrfImage(imData);
 
@@ -105,29 +94,26 @@ namespace Scripts {
 				}
 
 				absoluteIndex = grfImage.GrfImageType == GrfImageType.Indexed8 ? act.Sprite.NumberOfIndexed8Images : act.Sprite.NumberOfImagesLoaded;
-				act.Commands.SpriteInsert(absoluteIndex, grfImage);
+				var sprIndex = act.Sprite.InsertAny(grfImage);
 				
-				if (absoluteIndex >= 0) {
-					// (commands are not delayed, so the indexes are valid)
-					act.Commands.LayerAdd(selectedActionIndex, selectedFrameIndex, absoluteIndex);
-					
-					// Find best coordinates
-					GRF.Graphics.BoundingBox box = ActImaging.Imaging.GenerateFrameBoundingBox(action, 0, 0);
-					
-					int offsetX = (int) ((int) ((box.Max.X - box.Min.X + 1) / 2) + box.Min.X);
-					int offsetY = (int) ((int) ((box.Max.Y - box.Min.Y + 1) / 2) + box.Min.Y);
-					
-					act.Commands.Translate(selectedActionIndex, selectedFrameIndex, frame.NumberOfLayers - 1, offsetX, offsetY);
-					act.Commands.SetColor(selectedActionIndex, selectedFrameIndex, frame.NumberOfLayers - 1, frame[selectedLayerIndexes[0]].Color);
-				}
+				GRF.Graphics.BoundingBox box = ActImaging.Imaging.GenerateFrameBoundingBox(action, frame);
+				
+				int offsetX = (int) ((int) ((box.Max.X - box.Min.X + 1) / 2) + box.Min.X);
+				int offsetY = (int) ((int) ((box.Max.Y - box.Min.Y + 1) / 2) + box.Min.Y);
+				var layer = new Layer(sprIndex);
+				
+				layer.OffsetX = offsetX;
+				layer.OffsetY= offsetY;
+				
+				frame.Layers.Add(layer);
 			}
 			catch (Exception err) {
-				act.Commands.CancelEdit();
+				act.Commands.ActCancelEdit();
 				ErrorHandler.HandleException(err, ErrorLevel.Warning);
 				return;
 			}
 			finally {
-				act.Commands.End();
+				act.Commands.ActEditEnd();
 			}
 		}
 		

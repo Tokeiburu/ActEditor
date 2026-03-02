@@ -12,29 +12,29 @@ using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
-using ActEditor.Core.Scripts;
+using ActEditor.Core.Scripting.Scripts;
 
 namespace Scripts {
 	public class Script : IActScript {
 		public object DisplayName {
 			get { return "Expand"; }
 		}
-
+		
 		public string Group {
 			get { return "Scripts"; }
 		}
-
+		
 		public string InputGesture {
 			get { return "Ctrl-Shift-E"; }
 		}
-
+		
 		public string Image {
 			get { return "expand.png"; }
 		}
-
+		
 		public void Execute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			if (act == null) return;
-
+			
 			var effect = new EffectConfiguration("Expand");
 			var animationComponent = new AnimationEditComponent(act, AnimationEditTypes.TargetOnly);
 			animationComponent.DefaultSaveData.AddEmptyFrame = false;
@@ -45,21 +45,21 @@ namespace Scripts {
 			animationComponent.SetEffectProperty(effect.Properties["AnimationData"]);
 			animationComponent.LoadProperty();
 			effect.AddProperty("Magnitude", 2f, 0f, 10f);
-
+			
 			effect.Apply(actInput => {
 				float magnitude = effect.GetProperty<float>("Magnitude");
 				var animationsIndexes = animationComponent.SaveData.Animations;
 				var layersIndexes = animationComponent.SaveData.Layers;
-
+				
 				actInput.AllActions((action, aid) => {
 					if (!animationsIndexes.Contains(aid / 8))
 						return;
-
+					
 					foreach (var frame in action) {
 						for (int i = 0; i < frame.Layers.Count; i++) {
 							if (!layersIndexes.Contains(i))
 								continue;
-
+							
 							var layer = frame[i];
 							layer.OffsetX = (int)(layer.OffsetX * magnitude);
 							layer.OffsetY = (int)(layer.OffsetY * magnitude);
@@ -70,7 +70,7 @@ namespace Scripts {
 			effect.AutoPlay = false;
 			effect.Display(act, selectedActionIndex);
 		}
-
+		
 		public bool CanExecute(Act act, int selectedActionIndex, int selectedFrameIndex, int[] selectedLayerIndexes) {
 			return act != null;
 		}

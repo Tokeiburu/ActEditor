@@ -15,7 +15,7 @@ using System.Windows.Threading;
 using TokeiLibrary;
 
 namespace ActEditor.Core.WPF.Dialogs {
-	public class SelectableListBoxExtension {
+	public sealed class SelectableListBoxExtension : IDisposable {
 		private ListBox _listBox;
 		private ScrollViewer _gridEvents;
 		private double _dataDisplayWidth;
@@ -27,7 +27,8 @@ namespace ActEditor.Core.WPF.Dialogs {
 		private Rectangle _rectSelection;
 		private Rectangle _rectInsertion;
 		private Window _window;
-		public Cursor DragAndDropCursor;
+		private Cursor _dragAndDropCursor;
+		private bool _disposed;
 
 		public delegate void DraggedDoneEventHandler(int insertIndex);
 		public event DraggedDoneEventHandler ListItemsDropped;
@@ -316,10 +317,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 			DragMode = mode;
 			Mode = ListBoxMode.Dragging;
 
-			if (DragAndDropCursor == null)
-				DragAndDropCursor = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_dad.png"), Width = 21, Height = 31 }, new Point() { X = 0, Y = 0 });
+			if (_dragAndDropCursor == null)
+				_dragAndDropCursor = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_dad.png"), Width = 21, Height = 31 }, new Point() { X = 0, Y = 0 });
 
-			_window.Cursor = DragAndDropCursor;
+			_window.Cursor = _dragAndDropCursor;
 
 			SetInsertionLine();
 			_gridEvents.CaptureMouse();
@@ -503,6 +504,15 @@ namespace ActEditor.Core.WPF.Dialogs {
 				return null;
 
 			return _clipboardData.ToList();
+		}
+
+		public void Dispose() {
+			if (_disposed) {
+				return;
+			}
+
+			_dragAndDropCursor?.Dispose();
+			_disposed = true;
 		}
 	}
 

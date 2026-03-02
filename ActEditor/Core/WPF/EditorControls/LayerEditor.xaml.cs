@@ -19,6 +19,7 @@ using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Shortcuts;
 using Utilities;
 using Control = System.Windows.Forms.Control;
 using Frame = GRF.FileFormats.ActFormat.Frame;
@@ -699,6 +700,16 @@ namespace ActEditor.Core.WPF.EditorControls {
 			if (act == null) return;
 
 			_bringTo(0);
+		}
+
+		public void BringOneUp() {
+			Act act = _actEditor.Act;
+			if (act == null) return;
+
+			var alm = new ActionLayerMove(ActionLayerMove.MoveDirection.Down, _actEditor);
+			if (alm.CanExecute(act, SelectedAction, SelectedFrame, _actEditor.SelectionEngine.SelectedItems.ToArray())) {
+				alm.Execute(act, SelectedAction, SelectedFrame, _actEditor.SelectionEngine.SelectedItems.ToArray());
+			}
 		}
 
 		private void _miBack_Click(object sender, RoutedEventArgs e) {

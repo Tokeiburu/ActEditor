@@ -29,7 +29,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 		}
 
 		public string InputGesture {
-			get { return null; }
+			get { return "{ActEditor.SpriteExport}"; }
 		}
 
 		public string Image {
@@ -96,7 +96,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 		}
 
 		public string InputGesture {
-			get { return null; }
+			get { return "{ActEditor.SpriteExportAdvanced}"; }
 		}
 
 		public string Image {

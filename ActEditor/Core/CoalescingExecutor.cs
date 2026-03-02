@@ -4,13 +4,15 @@ using System.Threading.Tasks;
 using ErrorManager;
 
 namespace ActEditor.Core {
-	public sealed class Debouncer {
+	public sealed class Debouncer : IDisposable {
 		private readonly object _lock = new object();
 		private CancellationTokenSource _cts;
+		private bool _disposed;
 
 		public void Execute(Action action, int delayMs = 0) {
 			lock (_lock) {
 				_cts?.Cancel();
+				_cts?.Dispose();
 				_cts = new CancellationTokenSource();
 				var token = _cts.Token;
 
@@ -28,6 +30,16 @@ namespace ActEditor.Core {
 					}
 				});
 			}
+		}
+
+		public void Dispose() {
+			if (_disposed) {
+				return;
+			}
+
+			_cts?.Cancel();
+			_cts?.Dispose();
+			_disposed = true;
 		}
 	}
 

@@ -1,4 +1,5 @@
-﻿using ActEditor.Core.ListEditCommands;
+﻿using ActEditor.ApplicationConfiguration;
+using ActEditor.Core.ListEditCommands;
 using ErrorManager;
 using System;
 using System.Collections.Generic;
@@ -22,14 +23,14 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_listBoxExtension.ListItemsDropped += (idx) => ItemsDrop(idx);
 			_listBoxExtension.ClipboardItemsDropped += (idx) => PasteEnd(idx);
 
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "ListData.Undo"), Undo, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "ListData.Redo"), Redo, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Delete", "ListData.Remove"), Remove, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-C", "ListData.Copy"), Copy, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-T", "ListData.MoveAt"), MoveAt, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-V", "ListData.Paste"), Paste, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-X", "ListData.Cut"), Cut, window);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-V", "ListData.InsertAt"), InsertAt, window);
+			ApplicationShortcut.Link(ActEditorCommands.Undo, Undo, window);
+			ApplicationShortcut.Link(ActEditorCommands.Redo, Redo, window);
+			ApplicationShortcut.Link(ActEditorCommands.Delete, Remove, window);
+			ApplicationShortcut.Link(ActEditorCommands.Copy, Copy, window);
+			ApplicationShortcut.Link(ActEditorCommands.MoveAt, MoveAt, window);
+			ApplicationShortcut.Link(ActEditorCommands.Paste, Paste, window);
+			ApplicationShortcut.Link(ActEditorCommands.Cut, Cut, window);
+			ApplicationShortcut.Link(ActEditorCommands.ListDataInsertAt, InsertAt, window);
 		}
 
 		public void Cut() {

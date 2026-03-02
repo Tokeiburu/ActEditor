@@ -200,14 +200,14 @@ namespace PaletteEditor {
 		}
 
 		private void _paletteSelector_PreviewKeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Is(ApplicationShortcut.Copy)) {
+			if (ApplicationShortcut.Copy.IsMatch()) {
 				if (!_gridFocus.IsFocused)
 					return;
 
 				Copy();
 				e.Handled = true;
 			}
-			else if (ApplicationShortcut.Is(ApplicationShortcut.Paste)) {
+			else if (ApplicationShortcut.Paste.IsMatch()) {
 				if (!_gridFocus.IsFocused)
 					return;
 
@@ -217,10 +217,10 @@ namespace PaletteEditor {
 		}
 
 		private void _paletteSelector_KeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Is(ApplicationShortcut.Copy)) {
+			if (ApplicationShortcut.Copy.IsMatch()) {
 				Copy();
 			}
-			else if (ApplicationShortcut.Is(ApplicationShortcut.Paste)) {
+			else if (ApplicationShortcut.Paste.IsMatch()) {
 				Paste();
 			}
 		}

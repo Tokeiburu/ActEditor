@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
+using ActEditor.ApplicationConfiguration;
 
 namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
@@ -59,7 +60,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		}
 
 		public void InitializeShortcuts() {
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-N", "ListData.New"), () => _editListInteraction.New(new FrameIndexData()), this);
+			ApplicationShortcut.Link(ActEditorCommands.ListDataNew, () => _editListInteraction.New(new FrameIndexData()), this);
 		}
 
 		private void _lvActions_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -167,6 +168,12 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 		private void _buttonCancel_Click(object sender, RoutedEventArgs e) {
 			Close();
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			base.OnClosed(e);
+
+			_listBoxExtension?.Dispose();
 		}
 
 		private void _miDelete_Click(object sender, RoutedEventArgs e) => _editListInteraction.Remove();

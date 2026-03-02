@@ -228,7 +228,7 @@ namespace ActEditor.Core.DrawingComponents {
 				}
 			}
 
-			int extraX = _layer.Mirror ? -(img.Width + 1) % 2 : 0;
+			int extraX = _layer.Mirror ? img.Width % 2 : 0;
 
 			_translateToCenter.X = -((img.Width + 1) / 2) + extraX;
 			_translateToCenter.Y = -((img.Height + 1) / 2);

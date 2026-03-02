@@ -82,7 +82,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 		}
 
 		public string InputGesture {
-			get { return null; }
+			get { return "{ActEditor.OpenScriptFolder}"; }
 		}
 
 		public string Image {
@@ -119,7 +119,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 		}
 
 		public string InputGesture {
-			get { return null; }
+			get { return "{ActEditor.ReloadScripts}"; }
 		}
 
 		public string Image {
@@ -163,7 +163,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 		}
 
 		public string InputGesture {
-			get { return null; }
+			get { return "{ActEditor.BatchScript}"; }
 		}
 
 		public string Image {

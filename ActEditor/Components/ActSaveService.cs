@@ -209,42 +209,35 @@ namespace ActEditor.Components {
 			var act = sc.Tab.Act;
 			var tab = sc.Tab;
 
-			try {
-				for (int i = 0; i < act.Sprite.NumberOfIndexed8Images; i++) {
-					act.Sprite.Images[i].Palette[3] = 0;
-				}
-
-				GifSavingDialog dialog = new GifSavingDialog(act, tab.SelectedAction);
-				dialog.Owner = WpfUtilities.TopWindow;
-
-				if (ActEditorConfiguration.ActEditorGifHideDialog || dialog.ShowDialog() == true) {
-					TaskDialog task = new TaskDialog("Saving as gif...", "app.ico", "Processing frames, please wait...");
-					task.ShowFooter(true);
-					task.Start(isCancelling => {
-						try {
-							List<Act> back = new List<Act>();
-							List<Act> front = new List<Act>();
-
-							foreach (var reference in tab.References.Where(reference => reference.ShowReference)) {
-								if (reference.Mode == ZMode.Back)
-									back.Insert(0, reference.Act);
-								else
-									front.Add(reference.Act);
-							}
-
-							Imaging.SaveAsGif(sc.FilePath, Act.MergeAct(back.ToArray(), act, front.ToArray()), tab.SelectedAction, task, dialog.Dispatch(() => dialog.Extra));
-						}
-						catch (Exception err) {
-							ErrorHandler.HandleException(err);
-						}
-					}, () => task.Progress);
-					task.ShowDialog();
-				}
+			for (int i = 0; i < act.Sprite.NumberOfIndexed8Images; i++) {
+				act.Sprite.Images[i].Palette[3] = 0;
 			}
-			finally {
-				for (int i = 0; i < act.Sprite.NumberOfIndexed8Images; i++) {
-					act.Sprite.Images[i].Palette[3] = 255;
-				}
+
+			GifSavingDialog dialog = new GifSavingDialog(act, tab.SelectedAction);
+			dialog.Owner = WpfUtilities.TopWindow;
+
+			if (ActEditorConfiguration.ActEditorGifHideDialog || dialog.ShowDialog() == true) {
+				TaskDialog task = new TaskDialog("Saving as gif...", "app.ico", "Processing frames, please wait...");
+				task.ShowFooter(true);
+				task.Start(isCancelling => {
+					try {
+						List<Act> back = new List<Act>();
+						List<Act> front = new List<Act>();
+
+						foreach (var reference in tab.References.Where(reference => reference.ShowReference)) {
+							if (reference.Mode == ZMode.Back)
+								back.Insert(0, reference.Act);
+							else
+								front.Add(reference.Act);
+						}
+
+						Imaging.SaveAsGif(sc.FilePath, Act.MergeAct(back.ToArray(), act, front.ToArray()), tab.SelectedAction, task, dialog.Dispatch(() => dialog.Extra));
+					}
+					catch (Exception err) {
+						ErrorHandler.HandleException(err);
+					}
+				}, () => task.Progress);
+				task.ShowDialog();
 			}
 
 			return new SaveResult();

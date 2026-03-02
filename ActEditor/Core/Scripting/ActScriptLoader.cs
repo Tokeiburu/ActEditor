@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TokeiLibrary;
 using TokeiLibrary.Shortcuts;
+using Utilities;
 
 namespace ActEditor.Core.Scripting {
 	public class ActScriptLoader {
@@ -54,40 +55,33 @@ namespace ActEditor.Core.Scripting {
 			if (_actScript.InputGesture == null || MenuItem == null)
 				return;
 
+			MenuItem.InputGestureText = "";
+
+			string commandName;
+			string shortcutTextFormat = null;
+
 			if (_actScript.InputGesture.StartsWith("{")) {
-				MenuItem.InputGestureText = "NA";
-
 				var gestureCmd = _actScript.InputGesture.Trim('{', '}').Split('|');
+				commandName = gestureCmd[0];
 
-				if (gestureCmd.Length > 1) {
-					MenuItem.InputGestureText = gestureCmd[1];
-				}
-
-				MenuItem.Loaded += delegate {
-					var gesture = ApplicationShortcut.GetGesture(gestureCmd[0]);
-
-					ApplicationShortcut.Link(ApplicationShortcut.FromString(gestureCmd.Length > 1 ? gestureCmd[1] : "NULL", gestureCmd[0]), TryExecuteScript, _actEditor);
-
-					gesture = ApplicationShortcut.GetGesture(gestureCmd[0]);
-
-					if (gesture == null) {
-						MenuItem.InputGestureText = "NA";
-					}
-					else {
-						MenuItem.InputGestureText = ApplicationShortcut.FindDislayNameMenuItem(gesture);
-					}
-
-					MenuItem.InvalidateMeasure();
-					MenuItem.InvalidateArrange();
-				};
+				if (gestureCmd.Length > 1 )
+					shortcutTextFormat = gestureCmd[1];
 			}
 			else {
-				MenuItem.InputGestureText = _actScript.InputGesture.Split(new char[] { ':' }).FirstOrDefault();
-
-				foreach (var gesture in _actScript.InputGesture.Split(':')) {
-					ApplicationShortcut.Link(ApplicationShortcut.FromString(gesture, ((_actScript.DisplayName is string) ? _actScript.DisplayName.ToString() : gesture + "_cmd")), TryExecuteScript, _actEditor);
-				}
+				if (_actScript.InputGesture.Contains(":"))
+					Z.F();
+				shortcutTextFormat = _actScript.InputGesture.Split(new char[] { ':' }).FirstOrDefault();
+				commandName = (_actScript.DisplayName is string) ? _actScript.DisplayName.ToString() : shortcutTextFormat + "_cmd";
 			}
+
+			MenuItem.Loaded += delegate {
+				var command = ApplicationShortcut.GetGesture(commandName);
+				MenuItem.InputGestureText = command == null ? "" : command.InputGestureText;
+				MenuItem.InvalidateMeasure();
+				MenuItem.InvalidateArrange();
+			};
+
+			ApplicationShortcut.Link(ApplicationShortcut.FromString(shortcutTextFormat, commandName), TryExecuteScript, _actEditor);
 		}
 
 		public void TryExecuteScript() {

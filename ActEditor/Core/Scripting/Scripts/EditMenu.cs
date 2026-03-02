@@ -35,7 +35,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 
 		public object DisplayName => "Select all";
 		public string Group => "Edit";
-		public string InputGesture => "{FrameEditor.SelectAll|Ctrl-A}";
+		public string InputGesture => ActEditorCommands.FrameEditorSelectAll;
 		public string Image => null;
 
 		#endregion
@@ -153,7 +153,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 					dialog.Close();
 			};
 			byte[] paletteBefore = Methods.Copy(act.Sprite.Palette.BytePalette);
-			Pal pal = new Pal(paletteBefore);
+			Pal pal = new Pal(Methods.Copy(paletteBefore));
 			dialog.SingleColorEditControl.SetPalette(pal);
 
 			bool pendingUpdate = false;
@@ -165,10 +165,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 				pendingUpdate = true;
 
 				dialog.Dispatcher.BeginInvoke(new System.Action(() => {
-					var newPalette = pal.BytePalette;
-					newPalette[3] = 0;
-
-					act.Sprite.Palette.SetPalette(pal.BytePalette);
+					act.Sprite.SetPalette(pal.BytePalette);
 					act.InvalidateVisual();
 					act.InvalidatePaletteVisual();
 
@@ -182,10 +179,11 @@ namespace ActEditor.Core.Scripting.Scripts {
 				CanOpen = true;
 				dialog.Owner.Focus();
 
-				act.Sprite.Palette.SetPalette(paletteBefore);
+				act.Sprite.SetPalette(paletteBefore);
+				paletteBefore[3] = 0;
+				dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette[3] = 0;
 
 				if (!Methods.ByteArrayCompare(paletteBefore, 0, 1024, dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette, 0)) {
-					dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette[3] = 0;
 					act.Commands.SpriteSetPalette(dialog.SingleColorEditControl.PaletteSelector.Palette.BytePalette);
 					act.InvalidateVisual();
 				}
@@ -236,6 +234,9 @@ namespace ActEditor.Core.Scripting.Scripts {
 				bool sameFile = false;
 
 				if (act.Sprite.Palette != null && spr.Palette != null && act.Sprite.NumberOfImagesLoaded == spr.NumberOfImagesLoaded && act.Sprite.NumberOfIndexed8Images == spr.NumberOfIndexed8Images) {
+					spr.Palette.BytePalette[3] = 0;
+					act.Sprite.Palette.BytePalette[3] = 0;
+
 					if (Methods.ByteArrayCompare(spr.Palette.BytePalette, 0, 1024, act.Sprite.Palette.BytePalette, 0)) {
 						sameFile = true;
 

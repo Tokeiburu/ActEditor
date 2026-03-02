@@ -6,8 +6,11 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
+using Utilities;
 
 namespace ActEditor.Tools.PaletteEditorTool {
 	public class SpriteEditorTool {
@@ -23,7 +26,11 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		}
 
 		public virtual void OnPixelMoved(SpriteEditorState state, object sender, int x, int y) {
-			
+
+		}
+
+		public virtual void OnMouseUp(SpriteEditorState state, object sender, int x, int y) {
+
 		}
 
 		public void BeginEdit(SpriteEditorState state, ref GrfImage image) {
@@ -156,8 +163,103 @@ namespace ActEditor.Tools.PaletteEditorTool {
 	}
 
 	public class SelectTool : SpriteEditorTool {
-		public SelectTool(FancyButton button) : base(button) {
+		private ImageViewer _imageViewer;
+		private Point _start;
+		private Rect _startSelection;
+		private Rect _startRestrictedSelection;
+		private bool _beginEdit = false;
+		private GrfImage _selectionImage;
+		private BitmapSource _selectionImageSource;
+
+		public SelectTool(FancyButton button, ImageViewer imageViewer) : base(button) {
 			Cursor = null;
+			_imageViewer = imageViewer;
+		}
+
+		public override void OnPixelMoved(SpriteEditorState state, object sender, int x, int y) {
+			var image = state.SelectedImage;
+
+			if (Mouse.LeftButton != MouseButtonState.Pressed)
+				return;
+
+			const double epsilon = 0.01d;
+			bool isMovingSelection = _imageViewer._rectOverlay.Visibility == Visibility.Visible && _imageViewer.Selection.Contains(new Point(x + epsilon, y + epsilon));
+
+			if (isMovingSelection || _beginEdit) {
+				BeginEdit(state, ref image);
+
+				if (!_beginEdit) {
+					_start = new Point(x, y);
+					_startSelection = _imageViewer.Selection;
+					_startRestrictedSelection = _imageViewer.Selection;
+					_startRestrictedSelection.Intersect(new Rect(0, 0, image.Width, image.Height));
+					_beginEdit = true;
+
+					if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) {
+						_selectionImage = image.Extract((int)_startRestrictedSelection.X, (int)_startRestrictedSelection.Y, (int)_startRestrictedSelection.Width, (int)_startRestrictedSelection.Height);
+						_selectionImageSource = _selectionImage.Cast<BitmapSource>();
+
+						for (int xx = (int)_startRestrictedSelection.X; xx < (int)(_startRestrictedSelection.X + _startRestrictedSelection.Width); xx++) {
+							for (int yy = (int)_startRestrictedSelection.Y; yy < (int)(_startRestrictedSelection.Y + _startRestrictedSelection.Height); yy++) {
+								image.SetPixelTransparent(xx, yy);
+							}
+						}
+					}
+
+					state.InvalidateImage(image);
+				}
+
+				var selection = _startSelection;
+				selection.X += x - _start.X;
+				selection.Y += y - _start.Y;
+
+				_imageViewer.SetOverlaySelection(selection);
+
+				if (_selectionImage != null) {
+					selection = _startRestrictedSelection;
+					selection.X += x - _start.X;
+					selection.Y += y - _start.Y;
+
+					_imageViewer.SetOverlayOperation(selection.TopLeft, _selectionImageSource);
+				}
+			}
+			else if (IsWithin(image, x, y)) {
+				state.SingleEditor.PaletteSelector.SelectedItem = image.Pixels[y * image.Width + x];
+				state.GradientEditor.PaletteSelector.SelectedItems.Clear();
+				state.GradientEditor.PaletteSelector.AddSelection(image.Pixels[y * image.Width + x]);
+				_imageViewer.ClearOverlayOperation();
+				_imageViewer.ClearSelection();
+			}
+		}
+
+		public override void OnMouseUp(SpriteEditorState state, object sender, int x, int y) {
+			state.ResetImage();
+
+			try {
+				if (_selectionImage != null && _imageViewer._imageOperation.Visibility == Visibility.Visible) {
+					var selection = _startRestrictedSelection;
+					selection.X += x - _start.X;
+					selection.Y += y - _start.Y;
+
+					var image = state.SelectedImage;
+
+					// Extract valid image data from selection
+					var imageRect = new Rect(0, 0, image.Width, image.Height);
+					imageRect.Intersect(selection);
+
+					if (imageRect.Width <= 0 || imageRect.Height <= 0)
+						return;
+
+					var pasteImage = _selectionImage.Extract((int)(imageRect.X - selection.X), (int)(imageRect.Y - selection.Y), (int)imageRect.Width, (int)imageRect.Height);
+					state.EditingImage.SetPixelsUnrestricted((int)imageRect.X, (int)imageRect.Y, pasteImage, true);
+					state.InvalidateImage(state.EditingImage);
+				}
+			}
+			finally {
+				_imageViewer.ClearOverlayOperation();
+				_beginEdit = false;
+				_selectionImage = null;
+			}
 		}
 	}
 
@@ -436,6 +538,74 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			state.InvalidateImage(image);
 		}
 	}
+
+	public class CopyTool : SpriteEditorTool {
+		private (int X, int Y) Start;
+		private ImageViewer _imageViewer;
+		private bool _started;
+
+		public CopyTool(FancyButton button, ImageViewer imageViewer) : base(button) {
+			_imageViewer = imageViewer;
+			Cursor = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_pen.png"), Width = 16, Height = 16 }, new Point() { X = 9, Y = 8 });
+		}
+
+		public override void OnPixelMoved(SpriteEditorState state, object sender, int x, int y) {
+			GrfImage image = state.SelectedImage;
+
+			if (Mouse.LeftButton != MouseButtonState.Pressed)
+				return;
+
+			if (!_started) {
+				Start = (x, y);
+				_started = true;
+			}
+
+			if (!state.SpriteViewer.IsMouseCaptured)
+				state.SpriteViewer.CaptureMouse();
+
+			_imageViewer.SetOverlaySelection(Start, (x, y));
+		}
+
+		public override void OnMouseUp(SpriteEditorState state, object sender, int x, int y) {
+			base.OnMouseUp(state, sender, x, y);
+
+			_started = false;
+		}
+	}
+
+	//public class MoveSelectionTool : SpriteEditorTool {
+	//	private (int X, int Y) Start;
+	//	private ImageViewer _imageViewer;
+	//	private bool _started;
+	//
+	//	public MoveSelectionTool(FancyButton button, ImageViewer imageViewer) : base(button) {
+	//		_imageViewer = imageViewer;
+	//		Cursor = CursorHelper.CreateCursor(new Image() { Source = ApplicationManager.PreloadResourceImage("cs_pen.png"), Width = 16, Height = 16 }, new Point() { X = 9, Y = 8 });
+	//	}
+	//
+	//	public override void OnPixelMoved(SpriteEditorState state, object sender, int x, int y) {
+	//		GrfImage image = state.SelectedImage;
+	//
+	//		if (Mouse.LeftButton != MouseButtonState.Pressed)
+	//			return;
+	//
+	//		if (!_started) {
+	//			Start = (x, y);
+	//			_started = true;
+	//		}
+	//
+	//		if (!state.SpriteViewer.IsMouseCaptured)
+	//			state.SpriteViewer.CaptureMouse();
+	//
+	//		_imageViewer.SetOverlaySelection(Start, (x, y));
+	//	}
+	//
+	//	public override void OnMouseUp(SpriteEditorState state, object sender, int x, int y) {
+	//		base.OnMouseUp(state, sender, x, y);
+	//
+	//		_started = false;
+	//	}
+	//}
 
 	public class LineTool : SpriteEditorTool {
 		private (int X, int Y) Start;

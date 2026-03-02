@@ -83,7 +83,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SolutionDir)Libraries\Gif.Components.dll</HintPath>
     </Reference>
-    <Reference Include="GRF, Version=1.2.8542.22323, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="GRF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(SolutionDir)Libraries\GRF.dll</HintPath>
     </Reference>
@@ -161,6 +161,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ApplicationConfiguration\ActEditorCommands.cs" />
     <Compile Include="ApplicationConfiguration\ActEditorConfiguration.cs" />
     <Compile Include="ApplicationConfiguration\SelfPatcher.cs" />
     <Compile Include="Components\ActLoadService.cs" />

@@ -181,7 +181,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			var path = this.Dispatch(p => _pathBrowserDataGrf.Text);
 
 			if (_kro_grf != null) {
-				_kro_grf.Close();
+				_kro_grf.Dispose();
 				_kro_grf = null;
 			}
 
@@ -604,6 +604,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
 			}
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			_kro_grf?.Dispose();
 		}
 	}
 }

@@ -79,7 +79,7 @@
                     <Label Content="File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
 				<MenuItem Header="New Act" TokeiLibrary:WpfProperties.ImagePath="add.png">
-					<Styles:TkMenuItem Name="_miNew" Click="_miNew_Click" HeaderText="Default (empty)" TokeiLibrary:WpfProperties.ImagePath="internalapp.png" ShortcutCmd="ActEditor.NewFile" Shortcut="Ctrl-N" />
+					<Styles:TkMenuItem Name="_miNew" Click="_miNew_Click" HeaderText="Default (empty)" TokeiLibrary:WpfProperties.ImagePath="internalapp.png" />
                     <Separator />
                     <Styles:TkMenuItem Name="_miNewHeadgearMale" Click="_miNewHeadgearMale_Click" HeaderText="Headgear (male)" />
                     <Styles:TkMenuItem Name="_miNewHeadgear" Click="_miNewHeadgear_Click" HeaderText="Headgear (female)" />
@@ -88,16 +88,16 @@
                     <Styles:TkMenuItem Name="_miNewWeapon" Click="_miNewWeapon_Click" HeaderText="Weapon template" />
                     <Styles:TkMenuItem Name="_miNewNpc" Click="_miNewNpc_Click" HeaderText="NPC template" />
                 </MenuItem>
-                <Styles:TkMenuItem Name="_miOpen" Click="_miOpen_Click" HeaderText="Open..." ShortcutCmd="ActEditor.Open" Shortcut="Ctrl-O" IconPath="newFile.png" />
+                <Styles:TkMenuItem Name="_miOpen" Click="_miOpen_Click" HeaderText="Open..." IconPath="newFile.png" />
                 <Styles:TkMenuItem Name="_miOpenFromGrf" Click="_miOpenFromGrf_Click" HeaderText="Open from Grf..." IconPath="grf-16.png" />
                 <MenuItem Name="_miOpenRecent" Header="Open recent" />
                 <Separator />
-                <Styles:TkMenuItem Name="_miCloseCurrent" Click="_miCloseCurrent_Click" HeaderText="Close Act" IconPath="delete.png" ShortcutCmd="ActEditor.CloseTab" Shortcut="Ctrl-Q" />
-                <Styles:TkMenuItem Name="_miSelectAct" Click="_miSelectAct_Click" HeaderText="Select Act" IconPath="arrowdown.png"  />
+                <Styles:TkMenuItem Name="_miCloseCurrent" Click="_miCloseCurrent_Click" HeaderText="Close Act" IconPath="delete.png" />
+                <Styles:TkMenuItem Name="_miSelectAct" Click="_miSelectAct_Click" HeaderText="Select Act" IconPath="arrowdown.png" />
                 <Separator />
-                <Styles:TkMenuItem Name="_miSave" Click="_miSave_Click" HeaderText="Save" IconPath="save.png" ShortcutCmd="ActEditor.Save" Shortcut="Ctrl-S" />
-                <Styles:TkMenuItem Name="_miSaveAs" Click="_miSaveAs_Click" HeaderText="Save as..." ShortcutCmd="ActEditor.SaveAs" Shortcut="Ctrl-Shift-S" />
-                <Styles:TkMenuItem Name="_miSaveAsGarment" Click="_miSaveAsGarment_Click" HeaderText="Save as garment..." ShortcutCmd="ActEditor.SaveAsGarment" Shortcut="NULL" />
+                <Styles:TkMenuItem Name="_miSave" Click="_miSave_Click" HeaderText="Save" IconPath="save.png" />
+                <Styles:TkMenuItem Name="_miSaveAs" Click="_miSaveAs_Click" HeaderText="Save as..." />
+                <Styles:TkMenuItem Name="_miSaveAsGarment" Click="_miSaveAsGarment_Click" HeaderText="Save as garment..." />
                 <Separator />
                 <Styles:TkMenuItem Name="_miSettings" Click="_miSettings_Click" HeaderText="Settings" IconPath="settings.png" />
                 <Separator />
@@ -108,13 +108,13 @@
                 <MenuItem.Header>
                     <Label Content="Edit" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-5 0 -5 0" />
                 </MenuItem.Header>
-                <Styles:TkMenuItem Name="_miCopy" Click="_miCopy_Click" HeaderText="Copy" IconPath="copy.png" Shortcut="Ctrl-C"  />
-                <Styles:TkMenuItem Name="_miPaste" Click="_miPaste_Click" HeaderText="Paste" IconPath="paste.png" Shortcut="Ctrl-V"  />
-                <Styles:TkMenuItem Name="_miCut" Click="_miCut_Click" HeaderText="Cut" IconPath="cut.png" Shortcut="Ctrl-X"  />
+                <Styles:TkMenuItem Name="_miCopy" Click="_miCopy_Click" HeaderText="Copy" IconPath="copy.png" />
+                <Styles:TkMenuItem Name="_miPaste" Click="_miPaste_Click" HeaderText="Paste" IconPath="paste.png" />
+                <Styles:TkMenuItem Name="_miCut" Click="_miCut_Click" HeaderText="Cut" IconPath="cut.png" />
                 <Separator />
                 <MenuItem Header="View">
                     <Styles:TkMenuItem Name="_miViewSameAction" IsCheckable="True" HeaderText="Keep action selection" IconPath="copy.png" />
-                    <Styles:TkMenuItem Name="_miViewPrevAnim" IsCheckable="True" HeaderText="Show the adjacent frames" IconPath="copy.png" Click="_miViewPrevAnim_Click" ShortcutCmd="FrameEditor.ShowAdjascentFrames" Shortcut="Ctrl-Shift-A" />
+                    <Styles:TkMenuItem Name="_miViewPrevAnim" IsCheckable="True" HeaderText="Show the adjacent frames" IconPath="copy.png" Click="_miViewPrevAnim_Click" />
                 </MenuItem>
                 <Separator />
             </MenuItem>
@@ -134,11 +134,11 @@
                 </MenuItem>
                 <Separator />
                 <MenuItem x:Name="_miAnchor" Header="Anchor">
-                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="0" HeaderText="Anchor 1" ShortcutCmd="FrameEditor.ShowAnchor1" Shortcut="Ctrl-1" IsCheckable="True" IsChecked="True" />
-                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="1" HeaderText="Anchor 2" ShortcutCmd="FrameEditor.ShowAnchor2" Shortcut="Ctrl-2" IsCheckable="True"  />
-                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="2" HeaderText="Anchor 3" ShortcutCmd="FrameEditor.ShowAnchor3" Shortcut="Ctrl-3" IsCheckable="True"  />
-                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="3" HeaderText="Anchor 4" ShortcutCmd="FrameEditor.ShowAnchor4" Shortcut="Ctrl-4" IsCheckable="True"  />
-                    <Styles:TkMenuItem Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="4" HeaderText="Anchor 5" ShortcutCmd="FrameEditor.ShowAnchor5" Shortcut="Ctrl-5" IsCheckable="True"  />
+                    <Styles:TkMenuItem x:Name="_miAnchor1" Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="0" HeaderText="Anchor 1" IsCheckable="True" IsChecked="True" />
+                    <Styles:TkMenuItem x:Name="_miAnchor2" Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="1" HeaderText="Anchor 2" IsCheckable="True"  />
+                    <Styles:TkMenuItem x:Name="_miAnchor3" Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="2" HeaderText="Anchor 3" IsCheckable="True"  />
+                    <Styles:TkMenuItem x:Name="_miAnchor4" Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="3" HeaderText="Anchor 4" IsCheckable="True"  />
+                    <Styles:TkMenuItem x:Name="_miAnchor5" Checked="_miAnchor_Click" Click="_miAnchor_Click" Tag="4" HeaderText="Anchor 5" IsCheckable="True"  />
                 </MenuItem>
             </MenuItem>
         </Menu>

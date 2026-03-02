@@ -143,9 +143,11 @@ namespace ActEditor.Core {
 			_tabControl.Visibility = Visibility.Visible;
 
 			if (_tabControl.Items.Count == 2) {
-				if (((TabAct)_tabControl.Items[0]).Header.ToString() == "new_0000 *") {
-					_closeAct(((TabAct)_tabControl.Items[0]).Act);
-					_tabControl.Items.Remove(_tabControl.Items[0]);
+				TabAct firstTab = (TabAct)_tabControl.Items[0];
+				if (firstTab.Header.ToString() == "new_0000 *") {
+					_closeAct(firstTab.Act);
+					firstTab.Dispose();
+					_tabControl.Items.Remove(firstTab);
 					_tabControl.SelectedIndex = -1;
 				}
 			}
@@ -274,18 +276,12 @@ namespace ActEditor.Core {
 			if (tab == null)
 				return;
 
-			if (_closeAct(tab.Act)) {
-				_tabControl.Items.Remove(tab);
-
-				if (_tabControl.Items.Count == 0) {
-					_tabControl.Visibility = Visibility.Collapsed;
-				}
-			}
+			CloseAct(tab);
 		}
 
 		public bool CloseAct(TabAct tab) {
 			if (_closeAct(tab.Act)) {
-				tab.Close();
+				tab.Dispose();
 				_tabControl.Items.Remove(tab);
 
 				if (_tabControl.Items.Count == 0) {

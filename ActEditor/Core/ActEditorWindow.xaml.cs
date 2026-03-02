@@ -33,6 +33,7 @@ using Utilities.CommandLine;
 using Utilities.Extension;
 using Action = System.Action;
 using ActEditor.Core.Scripting.Scripts;
+using GRF.Image;
 
 namespace ActEditor.Core {
 	/// <summary>
@@ -132,24 +133,45 @@ namespace ActEditor.Core {
 		}
 
 		private void _initializeShortcuts() {
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Z", "ActEditor.Undo"), Undo, this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Y", "ActEditor.Redo"), Redo, this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Right", "FrameEditor.NextFrame"), () => _tabEngine.FrameMove(1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Left", "FrameEditor.PreviousFrame"), () => _tabEngine.FrameMove(-1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-Right", "FrameEditor.NextAction"), () => _tabEngine.ActionMove(1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Shift-Left", "FrameEditor.PreviousAction"), () => _tabEngine.ActionMove(-1), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Delete", "LayerEditor.DeleteSelected"), () => _tabEngine.Execute(v => v._rendererPrimary.InteractionEngine.Delete()), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Ctrl-Alt-P", "Dialog.StyleEditor"), () => WindowProvider.Show(new StyleEditor(), new Control()), this);
-			ApplicationShortcut.Link(ApplicationShortcut.FromString("Space", "ActEditor.PlayStopAnimation"), () => _tabEngine.Execute(v => {
+			ApplicationShortcut.Link(ActEditorCommands.Undo, Undo, this);
+			ApplicationShortcut.Link(ActEditorCommands.Redo, Redo, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorNextFrame, () => _tabEngine.FrameMove(1), this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorPreviousFrame, () => _tabEngine.FrameMove(-1), this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorNextAction, () => _tabEngine.ActionMove(1), this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorPreviousAction, () => _tabEngine.ActionMove(-1), this);
+			ApplicationShortcut.Link(ActEditorCommands.ActEditorStyleEditor, () => WindowProvider.Show(new StyleEditor(), new Control()), this);
+			ApplicationShortcut.Link(ActEditorCommands.ActEditorStopPlayAnimation, () => _tabEngine.Execute(v => {
 				if (v._frameSelector.IsPlaying)
 					v._frameSelector.Stop();
 				else
 					v._frameSelector.Play();
 			}), this);
+			ApplicationShortcut.Link(ActEditorCommands.ActEditorNewFile, _miNew, this);
+			ApplicationShortcut.Link(ActEditorCommands.ActEditorCloseTab, _miCloseCurrent, this);
+			ApplicationShortcut.Link(ActEditorCommands.Open, _miOpen, this);
+			ApplicationShortcut.Link(ActEditorCommands.Save, _miSave, this);
+			ApplicationShortcut.Link(ActEditorCommands.SaveAs, _miSaveAs, this);
+			ApplicationShortcut.Link(ActEditorCommands.ActEditorSaveAsGarment, _miSaveAsGarment, this);
+			ApplicationShortcut.Link(ActEditorCommands.Copy, _miCopy, this);
+			ApplicationShortcut.Link(ActEditorCommands.Paste, _miPaste, this);
+			ApplicationShortcut.Link(ActEditorCommands.Cut, _miCut, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAdjascentFrames, _miViewPrevAnim, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAnchor1, _miAnchor1, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAnchor2, _miAnchor2, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAnchor3, _miAnchor3, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAnchor4, _miAnchor4, this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorShowAnchor5, _miAnchor5, this);
+			ApplicationShortcut.Link(ActEditorCommands.Delete, () => _tabEngine.Execute(v => v.FrameRenderer.InteractionEngine.Delete()), this);
+			ApplicationShortcut.Link(ActEditorCommands.LayerEditorBringOneUp, () => _tabEngine.Execute(v => v.LayerEditor.BringOneUp()), this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorLayerMirrorVertical, () => _tabEngine.Execute(v => v.LayerEditor.MirrorFromOffset(FlipDirection.Vertical)), this);
+			ApplicationShortcut.Link(ActEditorCommands.FrameEditorLayerMirrorHorizontal, () => _tabEngine.Execute(v => v.LayerEditor.MirrorFromOffset(FlipDirection.Horizontal)), this);
+			ApplicationShortcut.Link(ActEditorCommands.ActEditorSelectActInExplorer, _miSelectAct, this);
 			ApplicationShortcut.Link(ApplicationShortcut.FromString("R", "Debug.TestMethod"), delegate {
-				_tabEngine.Execute(v => {
-					v.DummyScript();
-				});
+				//GC.Collect();
+				GetCurrentTab2().FrameRenderer.Update();
+				//_tabEngine.Execute(v => {
+				//	v.DummyScript();
+				//});
 			}, this);
 
 			try {
@@ -367,6 +389,13 @@ namespace ActEditor.Core {
 					e.Effects = DragDropEffects.All;
 				}
 			}
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			base.OnClosed(e);
+
+			_metaGrf?.Dispose();
+			_scriptLoader?.Dispose();
 		}
 
 		protected override void OnClosing(CancelEventArgs e) {

@@ -101,10 +101,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 					_pbJob.TextChanged += delegate {
 						if (File.Exists(_pbJob.Text)) {
 							_pbJob.RecentFiles.AddRecentFile(_pbJob.Text);
-							if (_grfJobs != null) {
-								_grfJobs.Close();
-							}
-
+							_grfJobs?.Dispose();
 							_grfJobs = new GrfHolder(_pbJob.Text);
 							_jobGrfUpdate();
 						}
@@ -403,6 +400,7 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 			}
 
 			if (_grfPalettes == null || _grfPalettes.FileName != pbPalettes) {
+				_grfPalettes?.Dispose();
 				_grfPalettes = new GrfHolder(pbPalettes);
 			}
 
@@ -624,6 +622,12 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 			}
 			catch {
 			}
+		}
+
+		protected override void OnClosed(EventArgs e) {
+			_grfJobs?.Dispose();
+			_grfPalettes?.Dispose();
+			_debouncer?.Dispose();
 		}
 	}
 }

@@ -24,10 +24,9 @@
                 </Border.Background>
             </Border>
 			<Image Name="_imageSprite" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
-            <!--<Rectangle Name="_imageRectGridX" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
-                    <Rectangle Name="_imageRectGridY" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
-                    <Image Name="_imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />-->
-        </Canvas>
+			<Rectangle Name="_rectOverlay" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" StrokeThickness="1" StrokeDashArray="1 2" Stroke="Black" Fill="#50FFFFFF" Visibility="Collapsed" />
+			<Image Name="_imageOperation" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" Visibility="Collapsed" />
+		</Canvas>
         <Grid Name="_gridZoom">
             <ComboBox Name="_cbZoom" IsTextSearchEnabled="false" SelectionChanged="_cbZoom_SelectionChanged"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="100" IsEditable="True" IsReadOnly="False" PreviewKeyDown="_cbZoom_PreviewKeyDown">
                 <ComboBoxItem Content="25 %" />

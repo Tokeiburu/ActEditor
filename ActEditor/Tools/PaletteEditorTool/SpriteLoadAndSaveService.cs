@@ -164,7 +164,9 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private void _saveAsSpr(string file, Spr spr) {
 			try {
 				spr.Palette.EnableRaiseEvents = false;
-				spr.Palette.MakeFirstColorUnique();
+				// Fix: 2026-03-01
+				// There's no reason to make the first color unique... It creates issues when comparing palettes as well later.
+				//spr.Palette.MakeFirstColorUnique();
 				spr.Palette[3] = 255;
 
 				spr.Save(file);

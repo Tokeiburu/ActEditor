@@ -17,6 +17,7 @@ using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
 using Utilities.Extension;
@@ -26,7 +27,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 	/// <summary>
 	/// Interaction logic for TabAct.xaml
 	/// </summary>
-	public partial class TabAct : TabItem, IFrameRendererEditor {
+	public partial class TabAct : TabItem, IFrameRendererEditor, IDisposable {
 		private readonly SelectionEngine _selectionEngine = new SelectionEngine();
 		private readonly SpriteManager _spriteManager = new SpriteManager();
 		private List<ReferenceControl> _references = new List<ReferenceControl>();
@@ -34,6 +35,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		private bool _isNew;
 		private readonly ActEditorWindow _actEditor;
 		private readonly Grid _gridRenderer;
+		private bool _disposed;
 		public bool IsActLoaded { get; set; }
 
 		public delegate void NewStateChangedEventHandler(object sender);
@@ -302,10 +304,6 @@ namespace ActEditor.Core.WPF.Dialogs {
 			}
 		}
 
-		public void Close() {
-			_rendererPrimary.Unload();
-		}
-
 		public void LoadBackground(string path) {
 			if (path != null && _gridRenderer != null) {
 				_gridRenderer.Dispatch(delegate {
@@ -451,28 +449,30 @@ namespace ActEditor.Core.WPF.Dialogs {
 				_actEditor.TabEngine.CloseAct(this);
 			};
 			miClose.Header = "Close Act";
-			miClose.InputGestureText = "Ctrl-Q";
-			miClose.Icon = GetImage("delete.png");
+			miClose.ShortcutCmd = ActEditorCommands.ActEditorCloseTab.CommandName;
+			miClose.SetValue(WpfProperties.ImagePathProperty, "delete.png");
 
 			TkMenuItem miSelect = new TkMenuItem();
 			miSelect.Click += delegate {
 				_actEditor.TabEngine.Select(this);
 			};
 			miSelect.Header = "Select Act";
-			miSelect.Icon = GetImage("arrowdown.png");
+			miSelect.ShortcutCmd = ActEditorCommands.ActEditorSelectActInExplorer.CommandName;
+			miSelect.SetValue(WpfProperties.ImagePathProperty, "arrowdown.png");
 
 			TkMenuItem miSave = new TkMenuItem();
 			miSave.Click += delegate {
 				_actEditor.TabEngine.Save(this);
 			};
 			miSave.Header = "Save";
-			miSave.InputGestureText = "Ctrl-S";
-			miSave.Icon = GetImage("save.png");
+			miSave.ShortcutCmd = ActEditorCommands.Save.CommandName;
+			miSave.SetValue(WpfProperties.ImagePathProperty, "save.png");
 
 			TkMenuItem miSaveAs = new TkMenuItem();
 			miSaveAs.Click += delegate {
 				_actEditor.TabEngine.SaveAs(this);
 			};
+			miSaveAs.ShortcutCmd = ActEditorCommands.SaveAs.CommandName;
 			miSaveAs.Header = "Save as...";
 
 			TkMenuItem miCloseAllBut = new TkMenuItem();
@@ -487,6 +487,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 					}
 				}
 			};
+			miSaveAs.ShortcutCmd = ActEditorCommands.ActEditorTabCloseAllButThis.CommandName;
 			miCloseAllBut.Header = "Close all but this";
 
 			menu.Items.Add(miSave);
@@ -500,15 +501,26 @@ namespace ActEditor.Core.WPF.Dialogs {
 			return menu;
 		}
 
-		private Image GetImage(string imagePath) {
-			Image image = new Image { Source = ApplicationManager.PreloadResourceImage(imagePath) };
-			image.SetValue(RenderOptions.BitmapScalingModeProperty, BitmapScalingMode.HighQuality);
-			return image;
-		}
-
 		internal void DummyScript() {
 			var script = new DummyScript();
 			script.Execute(Act, 0, 0, new int[0]);
+		}
+
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing) {
+			if (!_disposed) {
+				if (disposing) {
+					_rendererLeft?.Dispose();
+					_rendererPrimary?.Dispose();
+					_rendererRight?.Dispose();
+				}
+
+				_disposed = true;
+			}
 		}
 	}
 

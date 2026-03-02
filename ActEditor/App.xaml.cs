@@ -89,6 +89,8 @@ namespace ActEditor {
 						case "cs_circle.png":
 						case "cs_eraser2.png":
 						case "cs_bucket.png":
+						case "effect_radial_erosion.png":
+						case "effect_spike_erosion.png":
 							shader = delegate(byte A, byte R, byte G, byte B) {
 								return Color.FromArgb(A, Methods.ClampToColorByte((255 - R) * 0.8), Methods.ClampToColorByte((255 - G) * 0.8), Methods.ClampToColorByte((255 - B) * 0.8));
 							};
