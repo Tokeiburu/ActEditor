@@ -318,7 +318,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 				}
 
 				if (canCancel && watch.ElapsedMilliseconds > 10) {
-					Console.WriteLine("took too long! " + watch.ElapsedMilliseconds);
 					InvalidateVisual();
 					return;
 				}

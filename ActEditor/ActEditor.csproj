@@ -370,14 +370,20 @@
     <EmbeddedResource Include="Resources\Scripts\script11_palette_sheet.cs" />
     <EmbeddedResource Include="Resources\Scripts\script12_remove_unused_palette.cs" />
     <EmbeddedResource Include="Resources\Scripts\dummy_script.cs" />
+    <Compile Include="Tools\PaletteEditorTool\ResizeDialog.xaml.cs">
+      <DependentUpon>ResizeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\PaletteEditorTool\PalettePreset.xaml.cs">
       <DependentUpon>PalettePreset.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\PaletteEditorTool\SpriteBrush.cs" />
     <Compile Include="Tools\PaletteEditorTool\SpriteEditorState.cs" />
     <Compile Include="Tools\PaletteEditorTool\SpriteEditorTools.cs" />
-    <Compile Include="Tools\PaletteEditorTool\SpriteOperation.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteMoveOperation.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteGenericOperations.cs" />
     <Compile Include="Tools\PaletteEditorTool\SpriteLoadAndSaveService.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpritePasteOperation.cs" />
+    <Compile Include="Tools\PaletteEditorTool\SpriteSelection.cs" />
     <Compile Include="Tools\PaletteSheetGenerator\PreviewSheetDialog.xaml.cs">
       <DependentUpon>PreviewSheetDialog.xaml</DependentUpon>
     </Compile>
@@ -591,6 +597,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Tools\PaletteEditorTool\ImageViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Tools\PaletteEditorTool\ResizeDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -975,7 +985,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" />
+      <UserProperties BuildVersion_BuildVersioningStyle="None.None.MonthStamp.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="RemoveExtraRoslynFiles" AfterTargets="Build">
@@ -1019,7 +1029,9 @@
   <ItemGroup>
     <Resource Include="Resources\cs_circle.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\cs_selection.png" />
+  </ItemGroup>
   <Target Name="CopyExternalDlls" BeforeTargets="BeforeBuild">
     <MakeDir Directories="$(GrfEditorDllsPath)" Condition="!Exists('$(GrfEditorDllsPath)')" />
     <Copy SourceFiles="@(ExternalDlls)" DestinationFolder="$(GrfEditorDllsPath)" SkipUnchangedFiles="true" Condition="Exists('$(ExternalDllsPath)')" />

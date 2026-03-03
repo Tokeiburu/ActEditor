@@ -88,6 +88,7 @@ namespace ActEditor {
 						case "cs_line.png":
 						case "cs_circle.png":
 						case "cs_eraser2.png":
+						case "cs_selection.png":
 						case "cs_bucket.png":
 						case "effect_radial_erosion.png":
 						case "effect_spike_erosion.png":

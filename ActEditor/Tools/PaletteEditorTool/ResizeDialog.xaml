@@ -1,0 +1,34 @@
+﻿<styles:TkWindow x:Class="ActEditor.Tools.PaletteEditorTool.ResizeDialog"
+		xmlns:styles="clr-namespace:TokeiLibrary.WPF.Styles;assembly=TokeiLibrary"		 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Icon="..\../Resources\pal.png"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:PaletteEditorTool="clr-namespace:ActEditor.Tools.PaletteEditorTool" xmlns:genericcontrols="clr-namespace:ActEditor.Core.WPF.GenericControls" Title="Resize" WindowStartupLocation="CenterOwner"
+		xmlns:TokeiLibrary="clr-namespace:TokeiLibrary;assembly=TokeiLibrary" SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+        Background="{StaticResource TabItemBackground}" Foreground="{StaticResource TextForeground}">
+    <Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="100" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition />
+		</Grid.RowDefinitions>
+		<TextBlock Grid.Row="0" Grid.Column="0" Margin="3" Text="Left" />
+		<TextBlock Grid.Row="1" Grid.Column="0" Margin="3" Text="Right" />
+		<TextBlock Grid.Row="2" Grid.Column="0" Margin="3" Text="Top" />
+		<TextBlock Grid.Row="3" Grid.Column="0" Margin="3" Text="Bottom" />
+		<genericcontrols:ClickSelectTextBox x:Name="_tbLeft" Grid.Row="0" Grid.Column="1" Margin="1" Text="0" />
+		<genericcontrols:ClickSelectTextBox x:Name="_tbRight" Grid.Row="1" Grid.Column="1" Margin="1" Text="0" />
+		<genericcontrols:ClickSelectTextBox x:Name="_tbTop" Grid.Row="2" Grid.Column="1" Margin="1" Text="0" />
+		<genericcontrols:ClickSelectTextBox x:Name="_tbBottom" Grid.Row="3" Grid.Column="1" Margin="1" Text="0" />
+		<Grid Grid.Row="4" Grid.ColumnSpan="2" TokeiLibrary:WpfProperties.IsDraggable="True" Height="50" Background="{DynamicResource UIDialogBackground}">
+			<DockPanel HorizontalAlignment="Right" Margin="0 0 3 0" Grid.Column="1">
+				<Button Name="_buttonOk" Click="_buttonOk_Click" Content="Apply" Height="24" Margin="3" MinWidth="100" />
+			</DockPanel>
+		</Grid>
+	</Grid>
+</styles:TkWindow>

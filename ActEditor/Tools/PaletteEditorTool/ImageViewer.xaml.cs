@@ -25,8 +25,8 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private BitmapSource _currentBitmap;
 		private Point? _oldPosition;
 		private Point _relativeCenter = new Point(0.5, 0.5);
-		public Rect Selection;
 		public Point ImageOperationPosition;
+		public SpriteSelection Selection;
 
 		public BitmapSource Bitmap {
 			get { return _currentBitmap; }
@@ -53,21 +53,24 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			get { return _imageSprite; }
 		}
 
+		public int ImageWidth => (int)_imageSprite.Source.Width;
+		public int ImageHeight => (int)_imageSprite.Source.Height;
+
 		public ImageViewer() {
 			InitializeComponent();
 			_cbZoom.SelectedIndex = 3;
 
 			KeyDown += new KeyEventHandler(_spriteViewer_KeyDown);
-			_primary.PreviewMouseWheel += new MouseWheelEventHandler(_scrollViewer_MouseWheel);
-			_primary.PreviewMouseDown += new MouseButtonEventHandler(_scrollViewer_PreviewMouseDown);
-			_primary.PreviewMouseMove += new MouseEventHandler(_scrollViewer_PreviewMouseMove);
+			_primary.MouseWheel += new MouseWheelEventHandler(_scrollViewer_MouseWheel);
+			_primary.MouseDown += new MouseButtonEventHandler(_scrollViewer_PreviewMouseDown);
+			_primary.MouseMove += new MouseEventHandler(_scrollViewer_PreviewMouseMove);
 			_primary.SizeChanged += delegate {
 				_updatePreview();
 			};
 
-			PreviewMouseDown += new MouseButtonEventHandler(_imageViewer_PreviewMouseDown);
-			PreviewMouseMove += _imageViewer_PreviewMouseMove;
-			PreviewMouseUp += new MouseButtonEventHandler(_imageViewer_PreviewMouseUp);
+			MouseDown += new MouseButtonEventHandler(_imageViewer_PreviewMouseDown);
+			MouseMove += _imageViewer_PreviewMouseMove;
+			MouseUp += new MouseButtonEventHandler(_imageViewer_PreviewMouseUp);
 			MouseUp += delegate { Cursor = Cursors.Arrow; };
 			ZoomEngine.ZoomFunction = ZoomEngine.DefaultLimitZoom;
 
@@ -79,10 +82,58 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				image.Multiply(0.5f);
 				_imageBackground.Source = image.Cast<BitmapSource>();
 			}
+
+			Selection = new SpriteSelection(this, _rectOverlay, _rectOverlaySub);
+
+			//_rectSizeBR.MouseDown += _rectSize_PreviewMouseDown;
+			//_rectSizeBR.MouseMove += _rectSize_MouseMove;
+			//_rectSizeBR.MouseUp += _rectSize_MouseUp;
 		}
+
+		//private void _rectSize_MouseUp(object sender, MouseButtonEventArgs e) {
+		//	_rectSizeBR.ReleaseMouseCapture();
+		//}
+		//
+		//private void _rectSize_MouseMove(object sender, MouseEventArgs e) {
+		//	if (!_rectSizeBR.IsMouseCaptured)
+		//		return;
+		//
+		//	if (_rectResize.Visibility != Visibility.Visible)
+		//		_rectResize.Visibility = Visibility.Visible;
+		//
+		//	SetRectResize(new Rect(new Point(0, 0), _mouse2World()));
+		//}
+		//
+		//private void SetRectResize(Rect rect) {
+		//
+		//	double offsetX = _imageSprite.Width / 2;
+		//	double offsetY = _imageSprite.Height / 2;
+		//
+		//	var left = CenterX - offsetX;
+		//	var top = CenterY - offsetY;
+		//
+		//	_rectResize.Margin = new Thickness(left + rect.Left * _zoomEngine.Scale, top + rect.Top * _zoomEngine.Scale, 0, 0);
+		//	_rectResize.Width = rect.Width * _zoomEngine.Scale;
+		//	_rectResize.Height = rect.Height * _zoomEngine.Scale;
+		//}
+		//
+		//private Point _mouse2World() {
+		//	Point imagePoint = Mouse.GetPosition(_imageSprite);
+		//	imagePoint.X = (imagePoint.X) / (_imageSprite.Width);
+		//	imagePoint.Y = (imagePoint.Y) / (_imageSprite.Height);
+		//
+		//	return new Point((int)Math.Round(_currentBitmap.PixelWidth * imagePoint.X), (int)Math.Round(_currentBitmap.PixelHeight * imagePoint.Y));
+		//}
+		//
+		//private void _rectSize_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+		//	_rectSizeBR.CaptureMouse();
+		//
+		//
+		//}
 
 		private void _imageViewer_PreviewMouseUp(object sender, MouseButtonEventArgs e) {
 			ReleaseMouseCapture();
+			//Cursor = Cursors.Arrow;
 			_oldPosition = null;
 		}
 
@@ -134,13 +185,13 @@ namespace ActEditor.Tools.PaletteEditorTool {
 
 			if (e.LeftButton == MouseButtonState.Pressed) {
 				if (_currentBitmap != null) {
-					OnPixelClicked((int)(_currentBitmap.PixelWidth * imagePoint.X), (int)(_currentBitmap.PixelHeight * imagePoint.Y), isWithin);
+					OnPixelClicked((int)Math.Floor(_currentBitmap.PixelWidth * imagePoint.X), (int)Math.Floor(_currentBitmap.PixelHeight * imagePoint.Y), isWithin);
 					return;
 				}
 			}
 
 			if (_currentBitmap != null) {
-				OnPixelMoved((int)(_currentBitmap.PixelWidth * imagePoint.X), (int)(_currentBitmap.PixelHeight * imagePoint.Y), isWithin);
+				OnPixelClicked((int)Math.Floor(_currentBitmap.PixelWidth * imagePoint.X), (int)Math.Floor(_currentBitmap.PixelHeight * imagePoint.Y), isWithin);
 				return;
 			}
 		}
@@ -178,6 +229,10 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_updatePreview();
 		}
 
+		public void Update() {
+			_updatePreview();
+		}
+
 		private void _updatePreview() {
 			// Set the image with the current zoom scale
 			_imageSprite.Source = _currentBitmap;
@@ -200,18 +255,20 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_borderSprite.Margin = new Thickness(left, top, 0, 0);
 			_borderSpriteGlow.Margin = new Thickness(left, top, 0, 0);
 
-			if (_rectOverlay.Visibility == Visibility.Visible) {
-				_rectOverlay.Margin = new Thickness(left + Selection.X * _zoomEngine.Scale, top + Selection.Y * _zoomEngine.Scale, 0, 0);
-				_rectOverlay.Width = Selection.Width * _zoomEngine.Scale;
-				_rectOverlay.Height = Selection.Height * _zoomEngine.Scale;
-			}
+			Selection?.Update(left, top, _zoomEngine.Scale);
 
 			if (_imageOperation.Visibility == Visibility.Visible) {
 				_imageOperation.Margin = new Thickness(left + ImageOperationPosition.X * _zoomEngine.Scale, top + ImageOperationPosition.Y * _zoomEngine.Scale, 0, 0);
 				_imageOperation.Width = _imageOperation.Source.Width * _zoomEngine.Scale;
 				_imageOperation.Height = _imageOperation.Source.Height * _zoomEngine.Scale;
 			}
+
+			//_updateResizePositionRectangles(left, top, _zoomEngine.Scale);
 		}
+
+		//private void _updateResizePositionRectangles(double left, double top, double scale) {
+		//	_rectSizeBR.Margin = new Thickness(left + _imageSprite.Width, top + _imageSprite.Height, 0, 0);
+		//}
 
 		public void ForceUpdatePreview(BitmapSource bitmap) {
 			_currentBitmap = bitmap;
@@ -252,29 +309,12 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_imageSprite.Source = null;
 		}
 
-		public void SetOverlaySelection(Rect selection) {
-			_rectOverlay.Visibility = Visibility.Visible;
-			Selection = selection;
-			_updatePreview();
-		}
-
-		public void SetOverlaySelection((int X, int Y) start, (int X, int Y) end) {
-			_rectOverlay.Visibility = Visibility.Visible;
-			Point p0 = new Point(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
-			Point p1 = new Point(Math.Max(start.X, end.X) + 1, Math.Max(start.Y, end.Y) + 1);
-			Selection = new Rect(p0, p1);
-			_updatePreview();
-		}
-
 		public void SetOverlayOperation(Point position, BitmapSource image) {
 			_imageOperation.Visibility = Visibility.Visible;
-			_imageOperation.Source = image;
+			if (image != null)
+				_imageOperation.Source = image;
 			ImageOperationPosition = position;
 			_updatePreview();
-		}
-
-		public void ClearSelection() {
-			_rectOverlay.Visibility = Visibility.Collapsed;
 		}
 
 		public void ClearOverlayOperation() {

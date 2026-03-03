@@ -46,7 +46,6 @@ namespace ActEditor.Core.WPF.EditorControls {
 						Thread.Sleep(firstClick ? 400 : 50);
 						
 						if (lastClicked > beforeSleep) {
-							Console.WriteLine("Cancelled thread");
 							break;
 						}
 

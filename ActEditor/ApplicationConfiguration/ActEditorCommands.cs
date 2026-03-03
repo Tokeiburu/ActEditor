@@ -55,6 +55,7 @@ namespace ActEditor.ApplicationConfiguration {
 		public static TkCommand SpriteEditorRectangle = ApplicationShortcut.FromString("Ctrl-R", "SpriteEditor.Rectangle");
 		public static TkCommand SpriteEditorLine = ApplicationShortcut.FromString("Ctrl-L", "SpriteEditor.Line");
 		public static TkCommand SpriteEditorCircle = ApplicationShortcut.FromString("Ctrl-I", "SpriteEditor.Circle");
+		public static TkCommand SpriteEditorSelection = ApplicationShortcut.FromString("Ctrl-Space", "SpriteEditor.Selection");
 		public static TkCommand SpriteEditorSwitchColors = ApplicationShortcut.FromString("Ctrl-1", "SpriteEditor.SwitchColors");
 		public static TkCommand SpriteEditorSwitchColorsIndex = ApplicationShortcut.FromString("Ctrl-2", "SpriteEditor.SwitchColorsIndex");
 		public static TkCommand SpriteEditorSwitchColorsKeep = ApplicationShortcut.FromString("Ctrl-3", "SpriteEditor.SwitchColorsKeep");
@@ -63,6 +64,10 @@ namespace ActEditor.ApplicationConfiguration {
 		public static TkCommand SpriteEditorBrushIncrease = ApplicationShortcut.FromString("Add", "SpriteEditor.BrushIncrease");
 		public static TkCommand SpriteEditorBrushDecrease = ApplicationShortcut.FromString("Subtract", "SpriteEditor.BrushDecrease");
 		public static TkCommand SpriteEditorPaletteSelector = ApplicationShortcut.FromString("Ctrl-U", "SpriteEditor.PaletteSelector");
+		public static TkCommand SpriteEditorMoveUp = ApplicationShortcut.FromString("Up", "SpriteEditor.MoveUp");
+		public static TkCommand SpriteEditorMoveDown = ApplicationShortcut.FromString("Down", "SpriteEditor.MoveDown");
+		public static TkCommand SpriteEditorMoveLeft = ApplicationShortcut.FromString("Left", "SpriteEditor.MoveLeft");
+		public static TkCommand SpriteEditorMoveRight = ApplicationShortcut.FromString("Right", "SpriteEditor.MoveRight");
 
 		public static TkCommand ListDataInsertAt = ApplicationShortcut.FromString("Ctrl-Shift-V", "ListData.InsertAt");
 		public static TkCommand FrameEditorSelectAll = ApplicationShortcut.FromString("Ctrl-A", "FrameEditor.SelectAll");

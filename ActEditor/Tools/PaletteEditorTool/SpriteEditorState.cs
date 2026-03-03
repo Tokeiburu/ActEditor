@@ -1,4 +1,5 @@
-﻿using GRF.Image;
+﻿using GRF.FileFormats.SprFormat;
+using GRF.Image;
 using PaletteEditor;
 using System.Collections.Generic;
 using Utilities;
@@ -8,6 +9,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		public int SelectedSpriteIndex;
 		public GrfImage SelectedImage => SpriteViewer.GetImage(SelectedSpriteIndex);
 		public GrfImage LoadedImage => SpriteViewer.LoadedImage;
+		public SpriteEditorControl SpriteEditorControl;
 		public SpriteBrush Brush;
 		public SpriteViewer SpriteViewer;
 		public GrfImage EditingImage;

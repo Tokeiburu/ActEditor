@@ -13,6 +13,7 @@ using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
+using TokeiLibrary.Shortcuts;
 using Utilities;
 using Utilities.Controls;
 
@@ -106,7 +107,7 @@ namespace PaletteEditor {
 		}
 
 		private void _gce_PreviewKeyDown(object sender, KeyEventArgs e) {
-			if (e.Key == Key.Z && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+			if (ApplicationShortcut.Undo.IsMatch()) {
 				if (_pal.Commands.CanUndo) {
 					_pal.Commands.Undo();
 					_setColors();
@@ -116,7 +117,7 @@ namespace PaletteEditor {
 				e.Handled = true;
 			}
 
-			if (e.Key == Key.Y && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control) {
+			if (ApplicationShortcut.Redo.IsMatch()) {
 				if (_pal.Commands.CanRedo) {
 					_pal.Commands.Redo();
 					_setColors();
@@ -430,6 +431,10 @@ namespace PaletteEditor {
 		}
 
 		private byte[] _makeGradientCommon(Border component, Color value) {
+			if (_paletteOldSelected == null) {
+				PreviewModifyColor();
+			}
+
 			byte[] gradient = null;
 			GradientTargetData targetData = new GradientTargetData();
 

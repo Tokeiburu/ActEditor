@@ -48,14 +48,16 @@ namespace PaletteEditor {
 			_borderSelector.DragEnter += new DragEventHandler(_borderSelector_DragEnter);
 			_borderSelector.Drop += new DragEventHandler(_borderSelector_Drop);
 
-			Loaded += delegate {
-				Window parent = WpfUtilities.FindParentControl<Window>(this);
-
-				if (parent != null) {
-					parent.PreviewKeyDown += new KeyEventHandler(_paletteSelector_PreviewKeyDown);
-					parent.KeyDown += new KeyEventHandler(_paletteSelector_KeyDown);
-				}
-			};
+			ApplicationShortcut.Link(ApplicationShortcut.Copy, Copy, _gridFocus);
+			ApplicationShortcut.Link(ApplicationShortcut.Paste, Paste, _gridFocus);
+			//Loaded += delegate {
+			//	Window parent = WpfUtilities.FindParentControl<Window>(this);
+			//
+			//	if (parent != null) {
+			//		//parent.PreviewKeyDown += new KeyEventHandler(_paletteSelector_PreviewKeyDown);
+			//		//parent.KeyDown += new KeyEventHandler(_paletteSelector_KeyDown);
+			//	}
+			//};
 		}
 
 		private void _borderSelector_Drop(object sender, DragEventArgs e) {
@@ -196,32 +198,6 @@ namespace PaletteEditor {
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err);
-			}
-		}
-
-		private void _paletteSelector_PreviewKeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Copy.IsMatch()) {
-				if (!_gridFocus.IsFocused)
-					return;
-
-				Copy();
-				e.Handled = true;
-			}
-			else if (ApplicationShortcut.Paste.IsMatch()) {
-				if (!_gridFocus.IsFocused)
-					return;
-
-				Paste();
-				e.Handled = true;
-			}
-		}
-
-		private void _paletteSelector_KeyDown(object sender, KeyEventArgs e) {
-			if (ApplicationShortcut.Copy.IsMatch()) {
-				Copy();
-			}
-			else if (ApplicationShortcut.Paste.IsMatch()) {
-				Paste();
 			}
 		}
 
@@ -387,102 +363,6 @@ namespace PaletteEditor {
 
 			return data;
 		}
-
-		//private byte[] _getSelectionFor(int realIndex, Color color, SelectionPaletteBrush brush = null) {
-		//	bool[] location = new bool[9];
-		//
-		//	if (brush == null) {
-		//		brush = new SelectionPaletteBrush();
-		//		brush.Margin = 3;
-		//		brush.Thickness = 2;
-		//		brush.ShowDiagonale = true;
-		//	}
-		//
-		//	// Check up row
-		//	if (realIndex > 15) {
-		//		location[1] = _selectedColors[realIndex - 16];
-		//
-		//		// Check left and right	
-		//		if (realIndex % 16 != 15) location[2] = _selectedColors[realIndex - 16 + 1];
-		//		if (realIndex % 16 !=  0) location[0] = _selectedColors[realIndex - 16 - 1];
-		//	}
-		//
-		//	// Check left and right
-		//	if (realIndex % 16 != 15) location[3] = _selectedColors[realIndex + 1];
-		//	if (realIndex % 16 !=  0) location[5] = _selectedColors[realIndex - 1];
-		//
-		//	// Check down row
-		//	if (realIndex < 240) {
-		//		location[7] = _selectedColors[realIndex + 16];
-		//
-		//		// Check left and right	
-		//		if (realIndex % 16 != 15) location[8] = _selectedColors[realIndex + 16 + 1];
-		//		if (realIndex % 16 !=  0) location[6] = _selectedColors[realIndex + 16 - 1];
-		//	}
-		//
-		//	byte[] data = new byte[256 * 4];
-		//
-		//	int index;
-		//
-		//	bool[] cells = new bool[9];
-		//
-		//	for (int i = 0; i < cells.Length; i++)
-		//		cells[i] = true;
-		//
-		//	if (!location[0]) {
-		//		lines[]
-		//	}
-		//	// Drawing left bar
-		//	if (location[0] || location[3] || location[6]) {
-		//		if (location[0] && location[3] && location[6]) {
-		//			
-		//		}
-		//	}
-		//
-		//	if (_selectedColors[realIndex] && brush.ShowDiagonale) {
-		//		for (int y = 0; y < 16; y++) {
-		//			for (int x = 0; x < 16; x++) {
-		//				index = 4 * (y * 16 + x);
-		//
-		//				if (x == y) {
-		//					data[index] = color.B;
-		//					data[index + 1] = color.G;
-		//					data[index + 2] = color.R;
-		//					data[index + 3] = 80;
-		//				}
-		//			}
-		//		}
-		//	}
-		//
-		//	//if (hasOn)
-		//	//for (int y = 0; y < 16; y++) {
-		//	//	for (int x = 0; x < 16; x++) {
-		//	//		index = 4 * (y * 16 + x);
-		//	//
-		//	//		if (!hasOneOnTheLeft) {
-		//	//			
-		//	//		}
-		//	//
-		//	//		if ((!hasOneOnBottom && (y == 14 - margin || y == 15 - margin)) ||
-		//	//			(!hasOneOnTop && (y == 0 + margin || y == 1 + margin)) ||
-		//	//			(!hasOneOnTheLeft && (x == 0 + margin || x == 1 + margin)) ||
-		//	//			(!hasOneOnTheRight && (x == 14 - margin || x == 15 - margin))) {
-		//	//			data[index] = color.B;
-		//	//			data[index + 1] = color.G;
-		//	//			data[index + 2] = color.R;
-		//	//			data[index + 3] = color.A;
-		//	//		}
-		//	//		else if (x == y && (x >= margin && x <= 15 - margin && y >= margin && y <= 15 - margin)) {
-		//	//			data[index] = color.B;
-		//	//			data[index + 1] = color.G;
-		//	//			data[index + 2] = color.R;
-		//	//			data[index + 3] = 80;
-		//	//		}
-		//	//	}
-		//	//}
-		//
-		//	return data;
-		//}
 
 		private void _borderSelector_MouseDown(object sender, MouseButtonEventArgs e) {
 			Keyboard.Focus(_gridFocus);

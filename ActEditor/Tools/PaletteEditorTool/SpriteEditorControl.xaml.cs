@@ -34,7 +34,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private SpriteLoadAndSaveService _spriteLoadSaveService = new SpriteLoadAndSaveService();
 		public Spr Sprite => _spr;
 
-		private SpriteEditorTool _selectTool;
+		private SpriteEditorTool _defaultTool;
 		private SpriteEditorTool _penTool;
 		private SpriteEditorTool _pickerTool;
 		private SpriteEditorTool _bucketTool;
@@ -44,9 +44,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private SpriteEditorTool _rectangleTool;
 		private SpriteEditorTool _lineTool;
 		private SpriteEditorTool _ellipseTool;
-		private SpriteEditorTool _copyTool;
-		//private SpriteEditorTool _moveSelectionTool;
-		private SpriteEditorTool _previousTool;
+		private SelectionTool _selectionTool;
 		private SpriteEditorTool _currentTool = null;
 
 		private SpriteEditorState _state = new SpriteEditorState();
@@ -86,19 +84,13 @@ namespace ActEditor.Tools.PaletteEditorTool {
 
 			_initializeBrushTools();
 
-			_gridFocus.PreviewMouseDown += _gridFocus_MouseDown;
+			_gridFocus.MouseDown += _gridFocus_MouseDown;
 		}
 
 		private void _gridFocus_MouseDown(object sender, MouseButtonEventArgs e) {
-			if (Keyboard.FocusedElement is TextBox tb) {
-				var cb = WpfUtilities.FindParentControl<ComboBox>(tb);
-
-				if (cb == _cbSpriteId || cb == _spriteViewer._cbZoom) {
-					var parent = WpfUtilities.FindParentControl<Window>(this);
-					DependencyObject scope = FocusManager.GetFocusScope(parent);
-					FocusManager.SetFocusedElement(scope, parent);
-				}
-			}
+			var parent = WpfUtilities.FindParentControl<Window>(this);
+			DependencyObject scope = FocusManager.GetFocusScope(parent);
+			FocusManager.SetFocusedElement(scope, parent);
 		}
 
 		private void _initializeSpriteEditorState() {
@@ -106,6 +98,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_state.SingleEditor = _sce;
 			_state.GradientEditor = _gceControl;
 			_state.Brush = _brush;
+			_state.SpriteEditorControl = this;
 
 			_state.ImageInvalidated += image => {
 				_spriteViewer.Dispatch(p => p.LoadImage(image));
@@ -113,7 +106,8 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		}
 
 		private void _initializeBrushTools() {
-			_selectTool = new SelectTool(_buttonSelection, _spriteViewer);
+			_defaultTool = new DefaultTool(_buttonDefault);
+			_selectionTool = new SelectionTool(_buttonSelection, _spriteViewer);
 			_penTool = new PenTool(_buttonPen);
 			_lineTool = new LineTool(_buttonLine);
 			_ellipseTool = new EllipseTool(_buttonEllipse);
@@ -123,9 +117,8 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_stampTool = new StampTool(_buttonStamp);
 			_stampSpecialTool = new StampSpecialTool(_buttonStamp2);
 			_rectangleTool = new RectangleTool(_buttonRectangle);
-			_copyTool = new CopyTool(null, _spriteViewer);
 			//_moveSelectionTool = new MoveSelectionTool(null, _spriteViewer);
-			_currentTool = _selectTool;
+			_currentTool = _defaultTool;
 		}
 
 		private void _initializeShortcuts() {
@@ -133,7 +126,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				var parent = WpfUtilities.FindParentControl<Window>(this);
 
 				// Pens
-				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorSelect, () => SetTool(_selectTool), parent);
+				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorSelect, () => SetTool(_defaultTool), parent);
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorBucket, () => SetTool(_bucketTool), parent);
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorStamp, () => SetTool(_stampTool), parent);
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorEraser, () => SetTool(_eraserTool), parent);
@@ -141,6 +134,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorRectangle, () => SetTool(_rectangleTool), parent);
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorLine, () => SetTool(_lineTool), parent);
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorCircle, () => SetTool(_ellipseTool), parent);
+				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorSelection, () => SetTool(_selectionTool), parent);
 			
 				// MenuItems
 				ApplicationShortcut.Link(ActEditorCommands.Open, _menuItemOpen, parent);
@@ -155,9 +149,40 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorBrushDecrease, _menuItemBrushMinus, parent);
 				ApplicationShortcut.Link(ActEditorCommands.SpriteEditorPaletteSelector, _menuItemPaletteSelector, parent);
 
-				ApplicationShortcut.Link(ActEditorCommands.Copy, _menuItemPaletteSelector, parent);
+				ApplicationShortcut.Link(ActEditorCommands.Copy, _menuItemCopy, parent);
+				ApplicationShortcut.Link(ActEditorCommands.Paste, _menuItemPaste, parent);
 				ApplicationShortcut.Link(ActEditorCommands.DeselectAll, _menuItemDeselectAll, parent);
+				ApplicationShortcut.Link(ActEditorCommands.Delete, Delete, parent);
+
+				//ApplicationShortcut.Link(ActEditorCommands.Undo, Undo, parent);
+
+				parent.PreviewKeyDown += _parent_PreviewKeyDown;
 			};
+		}
+
+		private void _parent_PreviewKeyDown(object sender, KeyEventArgs e) {
+			int x = 0;
+			int y = 0;
+
+			if (Keyboard.IsKeyDown(Key.Left))
+				x--;
+			if (Keyboard.IsKeyDown(Key.Right))
+				x++;
+			if (Keyboard.IsKeyDown(Key.Up))
+				y--;
+			if (Keyboard.IsKeyDown(Key.Down))
+				y++;
+
+			if (x != 0 || y != 0)
+				_selectionTool?.MoveSelection(_state, x, y);
+
+			if (ApplicationShortcut.Undo.IsMatch()) {
+				if (_currentTool == _selectionTool) {
+					_selectionTool.Undo(_state);
+				}
+			}
+
+			return;
 		}
 
 		public void SelectSingleColorEditControl() {
@@ -192,7 +217,14 @@ namespace ActEditor.Tools.PaletteEditorTool {
 					return;
 
 				var pos = _getViewerPosition();
-				_currentTool?.OnPixelMoved(_state, this, pos.X, pos.Y);
+
+				var tool = _currentTool;
+
+				if (Mouse.LeftButton == MouseButtonState.Pressed && Mouse.RightButton == MouseButtonState.Released && !_spriteViewer.IsMouseCaptured && Keyboard.IsKeyDown(Key.LeftAlt)) {
+					tool = _pickerTool;
+				}
+
+				tool?.OnPixelMoved(_state, this, pos.X, pos.Y);
 			}
 			catch {
 			}
@@ -202,14 +234,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			if (ApplicationShortcut.IsCommandActive())
 				return;
 
-			if (e.Key == Key.LeftShift) {
-				e.Handled = true;
-
-				if (_spriteViewer.IsMouseOver) {
-					Mouse.OverrideCursor = e.IsDown ? _copyTool?.Cursor : _currentTool?.Cursor;
-				}
-			}
-			else if (e.SystemKey == Key.LeftAlt) {
+			if (e.SystemKey == Key.LeftAlt) {
 				e.Handled = true;
 
 				if (_spriteViewer.IsMouseOver) {
@@ -259,8 +284,11 @@ namespace ActEditor.Tools.PaletteEditorTool {
 
 		private void _spriteViewer_PixelClicked(object sender, int x, int y, bool isWithin) {
 			try {
+				if (_spriteViewer._cbZoom.IsMouseOver)
+					return;
+
 				if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) {
-					_selectTool.OnPixelMoved(_state, null, x, y);
+					_defaultTool.OnPixelMoved(_state, null, x, y);
 				}
 				else {
 					_currentTool.OnPixelMoved(_state, null, x, y);
@@ -308,19 +336,14 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		}
 
 		private void _spriteViewer_MouseMove(object sender, MouseEventArgs e) {
-			if (_currentTool == _copyTool)
-				_currentTool = _previousTool;
+			if (_spriteViewer._cbZoom.IsMouseOver)
+				return;
 
 			if (Mouse.LeftButton == MouseButtonState.Released && Mouse.RightButton == MouseButtonState.Released && !_spriteViewer.IsMouseCaptured && Keyboard.IsKeyDown(Key.LeftAlt)) {
 				Mouse.OverrideCursor = _pickerTool?.Cursor;
 			}
 			else if (Mouse.LeftButton == MouseButtonState.Released && Mouse.RightButton == MouseButtonState.Released && !_spriteViewer.IsMouseCaptured && !Keyboard.IsKeyDown(Key.LeftAlt)) {
 				Mouse.OverrideCursor = _currentTool?.Cursor;
-			}
-
-			if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift) && _currentTool != _copyTool) {
-				_previousTool = _currentTool;
-				_currentTool = _copyTool;
 			}
 
 			UpdateTool();
@@ -331,6 +354,10 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				_spriteViewer.Clear();
 			}
 			else {
+				if (_currentTool == _selectionTool) {
+					_selectionTool.Cancel(_state);
+				}
+
 				_spriteViewer.LoadIndexed8(_cbSpriteId.SelectedIndex);
 			}
 
@@ -354,6 +381,13 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			_spr.Palette.PaletteChanged += new Pal.PalEventHandler(_pal_PaletteChanged);
 			_sce.SetPalette(_spr.Palette);
 			_gceControl.SetPalette(_spr.Palette);
+			_spr.Palette.Commands.CommandIndexChanged += _commands_CommandIndexChanged;
+		}
+
+		private void _commands_CommandIndexChanged(object sender, IPaletteCommand command) {
+			if (_currentTool == _selectionTool) {
+				_selectionTool.Cancel(_state);
+			}
 		}
 
 		private void _pal_PaletteChanged(object sender) {
@@ -512,10 +546,10 @@ namespace ActEditor.Tools.PaletteEditorTool {
 			SaveAs(TkPathRequest.SaveFile(new Setting(v => Configuration.ConfigAsker["[ActEditor - App recent]"] = v.ToString(), () => Configuration.ConfigAsker["[ActEditor - App recent]", "C:\\"]), "filter", "Sprite and Palette Files|*.spr;*.pal|Sprite Files|*.spr|Palette Files|*.pal"));
 		}
 
-		private void _menuItemSwapPaletteColors_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGradientChange(_spr, _state, GradientOperation.SwapPaletteColors);
-		private void _menuItemSwapSpriteIndexes_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGradientChange(_spr, _state, GradientOperation.SwapSpriteIndexes);
-		private void _menuItemSwapColorsAndIndexes_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGradientChange(_spr, _state, GradientOperation.SwapSpriteIndexesAndPaletteColors);
-		private void _menuItemRedirectTo_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGradientChange(_spr, _state, GradientOperation.Redirect);
+		private void _menuItemSwapPaletteColors_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGradientChange(_spr, _state, GradientOperation.SwapPaletteColors);
+		private void _menuItemSwapSpriteIndexes_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGradientChange(_spr, _state, GradientOperation.SwapSpriteIndexes);
+		private void _menuItemSwapColorsAndIndexes_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGradientChange(_spr, _state, GradientOperation.SwapSpriteIndexesAndPaletteColors);
+		private void _menuItemRedirectTo_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGradientChange(_spr, _state, GradientOperation.Redirect);
 
 		private void _menuItemStampLock_Click(object sender, RoutedEventArgs e) {
 			_menuItemStampLock.IsChecked = _menuItemStampLock.IsChecked != true;
@@ -539,13 +573,14 @@ namespace ActEditor.Tools.PaletteEditorTool {
 
 		private void _buttonBucket_Click(object sender, RoutedEventArgs e) => SetTool(_bucketTool);
 		private void _buttonPen_Click(object sender, RoutedEventArgs e) => SetTool(_penTool);
-		private void _buttonSelection_Click(object sender, RoutedEventArgs e) => SetTool(_selectTool);
+		private void _buttonDefault_Click(object sender, RoutedEventArgs e) => SetTool(_defaultTool);
 		private void _buttonStamp_Click(object sender, RoutedEventArgs e) => SetTool(_stampTool);
 		private void _buttonStamp2_Click(object sender, RoutedEventArgs e) => SetTool(_stampSpecialTool);
 		private void _buttonEraser_Click(object sender, RoutedEventArgs e) => SetTool(_eraserTool);
 		private void _rectangleTool_Click(object sender, RoutedEventArgs e) => SetTool(_rectangleTool);
 		private void _buttonLine_Click(object sender, RoutedEventArgs e) => SetTool(_lineTool);
 		private void _buttonEllipse_Click(object sender, RoutedEventArgs e) => SetTool(_ellipseTool);
+		private void _buttonSelection_Click(object sender, RoutedEventArgs e) => SetTool(_selectionTool);
 
 		private void _menuItemBrushPlus_Click(object sender, RoutedEventArgs e) => _brushIncrease(1);
 		private void _menuItemBrushMinus_Click(object sender, RoutedEventArgs e) => _brushIncrease(-1);
@@ -557,21 +592,47 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		private void _spriteViewer_MouseEnter(object sender, MouseEventArgs e) => Mouse.OverrideCursor = _currentTool?.Cursor;
 		private void _spriteViewer_MouseLeave(object sender, MouseEventArgs e) => Mouse.OverrideCursor = null;
 
-		private void _menuItemGrayscaleMaxValue_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGrayscale(_spr, _state, GrayscaleMode.MaxValue);
-		private void _menuItemGrayscaleAverage_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGrayscale(_spr, _state, GrayscaleMode.Average);
-		private void _menuItemGrayscaleLightness_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGrayscale(_spr, _state, GrayscaleMode.Lightness);
-		private void _menuItemGrayscaleLuminosity_Click(object sender, RoutedEventArgs e) => SpriteOperation.ApplyGrayscale(_spr, _state, GrayscaleMode.Luminosity);
+		private void _menuItemGrayscaleMaxValue_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGrayscale(_spr, _state, GrayscaleMode.MaxValue);
+		private void _menuItemGrayscaleAverage_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGrayscale(_spr, _state, GrayscaleMode.Average);
+		private void _menuItemGrayscaleLightness_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGrayscale(_spr, _state, GrayscaleMode.Lightness);
+		private void _menuItemGrayscaleLuminosity_Click(object sender, RoutedEventArgs e) => SpriteGenericOperations.ApplyGrayscale(_spr, _state, GrayscaleMode.Luminosity);
 
 		private void _menuItemDeselectAll_Click(object sender, RoutedEventArgs e) {
-			_spriteViewer.ClearSelection();
+			_spriteViewer.Selection.Clear();
 		}
 
 		private void _menuItemCopy_Click(object sender, RoutedEventArgs e) {
-
+			_spriteViewer.Selection.CopyClipboard(_state.SelectedImage);
 		}
 
 		private void _menuItemPaste_Click(object sender, RoutedEventArgs e) {
+			if (_currentTool != _selectionTool)
+				SetTool(_selectionTool);
 
+			_selectionTool.Paste(_state);
+		}
+
+		public void Delete() => _selectionTool?.Delete(_state);
+		
+		private void _menuItemResize_Click(object sender, RoutedEventArgs e) {
+			try {
+				var diag = new ResizeDialog();
+				var parent = WpfUtilities.FindDirectParentControl<Window>(this);
+				diag.Owner = parent;
+				diag.Closed += delegate {
+					parent.Focus();
+					parent.Activate();
+				};
+
+				if (diag.ShowDialog() == true) {
+					var image = _state.SelectedImage.Copy();
+					image.Margin(diag.MarginLeft, diag.MarginTop, diag.MarginRight, diag.MarginBottom);
+					_spr.Palette.Commands.StoreAndExecute(new ImageModifiedCommand(_spr, _cbSpriteId.SelectedIndex, image));
+				}
+			}
+			catch (Exception err) {
+				ErrorHandler.HandleException(err);
+			}
 		}
 	}
 }

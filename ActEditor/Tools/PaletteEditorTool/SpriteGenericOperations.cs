@@ -11,7 +11,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 		Redirect,
 	}
 
-	public class SpriteOperation {
+	public class SpriteGenericOperations {
 		public static void ApplyGradientChange(Spr spr, SpriteEditorState state, GradientOperation mode) {
 			try {
 				spr.Palette.Commands.BeginNoDelay();

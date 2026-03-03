@@ -23,9 +23,12 @@
                     </VisualBrush>
                 </Border.Background>
             </Border>
+			<!--<Rectangle x:Name="_rectSizeBR" Width="50" Height="50" Fill="White" Stroke="#555555" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top" />-->
 			<Image Name="_imageSprite" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" />
-			<Rectangle Name="_rectOverlay" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" StrokeThickness="1" StrokeDashArray="1 2" Stroke="Black" Fill="#50FFFFFF" Visibility="Collapsed" />
 			<Image Name="_imageOperation" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" Visibility="Collapsed" />
+			<!--<Rectangle Name="_rectResize" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" StrokeThickness="1" StrokeDashArray="1 1" Stroke="Black" Visibility="Collapsed" />-->
+			<Rectangle Name="_rectOverlaySub" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" StrokeThickness="1" Stroke="White" Visibility="Collapsed" />
+			<Rectangle Name="_rectOverlay" HorizontalAlignment="Left" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="NearestNeighbor" RenderOptions.EdgeMode="Aliased" IsHitTestVisible="False" StrokeThickness="1" StrokeDashArray="4 4" Stroke="#FF0078D7" Fill="#00FFFFFF" Visibility="Collapsed" />
 		</Canvas>
         <Grid Name="_gridZoom">
             <ComboBox Name="_cbZoom" IsTextSearchEnabled="false" SelectionChanged="_cbZoom_SelectionChanged"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="100" IsEditable="True" IsReadOnly="False" PreviewKeyDown="_cbZoom_PreviewKeyDown">

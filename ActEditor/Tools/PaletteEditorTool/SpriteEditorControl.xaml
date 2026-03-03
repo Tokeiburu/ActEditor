@@ -12,7 +12,7 @@
 			 PreviewKeyDown="_spriteEditorControl_PreviewKeyDown" PreviewKeyUp="_spriteEditorControl_PreviewKeyDown"
              mc:Ignorable="d" 
              FocusVisualStyle="{x:Null}">
-	<Grid x:Name="_gridFocus" FocusVisualStyle="{x:Null}" Focusable="True">
+	<Grid FocusVisualStyle="{x:Null}" Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
@@ -41,6 +41,7 @@
 				<styles:TkMenuItem Name="_menuItemDeselectAll" Click="_menuItemDeselectAll_Click" Header="Deselect all" />
 				<styles:TkMenuItem Name="_menuItemCopy" Click="_menuItemCopy_Click" Header="Copy" IconPath="copy.png" />
 				<styles:TkMenuItem Name="_menuItemPaste" Click="_menuItemPaste_Click" Header="Paste" IconPath="paste.png" />
+				<styles:TkMenuItem Name="_menuItemResize" Click="_menuItemResize_Click" Header="Resize..." IconPath="expand.png" />
 			</MenuItem>
 			<MenuItem Name="_miTools">
                 <MenuItem.Header>
@@ -70,21 +71,28 @@
             <WpfBugFix:ToggleMemoryButton x:Name="_tmbRedo" IsEnabled="False"  PrimaryButtonImagePath="redo.png" DisplayFormat="Redo {0} action" />
         </DockPanel>
         <Grid Grid.Row="1">
-            <Grid>
+			<Grid x:Name="_gridFocus">
 				<PaletteEditorTool:SpriteViewer x:Name="_spriteViewer" FocusVisualStyle="{x:Null}" 
 												DragEnter="_spriteEditorControl_DragEnter" DragOver="_spriteEditorControl_DragEnter" Drop="_spriteEditorControl_Drop" 
 												PixelClicked="_spriteViewer_PixelClicked" MouseMove="_spriteViewer_MouseMove" MouseEnter="_spriteViewer_MouseEnter" MouseLeave="_spriteViewer_MouseLeave" 
 												PreviewKeyDown="_spriteEditorControl_PreviewKeyDown" PreviewKeyUp="_spriteEditorControl_PreviewKeyDown" MouseLeftButtonUp="_spriteViewer_MouseLeftButtonUp"
 												LostMouseCapture="_spriteViewer_LostMouseCapture" />
                 <WrapPanel HorizontalAlignment="Left" Width="32">
-                    <styles:FancyButton x:Name="_buttonSelection" ImagePath="cs_cursor.png" Width="18" Height="18" Click="_buttonSelection_Click" IsPressed="true">
+                    <styles:FancyButton x:Name="_buttonDefault" ImagePath="cs_cursor.png" Width="18" Height="18" Click="_buttonDefault_Click" IsPressed="true">
                         <styles:FancyButton.ToolTip>
                             <TextBlock>
                                 Selects the color in the palettes by clicking on the image.
                             </TextBlock>
                         </styles:FancyButton.ToolTip>
-                    </styles:FancyButton>
-                    <styles:FancyButton x:Name="_buttonPen" ImagePath="cs_pen.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonPen_Click">
+					</styles:FancyButton>
+					<styles:FancyButton x:Name="_buttonSelection" ImagePath="cs_selection.png" Width="18" Height="18" Click="_buttonSelection_Click">
+						<styles:FancyButton.ToolTip>
+							<TextBlock>
+                                Selects an area for editing.
+							</TextBlock>
+						</styles:FancyButton.ToolTip>
+					</styles:FancyButton>
+					<styles:FancyButton x:Name="_buttonPen" ImagePath="cs_pen.png" VerticalAlignment="Top" Height="18" Width="18" Click="_buttonPen_Click">
                         <styles:FancyButton.ToolTip>
                             <TextBlock>
                                 Draws on the image with the selected color.
