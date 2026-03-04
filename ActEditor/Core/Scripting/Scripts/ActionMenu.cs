@@ -319,8 +319,8 @@ namespace ActEditor.Core.Scripting.Scripts {
 				if (baseAction == 7) newActionIndex = 1;
 				if (baseAction == 2) newActionIndex = 6;
 				if (baseAction == 6) newActionIndex = 2;
-				if (baseAction == 3) newActionIndex = 4;
-				if (baseAction == 4) newActionIndex = 3;
+				if (baseAction == 3) newActionIndex = 5;
+				if (baseAction == 5) newActionIndex = 3;
 
 				newActionIndex += baseZeroAction;
 
@@ -329,7 +329,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 					return;
 				}
 
-				act.Commands.Backup(new Action<Act>(action => _reverse(act, selectedActionIndex, newActionIndex)), "Frame copy");
+				act.Commands.Backup(new Action<Act>(action => _mirror(act, selectedActionIndex, newActionIndex)), "Mirror action");
 			}
 			catch (Exception err) {
 				ErrorHandler.HandleException(err, ErrorLevel.Warning);
@@ -342,11 +342,19 @@ namespace ActEditor.Core.Scripting.Scripts {
 
 		#endregion
 
-		private void _reverse(Act act, int selectedActionIndex, int newSelectedActionIndex) {
+		private void _mirror(Act act, int selectedActionIndex, int newSelectedActionIndex) {
 			var newAction = new Action(act[selectedActionIndex]);
 
 			foreach (Frame frame in newAction.Frames) {
 				foreach (Layer layer in frame.Layers) {
+					var image = layer.GetImage(act.Sprite);
+					int mirrorOffset = 0;
+
+					if (image != null && image.Width % 2 == 1) {
+						mirrorOffset--;
+					}
+
+					layer.OffsetX += mirrorOffset;
 					layer.OffsetX *= -1;
 					int rotation = 360 - layer.Rotation;
 					layer.Rotation = rotation < 0 ? rotation + 360 : rotation;

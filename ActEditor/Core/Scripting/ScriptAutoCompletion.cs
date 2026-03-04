@@ -1,5 +1,4 @@
-﻿using ActEditor.Core.Scripting;
-using ActEditor.Core.WPF.Dialogs;
+﻿using ActEditor.Core.WPF.Dialogs;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
@@ -18,12 +17,13 @@ using System.Windows.Media;
 using TokeiLibrary;
 using Utilities;
 
-namespace ActEditor.Core {
+namespace ActEditor.Core.Scripting {
 	public class ScriptAutoCompletion {
 		private TextEditor _textEditor;
 
 		private int _completionStartOffset;
 		private CompletionWindow _completionWindow;
+		private bool _isMethod;
 		private List<ICompletionData> _data;
 		private int _startCursorFixAdjust;
 
@@ -33,6 +33,10 @@ namespace ActEditor.Core {
 		}
 
 		internal void ProcessText(TextCompositionEventArgs e) {
+			if (_isMethod) {
+				_completionWindow?.Close();
+			}
+
 			if (e.Text.Length == 1) {
 				switch (e.Text) {
 					case ".":
@@ -44,9 +48,12 @@ namespace ActEditor.Core {
 					case "}":
 					case "[":
 					case "]":
+						FilterCheck(e, false);
+						break;
 					case "(":
 					case ")":
 						FilterCheck(e, false);
+						ShowMethodCompletion();
 						break;
 					case "\t":
 						FilterCheck(e, true);
@@ -55,12 +62,13 @@ namespace ActEditor.Core {
 			}
 
 			if (!string.IsNullOrEmpty(e.Text) && char.IsLetterOrDigit(e.Text[0])) {
-				UpdateFilter();
+				if (!_isMethod)
+					UpdateFilter();
 			}
 		}
 
 		internal void UpdateFilter() {
-			_textEditor.Dispatcher.BeginInvoke((System.Action)_updateFilter);
+			_textEditor.Dispatcher.BeginInvoke((Action)_updateFilter);
 		}
 
 		private void _updateFilter() {
@@ -196,6 +204,7 @@ namespace ActEditor.Core {
 								_textEditor.Dispatch(delegate {
 									_completionStartOffset = _textEditor.CaretOffset;
 									_completionWindow = new CompletionWindow(_textEditor.TextArea);
+									_isMethod = false;
 									_completionWindow.AllowsTransparency = true;
 
 									_data = new List<ICompletionData>();
@@ -225,6 +234,103 @@ namespace ActEditor.Core {
 				}
 				catch { }
 				finally { 
+					_compiling = false;
+				}
+			});
+		}
+
+		public void ShowMethodCompletion() {
+			if (_compiling)
+				return;
+
+			_compiling = true;
+
+			string script = ScriptRunnerDialog.ScriptTemplate.Replace("{0}", ScriptRunnerDialog.DefaultScriptName).Replace("{1}", ScriptRunnerDialog.DefaultInputGesture).Replace("{2}", ScriptRunnerDialog.DefaultImage).Replace("{3}", _textEditor.Text);
+			int roslynPosition = _startCursorFixAdjust + _textEditor.CaretOffset;
+			script = script.Substring(0, roslynPosition + 1);
+
+			Task.Run(() => {
+				try {
+					var syntaxTree = CSharpSyntaxTree.ParseText(script);
+
+					var compilation = CSharpCompilation.Create(
+						"DynamicAssembly",
+						new[] { syntaxTree },
+						ScriptLoader.GetReferences(),
+						new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+					var semanticModel = compilation.GetSemanticModel(syntaxTree, false);
+					var root = semanticModel.SyntaxTree.GetRoot();
+					var token = root.FindToken(roslynPosition - 1);
+					var invocation = token.Parent.AncestorsAndSelf().OfType<InvocationExpressionSyntax>().FirstOrDefault();
+					var methods = new List<ISymbol>();
+
+					if (invocation != null) {
+						var memberAccess = invocation.Expression as MemberAccessExpressionSyntax;
+
+						if (memberAccess != null) {
+							var typeInfo = semanticModel.GetTypeInfo(memberAccess.Expression);
+							var type = typeInfo.Type;
+							var methodName = memberAccess.Name.Identifier.Text;
+							var overloads = type.GetMembers(methodName).OfType<IMethodSymbol>().ToList();
+							methods.AddRange(overloads);
+						}
+					}
+
+					var objectCreation = token.Parent.AncestorsAndSelf().OfType<ObjectCreationExpressionSyntax>().FirstOrDefault();
+
+					if (objectCreation != null) {
+						var symbolInfo = semanticModel.GetSymbolInfo(objectCreation);
+
+						if (symbolInfo.Symbol is IMethodSymbol method) {
+							methods.Add(method);
+						}
+
+						// Multiple overload candidates
+						if (symbolInfo.CandidateSymbols.Length > 0) {
+							foreach (var candidate in symbolInfo.CandidateSymbols) {
+								if (candidate is IMethodSymbol m)
+									methods.Add(m);
+							}
+						}
+					}
+
+					if (methods.Count > 0) {
+						_textEditor.Dispatch(delegate {
+							_completionStartOffset = _textEditor.CaretOffset;
+							_completionWindow = new CompletionWindow(_textEditor.TextArea);
+							_isMethod = true;
+							_completionWindow.AllowsTransparency = true;
+
+							_data = new List<ICompletionData>();
+
+							var groups = methods.GroupBy(p => p.Name).ToArray();
+
+							foreach (var symbolS in groups.OrderBy(p => p.First().Name)) {
+								if (symbolS.Count() == 1)
+									_data.Add(new MyCompletionData(symbolS.First()));
+								else
+									_data.Add(new MyCompletionData(symbolS.OfType<ISymbol>().ToList()));
+							}
+
+							foreach (var data in _data) {
+								_completionWindow.CompletionList.CompletionData.Add(data);
+							}
+
+							_completionWindow.CompletionList.ListBox.SelectIndex(0);
+							_completionWindow.MaxWidth = 0;
+							_completionWindow.MinWidth = 0;
+							_completionWindow.MaxHeight = 0;
+							_completionWindow.Visibility = Visibility.Hidden;
+							_completionWindow.Show();
+							_completionWindow.Closed += delegate {
+								_completionWindow = null;
+							};
+						});
+					}
+				}
+				catch { }
+				finally {
 					_compiling = false;
 				}
 			});

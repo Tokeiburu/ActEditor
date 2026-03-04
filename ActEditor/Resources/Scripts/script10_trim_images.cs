@@ -53,7 +53,7 @@ namespace Scripts {
 			try {
 				act.Commands.BeginNoDelay();
 				act.Commands.Backup(_ => {
-					ActEditor.Core.ActHelper.TrimImages(act, tolerate);
+					ActEditor.Core.ActHelper.TrimImages(act, tolerate, keepPerfectAlignment: true);
 				}, "Trim Images", true);
 			}
 			catch (Exception err) {

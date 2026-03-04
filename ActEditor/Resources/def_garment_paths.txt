@@ -221,6 +221,12 @@ sky_emperor_riding		// Extended Class\Sky Emperor\Beast
 soul_ascetic			// Extended Class\Soul Ascetic
 soul_ascetic_riding		// Extended Class\Soul Ascetic\Beast
 
+alitea					// Extended Class\Alitea
+alitea_riding			// Extended Class\Alitea\Mount
+druid					// Extended Class\Druid
+druid_riding			// Extended Class\Druid\Mount
+karnos					// Extended Class\Karnos
+karnos_riding			// Extended Class\Karnos\Mount
 
 // ----------------------
 // Other Class

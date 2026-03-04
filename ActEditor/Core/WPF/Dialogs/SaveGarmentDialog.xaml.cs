@@ -50,7 +50,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 				new ListViewDataTemplateHelper.GeneralColumnInfo {Header = "Ratio", DisplayExpression = "RatioDisplay", FixedWidth = 50, ToolTipBinding = "RatioDisplay", TextAlignment = TextAlignment.Right},
 			}, new DefaultListViewComparer<ActMatch>(), new string[] { "Default", "{DynamicResource TextForeground}" });
 
-			ActEditorConfiguration.ActEditorGarmentPaths = "";
+			//ActEditorConfiguration.ActEditorGarmentPaths = "";
 
 			if (ActEditorConfiguration.ActEditorGarmentPaths == "") {
 				ActEditorConfiguration.ActEditorGarmentPaths = EncodingService.DisplayEncoding.GetString(ApplicationManager.GetResource("def_garment_paths.txt"));

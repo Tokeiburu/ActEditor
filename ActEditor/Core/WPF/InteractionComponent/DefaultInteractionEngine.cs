@@ -56,10 +56,13 @@ namespace ActEditor.Core.WPF.InteractionComponent {
 					foreach (var layer in layerClipboardData.Layers) {
 						var image = layer.GetImage(spr);
 
-						if (image.GrfImageType == GRF.Image.GrfImageType.Indexed8)
-							image.Palette[3] = 0;
 
 						if (image != null) {
+							image = image.Copy();
+
+							if (image.GrfImageType == GRF.Image.GrfImageType.Indexed8)
+								image.Palette[3] = 0;
+
 							// Check if image exists already
 							var idx = _editor.Act.Sprite.Exists(image);
 

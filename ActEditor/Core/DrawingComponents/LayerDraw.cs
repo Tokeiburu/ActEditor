@@ -9,6 +9,8 @@ using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
 using GRF.Graphics;
 using GRF.Image;
+using Humanizer;
+using Utilities;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 using Point = System.Windows.Point;
 
@@ -24,6 +26,7 @@ namespace ActEditor.Core.DrawingComponents {
 
 		private readonly RotateTransform _rotate = new RotateTransform();
 		private readonly ScaleTransform _scale = new ScaleTransform();
+		private readonly ScaleTransform _mirrorScale = new ScaleTransform();
 		private readonly TransformGroup _transformGroup = new TransformGroup();
 		private readonly TranslateTransform _translateFrame = new TranslateTransform();
 		private readonly TranslateTransform _translateToCenter = new TranslateTransform();
@@ -35,6 +38,7 @@ namespace ActEditor.Core.DrawingComponents {
 		private Image _image;
 		private Layer _layer;
 		private Layer _layerCopy;
+		private GrfImage _lastImage;
 		public int LastDrawIndex => _lastDrawIndex;
 
 		static LayerDraw() {
@@ -43,6 +47,7 @@ namespace ActEditor.Core.DrawingComponents {
 		}
 
 		public LayerDraw() {
+			_transformGroup.Children.Add(_mirrorScale);
 			_transformGroup.Children.Add(_translateToCenter);
 			_transformGroup.Children.Add(_scale);
 			_transformGroup.Children.Add(_rotate);
@@ -185,8 +190,8 @@ namespace ActEditor.Core.DrawingComponents {
 				DrawSelection();
 				return;
 			}
-			
-			int index = _layer.IsBgra32() ? _layer.SpriteIndex + act.Sprite.NumberOfIndexed8Images : _layer.SpriteIndex;
+
+			int index = _layer.GetAbsoluteSpriteId(_act.Sprite);
 
 			if (index < 0 || index >= act.Sprite.Images.Count) {
 				_image.Source = null;
@@ -195,6 +200,7 @@ namespace ActEditor.Core.DrawingComponents {
 			}
 
 			GrfImage img = act.Sprite.Images[index];
+			_lastImage = img;
 
 			int diffX = 0;
 			int diffY = 0;
@@ -228,17 +234,23 @@ namespace ActEditor.Core.DrawingComponents {
 				}
 			}
 
-			int extraX = _layer.Mirror ? img.Width % 2 : 0;
+			// UV flip
+			_mirrorScale.ScaleX = _layer.Mirror ? -1d : 1d;
+			_mirrorScale.ScaleY = 1d;
+			_mirrorScale.CenterX = img.Width / 2d;
 
-			_translateToCenter.X = -((img.Width + 1) / 2) + extraX;
-			_translateToCenter.Y = -((img.Height + 1) / 2);
-			_translateFrame.X = _layer.OffsetX + diffX;
-			_translateFrame.Y = _layer.OffsetY + diffY;
+			_translateToCenter.X = -(img.Width + 1) / 2;
+			_translateToCenter.Y = -(img.Height + 1) / 2;
 
-			_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
+			_scale.ScaleX = _layer.ScaleX;
 			_scale.ScaleY = _layer.ScaleY;
 
 			_rotate.Angle = _layer.Rotation;
+			_rotate.CenterX = img.Width % 2 == 1 ? -0.5f * _layer.ScaleX : 0;
+			_rotate.CenterY = img.Height % 2 == 1 ? -0.5f * _layer.ScaleY : 0;
+
+			_translateFrame.X = _layer.OffsetX + diffX;
+			_translateFrame.Y = _layer.OffsetY + diffY;
 
 			_handle = renderer.BitmapResourceManager.GetBitmapHandle(_layer.SprSpriteIndex, act, img, _layer.Color);
 			_image.Source = _handle.Bitmap;
@@ -259,6 +271,18 @@ namespace ActEditor.Core.DrawingComponents {
 
 			_image.RenderTransform = new MatrixTransform(_transformGroup.Value * renderer.View);
 			DrawSelection();
+		}
+
+		public void UpdateScaleAndRotationMatrices() {
+			if (_lastImage == null)
+				return;
+
+			_rotate.Angle = _layer.Rotation;
+			_rotate.CenterX = _lastImage.Width % 2 == 1 ? -0.5f * _layer.ScaleX : 0;
+			_rotate.CenterY = _lastImage.Height % 2 == 1 ? -0.5f * _layer.ScaleY : 0;
+
+			_scale.ScaleX = _layer.ScaleX;
+			_scale.ScaleY = _layer.ScaleY;
 		}
 
 		public void DrawSelection() {
@@ -351,8 +375,7 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.ScaleX = (float) scaleX;
 			_layer.ScaleY = (float) scaleY;
 
-			_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
-			_scale.ScaleY = _layer.ScaleY;
+			UpdateScaleAndRotationMatrices();
 
 			QuickRender(_renderer);
 
@@ -391,8 +414,7 @@ namespace ActEditor.Core.DrawingComponents {
 					_layer.ScaleX = _layerCopy.ScaleX * (dest.X / click.X);
 					_layer.ScaleY = _layerCopy.ScaleY * (dest.Y / click.Y);
 
-					_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
-					_scale.ScaleY = _layer.ScaleY;
+					UpdateScaleAndRotationMatrices();
 
 					QuickRender(_renderer);
 
@@ -431,8 +453,7 @@ namespace ActEditor.Core.DrawingComponents {
 			_layer.ScaleX = (float) scaleX;
 			_layer.ScaleY = (float) scaleY;
 
-			_scale.ScaleX = _layer.ScaleX * (_layer.Mirror ? -1 : 1);
-			_scale.ScaleY = _layer.ScaleY;
+			UpdateScaleAndRotationMatrices();
 
 			QuickRender(_renderer);
 

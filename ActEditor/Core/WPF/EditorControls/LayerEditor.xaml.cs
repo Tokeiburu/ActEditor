@@ -104,7 +104,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 		private bool _isUnderViewport() {
 			var position2 = Control.MousePosition;
 			var position = PointFromScreen(new Point(position2.X, position2.Y));
-			return position.Y > ActualHeight - 10;
+			return position.X >= 0 && position.X < ActualWidth && position.Y > 0 && position.Y < ActualHeight + 20;
 		}
 
 		private bool _isAboveViewport() {
@@ -520,7 +520,12 @@ namespace ActEditor.Core.WPF.EditorControls {
 			// Handle actual viewport
 			if (layerControl != null) {
 				_previousMouseDown = layerControl.LayerIndex;
+				var layerPosition = layerControl.PointFromScreen(new Point(screenPosition.X, screenPosition.Y));
 
+				if (layerPosition.Y > layerControl.ActualHeight * 0.8) {
+					_previousMouseDown++;
+				}
+				
 				if (_previousMouseDown > layerCount)
 					_previousMouseDown = layerCount;
 
@@ -535,8 +540,7 @@ namespace ActEditor.Core.WPF.EditorControls {
 			}
 
 			if (_isUnderViewport()) {
-				// Cannot happen?
-				return -1;
+				return _previousMouseDown;
 			}
 
 			return -1;

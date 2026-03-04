@@ -96,8 +96,11 @@ namespace ActEditor.Core {
 			var image = layer.GetImage(act.Sprite);
 
 			Plane plane = new Plane(oriWidth, oriHeight);
-			plane.Translate(layer.Mirror ? image.Width % 2 : 0, 0);
-			plane.Crop(trims[0], trims[1], trims[2], trims[3]);
+
+			if (layer.Mirror)
+				plane.Crop(trims[2], trims[1], trims[0], trims[3]);
+			else
+				plane.Crop(trims[0], trims[1], trims[2], trims[3]);
 
 			if ((trims[0] + trims[2]) % 2 == 1) {
 				// Uneven cropping!
@@ -119,9 +122,9 @@ namespace ActEditor.Core {
 				plane.Translate(0, -0.5f);
 			}
 
-			plane.ScaleX(layer.ScaleX * (layer.Mirror ? -1f : 1f));
+			plane.ScaleX(layer.ScaleX);
 			plane.ScaleY(layer.ScaleY);
-			plane.RotateZ(-layer.Rotation);
+			plane.RotateZ(-layer.Rotation, image.Width % 2 == 1 ? -0.5f * layer.ScaleX : 0.0f, image.Height % 2 == 1 ? -0.5f * layer.ScaleY : 0.0f);
 			plane.Translate(layer.OffsetX, layer.OffsetY);
 			return plane;
 		}
