@@ -362,6 +362,7 @@ namespace ActEditor.Core.Scripting.Scripts {
 				}
 
 				foreach (var anchor in frame.Anchors) {
+					anchor.OffsetX--;
 					anchor.OffsetX *= -1;
 				}
 			}
