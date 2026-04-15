@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TokeiLibrary.Shortcuts;
+﻿using TokeiLibrary.Shortcuts;
 
 namespace ActEditor.ApplicationConfiguration {
 	public static class ActEditorCommands {

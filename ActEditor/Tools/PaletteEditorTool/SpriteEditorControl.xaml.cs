@@ -477,7 +477,7 @@ namespace ActEditor.Tools.PaletteEditorTool {
 				_palette[idx + 2] = (byte)(_palette[idx + 2] * (1f - g));
 			}
 
-			image.SetPalette(ref _palette);
+			image.SetPalette(_palette);
 			_spriteViewer.Dispatch(p => p.LoadImage(image));
 		}
 

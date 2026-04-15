@@ -1,19 +1,13 @@
 ﻿using ErrorManager;
 using GRF.Image;
-using GrfToWpfBridge;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
-using Utilities;
 
 namespace ActEditor.Tools.PaletteEditorTool {
 	public class SpriteEditorTool {

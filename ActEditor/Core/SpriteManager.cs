@@ -265,7 +265,7 @@ namespace ActEditor.Core {
 			byte[] palette = _sprite.Palette == null ? null : _sprite.Palette.BytePalette;
 
 			if (_paletteIsSet() && image.GrfImageType == GrfImageType.Indexed8 && Methods.ByteArrayCompare(palette, 4, 1020, image.Palette, 4)) {
-				image.SetPalette(ref palette);
+				image.SetPalette(palette);
 			}
 			else {
 				if (SpriteConverterOption != 0 && image.GrfImageType == GrfImageType.Indexed8) {

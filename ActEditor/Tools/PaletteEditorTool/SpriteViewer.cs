@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Media.Imaging;
+﻿using System.Windows.Media.Imaging;
 using GRF.FileFormats.SprFormat;
 using GRF.Image;
 

@@ -17,7 +17,6 @@ using GRF.FileFormats.SprFormat;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
-using TokeiLibrary.Shortcuts;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
 using Utilities.Extension;

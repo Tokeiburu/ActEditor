@@ -384,10 +384,12 @@
     <Compile Include="Tools\PaletteEditorTool\SpriteLoadAndSaveService.cs" />
     <Compile Include="Tools\PaletteEditorTool\SpritePasteOperation.cs" />
     <Compile Include="Tools\PaletteEditorTool\SpriteSelection.cs" />
+    <Compile Include="Tools\PaletteSheetGenerator\BodySpritesLoader.cs" />
+    <Compile Include="Tools\PaletteSheetGenerator\HeadSpriteLoader.cs" />
+    <Compile Include="Tools\PaletteSheetGenerator\PalettePreviewTypes.cs" />
     <Compile Include="Tools\PaletteSheetGenerator\PreviewSheetDialog.xaml.cs">
       <DependentUpon>PreviewSheetDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Tools\PaletteSheetGenerator\SpriteResource.cs" />
     <Compile Include="Tools\PaletteSheetGenerator\SpsManager.cs" />
     <EmbeddedResource Include="Resources\Scripts\script_sample.cs" />
     <EmbeddedResource Include="Resources\Scripts\script0_magnify.cs" />

@@ -11,7 +11,6 @@ using System.Windows.Media.Imaging;
 using ActEditor.ApplicationConfiguration;
 using ActImaging;
 using GRF.FileFormats.ActFormat;
-using GRF.Image;
 using TokeiLibrary;
 using TokeiLibrary.WPF.Styles;
 using Action = System.Action;

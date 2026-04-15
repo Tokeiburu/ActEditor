@@ -9,7 +9,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ActEditor.ApplicationConfiguration;
 using ActEditor.Core.DrawingComponents;
-using ActEditor.Core.Scripting.Scripts;
 using GRF.FileFormats.ActFormat;
 using GRF.Image;
 using TokeiLibrary.Shortcuts;

@@ -64,12 +64,12 @@ namespace ActEditor.Tools.PaletteSheetGenerator {
 							if (search != current) return;
 
 							List<string> searchElements = current.ReplaceAll("  ", " ").Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-							List<SpriteResource> result = new List<SpriteResource>(resources[i1]);
+							List<SpriteResource> result = new List<SpriteResource>(resources[i1 % 2]);
 
 							if (searchElements.Count > 0) {
 								result = result.Where(p => searchElements.All(s =>
 									p.DisplayName.IndexOf(s, StringComparison.OrdinalIgnoreCase) > -1 ||
-									p.SpriteName.IndexOf(s, StringComparison.OrdinalIgnoreCase) > -1)).ToList();
+									p.Sprite.IndexOf(s, StringComparison.OrdinalIgnoreCase) > -1)).ToList();
 
 							}
 

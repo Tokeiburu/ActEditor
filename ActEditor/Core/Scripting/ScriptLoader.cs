@@ -235,7 +235,7 @@ namespace ActEditor.Core.Scripting {
 						GrfPath.Delete(tempDllPath);
 						File.Copy(dllPath, tempDllPath);
 
-						loadResult = LoadScriptFromAssembly(tempDllPath);
+						loadResult = LoadScriptFromAssembly(tempDllPath, script);
 					}
 
 					if (loadResult == null || !loadResult.Success) {
@@ -471,17 +471,18 @@ namespace ActEditor.Core.Scripting {
 
 		
 
-		public static LoadScriptResult LoadScriptFromAssembly(string assemblyPath) {
+		public static LoadScriptResult LoadScriptFromAssembly(string assemblyPath, string sourcePath) {
 			Assembly assembly = Assembly.LoadFile(assemblyPath);
 			object o = assembly.CreateInstance("Scripts.Script");
+			sourcePath = sourcePath ?? assemblyPath;
 
 			if (o == null)
-				return LoadScriptResult.Fail("Couldn't instantiate the script object. Type not found?", assemblyPath);
+				return LoadScriptResult.Fail("Couldn't instantiate the script object. Type not found?", sourcePath);
 
 			IActScript actScript = o as IActScript;
 
 			if (actScript == null)
-				return LoadScriptResult.Fail("Couldn't instantiate the script object. Type not found?", assemblyPath);
+				return LoadScriptResult.Fail("Couldn't instantiate the script object. Type not found?", sourcePath);
 
 			LoadScriptResult result = new LoadScriptResult();
 			result.Success = true;
@@ -514,7 +515,7 @@ namespace ActEditor.Core.Scripting {
 				return LoadScriptResult.Fail(compileResult.CompileResult, path);
 			}
 
-			return LoadScriptFromAssembly(compileResult.DllOutput);
+			return LoadScriptFromAssembly(compileResult.DllOutput, path);
 		}
 
 		protected virtual void Dispose(bool disposing) {

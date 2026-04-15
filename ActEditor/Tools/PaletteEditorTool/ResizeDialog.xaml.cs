@@ -1,5 +1,4 @@
 ﻿using System.Windows;
-using ActEditor.ApplicationConfiguration;
 using TokeiLibrary.WPF.Styles;
 using Utilities;
 

@@ -9,8 +9,6 @@ using ActEditor.Core.WPF.FrameEditor;
 using GRF.FileFormats.ActFormat;
 using GRF.Graphics;
 using GRF.Image;
-using Humanizer;
-using Utilities;
 using Frame = GRF.FileFormats.ActFormat.Frame;
 using Point = System.Windows.Point;
 

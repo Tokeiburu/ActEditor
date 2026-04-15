@@ -6,7 +6,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using ActImaging;
 using GRF.FileFormats.ActFormat;
-using GRF.Image;
 using Action = GRF.FileFormats.ActFormat.Action;
 
 namespace ActEditor.Core.WPF.EditorControls {

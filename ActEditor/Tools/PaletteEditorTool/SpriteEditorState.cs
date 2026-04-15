@@ -1,8 +1,6 @@
-﻿using GRF.FileFormats.SprFormat;
-using GRF.Image;
+﻿using GRF.Image;
 using PaletteEditor;
 using System.Collections.Generic;
-using Utilities;
 
 namespace ActEditor.Tools.PaletteEditorTool {
 	public class SpriteEditorState {

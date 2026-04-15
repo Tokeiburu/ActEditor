@@ -169,7 +169,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 					_sp.Visibility = Visibility.Visible;
 				}
 				else {
-					var loadResult = ScriptLoader.LoadScriptFromAssembly(dllPath);
+					var loadResult = ScriptLoader.LoadScriptFromAssembly(dllPath, null);
 					var actScript = loadResult.ActScript;
 
 					try {

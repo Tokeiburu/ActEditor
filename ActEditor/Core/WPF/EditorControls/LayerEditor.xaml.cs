@@ -19,7 +19,6 @@ using GRF.Graphics;
 using GRF.Image;
 using GrfToWpfBridge;
 using TokeiLibrary;
-using TokeiLibrary.Shortcuts;
 using Utilities;
 using Control = System.Windows.Forms.Control;
 using Frame = GRF.FileFormats.ActFormat.Frame;

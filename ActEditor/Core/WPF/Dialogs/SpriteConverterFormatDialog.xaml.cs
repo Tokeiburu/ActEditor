@@ -12,6 +12,7 @@ using GRF.Image;
 using TokeiLibrary;
 using TokeiLibrary.WPF;
 using TokeiLibrary.WPF.Styles;
+using Utilities;
 using Utilities.Tools;
 
 namespace ActEditor.Core.WPF.Dialogs {
@@ -38,6 +39,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 		private readonly List<Border> _borders = new List<Border>();
 		private readonly List<ScrollViewer> _svs = new List<ScrollViewer>();
 		private readonly HashSet<byte> _unusedIndexes = new HashSet<byte>();
+		private byte[] _originalPalette2;
 		private byte[] _originalPalette;
 		private GrfImage _result;
 
@@ -58,6 +60,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 			_images.Add(null);
 			_images.Add(null);
 			_images.Add(null);
+			_originalPalette2 = Methods.Copy(originalPalette);
 			_originalPalette = originalPalette;
 			RepeatOption = option;
 
@@ -124,6 +127,10 @@ namespace ActEditor.Core.WPF.Dialogs {
 				}
 				_result = value;
 			}
+		}
+
+		private bool _check() {
+			return Methods.ByteArrayCompare(_originalPalette2, _originalPalette);
 		}
 
 		private void _setScrollViewers() {
@@ -256,7 +263,7 @@ namespace ActEditor.Core.WPF.Dialogs {
 
 				_cbTransparency.SelectedIndex = ActEditorConfiguration.TransparencyMode;
 				_cbDithering.IsChecked = ActEditorConfiguration.UseDithering;
-				_imagePalette.Source = ImageProvider.GetImage(_originalPalette, ".pal").Cast<BitmapSource>();
+				_imagePalette.Source = ImageProvider.GetImage(Methods.Copy(_originalPalette), ".pal").Cast<BitmapSource>();
 				_isLoading = false;
 				_update();
 				_updateSelection();
